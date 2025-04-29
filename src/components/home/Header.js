@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ImagePlaceholder } from '../common';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
 
-const Header = () => {
+const Header = ({ userName = 'User', onSettingsPress }) => {
   const [activeCurrency, setActiveCurrency] = useState('AED');
 
   const toggleCurrency = (currency) => {
@@ -16,7 +16,7 @@ const Header = () => {
         <ImagePlaceholder style={styles.profileImage} color="#ccd" />
         <View style={styles.greetingSection}>
           <Text style={styles.greetingText}>Good Morning</Text>
-          <Text style={styles.nameText}>Andrew!</Text>
+          <Text style={styles.nameText}>{userName}!</Text>
         </View>
       </View>
       
@@ -60,8 +60,11 @@ const Header = () => {
           <Text style={styles.bellIcon}>🔔</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity style={styles.iconButton}>
-          <Text style={styles.heartIcon}>♡</Text>
+        <TouchableOpacity 
+          style={styles.iconButton}
+          onPress={onSettingsPress}
+        >
+          <Text style={styles.settingsIcon}>⚙️</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -136,8 +139,8 @@ const styles = StyleSheet.create({
   bellIcon: {
     fontSize: FONT_SIZES.xl,
   },
-  heartIcon: {
-    fontSize: FONT_SIZES.xxl,
+  settingsIcon: {
+    fontSize: FONT_SIZES.xl,
   },
 });
 

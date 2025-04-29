@@ -1,23 +1,16 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, StatusBar } from 'react-native';
-import HomeScreen from './src/screens/Home/HomeScreen';
-import { ThemeProvider } from './src/utils/theme';
-import { COLORS } from './src/utils/constants';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AppNavigator from './src/navigation/AppNavigator';
+import { AuthProvider } from './src/context/AuthContext';
 
-export default function App() {
+const App = () => {
   return (
-    <ThemeProvider>
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        <HomeScreen />
-      </SafeAreaView>
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <AppNavigator />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-});
+export default App;
