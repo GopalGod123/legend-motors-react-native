@@ -25,7 +25,7 @@ const HomeScreen = () => {
         contentContainerStyle={styles.scrollContent}
       >
         <Header />
-        <SearchBar />
+        {/* <SearchBar /> */}
         <CategoryFilter />
         <PromotionBanner />
         <PopularBrands />

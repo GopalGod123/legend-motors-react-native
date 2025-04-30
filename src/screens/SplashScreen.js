@@ -15,8 +15,8 @@ const SplashScreen = () => {
       await new Promise(resolve => setTimeout(resolve, 3000));
       
       if (isAuthenticated()) {
-        // User is logged in, navigate to home
-        navigation.replace('Home');
+        // User is logged in, navigate to main screen with bottom tabs
+        navigation.replace('Main');
       } else {
         // User is not logged in, show login prompt modal
         setShowLoginPrompt(true);

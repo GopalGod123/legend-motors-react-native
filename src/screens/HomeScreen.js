@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -12,12 +12,27 @@ import {
   BodyTypeSearch,
   NewsBlogs
 } from '../components/home';
+import { getCarList } from '../services/api';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
   
   console.log('User data in HomeScreen:', user);
+
+  // Fetch car list data when component mounts
+  useEffect(() => {
+    const fetchCarData = async () => {
+      try {
+        const carData = await getCarList();
+        console.log('Cars fetched in HomeScreen');
+      } catch (error) {
+        console.error('Error fetching car data:', error);
+      }
+    };
+
+    fetchCarData();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -63,7 +78,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
   },
   content: {
-    paddingBottom: 20,
+    paddingBottom: 70,
   }
 });
 

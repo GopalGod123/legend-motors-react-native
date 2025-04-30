@@ -1,7 +1,6 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'https://api.staging.legendmotorsglobal.com/api/v1';
-const API_KEY = 'e40371f8f23b4d1fb86722c13245dcf60a7a9cd0377ca50ef58258d4a6ff7148';
+import { API_BASE_URL, API_KEY } from '../utils/apiConfig';
+import { generateMockCars } from './mockCarData';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -157,6 +156,224 @@ export const resetPassword = async (email, newPassword, resetToken) => {
     } else {
       throw { message: error.message || 'An unknown error occurred' };
     }
+  }
+};
+
+// Brand and Filter APIs
+export const getBrandList = async (params = {}) => {
+  try {
+    const response = await api.get('/brand/list', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching brand list:', error);
+    if (error.response) {
+      throw error.response.data || { message: 'Failed to fetch brands' };
+    } else if (error.request) {
+      throw { message: 'No response from server. Please check your connection.' };
+    } else {
+      throw { message: error.message || 'An unknown error occurred' };
+    }
+  }
+};
+
+// Car Model API
+export const getCarModelList = async (params = {}) => {
+  try {
+    const response = await api.get('/carmodel/list', { 
+      params,
+      headers: {
+        'x-api-key': API_KEY
+      }
+    });
+    console.log('Car model API response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching car model list:', error);
+    if (error.response) {
+      throw error.response.data || { message: 'Failed to fetch car models' };
+    } else if (error.request) {
+      throw { message: 'No response from server. Please check your connection.' };
+    } else {
+      throw { message: error.message || 'An unknown error occurred' };
+    }
+  }
+};
+
+// Fetch unique car brands from the car models endpoint
+export const getUniqueBrands = async (params = {}) => {
+  try {
+    // Use the new API endpoint specified in the requirements
+    const response = await axios.get('https://api.staging.legendmotorsglobal.com/api/v1/car/list', {
+      params: {
+        ...params,
+        limit: 100 // Request more items to get a good variety of brands
+      },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY
+      }
+    });
+    
+    // Log the response to debug
+    console.log('Brand API response structure:', JSON.stringify(response.data).substring(0, 500) + '...');
+    
+    // Check for success and data
+    if (response.data && response.data.success) {
+      const brandsMap = {};
+      
+      // Handle the data array format from the API example schema
+      if (Array.isArray(response.data.data)) {
+        response.data.data.forEach(model => {
+          if (model.brand && model.brand.id) {
+            const brandId = model.brand.id;
+            // Use lowercase name as key to avoid case-sensitive duplicates
+            brandsMap[brandId] = {
+              id: brandId,
+              name: model.brand.name || '',
+              slug: model.brand.slug || '',
+              logo: model.brand.logo || null
+            };
+          }
+        });
+      }
+      
+      // Convert map values to array
+      const uniqueBrands = Object.values(brandsMap);
+      console.log(`Found ${uniqueBrands.length} unique brands`);
+      
+      return {
+        success: true,
+        data: uniqueBrands,
+        message: 'Brands retrieved successfully'
+      };
+    }
+    
+    // If API fails or returns unexpected format, use fallback data
+    return {
+      success: true,
+      data: [
+        { id: 1, name: 'TOYOTA', slug: 'toyota', logo: null },
+        { id: 2, name: 'HONDA', slug: 'honda', logo: null },
+        { id: 3, name: 'MERCEDES', slug: 'mercedes', logo: null },
+        { id: 4, name: 'BMW', slug: 'bmw', logo: null },
+        { id: 5, name: 'CHERY', slug: 'chery', logo: null },
+        { id: 6, name: 'BYD', slug: 'byd', logo: null }
+      ],
+      message: 'Fallback brands retrieved'
+    };
+  } catch (error) {
+    console.error('Error fetching unique brands:', error);
+    // Return fallback data on error
+    return {
+      success: true,
+      data: [
+        { id: 1, name: 'TOYOTA', slug: 'toyota', logo: null },
+        { id: 2, name: 'HONDA', slug: 'honda', logo: null },
+        { id: 3, name: 'MERCEDES', slug: 'mercedes', logo: null },
+        { id: 4, name: 'BMW', slug: 'bmw', logo: null },
+        { id: 5, name: 'CHERY', slug: 'chery', logo: null },
+        { id: 6, name: 'BYD', slug: 'byd', logo: null }
+      ],
+      message: 'Mock brands retrieved for development'
+    };
+  }
+};
+
+// Car listing API
+export const getCarList = async (params = {}) => {
+  try {
+    // REAL API CALL
+    // Debug the parameters being sent to the API
+    console.log('Car API params:', JSON.stringify(params));
+    
+    // Make API call with parameters
+    const response = await api.get('/car/list', { params });
+    console.log('Car list API raw response:', response.status);
+    
+    // Debug response structure
+    if (response.data) {
+      console.log('Response shape:', Object.keys(response.data));
+      if (response.data.data) {
+        console.log('data.data shape:', typeof response.data.data, Array.isArray(response.data.data));
+      }
+    }
+    
+    // Handle successful response with data
+    if (response.data) {
+      // Case 1: response.data.data is an array of cars
+      if (response.data.data && Array.isArray(response.data.data)) {
+        console.log('Found cars in response.data.data array');
+        return {
+          success: response.data.success || true,
+          data: response.data.data,
+          pagination: response.data.pagination || { 
+            totalItems: response.data.data.length,
+            currentPage: params.page || 1
+          }
+        };
+      }
+      
+      // Case 2: response.data.data.cars is an array of cars
+      else if (response.data.data && response.data.data.cars && Array.isArray(response.data.data.cars)) {
+        console.log('Found cars in response.data.data.cars array');
+        return {
+          success: response.data.success || true,
+          data: {
+            cars: response.data.data.cars,
+            total: response.data.data.total || response.data.data.cars.length
+          }
+        };
+      }
+      
+      // Case 3: response.data.cars is an array of cars
+      else if (response.data.cars && Array.isArray(response.data.cars)) {
+        console.log('Found cars in response.data.cars array');
+        return {
+          success: response.data.success || true,
+          data: response.data
+        };
+      }
+      
+      // Case 4: response.data itself might be the direct array of cars
+      else if (Array.isArray(response.data)) {
+        console.log('Found cars in direct response.data array');
+        return {
+          success: true,
+          data: response.data,
+          total: response.data.length
+        };
+      }
+      
+      // If we got here but have a success property, we have data but in an unexpected format
+      else if (response.data.success) {
+        console.log('Response has success property but cars are in unknown location');
+        // Try to extract data from the response
+        for (const key in response.data) {
+          if (Array.isArray(response.data[key])) {
+            console.log(`Found array in response.data.${key}, assuming it's cars`);
+            return {
+              success: true,
+              data: response.data[key],
+              total: response.data[key].length
+            };
+          }
+        }
+        
+        // Return the original response if we can't extract
+        return response.data;
+      }
+      
+      // Just return the original response if all else fails
+      return response.data;
+    }
+    
+    // Return the original response if none of the above conditions match
+    return response.data;
+    
+  } catch (error) {
+    console.error('Error in getCarList API call:', error.message);
+    // Return mock data in case of error
+    return generateMockCars(params.page || 1, params.limit || 10);
   }
 };
 

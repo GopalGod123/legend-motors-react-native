@@ -64,7 +64,7 @@ const VerifyCodeScreen = () => {
     // TODO: Implement verification logic
     console.log('Verifying code:', verificationCode);
     // For now, just navigate to home
-    navigation.replace('Home');
+    navigation.replace('Main');
   };
 
   return (

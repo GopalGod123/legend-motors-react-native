@@ -37,7 +37,7 @@ const LanguageSelectScreen = () => {
 
   const handleSkipLogin = () => {
     setShowLoginPrompt(false);
-    navigation.replace('Home');
+    navigation.replace('Main');
   };
 
   return (

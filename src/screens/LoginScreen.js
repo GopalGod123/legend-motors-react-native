@@ -59,7 +59,7 @@ const LoginScreen = () => {
         // Navigate to home screen on successful login
         navigation.reset({
           index: 0,
-          routes: [{ name: 'Home' }],
+          routes: [{ name: 'Main' }],
         });
       } else {
         // Show error message

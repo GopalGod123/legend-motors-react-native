@@ -1,12 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { FilterIcon } from '../icons';
 import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/constants';
 
 const SearchBar = () => {
+  const [selectedFilters, setSelectedFilters] = useState({
+    brands: [],
+    // Add other filter types here
+  });
+  
+  const navigation = useNavigation();
+
+  const handleOpenFilter = () => {
+    navigation.navigate('FilterScreen', {
+      filterType: 'brands',
+      onApplyCallback: handleFilterApply
+    });
+  };
+
+  const handleFilterApply = (filters) => {
+    if (filters) {
+      setSelectedFilters(prev => ({
+        ...prev,
+        ...filters
+      }));
+    }
+  };
+
   return (
     <View style={styles.searchSection}>
-      <TouchableOpacity style={styles.filterButton}>
+      <TouchableOpacity style={styles.filterButton} onPress={handleOpenFilter}>
         <Text style={styles.filterText}>Filter</Text>
         <Text style={styles.filterIcon}>▼</Text>
       </TouchableOpacity>
@@ -20,7 +44,7 @@ const SearchBar = () => {
         <TouchableOpacity style={styles.searchIcon}>
           <Text>🔍</Text>
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleOpenFilter}>
           <FilterIcon size={20} color={COLORS.primary} />
         </TouchableOpacity>
       </View>
