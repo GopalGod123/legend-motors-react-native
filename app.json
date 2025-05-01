@@ -19,10 +19,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.gopal123321.MyFirstApp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "301a2c5e-d2e1-4f15-b757-5705e92c7db6"
+      }
+    },
+    "owner": "gopal123321"
   }
 }

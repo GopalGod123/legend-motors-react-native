@@ -6,11 +6,17 @@ export const API_KEY = 'e40371f8f23b4d1fb86722c13245dcf60a7a9cd0377ca50ef58258d4
 
 // Define multiple possible image base URLs to try
 const IMAGE_BASE_URLS = [
-  'https://api.staging.legendmotorsglobal.com/api/v1',
+  'https://lmotors-global.s3.amazonaws.com',
+  'https://legendmotorsglobal.com/images',
+  'https://api.staging.legendmotorsglobal.com/storage/images',
+  'https://api.staging.legendmotorsglobal.com/api/v1/images',
+  'https://api.staging.legendmotorsglobal.com/uploads',
+  'https://api.staging.legendmotorsglobal.com/public/images',
   'https://api.staging.legendmotorsglobal.com/media',
   'https://api.staging.legendmotorsglobal.com',
-  'https://api.staging.legendmotorsglobal.com/public/images',
-  'https://api.staging.legendmotorsglobal.com/uploads'
+  // Added common CDN and storage patterns
+  'https://cdn.legendmotorsglobal.com/images',
+  'https://storage.legendmotorsglobal.com'
 ];
 
 // Export the primary one for direct use
@@ -29,27 +35,31 @@ export const getImageUrl = (path) => {
   
   // If path already starts with http(s), it's a full URL
   if (path.startsWith('http')) {
-    console.log('Full URL detected:', path);
+    // Don't log to avoid console spam
+    // console.log('Full URL detected:', path);
     return path;
   }
   
   // Clean the path - remove any duplicate slashes or spaces
   let cleanPath = path.trim();
   
+  // If it's a filename without path, just use the filename directly
+  if (!cleanPath.includes('/')) {
+    // Don't add a leading slash for filenames
+    // This allows the URLs to be constructed correctly with or without trailing slashes
+    return `${IMAGE_BASE_URLS[0]}/${cleanPath}`;
+  }
+  
   // Make sure path starts with a slash if it doesn't already
   if (!cleanPath.startsWith('/')) {
     cleanPath = `/${cleanPath}`;
   }
   
-  // Generate array of possible URLs to try
-  const possibleUrls = IMAGE_BASE_URLS.map(baseUrl => 
-    `${baseUrl}${cleanPath}`
-  );
-  
-  console.log('Possible image URLs:', possibleUrls);
+  // Don't log to avoid console spam
+  // console.log('Using image path:', cleanPath);
   
   // Return the primary URL (first one) - the CarImage component will handle fallbacks
-  return possibleUrls[0];
+  return `${IMAGE_BASE_URLS[0]}${cleanPath}`;
 };
 
 // This function returns all possible URLs for a path, for components
@@ -65,13 +75,33 @@ export const getAllPossibleImageUrls = (path) => {
   // Clean the path - remove any duplicate slashes or spaces
   let cleanPath = path.trim();
   
+  // If it's a filename without path, don't add leading slash
+  if (!cleanPath.includes('/')) {
+    // Generate array of possible URLs to try for a simple filename
+    return IMAGE_BASE_URLS.map(baseUrl => {
+      // Make sure the baseUrl doesn't end with a slash when we're adding one
+      if (baseUrl.endsWith('/')) {
+        return `${baseUrl}${cleanPath}`;
+      } else {
+        return `${baseUrl}/${cleanPath}`;
+      }
+    });
+  }
+  
   // Make sure path starts with a slash if it doesn't already
   if (!cleanPath.startsWith('/')) {
     cleanPath = `/${cleanPath}`;
   }
   
-  // Generate array of possible URLs to try
-  return IMAGE_BASE_URLS.map(baseUrl => `${baseUrl}${cleanPath}`);
+  // Generate array of possible URLs to try for a path
+  return IMAGE_BASE_URLS.map(baseUrl => {
+    // Make sure we don't end up with double slashes
+    if (baseUrl.endsWith('/') && cleanPath.startsWith('/')) {
+      return `${baseUrl}${cleanPath.substring(1)}`;
+    } else {
+      return `${baseUrl}${cleanPath}`;
+    }
+  });
 };
 
 export default {

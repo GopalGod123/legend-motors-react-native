@@ -16,7 +16,7 @@ import axios from 'axios';
 import { API_KEY } from '../utils/apiConfig';
 
 const FilterScreen = ({ route, navigation }) => {
-  const { filterType = 'brands', onApplyCallback } = route?.params || {};
+  const { filterType = 'brands', onApplyCallback, currentFilters = {} } = route?.params || {};
   const [activeFilter, setActiveFilter] = useState(filterType);
   const [brands, setBrands] = useState([]);
   const [models, setModels] = useState([]);
@@ -24,12 +24,41 @@ const FilterScreen = ({ route, navigation }) => {
   const [years, setYears] = useState([]);
   const [specValues, setSpecValues] = useState([]);
   const [allSpecifications, setAllSpecifications] = useState({});
-  const [selectedBrands, setSelectedBrands] = useState([]);
-  const [selectedModels, setSelectedModels] = useState([]);
-  const [selectedTrims, setSelectedTrims] = useState([]);
-  const [selectedYears, setSelectedYears] = useState([]);
-  const [selectedSpecValues, setSelectedSpecValues] = useState({});
+  const [selectedBrands, setSelectedBrands] = useState(currentFilters.brands || []);
+  const [selectedModels, setSelectedModels] = useState(currentFilters.models || []);
+  const [selectedTrims, setSelectedTrims] = useState(currentFilters.trims || []);
+  const [selectedYears, setSelectedYears] = useState(currentFilters.years || []);
+  const [selectedSpecValues, setSelectedSpecValues] = useState(currentFilters.specifications || {});
   const [loading, setLoading] = useState(false);
+  const [selectedBrandIds, setSelectedBrandIds] = useState(currentFilters.brandIds || []);
+  const [selectedModelIds, setSelectedModelIds] = useState(currentFilters.modelIds || []);
+  const [selectedTrimIds, setSelectedTrimIds] = useState(currentFilters.trimIds || []);
+  const [selectedYearIds, setSelectedYearIds] = useState(currentFilters.yearIds || []);
+
+  // Static brands list from the UI
+  const staticBrandsList = [
+    { id: 1, name: 'BYD' },
+    { id: 2, name: 'CHANGAN' },
+    { id: 3, name: 'CHERY' },
+    { id: 4, name: 'GAC' },
+    { id: 5, name: 'GEELY' },
+    { id: 6, name: 'GMC' },
+    { id: 7, name: 'GREATWALL' },
+    { id: 8, name: 'HIPHI' },
+    { id: 9, name: 'HONDA' },
+    { id: 10, name: 'JIDU' },
+    { id: 11, name: 'JMC' },
+    { id: 12, name: 'KAIYI' },
+    { id: 13, name: 'KIA' },
+    { id: 14, name: 'LYNK & CO' },
+    { id: 15, name: 'MERCEDES BENZ' },
+    { id: 16, name: 'MG' },
+    { id: 17, name: 'NISSAN' },
+    { id: 18, name: 'RAM' },
+    { id: 19, name: 'SUZUKI' },
+    { id: 20, name: 'TOYOTA' },
+    { id: 21, name: 'VOLKSWAGEN' },
+  ];
 
   // Map filter IDs to specification keys
   const specFilterKeyMap = {
@@ -48,7 +77,18 @@ const FilterScreen = ({ route, navigation }) => {
   };
 
   useEffect(() => {
+    // Fetch all specifications when component mounts
+    fetchAllSpecifications();
+    
+    // Initialize brands immediately with static list
+    if (filterType === 'brands') {
+      setBrands(staticBrandsList);
+    }
+  }, []);
+
+  useEffect(() => {
       if (activeFilter === 'brands') {
+        // Initialize with static brands first, then try API
         fetchBrands();
       } else if (activeFilter === 'models') {
         fetchModels();
@@ -65,8 +105,10 @@ const FilterScreen = ({ route, navigation }) => {
   }, [activeFilter]);
 
   useEffect(() => {
-    // Fetch all specifications when component mounts
-    fetchAllSpecifications();
+    console.log('FilterScreen: Current filters received:', JSON.stringify(currentFilters));
+    if (currentFilters.brands && currentFilters.brands.length > 0) {
+      console.log('Pre-selected brands:', currentFilters.brands.join(', '));
+    }
   }, []);
 
   const extractBrandsFromModels = (modelsData) => {
@@ -183,35 +225,13 @@ const FilterScreen = ({ route, navigation }) => {
         return; // Success - exit early
       }
       
-      // If all API methods fail, use mock data
-      setBrands([
-        { id: 1, name: 'ZEEKR' },
-        { id: 2, name: 'XIAOMI' },
-        { id: 3, name: 'RAM' },
-        { id: 4, name: 'MG' },
-        { id: 5, name: 'LYNK & CO' },
-        { id: 6, name: 'JMC' },
-        { id: 7, name: 'JIDU' },
-        { id: 8, name: 'JETOUR' },
-        { id: 9, name: 'TOYOTA' },
-        { id: 10, name: 'MERCEDES BENZ' },
-        { id: 11, name: 'BMW' },
-        { id: 12, name: 'SUZUKI' },
-      ]);
+      // If all API methods fail, use static brands list from the UI
+      setBrands(staticBrandsList);
       
     } catch (error) {
       console.error('Error fetching brands:', error);
-      // Set fallback data on error
-      setBrands([
-        { id: 1, name: 'ZEEKR' },
-        { id: 2, name: 'XIAOMI' },
-        { id: 3, name: 'RAM' },
-        { id: 4, name: 'MG' },
-        { id: 5, name: 'LYNK & CO' },
-        { id: 6, name: 'JMC' },
-        { id: 7, name: 'JIDU' },
-        { id: 8, name: 'JETOUR' },
-      ]);
+      // Set fallback data with all brands from the UI
+      setBrands(staticBrandsList);
     } finally {
       setLoading(false);
     }
@@ -525,45 +545,63 @@ const FilterScreen = ({ route, navigation }) => {
   };
 
   const handleBrandSelect = (brandId, brandName) => {
-    // Store the brand name instead of ID
-    setSelectedBrands((prev) => {
-      if (prev.includes(brandName)) {
-        return prev.filter(name => name !== brandName);
-      } else {
-        return [...prev, brandName];
-      }
-    });
+    if (selectedBrands.includes(brandName)) {
+      setSelectedBrands(prev => prev.filter(name => name !== brandName));
+    } else {
+      setSelectedBrands(prev => [...prev, brandName]);
+    }
+    
+    // Store the ID alongside the name
+    if (selectedBrandIds && selectedBrandIds.includes(brandId)) {
+      setSelectedBrandIds(prev => prev.filter(id => id !== brandId));
+    } else {
+      setSelectedBrandIds(prev => [...prev, brandId]);
+    }
   };
   
   const handleModelSelect = (modelId, modelName) => {
-    setSelectedModels((prev) => {
-      if (prev.includes(modelName)) {
-        return prev.filter(name => name !== modelName);
-      } else {
-        return [...prev, modelName];
-      }
-    });
+    if (selectedModels.includes(modelName)) {
+      setSelectedModels(prev => prev.filter(name => name !== modelName));
+    } else {
+      setSelectedModels(prev => [...prev, modelName]);
+    }
+    
+    // Store the ID alongside the name
+    if (selectedModelIds && selectedModelIds.includes(modelId)) {
+      setSelectedModelIds(prev => prev.filter(id => id !== modelId));
+    } else {
+      setSelectedModelIds(prev => [...prev, modelId]);
+    }
   };
 
   const handleTrimSelect = (trimId, trimName) => {
-    setSelectedTrims((prev) => {
-      if (prev.includes(trimName)) {
-        return prev.filter(name => name !== trimName);
-      } else {
-        return [...prev, trimName];
-      }
-    });
+    if (selectedTrims.includes(trimName)) {
+      setSelectedTrims(prev => prev.filter(name => name !== trimName));
+    } else {
+      setSelectedTrims(prev => [...prev, trimName]);
+    }
+    
+    // Store the ID alongside the name
+    if (selectedTrimIds && selectedTrimIds.includes(trimId)) {
+      setSelectedTrimIds(prev => prev.filter(id => id !== trimId));
+    } else {
+      setSelectedTrimIds(prev => [...prev, trimId]);
+    }
   };
 
   const handleYearSelect = (yearId, yearValue) => {
-    setSelectedYears((prev) => {
-      const yearStr = yearValue.toString();
-      if (prev.includes(yearStr)) {
-        return prev.filter(year => year !== yearStr);
-      } else {
-        return [...prev, yearStr];
-      }
-    });
+    if (selectedYears.includes(yearValue)) {
+      setSelectedYears(prev => prev.filter(year => year !== yearValue));
+    } else {
+      setSelectedYears(prev => [...prev, yearValue]);
+    }
+    
+    // Store the ID alongside the year value
+    if (selectedYearIds && selectedYearIds.includes(yearId)) {
+      setSelectedYearIds(prev => prev.filter(id => id !== yearId));
+    } else {
+      setSelectedYearIds(prev => [...prev, yearId]);
+    }
   };
 
   // Modified to handle specification selections by type and use names
@@ -591,50 +629,40 @@ const FilterScreen = ({ route, navigation }) => {
   };
 
   const handleApply = () => {
-    // Create a comprehensive filter object with all selected values
+    console.log('Applying filters...');
+    
+    // Construct a filters object with all selected values
     const filters = {
-      // Basic filters
-      brands: selectedBrands.length > 0 ? selectedBrands : undefined,
-      models: selectedModels.length > 0 ? selectedModels : undefined,
-      trims: selectedTrims.length > 0 ? selectedTrims : undefined,
-      years: selectedYears.length > 0 ? selectedYears : undefined,
+      // Brand filter state
+      brands: selectedBrands,
+      brandIds: selectedBrandIds, // Add brand IDs for API filtering
       
-      // Price range (if implemented)
-      priceRange: {
-        // These would be retrieved from the price range slider
-        min: 0, // Replace with actual min price value
-        max: 0  // Replace with actual max price value
-      },
+      // Model filter state
+      models: selectedModels,
+      modelIds: selectedModelIds, // Add model IDs for API filtering
       
-      // Specification filters - build dynamically from all selected spec values
-      specifications: {}
+      // Trim filter state
+      trims: selectedTrims,
+      trimIds: selectedTrimIds, // Add trim IDs for API filtering
+      
+      // Year filter state
+      years: selectedYears,
+      yearIds: selectedYearIds, // Add year IDs for API filtering
+      
+      // Specifications filter state (body type, fuel type, etc.)
+      specifications: { ...selectedSpecValues },
+      
+      // Other filter states would be added here
     };
     
-    // Check if price range is actually set, otherwise remove it
-    if (filters.priceRange.min === 0 && filters.priceRange.max === 0) {
-      delete filters.priceRange;
+    console.log('Applied filters:', JSON.stringify(filters));
+    
+    // Call the callback with the filters
+    if (onApplyCallback) {
+      onApplyCallback(filters);
     }
     
-    // Add all selected specification values to the filters object
-    Object.keys(selectedSpecValues).forEach(specKey => {
-      if (selectedSpecValues[specKey]?.length > 0) {
-        filters.specifications[specKey] = selectedSpecValues[specKey];
-      }
-    });
-    
-    // Only include specifications object if it has any properties
-    if (Object.keys(filters.specifications).length === 0) {
-      delete filters.specifications;
-    }
-    
-    console.log('Applying filters:', filters);
-    
-    // Apply filters on ExploreScreen using route param callback
-    if (route.params?.onApplyCallback) {
-      route.params.onApplyCallback(filters);
-    }
-    
-    // Navigate back to the previous screen
+    // Navigate back
     navigation.goBack();
   };
 

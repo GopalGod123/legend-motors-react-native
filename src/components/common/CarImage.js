@@ -17,8 +17,12 @@ const CarImage = ({ source, style, resizeMode = 'cover' }) => {
   useEffect(() => {
     if (typeof source === 'object' && source.uri) {
       // For remote images with URIs, generate fallback URLs
-      const allUrls = getAllPossibleImageUrls(source.uri.split('/').pop());
-      console.log('Trying these image URLs:', allUrls);
+      // Use the filename property if available, otherwise extract from URI
+      const filename = source.filename || source.uri.split('/').pop();
+      const allUrls = getAllPossibleImageUrls(filename);
+      
+      // Don't log to avoid console spam
+      //console.log('Trying these image URLs:', allUrls);
       setPossibleUrls(allUrls);
       
       // Set the first URL to try
@@ -47,19 +51,20 @@ const CarImage = ({ source, style, resizeMode = 'cover' }) => {
   };
   
   const handleError = (e) => {
-    console.log('Image load error:', e.nativeEvent?.error || 'Unknown error');
-    console.log('Failed image URI:', currentSource?.uri);
+    // Comment out error logging to reduce console noise
+    //console.log('Image load error:', e.nativeEvent?.error || 'Unknown error');
+    //console.log('Failed image URI:', currentSource?.uri);
     
     // Try the next URL in our list if available
     const nextIndex = urlIndex + 1;
     if (possibleUrls.length > 0 && nextIndex < possibleUrls.length) {
-      console.log(`Trying alternative URL (${nextIndex + 1}/${possibleUrls.length}):`, possibleUrls[nextIndex]);
+      //console.log(`Trying alternative URL (${nextIndex + 1}/${possibleUrls.length}):`, possibleUrls[nextIndex]);
       setUrlIndex(nextIndex);
       setCurrentSource({ uri: possibleUrls[nextIndex] });
       setLoading(true);
     } else {
       // If we've tried all URLs and none worked, show the fallback
-      console.log('All image URLs failed, using fallback');
+      //console.log('All image URLs failed, using fallback');
       setError(true);
       setLoading(false);
     }

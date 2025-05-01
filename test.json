@@ -1,0 +1,182 @@
+{
+    "success": true,
+    "message": "Cars retrieved successfully",
+    "data": [
+      {
+        "id": 124,
+        "stockId": "TOY-UC-UBGLX-PV-1.5-AT-WHBKR-BK-RD-25",
+        "slug": "2025-toyota-urban-cruiser-glx-2025-toyota-urban-cruiser-glx-1-5-white-body-black-roof-inside-black-red",
+        "status": "published",
+        "engineSize": 1.5,
+        "additionalInfo": "2025 TOYOTA URBAN CRUISER GLX 1.5 - WHITE BODY & BLACK ROOF inside BLACK & RED",
+        "createdAt": "2025-03-19T13:58:17.970Z",
+        "updatedAt": "2025-03-19T13:58:17.970Z",
+        "Brand": {
+          "id": 2,
+          "name": "TOYOTA",
+          "slug": "toyota",
+          "BrandTranslations": []
+        },
+        "CarModel": {
+          "id": 45,
+          "name": "URBAN CRUISER",
+          "slug": "urban-cruiser",
+          "CarModelTranslations": []
+        },
+        "Trim": {
+          "id": 61,
+          "name": "GLX",
+          "slug": "glx",
+          "TrimTranslations": []
+        },
+        "Year": {
+          "id": 1,
+          "year": 2025
+        },
+        "Tags": [],
+        "SpecificationValues": [
+          {
+            "id": 1,
+            "name": "GCC",
+            "slug": "gcc",
+            "Specification": {
+              "id": 1,
+              "name": "Regional Specification",
+              "key": "regional_specification",
+              "SpecificationTranslations": []
+            },
+            "SpecificationValueTranslations": []
+          },
+          {
+            "id": 11,
+            "name": "Left-hand drive",
+            "slug": "left-hand-drive",
+            "Specification": {
+              "id": 2,
+              "name": "Steering Side",
+              "key": "steering_side",
+              "SpecificationTranslations": []
+            },
+            "SpecificationValueTranslations": []
+          },
+          {
+            "id": 51,
+            "name": "SUV",
+            "slug": "suv",
+            "Specification": {
+              "id": 6,
+              "name": "Body Type",
+              "key": "body_type",
+              "SpecificationTranslations": []
+            },
+            "SpecificationValueTranslations": []
+          },
+          {
+            "id": 74,
+            "name": "Petrol",
+            "slug": "petrol",
+            "Specification": {
+              "id": 9,
+              "name": "Fuel Type",
+              "key": "fuel_type",
+              "SpecificationTranslations": []
+            },
+            "SpecificationValueTranslations": []
+          },
+          {
+            "id": 95,
+            "name": "Automatic",
+            "slug": "automatic",
+            "Specification": {
+              "id": 12,
+              "name": "Transmission",
+              "key": "transmission",
+              "SpecificationTranslations": []
+            },
+            "SpecificationValueTranslations": []
+          }
+        ],
+        "CarImages": [
+          {
+            "id": 5926,
+            "fileId": "5be3e5b5-4211-416e-a677-8739b7ad10f9",
+            "type": "exterior",
+            "order": 1,
+            "FileSystem": {
+              "id": "5be3e5b5-4211-416e-a677-8739b7ad10f9",
+              "path": "/2025-TOYOTA-URBANCRUISER-GLX-2-572510.jpg",
+              "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-2-572510.webp",
+              "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-2-572510-thumbnail.jpg"
+            }
+          },
+          {
+            "id": 5927,
+            "fileId": "147f505a-4f5b-48d0-8ad6-4992d12a02fd",
+            "type": "exterior",
+            "order": 2,
+            "FileSystem": {
+              "id": "147f505a-4f5b-48d0-8ad6-4992d12a02fd",
+              "path": "/2025-TOYOTA-URBANCRUISER-GLX-1-620558.jpg",
+              "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-1-620558.webp",
+              "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-1-620558-thumbnail.jpg"
+            }
+          },
+          {
+            "id": 5928,
+            "fileId": "d15c33c9-991f-44de-ad5e-ffa8b305f221",
+            "type": "exterior",
+            "order": 3,
+            "FileSystem": {
+              "id": "d15c33c9-991f-44de-ad5e-ffa8b305f221",
+              "path": "/2025-TOYOTA-URBANCRUISER-GLX-3-390307.jpg",
+              "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-3-390307.webp",
+              "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-3-390307-thumbnail.jpg"
+            }
+          },
+          {
+            "id": 5929,
+            "fileId": "a8c76a90-0e0d-42ea-92bb-359029d94fc9",
+            "type": "exterior",
+            "order": 4,
+            "FileSystem": {
+              "id": "a8c76a90-0e0d-42ea-92bb-359029d94fc9",
+              "path": "/2025-TOYOTA-URBANCRUISER-GLX-4-674110.jpg",
+              "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-4-674110.webp",
+              "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-4-674110-thumbnail.jpg"
+            }
+          },
+          {
+            "id": 5930,
+            "fileId": "7daae521-f7b6-4ca5-addf-2d42a948bb01",
+            "type": "exterior",
+            "order": 5,
+            "FileSystem": {
+              "id": "7daae521-f7b6-4ca5-addf-2d42a948bb01",
+              "path": "/2025-TOYOTA-URBANCRUISER-GLX-5-103414.jpg",
+              "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-5-103414.webp",
+              "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-5-103414-thumbnail.jpg"
+            }
+          },
+          {
+            "id": 5931,
+            "fileId": "e4e52e22-5b62-4bab-8f0f-ece80506a8b2",
+            "type": "exterior",
+            "order": 6,
+            "FileSystem": {
+              "id": "e4e52e22-5b62-4bab-8f0f-ece80506a8b2",
+              "path": "/2025-TOYOTA-URBANCRUISER-GLX-6-151642.jpg",
+              "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-6-151642.webp",
+              "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-6-151642-thumbnail.jpg"
+            }
+          }
+        ],
+        "inWishlist": false
+      }
+    ],
+    "pagination": {
+      "totalItems": 109,
+      "totalPages": 109,
+      "currentPage": 1,
+      "pageSize": 1
+    }
+  }
