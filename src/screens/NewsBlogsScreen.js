@@ -8,14 +8,16 @@ import {
   FlatList,
   ActivityIndicator,
   ScrollView,
+  SafeAreaView,
+  StatusBar,
   Dimensions
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getBlogPosts } from "../../services/api";
+import { getBlogPosts } from "../services/api";
 
 const { width } = Dimensions.get("window");
 
-const NewsBlogs = () => {
+const NewsBlogsScreen = () => {
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState("News");
   const [loading, setLoading] = useState(true);
@@ -115,7 +117,7 @@ const NewsBlogs = () => {
     // Construct image URL
     const imageUrl = item.coverImage 
       ? { uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}` }
-      : require("./car_Image.png");
+      : require("../components/home/car_Image.png");
     
     return (
       <TouchableOpacity 
@@ -171,7 +173,7 @@ const NewsBlogs = () => {
     // Construct image URL
     const imageUrl = featuredPost.coverImage 
       ? { uri: `https://cdn.legendmotorsglobal.com${featuredPost.coverImage.original}` }
-      : require("./car_Image.png");
+      : require("../components/home/car_Image.png");
     
     return (
       <View style={styles.featuredSection}>
@@ -224,7 +226,7 @@ const NewsBlogs = () => {
             // Construct image URL
             const imageUrl = item.coverImage 
               ? { uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}` }
-              : require("./car_Image.png");
+              : require("../components/home/car_Image.png");
             
             return (
               <TouchableOpacity 
@@ -284,29 +286,38 @@ const NewsBlogs = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#F47B20" />
-        <Text style={styles.loadingText}>Loading content...</Text>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <Text style={styles.sectionTitle}>News & Blogs</Text>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#F47B20" />
+          <Text style={styles.loadingText}>Loading content...</Text>
+        </View>
+      </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity 
-          style={styles.retryButton}
-          onPress={fetchBlogPosts}
-        >
-          <Text style={styles.retryText}>Retry</Text>
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+        <Text style={styles.sectionTitle}>News & Blogs</Text>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={fetchBlogPosts}
+          >
+            <Text style={styles.retryText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       <Text style={styles.sectionTitle}>News & Blogs</Text>
       
       {renderTabIndicator()}
@@ -317,7 +328,7 @@ const NewsBlogs = () => {
       >
         {activeTab === "News" ? renderNewsContent() : renderBlogsContent()}
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -325,12 +336,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingBottom: 20,
   },
   loadingContainer: {
-    padding: 40,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    padding: 40,
   },
   loadingText: {
     marginTop: 10,
@@ -338,9 +349,10 @@ const styles = StyleSheet.create({
     color: "#666",
   },
   errorContainer: {
-    padding: 40,
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    padding: 40,
   },
   errorText: {
     fontSize: 14,
@@ -634,4 +646,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NewsBlogs;
+export default NewsBlogsScreen; 

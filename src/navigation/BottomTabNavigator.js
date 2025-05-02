@@ -2,29 +2,14 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { COLORS } from '../utils/constants';
+import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
-
-// Placeholder components for other tabs
-const EnquiriesScreen = () => (
-  <View style={styles.placeholder}>
-    <Text>Enquiries Screen</Text>
-  </View>
-);
-
-const NewsScreen = () => (
-  <View style={styles.placeholder}>
-    <Text>News/Blogs Screen</Text>
-  </View>
-);
-
-const ProfileScreen = () => (
-  <View style={styles.placeholder}>
-    <Text>Profile Screen</Text>
-  </View>
-);
+import ProfileScreen from '../screens/ProfileScreen';
+import NewsBlogsScreen from '../screens/NewsBlogsScreen';
+import EnquiriesScreen from '../screens/EnquiriesScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -33,13 +18,28 @@ const BottomTabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: '#CCCCCC',
+        tabBarActiveTintColor: '#F47B20',
+        tabBarInactiveTintColor: '#8E8E8E',
         tabBarStyle: {
           backgroundColor: '#FFFFFF',
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: 70,
+          paddingBottom: 10,
+          paddingTop: 10,
+          borderTopWidth: 1,
+          borderTopColor: '#EEEEEE',
+          elevation: 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 3,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '400',
+          marginTop: 2,
+        },
+        tabBarItemStyle: {
+          padding: 5,
         },
       }}
     >
@@ -48,8 +48,8 @@ const BottomTabNavigator = () => {
         component={HomeScreen} 
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => (
-            <Text style={[styles.icon, { color }]}>🏠</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
@@ -58,8 +58,8 @@ const BottomTabNavigator = () => {
         component={EnquiriesScreen} 
         options={{
           tabBarLabel: 'Enquiries',
-          tabBarIcon: ({ color }) => (
-            <Text style={[styles.icon, { color }]}>📋</Text>
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="question-answer" size={size} color={color} />
           ),
         }}
       />
@@ -68,18 +68,18 @@ const BottomTabNavigator = () => {
         component={ExploreScreen} 
         options={{
           tabBarLabel: 'Explore',
-          tabBarIcon: ({ color }) => (
-            <Text style={[styles.icon, { color: color === COLORS.primary ? COLORS.primary : color }]}>👁️</Text>
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="search" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen 
         name="NewsTab" 
-        component={NewsScreen} 
+        component={NewsBlogsScreen} 
         options={{
           tabBarLabel: 'News/Blogs',
-          tabBarIcon: ({ color }) => (
-            <Text style={[styles.icon, { color }]}>📰</Text>
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="article" size={size} color={color} />
           ),
         }}
       />
@@ -88,8 +88,8 @@ const BottomTabNavigator = () => {
         component={ProfileScreen} 
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => (
-            <Text style={[styles.icon, { color }]}>👤</Text>
+          tabBarIcon: ({ color, size }) => (
+            <FontAwesome name="user" size={size} color={color} />
           ),
         }}
       />
@@ -98,9 +98,6 @@ const BottomTabNavigator = () => {
 };
 
 const styles = StyleSheet.create({
-  icon: {
-    fontSize: 24,
-  },
   placeholder: {
     flex: 1,
     justifyContent: 'center',

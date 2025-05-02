@@ -145,7 +145,12 @@ const PopularBrands = () => {
   };
 
   const navigateToAllBrands = () => {
-    navigation.navigate('AllBrandsScreen');
+    navigation.navigate('FilterScreen', {
+      filterType: 'brands',
+      onApplyCallback: (filters) => {
+        navigation.navigate('ExploreScreen', { filters });
+      }
+    });
   };
 
   const renderBrandItem = ({ item }) => {

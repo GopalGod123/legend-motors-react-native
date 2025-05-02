@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL, API_KEY } from '../utils/apiConfig';
 import { generateMockCars } from './mockCarData';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -9,6 +10,57 @@ const api = axios.create({
     'x-api-key': API_KEY,
   },
 });
+
+// Function to synchronize the auth token between AsyncStorage and API headers
+export const syncAuthToken = async () => {
+  try {
+    // Try to get token from AsyncStorage (both keys for backward compatibility)
+    const authToken = await AsyncStorage.getItem('auth_token');
+    const userToken = await AsyncStorage.getItem('userToken');
+    
+    // Use whichever token is available, prioritizing auth_token
+    const token = authToken || userToken;
+    
+    if (token) {
+      // Update the Authorization header
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      console.log('Auth token synchronized with API headers');
+      return true;
+    } else {
+      // If no token found, remove the Authorization header
+      delete api.defaults.headers.common['Authorization'];
+      console.log('No auth token found, removed from API headers');
+      return false;
+    }
+  } catch (error) {
+    console.error('Error synchronizing auth token:', error);
+    return false;
+  }
+};
+
+// Add interceptor to add auth token to requests if available
+api.interceptors.request.use(
+  async config => {
+    try {
+      // Check both token storage locations
+      const authToken = await AsyncStorage.getItem('auth_token');
+      const userToken = await AsyncStorage.getItem('userToken');
+      
+      // Use whichever token is available
+      const token = authToken || userToken;
+      
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.log('Error getting token from AsyncStorage:', error);
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  }
+);
 
 export const requestOTP = async (email) => {
   try {
@@ -61,10 +113,17 @@ export const loginUser = async (email, password) => {
     
     console.log('Login API response:', data);
     
-    // Store token in memory for later requests
+    // Store token in AsyncStorage
     if (data.success && data.token) {
-      // Set token to Authorization header for future requests
+      // Store in both places for compatibility
+      await AsyncStorage.setItem('auth_token', data.token);
+      await AsyncStorage.setItem('userToken', data.token);
+      
+      // Also set in headers for current session
       api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      console.log('Auth token saved and set in headers');
+    } else {
+      console.warn('No auth token received from login API');
     }
     
     return data;
@@ -81,8 +140,14 @@ export const loginUser = async (email, password) => {
 };
 
 // Function to check if user is logged in
-export const isAuthenticated = () => {
-  return !!api.defaults.headers.common['Authorization'];
+export const isAuthenticated = async () => {
+  try {
+    const token = await AsyncStorage.getItem('auth_token');
+    return !!token;
+  } catch (error) {
+    console.log('Error checking authentication status:', error);
+    return false;
+  }
 };
 
 // Function to logout user
@@ -92,6 +157,10 @@ export const logoutUser = async () => {
     const response = await api.post('/auth/logout');
     console.log('Logout response:', response.data);
     
+    // Remove tokens from both AsyncStorage locations
+    await AsyncStorage.removeItem('auth_token');
+    await AsyncStorage.removeItem('userToken');
+    
     // Remove token from Authorization header
     delete api.defaults.headers.common['Authorization'];
     
@@ -99,7 +168,14 @@ export const logoutUser = async () => {
   } catch (error) {
     console.error('Logout error:', error);
     
-    // Even if API call fails, still remove the token
+    // Even if API call fails, still remove the tokens
+    try {
+      await AsyncStorage.removeItem('auth_token');
+      await AsyncStorage.removeItem('userToken');
+    } catch (storageError) {
+      console.error('Error removing tokens from AsyncStorage:', storageError);
+    }
+    
     delete api.defaults.headers.common['Authorization'];
     
     throw error;
@@ -374,6 +450,170 @@ export const getCarList = async (params = {}) => {
     console.error('Error in getCarList API call:', error.message);
     // Return mock data in case of error
     return generateMockCars(params.page || 1, params.limit || 10);
+  }
+};
+
+// User Profile API services
+export const getUserProfile = async () => {
+  try {
+    // Ensure token is synchronized before making the request
+    await syncAuthToken();
+    
+    const response = await api.get('/auth/user/getProfile');
+    
+    // Check for successful response
+    if (response.data && response.data.success) {
+      return response.data;
+    } else {
+      throw new Error('Failed to fetch profile data');
+    }
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    // Add more context to the error message
+    if (error.response && error.response.status === 401) {
+      throw new Error('Authentication error: Please log in again to access your profile.');
+    }
+    throw error;
+  }
+};
+
+export const updateUserProfile = async (profileData) => {
+  try {
+    // Ensure token is synchronized before making the request
+    await syncAuthToken();
+    
+    const response = await api.put('/auth/user/updateProfile', profileData);
+    
+    // Check for successful response
+    if (response.data && response.data.success) {
+      return response.data;
+    } else {
+      throw new Error(response.data?.message || 'Failed to update profile');
+    }
+  } catch (error) {
+    console.error('Error updating user profile:', error);
+    // Add more context to the error message
+    if (error.response && error.response.status === 401) {
+      throw new Error('Authentication error: Please log in again to update your profile.');
+    }
+    throw error;
+  }
+};
+
+// FAQ API services
+export const getFaqCategories = async (lang = 'en') => {
+  try {
+    // Ensure token is synchronized before making the request
+    await syncAuthToken();
+    
+    const response = await api.get('/faq-category/categories-with-mobile', {
+      params: { lang }
+    });
+    
+    if (response.data && response.data.success) {
+      return response.data;
+    } else {
+      console.log('API returned unsuccessful response for FAQ categories:', response.data);
+      return {
+        success: false,
+        message: response.data?.message || 'Failed to fetch FAQ categories',
+        data: []
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching FAQ categories:', error);
+    
+    // Return a structured error response
+    return {
+      success: false,
+      message: error.message || 'Failed to fetch FAQ categories',
+      data: []
+    };
+  }
+};
+
+// Blog Posts API services
+export const getBlogPosts = async (params = {}) => {
+  try {
+    // Default parameters
+    const defaultParams = {
+      page: 1,
+      limit: 10,
+      lang: 'en',
+      status: 'published'
+    };
+
+    // Merge default with provided params
+    const requestParams = { ...defaultParams, ...params };
+    
+    console.log('Fetching blog posts with params:', requestParams);
+    
+    const response = await api.get('/blog-post/list', {
+      params: requestParams
+    });
+    
+    if (response.data && response.data.success) {
+      return response.data;
+    } else {
+      console.log('API returned unsuccessful response for blog posts:', response.data);
+      return {
+        success: false,
+        msg: response.data?.msg || 'Failed to fetch blog posts',
+        data: []
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    
+    // Return a structured error response
+    return {
+      success: false,
+      msg: error.message || 'Failed to fetch blog posts',
+      data: []
+    };
+  }
+};
+
+// User Enquiries API services
+export const getUserEnquiries = async (params = {}) => {
+  try {
+    // Ensure token is synchronized before making the request
+    await syncAuthToken();
+    
+    // Default parameters
+    const defaultParams = {
+      page: 1,
+      limit: 10
+    };
+
+    // Merge default with provided params
+    const requestParams = { ...defaultParams, ...params };
+    
+    console.log('Fetching user enquiries with params:', requestParams);
+    
+    const response = await api.get('/car-enquiry/user-enquiries', {
+      params: requestParams
+    });
+    
+    if (response.data && response.data.success) {
+      return response.data;
+    } else {
+      console.log('API returned unsuccessful response for user enquiries:', response.data);
+      return {
+        success: false,
+        msg: response.data?.message || 'Failed to fetch enquiries',
+        data: []
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching user enquiries:', error);
+    
+    // Return a structured error response
+    return {
+      success: false,
+      msg: error.message || 'Failed to fetch enquiries',
+      data: []
+    };
   }
 };
 

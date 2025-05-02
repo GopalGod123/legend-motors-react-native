@@ -16,6 +16,12 @@ import AllBrandsScreen from '../screens/AllBrandsScreen';
 import FilterScreen from '../screens/FilterScreen';
 import BottomTabNavigator from './BottomTabNavigator';
 
+// Import new profile screens
+import EditProfileScreen from '../screens/EditProfileScreen';
+import LanguageScreen from '../screens/LanguageScreen';
+import HelpCenterScreen from '../screens/HelpCenterScreen';
+import BlogPostDetailScreen from '../screens/BlogPostDetailScreen';
+
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -37,8 +43,14 @@ const AppNavigator = () => {
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyOTP" component={VerifyOTPScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-        <Stack.Screen name="AllBrandsScreen" component={AllBrandsScreen} />
+        <Stack.Screen name="AllBrands" component={AllBrandsScreen} />
         <Stack.Screen name="FilterScreen" component={FilterScreen} />
+        
+        {/* Profile Section Screens */}
+        <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />
+        <Stack.Screen name="LanguageScreen" component={LanguageScreen} />
+        <Stack.Screen name="HelpCenterScreen" component={HelpCenterScreen} />
+        <Stack.Screen name="BlogPostDetailScreen" component={BlogPostDetailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

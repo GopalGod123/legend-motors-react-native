@@ -98,8 +98,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Check if user is logged in
-  const checkAuthStatus = () => {
-    return isAuthenticated() && user != null;
+  const checkAuthStatus = async () => {
+    const authenticated = await isAuthenticated();
+    return authenticated && user != null;
   };
 
   // Context value

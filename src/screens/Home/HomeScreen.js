@@ -11,10 +11,12 @@ import {
   BodyTypeSearch,
   NewsBlogs,
 } from "../../components/home";
-import { FooterNav } from "../../components/navigation";
+// import { FooterNav } from "../../components/navigation";
 import { COLORS } from "../../utils/constants";
 import MostPopular from "../../components/home/MostPopular";
 import JustArrived from "../../components/home/JustArrived";
+// import BottomTabNavigator from "../../navigation/BottomTabNavigator";
+import Footer from "../../components/Footer";
 
 const HomeScreen = () => {
   return (
@@ -35,7 +37,7 @@ const HomeScreen = () => {
         <MostPopular />
         <JustArrived />
       </ScrollView>
-      <FooterNav />
+      <Footer />
     </View>
   );
 };

@@ -569,17 +569,28 @@ const ExploreScreen = () => {
               // Check car specifications if available
               if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
                 specMatch = car.SpecificationValues.some(spec => {
-                  if (!spec.Specification || spec.Specification.key !== specKey) {
-                    return false;
+                  // Check different possible structures of specification data
+                  // Option 1: spec.specification.key structure
+                  if (spec.specification && spec.specification.key === specKey) {
+                    return selectedValues.some(selectedValue => 
+                      spec.name && selectedValue && 
+                      (spec.name.toLowerCase() === selectedValue.toLowerCase() ||
+                       spec.name.toLowerCase().includes(selectedValue.toLowerCase()) ||
+                       selectedValue.toLowerCase().includes(spec.name.toLowerCase()))
+                    );
                   }
                   
-                  // Check if any of the selected values match this spec
+                  // Option 2: spec.Specification.key structure (legacy)
+                  if (spec.Specification && spec.Specification.key === specKey) {
                   return selectedValues.some(selectedValue => 
                     spec.name && selectedValue && 
                     (spec.name.toLowerCase() === selectedValue.toLowerCase() ||
                      spec.name.toLowerCase().includes(selectedValue.toLowerCase()) ||
                      selectedValue.toLowerCase().includes(spec.name.toLowerCase()))
                   );
+                  }
+                  
+                  return false;
                 });
               }
               
@@ -591,7 +602,14 @@ const ExploreScreen = () => {
                   'fuel_type': 'fuelType',
                   'body_type': 'type',
                   'drive_type': 'driveType',
-                  'exterior_color': 'color'
+                  'color': 'color',
+                  'interior_color': 'interiorColor',
+                  'regional_specification': 'regionalSpec',
+                  'steering_side': 'steeringSide', 
+                  'wheel_size': 'wheelSize',
+                  'seats': 'seats',
+                  'doors': 'doors',
+                  'cylinders': 'cylinders'
                 };
                 
                 // If we have a mapping for this spec key, check the property
@@ -779,7 +797,7 @@ const ExploreScreen = () => {
         
         // Update total count for filtered mock data
         if (newPage === 1) {
-          setCars(mockCars);
+        setCars(mockCars);
           setPage(1);
         } else {
           setCars(prevCars => [...prevCars, ...mockCars]);
@@ -802,9 +820,9 @@ const ExploreScreen = () => {
         setHasMoreData(mockCars.length >= PAGE_SIZE);
       }
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
+        setLoading(false);
+        setLoadingMore(false);
+      }
   };
 
   // Helper function to process car data into a consistent format
@@ -892,22 +910,26 @@ const ExploreScreen = () => {
       fuelType: car.fuelType || 
                 (car.SpecificationValues ? 
                   car.SpecificationValues.find(spec => 
-                    spec.Specification && spec.Specification.key === 'fuel_type'
+                    (spec.specification && spec.specification.key === 'fuel_type') ||
+                    (spec.Specification && spec.Specification.key === 'fuel_type')
                   )?.name : 'Unknown'),
       transmission: car.transmission || 
                    (car.SpecificationValues ? 
                      car.SpecificationValues.find(spec => 
-                       spec.Specification && spec.Specification.key === 'transmission'
+                       (spec.specification && spec.specification.key === 'transmission') ||
+                       (spec.Specification && spec.Specification.key === 'transmission')
                      )?.name : 'Unknown'),
       type: car.type || 
             (car.SpecificationValues ? 
               car.SpecificationValues.find(spec => 
-                spec.Specification && spec.Specification.key === 'body_type'
+                (spec.specification && spec.specification.key === 'body_type') ||
+                (spec.Specification && spec.Specification.key === 'body_type')
               )?.name : 'Unknown'),
       driveType: car.driveType || 
                 (car.SpecificationValues ? 
                   car.SpecificationValues.find(spec => 
-                    spec.Specification && spec.Specification.key === 'drive_type'
+                    (spec.specification && spec.specification.key === 'drive_type') ||
+                    (spec.Specification && spec.Specification.key === 'drive_type')
                   )?.name : 'FWD'),
       image: carImage,
       inWishlist: car.inWishlist || false,
@@ -950,7 +972,7 @@ const ExploreScreen = () => {
 
   // Add function to handle opening the filter modal
   const handleOpenFilter = () => {
-    // Navigate to FilterScreen instead of showing modal
+    // Navigate to FilterScreen with current filters
     navigation.navigate('FilterScreen', {
       filterType: 'brands',
       onApplyCallback: handleFilterApply,
@@ -1017,8 +1039,8 @@ const ExploreScreen = () => {
     // If "All" is selected, clear all filters
     if (filterId === 'all') {
       setAppliedFilters({});
-      setPage(1);
-      fetchCars(1);
+    setPage(1);
+    fetchCars(1);
       return;
     }
     
@@ -1099,9 +1121,9 @@ const ExploreScreen = () => {
           
           <Text style={styles.carPrice}>
             AED {item.price.toLocaleString()}
-          </Text>
-        </View>
-      </View>
+                </Text>
+            </View>
+          </View>
     );
   };
 
