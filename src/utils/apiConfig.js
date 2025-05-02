@@ -6,6 +6,8 @@ export const API_KEY = 'e40371f8f23b4d1fb86722c13245dcf60a7a9cd0377ca50ef58258d4
 
 // Define multiple possible image base URLs to try
 const IMAGE_BASE_URLS = [
+  // Use the correct CDN as the primary URL
+  'https://cdn.legendmotorsglobal.com',
   'https://lmotors-global.s3.amazonaws.com',
   'https://legendmotorsglobal.com/images',
   'https://api.staging.legendmotorsglobal.com/storage/images',
@@ -14,7 +16,6 @@ const IMAGE_BASE_URLS = [
   'https://api.staging.legendmotorsglobal.com/public/images',
   'https://api.staging.legendmotorsglobal.com/media',
   'https://api.staging.legendmotorsglobal.com',
-  // Added common CDN and storage patterns
   'https://cdn.legendmotorsglobal.com/images',
   'https://storage.legendmotorsglobal.com'
 ];
@@ -93,8 +94,10 @@ export const getAllPossibleImageUrls = (path) => {
     cleanPath = `/${cleanPath}`;
   }
   
-  // Generate array of possible URLs to try for a path
-  return IMAGE_BASE_URLS.map(baseUrl => {
+  // Special handling for FileSystem paths from API
+  // Example: "/2025-TOYOTA-URBANCRUISER-GLX-2-572510.jpg"
+  // Try all base URLs with this path
+  const urls = IMAGE_BASE_URLS.map(baseUrl => {
     // Make sure we don't end up with double slashes
     if (baseUrl.endsWith('/') && cleanPath.startsWith('/')) {
       return `${baseUrl}${cleanPath.substring(1)}`;
@@ -102,6 +105,36 @@ export const getAllPossibleImageUrls = (path) => {
       return `${baseUrl}${cleanPath}`;
     }
   });
+  
+  // Also try thumbnail and webp versions for FileSystem paths
+  if (cleanPath.endsWith('.jpg') || cleanPath.endsWith('.jpeg') || cleanPath.endsWith('.png')) {
+    // Extract the base name without extension
+    const lastDotIndex = cleanPath.lastIndexOf('.');
+    const basePath = cleanPath.substring(0, lastDotIndex);
+    const extension = cleanPath.substring(lastDotIndex);
+    
+    // Add thumbnail version
+    const thumbnailPath = `${basePath}-thumbnail${extension}`;
+    urls.push(...IMAGE_BASE_URLS.map(baseUrl => {
+      if (baseUrl.endsWith('/') && thumbnailPath.startsWith('/')) {
+        return `${baseUrl}${thumbnailPath.substring(1)}`;
+      } else {
+        return `${baseUrl}${thumbnailPath}`;
+      }
+    }));
+    
+    // Add webp version
+    const webpPath = `${basePath}.webp`;
+    urls.push(...IMAGE_BASE_URLS.map(baseUrl => {
+      if (baseUrl.endsWith('/') && webpPath.startsWith('/')) {
+        return `${baseUrl}${webpPath.substring(1)}`;
+      } else {
+        return `${baseUrl}${webpPath}`;
+      }
+    }));
+  }
+  
+  return urls;
 };
 
 export default {

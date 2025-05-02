@@ -1,33 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { Image, View, StyleSheet, ActivityIndicator } from 'react-native';
+import { Image, View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { COLORS } from '../../utils/constants';
 import { getAllPossibleImageUrls } from '../../utils/apiConfig';
 
-const CarImage = ({ source, style, resizeMode = 'cover' }) => {
+const CarImage = ({ source, style, resizeMode = 'cover', showDebug = false }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [urlIndex, setUrlIndex] = useState(0);
   const [possibleUrls, setPossibleUrls] = useState([]);
   const [currentSource, setCurrentSource] = useState(source);
+  const [attemptedUrls, setAttemptedUrls] = useState([]);
   
   // Fallback image
   const fallbackImage = require('../home/car_Image.png');
   
   // Generate all possible URLs when source changes
   useEffect(() => {
+    setAttemptedUrls([]);
+    
     if (typeof source === 'object' && source.uri) {
       // For remote images with URIs, generate fallback URLs
-      // Use the filename property if available, otherwise extract from URI
-      const filename = source.filename || source.uri.split('/').pop();
-      const allUrls = getAllPossibleImageUrls(filename);
+      let urls = [];
       
-      // Don't log to avoid console spam
-      //console.log('Trying these image URLs:', allUrls);
-      setPossibleUrls(allUrls);
+      // If we have a fullPath property (from FileSystem structure), use it
+      if (source.fullPath) {
+        urls = getAllPossibleImageUrls(source.fullPath);
+      } 
+      // Otherwise, use the filename if available, or extract from URI
+      else {
+        const filename = source.filename || source.uri.split('/').pop();
+        urls = getAllPossibleImageUrls(filename);
+      }
+      
+      // Always add the original URI as a possible URL
+      if (!urls.includes(source.uri)) {
+        urls.unshift(source.uri);
+      }
+      
+      // Only log for debugging to avoid console spam
+      if (showDebug) {
+        console.log('Trying these image URLs:', urls[0]);
+      }
+      
+      setPossibleUrls(urls);
       
       // Set the first URL to try
-      if (allUrls.length > 0) {
-        setCurrentSource({ uri: allUrls[0] });
+      if (urls.length > 0) {
+        setCurrentSource({ uri: urls[0] });
       } else {
         setCurrentSource(source);
       }
@@ -51,20 +70,31 @@ const CarImage = ({ source, style, resizeMode = 'cover' }) => {
   };
   
   const handleError = (e) => {
-    // Comment out error logging to reduce console noise
-    //console.log('Image load error:', e.nativeEvent?.error || 'Unknown error');
-    //console.log('Failed image URI:', currentSource?.uri);
+    // Track attempted URLs for debugging
+    if (currentSource && currentSource.uri) {
+      setAttemptedUrls(prev => [...prev, currentSource.uri]);
+    }
+    
+    // Only log errors when debugging is enabled
+    if (showDebug) {
+      console.log('Image load error:', e.nativeEvent?.error || 'Unknown error');
+      console.log('Failed image URI:', currentSource?.uri);
+    }
     
     // Try the next URL in our list if available
     const nextIndex = urlIndex + 1;
     if (possibleUrls.length > 0 && nextIndex < possibleUrls.length) {
-      //console.log(`Trying alternative URL (${nextIndex + 1}/${possibleUrls.length}):`, possibleUrls[nextIndex]);
+      if (showDebug) {
+        console.log(`Trying alternative URL (${nextIndex + 1}/${possibleUrls.length}):`, possibleUrls[nextIndex]);
+      }
       setUrlIndex(nextIndex);
       setCurrentSource({ uri: possibleUrls[nextIndex] });
       setLoading(true);
     } else {
       // If we've tried all URLs and none worked, show the fallback
-      //console.log('All image URLs failed, using fallback');
+      if (showDebug) {
+        console.log('All image URLs failed, using fallback');
+      }
       setError(true);
       setLoading(false);
     }
@@ -99,6 +129,12 @@ const CarImage = ({ source, style, resizeMode = 'cover' }) => {
           <ActivityIndicator size="small" color={COLORS.primary} />
         </View>
       )}
+      
+      {showDebug && error && (
+        <View style={styles.debugContainer}>
+          <Text style={styles.debugText}>Failed to load image after {attemptedUrls.length} attempts</Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -113,6 +149,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(240, 240, 240, 0.5)',
+  },
+  debugContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(255, 0, 0, 0.7)',
+    padding: 4,
+  },
+  debugText: {
+    color: 'white',
+    fontSize: 10,
+    textAlign: 'center',
   }
 });
 

@@ -11,7 +11,7 @@ import {
   StatusBar,
   Share,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import { getCarList } from '../services/api';
 import { CarImage } from '../components/common';
@@ -19,6 +19,7 @@ import FilterScreen from './FilterScreen'; // Import FilterScreen
 
 const ExploreScreen = () => {
   const navigation = useNavigation();
+  const route = useRoute();
   const [searchQuery, setSearchQuery] = useState('');
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,19 @@ const ExploreScreen = () => {
     { id: 'priceRange', label: 'Price Range' },
     { id: 'advanced', label: 'Advanced Filters' }, // Add advanced filters option
   ];
+
+  // Process any route params with filters
+  useEffect(() => {
+    if (route.params?.filters) {
+      console.log('Received filters from navigation:', route.params.filters);
+      setAppliedFilters(route.params.filters);
+      
+      // Update the active filter tab based on the type of filter
+      if (route.params.filters.brands && route.params.filters.brands.length > 0) {
+        setActiveFilter('brands');
+      }
+    }
+  }, [route.params]);
 
   // Fetch cars from API
   useEffect(() => {
@@ -805,21 +819,31 @@ const ExploreScreen = () => {
     // Handle car images with better fallbacks
     let carImage = require('../components/home/car_Image.png');
     
-    // Try multiple image sources
+    // Try multiple image sources based on the correct FileSystem structure
     if (car.image) {
       carImage = car.image;
     } else if (car.CarImages && car.CarImages.length > 0) {
-      // Extract the filename without path to use with fallback URLs
+      // Extract image paths from the FileSystem structure
       try {
-        const imagePath = car.CarImages[0].FileSystem.path;
-        const filename = imagePath.split('/').pop();
+        // Get the FileSystem object from the first CarImage
+        const fileSystem = car.CarImages[0].FileSystem;
         
-        // For CarImage component, just pass the filename
-        // CarImage will handle trying multiple base URLs internally
-        carImage = { 
-          uri: `https://lmotors-global.s3.amazonaws.com/${filename}`,
-          filename: filename // Pass the filename for CarImage to generate fallbacks
-        };
+        if (fileSystem) {
+          // Use the main path, webpPath or thumbnailPath based on availability
+          const imagePath = fileSystem.path || fileSystem.webpPath || fileSystem.thumbnailPath;
+          
+          if (imagePath) {
+            // For CarImage component, just pass the filename or path
+            // CarImage will handle trying multiple base URLs internally
+            carImage = { 
+              uri: `https://cdn.legendmotorsglobal.com${imagePath}`,
+              filename: imagePath.split('/').pop(),
+              fullPath: imagePath // Pass the full path for fallbacks
+            };
+            
+            console.log(`Image path extracted for car ${car.id}: ${imagePath}`);
+          }
+        }
       } catch (error) {
         console.log('Error processing car image, using fallback:', error.message);
       }
@@ -1028,7 +1052,7 @@ const ExploreScreen = () => {
         
         {item.stockId && (
           <View style={styles.stockIdContainer}>
-            <Text style={styles.stockIdText}>ID: {item.stockId}</Text>
+            <Text style={styles.stockIdText}>{item.stockId}</Text>
           </View>
         )}
         
@@ -1069,38 +1093,13 @@ const ExploreScreen = () => {
                 <Text style={styles.originText}>{item.origin}</Text>
               </View>
             )}
-          </View>
-          
-          <View style={styles.specRow}>
             <Text style={styles.specIcon}>⊙</Text>
             <Text style={styles.driveTypeText}>{item.driveType || 'N/A'}</Text>
           </View>
           
-          <View style={styles.priceRow}>
-            {item.price > 0 ? (
-              <Text style={styles.priceText}>$ {(item.price).toLocaleString()}</Text>
-            ) : (
-              <Text style={styles.priceText}>Price on request</Text>
-            )}
-            
-            <View style={styles.actionButtons}>
-              <TouchableOpacity 
-                style={styles.actionButton}
-                onPress={() => toggleFavorite(item.id)}
-              >
-                <Text style={styles.actionIcon}>
-                  {favorites.includes(item.id) || item.inWishlist ? '❤️' : '♡'}
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={styles.actionButton}
-                onPress={() => handleShare(item)}
-              >
-                <Text style={styles.actionIcon}>↗</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          <Text style={styles.carPrice}>
+            AED {item.price.toLocaleString()}
+          </Text>
         </View>
       </View>
     );
@@ -1487,6 +1486,7 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
     fontWeight: '600',
     color: COLORS.textDark,
+    marginBottom: SPACING.sm,
   },
   carSubtitle: {
     fontSize: FONT_SIZES.sm,
@@ -1511,39 +1511,26 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
     color: COLORS.textDark,
   },
-  originBadge: {
-    backgroundColor: '#F0F0F0',
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    borderRadius: BORDER_RADIUS.sm,
-  },
-  originText: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textDark,
-  },
   driveTypeText: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.textDark,
   },
-  priceRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: SPACING.sm,
-  },
-  priceText: {
+  carPrice: {
     fontSize: FONT_SIZES.lg,
     fontWeight: '600',
     color: COLORS.textDark,
   },
-  actionButtons: {
-    flexDirection: 'row',
+  originBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: BORDER_RADIUS.sm,
+    paddingVertical: 2,
+    paddingHorizontal: 4,
+    marginRight: SPACING.sm,
   },
-  actionButton: {
-    padding: SPACING.sm,
-  },
-  actionIcon: {
-    fontSize: FONT_SIZES.lg,
+  originText: {
+    color: '#FFFFFF',
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '500',
   },
   mainLoader: {
     flex: 1,

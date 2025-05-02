@@ -37,7 +37,7 @@ const AppNavigator = () => {
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyOTP" component={VerifyOTPScreen} />
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
-        <Stack.Screen name="AllBrands" component={AllBrandsScreen} />
+        <Stack.Screen name="AllBrandsScreen" component={AllBrandsScreen} />
         <Stack.Screen name="FilterScreen" component={FilterScreen} />
       </Stack.Navigator>
     </NavigationContainer>

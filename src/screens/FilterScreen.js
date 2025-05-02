@@ -14,6 +14,7 @@ import { getBrandList, getCarModelList, getUniqueBrands } from '../services/api'
 import { fetchSpecificationValues } from '../services/filtersService';
 import axios from 'axios';
 import { API_KEY } from '../utils/apiConfig';
+import { CarImage } from '../components/common';
 
 const FilterScreen = ({ route, navigation }) => {
   const { filterType = 'brands', onApplyCallback, currentFilters = {} } = route?.params || {};
@@ -34,6 +35,32 @@ const FilterScreen = ({ route, navigation }) => {
   const [selectedModelIds, setSelectedModelIds] = useState(currentFilters.modelIds || []);
   const [selectedTrimIds, setSelectedTrimIds] = useState(currentFilters.trimIds || []);
   const [selectedYearIds, setSelectedYearIds] = useState(currentFilters.yearIds || []);
+
+  // Extract logo path from different possible formats - add this before it's used
+  const extractLogoPath = (logoData) => {
+    // If it's already a string, use it directly
+    if (typeof logoData === 'string') {
+      return logoData;
+    }
+    
+    // If it's an object with FileSystem structure
+    if (logoData && logoData.FileSystem) {
+      const fileSystem = logoData.FileSystem;
+      return fileSystem.path || fileSystem.webpPath || fileSystem.thumbnailPath;
+    }
+    
+    // If it's an object with a path property
+    if (logoData && logoData.path) {
+      return logoData.path;
+    }
+    
+    // Last resort, try to get the name and create a standard path
+    if (logoData && logoData.name) {
+      return `${logoData.name}.png`;
+    }
+    
+    return null;
+  };
 
   // Static brands list from the UI
   const staticBrandsList = [
@@ -173,40 +200,37 @@ const FilterScreen = ({ route, navigation }) => {
     try {
       setLoading(true);
       
-      // First, try to get all car models to extract brands
-      const modelsResponse = await getCarModelList({
-        page: 1,
-        limit: 100, // Request more models to get more brand variety
-        sortBy: 'id',
-        order: 'desc',
+      // Use the direct API endpoint to get brand list with logos
+      const response = await axios.get('https://api.staging.legendmotorsglobal.com/api/v1/brand/list', {
+        params: {
+          page: 1,
+          limit: 100,
+          sortBy: 'id',
+          order: 'asc',
+          lang: 'en'
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        }
       });
       
-      if (modelsResponse && modelsResponse.data) {
-        // Check different possible structures for the models data
-        let modelsData = [];
-        if (Array.isArray(modelsResponse.data)) {
-          modelsData = modelsResponse.data;
-        } else if (modelsResponse.data.data && Array.isArray(modelsResponse.data.data)) {
-          modelsData = modelsResponse.data.data;
-        }
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+        // Process brand data to ensure we have logo information
+        const processedBrands = response.data.data.map(brand => ({
+          id: brand.id,
+          name: brand.name || '',
+          slug: brand.slug || '',
+          // Normalize logo path to work with the CDN
+          logo: brand.logo ? extractLogoPath(brand.logo) : null
+        }));
         
-        // Extract unique brands from models
-        const extractedBrands = extractBrandsFromModels(modelsData);
-        
-        if (extractedBrands.length > 0) {
-          setBrands(extractedBrands);
-          return; // Success - exit early
-        }
-      }
-      
-      // If model approach fails, try the getUniqueBrands API
-      const response = await getUniqueBrands({ limit: 500 });
-      
-      if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
         // Sort brands alphabetically
-        const sortedBrands = [...response.data].sort((a, b) => 
+        const sortedBrands = [...processedBrands].sort((a, b) => 
           (a.name || '').localeCompare(b.name || '')
         );
+        
+        console.log(`Fetched ${sortedBrands.length} brands for filter screen`);
         setBrands(sortedBrands);
         return; // Success - exit early
       }
@@ -768,7 +792,23 @@ const FilterScreen = ({ route, navigation }) => {
           <View style={styles.checkboxInner} />
         )}
       </View>
-      <Text style={styles.brandName}>{formatBrandName(item.name)}</Text>
+      
+      <View style={styles.brandContent}>
+        {item.logo && (
+          <View style={styles.brandLogoContainer}>
+            <CarImage 
+              source={{
+                uri: `https://cdn.legendmotorsglobal.com/${item.logo}`, 
+                filename: item.logo,
+                fullPath: item.logo
+              }}
+              style={styles.brandLogo}
+              resizeMode="contain"
+            />
+          </View>
+        )}
+        <Text style={styles.brandName}>{formatBrandName(item.name)}</Text>
+      </View>
     </TouchableOpacity>
   );
   
@@ -1817,7 +1857,7 @@ const styles = StyleSheet.create({
   brandItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
@@ -1826,7 +1866,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderWidth: 1,
     borderColor: '#CCCCCC',
-    marginRight: 10,
+    marginRight: 15,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -1834,6 +1874,25 @@ const styles = StyleSheet.create({
     width: 12,
     height: 12,
     backgroundColor: '#F4821F',
+  },
+  brandContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  brandLogoContainer: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    overflow: 'hidden',
+    marginRight: 10,
+    backgroundColor: '#f8f8f8',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  brandLogo: {
+    width: '80%',
+    height: '80%',
   },
   brandName: {
     fontSize: 16,
