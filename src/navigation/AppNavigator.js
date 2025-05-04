@@ -14,6 +14,7 @@ import VerifyOTPScreen from '../screens/VerifyOTPScreen';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import AllBrandsScreen from '../screens/AllBrandsScreen';
 import FilterScreen from '../screens/FilterScreen';
+import CarDetailScreen from '../screens/CarDetailScreen';
 import BottomTabNavigator from './BottomTabNavigator';
 
 // Import new profile screens
@@ -45,6 +46,7 @@ const AppNavigator = () => {
         <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
         <Stack.Screen name="AllBrands" component={AllBrandsScreen} />
         <Stack.Screen name="FilterScreen" component={FilterScreen} />
+        <Stack.Screen name="CarDetailScreen" component={CarDetailScreen} />
         
         {/* Profile Section Screens */}
         <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />

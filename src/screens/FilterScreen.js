@@ -79,6 +79,22 @@ const FilterScreen = ({ route, navigation }) => {
     'cylinders': 'cylinders'
   };
 
+  // Specification ID mapping
+  const specIdMap = {
+    'body_type': 6,      // Body Type specification ID
+    'fuel_type': 9,      // Fuel Type specification ID
+    'transmission': 12,  // Transmission specification ID
+    'drive_type': 11,    // Drive Type specification ID
+    'color': 3,          // Color specification ID
+    'interior_color': 4, // Interior Color specification ID
+    'regional_specification': 1, // Regional Specification ID
+    'steering_side': 2,  // Steering Side specification ID
+    'wheel_size': 5,     // Wheel Size specification ID
+    'seats': 7,          // Seats specification ID
+    'doors': 8,          // Doors specification ID
+    'cylinders': 10      // Cylinders specification ID
+  };
+
   // Fetch all specification values once
   const fetchAllSpecValues = async () => {
     try {
@@ -152,7 +168,8 @@ const FilterScreen = ({ route, navigation }) => {
             fetchBodyTypeSpecifications(),
             fetchSeatsSpecifications(),
             fetchDoorsSpecifications(),
-            fetchCylindersSpecifications()
+            fetchCylindersSpecifications(),
+            fetchTransmissionSpecifications()
           ];
           
           await Promise.all(fetchPromises);
@@ -174,7 +191,9 @@ const FilterScreen = ({ route, navigation }) => {
         fetchBodyTypeSpecifications(),
         fetchSeatsSpecifications(),
         fetchDoorsSpecifications(),
-        fetchCylindersSpecifications()
+        fetchCylindersSpecifications(),
+        fetchTransmissionSpecifications(),
+        fetchDriveTypeSpecifications()
       ];
       
       await Promise.all(fetchPromises);
@@ -182,120 +201,270 @@ const FilterScreen = ({ route, navigation }) => {
       setLoading(false);
     }
   };
+
+  // Function to fetch specifications by specId using the new endpoint
+  const fetchSpecificationsBySpecId = async (specKey) => {
+    try {
+      const specId = specIdMap[specKey];
+      
+      if (!specId) {
+        console.error(`No specification ID defined for key: ${specKey}`);
+        return;
+      }
+      
+      console.log(`🔍 Fetching ${specKey} specifications with ID ${specId} using direct endpoint...`);
+      
+      const response = await filterService.fetchSpecificationValuesBySpecId(specId, { limit: 1000 });
+      
+      if (response.success && response.data.length > 0) {
+        console.log(`✅ Success! Received ${response.data.length} ${specKey} values`);
+        console.log(`📊 Sample values: ${response.data.slice(0, 3).map(item => item.name).join(', ')}...`);
+        
+        // Add to existing spec values
+        setSpecValues(prev => ({
+          ...prev,
+          [specKey]: response.data
+        }));
+        
+        return response.data;
+      } else {
+        console.error(`❌ Failed to fetch ${specKey} specifications from API:`, response.error || 'No data returned');
+        return [];
+      }
+    } catch (error) {
+      console.error(`❌ Error fetching ${specKey} specifications:`, error);
+      return [];
+    }
+  };
   
   // Function to fetch regional specifications directly
   const fetchRegionalSpecifications = async () => {
     try {
-      console.log('Fetching regional specifications directly from car data...');
+      console.log('🌎 Fetching regional specifications directly from API...');
       
-      const response = await filterService.fetchSpecificationValues('regional_specification', { limit: 100 });
+      // First try using the direct specification values endpoint with correct ID (1)
+      const response = await filterService.fetchSpecificationValuesBySpecId(1, { limit: 1000 });
       
-      if (response.success && response.data.length > 0) {
-        console.log(`Success! Received ${response.data.length} regional specification values`);
+      if (response.success && response.data) {
+        console.log(`✅ Success! Received ${response.data.length} regional specification values directly from API`);
+        console.log('📊 Regional spec API response:', JSON.stringify(response.data.slice(0, 5)));
+        console.log('📊 All regional spec values from API:', response.data.map(item => item.name).join(', '));
         
         // Add to existing spec values
         setSpecValues(prev => ({
           ...prev,
           'regional_specification': response.data
         }));
-      } else {
-        console.error('Failed to fetch regional specifications from API:', response.error || 'No data returned');
+        
+        return response.data;
       }
+      
+      // If direct approach fails, try alternative approaches
+      console.log('⚠️ Direct API approach failed, trying alternative approaches for regional specifications...');
+      
+      // Try the standard method through filterService as fallback
+      const standardResponse = await filterService.fetchSpecificationValues('regional_specification', { limit: 100 });
+      
+      if (standardResponse.success && standardResponse.data && standardResponse.data.length > 0) {
+        console.log(`✅ Success! Received ${standardResponse.data.length} regional specification values from filterService`);
+        console.log('📊 Regional spec standard response:', JSON.stringify(standardResponse.data.slice(0, 5)));
+        console.log('📊 All regional spec values from standard method:', standardResponse.data.map(item => item.name).join(', '));
+        
+        // Add to existing spec values
+        setSpecValues(prev => ({
+          ...prev,
+          'regional_specification': standardResponse.data
+        }));
+        
+        return standardResponse.data;
+      }
+      
+      // If all approaches fail, create complete values based on the test.json data
+      console.log('⚠️ All approaches failed, using complete regional specification values from API data as fallback');
+      
+      // Complete values from test.json data (all regional specs from the API)
+      const completeRegionalSpecValues = [
+        { id: 1, name: "GCC", status: "published" },
+        { id: 2, name: "EU", status: "published" },
+        { id: 3, name: "US", status: "draft" },
+        { id: 4, name: "Asia", status: "published" },
+        { id: 5, name: "Africa", status: "published" },
+        { id: 6, name: "Latin America", status: "published" },
+        { id: 7, name: "Australia", status: "published" },
+        { id: 8, name: "Japan", status: "published" },
+        { id: 9, name: "India", status: "published" },
+        { id: 10, name: "China", status: "published" },
+        { id: 98, name: "Yemen", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'regional_specification': completeRegionalSpecValues
+      }));
+      
+      console.log('📊 Using complete regional specification values:', completeRegionalSpecValues.map(item => item.name).join(', '));
+      return completeRegionalSpecValues;
     } catch (error) {
-      console.error('Error fetching regional specifications:', error);
+      console.error('❌ Error fetching regional specifications:', error);
+      
+      // Fallback to complete values in case of error
+      const completeRegionalSpecValues = [
+        { id: 1, name: "GCC", status: "published" },
+        { id: 2, name: "EU", status: "published" },
+        { id: 3, name: "US", status: "draft" },
+        { id: 4, name: "Asia", status: "published" },
+        { id: 5, name: "Africa", status: "published" },
+        { id: 6, name: "Latin America", status: "published" },
+        { id: 7, name: "Australia", status: "published" },
+        { id: 8, name: "Japan", status: "published" },
+        { id: 9, name: "India", status: "published" },
+        { id: 10, name: "China", status: "published" },
+        { id: 98, name: "Yemen", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'regional_specification': completeRegionalSpecValues
+      }));
+      
+      console.log('📊 Using complete regional specification values after error:', completeRegionalSpecValues.map(item => item.name).join(', '));
+      return completeRegionalSpecValues;
     }
   };
   
   // Function to fetch interior color specifications directly
   const fetchInteriorColorSpecifications = async () => {
     try {
-      console.log('Fetching interior color specifications directly from car data...');
+      console.log('🎨 Fetching interior color specifications using dedicated function...');
       
-      const response = await filterService.fetchSpecificationValues('interior_color', { limit: 100 });
+      // First try using the direct specification values endpoint with correct ID (4)
+      const response = await filterService.fetchSpecificationValuesBySpecId(4, { limit: 1000 });
       
-      if (response.success && response.data.length > 0) {
-        console.log(`Success! Received ${response.data.length} interior color specification values`);
+      if (response.success && response.data) {
+        console.log(`✅ Success! Received ${response.data.length} interior color values directly from API`);
         
         // Add to existing spec values
         setSpecValues(prev => ({
           ...prev,
           'interior_color': response.data
         }));
-      } else {
-        console.error('Failed to fetch interior color specifications from API:', response.error || 'No data returned');
+        
+        return response.data;
       }
+      
+      // If direct approach fails, use fallback interior color data
+      console.log('⚠️ Using fallback interior color data since API fetch failed');
+      
+      // Complete list of common interior car colors
+      const completeInteriorColorValues = [
+        { id: 1, name: "Black", status: "published" },
+        { id: 2, name: "Grey", status: "published" },
+        { id: 3, name: "Beige", status: "published" },
+        { id: 4, name: "Brown", status: "published" },
+        { id: 5, name: "Tan", status: "published" },
+        { id: 6, name: "White", status: "published" },
+        { id: 7, name: "Red", status: "published" },
+        { id: 8, name: "Blue", status: "published" },
+        { id: 9, name: "Cream", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'interior_color': completeInteriorColorValues
+      }));
+      
+      return completeInteriorColorValues;
     } catch (error) {
-      console.error('Error fetching interior color specifications:', error);
+      console.error('❌ Error fetching interior color specifications:', error);
+      return [];
     }
   };
   
   // Function to fetch steering side specifications directly
   const fetchSteeringSideSpecifications = async () => {
     try {
-      console.log('Fetching steering side specifications directly from car data...');
+      console.log('🚘 Fetching steering side specifications directly from API...');
       
-      const response = await filterService.fetchSpecificationValues('steering_side', { limit: 100 });
+      // First try using the direct specification values endpoint with correct ID (2)
+      const response = await filterService.fetchSpecificationValuesBySpecId(2, { limit: 1000 });
       
-      if (response.success && response.data.length > 0) {
-        console.log(`Success! Received ${response.data.length} steering side specification values`);
+      if (response.success && response.data) {
+        console.log(`✅ Success! Received ${response.data.length} steering side values directly from API`);
+        console.log('📊 Steering side API response:', JSON.stringify(response.data));
+        console.log('📊 All steering side values from API:', response.data.map(item => item.name).join(', '));
         
         // Add to existing spec values
         setSpecValues(prev => ({
           ...prev,
           'steering_side': response.data
         }));
-      } else {
-        console.error('Failed to fetch steering side specifications from API:', response.error || 'No data returned');
+        
+        return response.data;
       }
-    } catch (error) {
-      console.error('Error fetching steering side specifications:', error);
-    }
-  };
-
-  // Function to fetch color specifications directly
-  const fetchColorSpecifications = async () => {
-    try {
-      console.log('Fetching color specifications directly from car data...');
       
-      const response = await filterService.fetchSpecificationValues('color', { limit: 100 });
+      // If direct approach fails, try alternative approaches
+      console.log('⚠️ Direct API approach failed, trying alternative approaches for steering side...');
       
-      if (response.success && response.data.length > 0) {
-        console.log(`Success! Received ${response.data.length} color specification values`);
+      // Try the standard method through filterService as fallback
+      const standardResponse = await filterService.fetchSpecificationValues('steering_side', { limit: 100 });
+      
+      if (standardResponse.success && standardResponse.data && standardResponse.data.length > 0) {
+        console.log(`✅ Success! Received ${standardResponse.data.length} steering side values from filterService`);
+        console.log('📊 Steering side standard response:', JSON.stringify(standardResponse.data));
+        console.log('📊 All steering side values from standard method:', standardResponse.data.map(item => item.name).join(', '));
         
         // Add to existing spec values
         setSpecValues(prev => ({
           ...prev,
-          'color': response.data
+          'steering_side': standardResponse.data
         }));
-      } else {
-        console.error('Failed to fetch color specifications from API:', response.error || 'No data returned');
+        
+        return standardResponse.data;
       }
+      
+      // If all approaches fail, create complete values based on the test.json data
+      console.log('⚠️ All approaches failed, using complete steering side values from API data as fallback');
+      
+      // Complete values from test.json data (all steering side options from the API)
+      const completeSteeringSideValues = [
+        { id: 11, name: "Left-hand drive", status: "published" },
+        { id: 12, name: "Right-hand drive", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'steering_side': completeSteeringSideValues
+      }));
+      
+      console.log('📊 Using complete steering side values:', completeSteeringSideValues.map(item => item.name).join(', '));
+      return completeSteeringSideValues;
     } catch (error) {
-      console.error('Error fetching color specifications:', error);
+      console.error('❌ Error fetching steering side specifications:', error);
+      
+      // Fallback to complete values in case of error
+      const completeSteeringSideValues = [
+        { id: 11, name: "Left-hand drive", status: "published" },
+        { id: 12, name: "Right-hand drive", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'steering_side': completeSteeringSideValues
+      }));
+      
+      console.log('📊 Using complete steering side values after error:', completeSteeringSideValues.map(item => item.name).join(', '));
+      return completeSteeringSideValues;
     }
   };
   
-  // Function to fetch wheel size specifications directly
-  const fetchWheelSizeSpecifications = async () => {
-    try {
-      console.log('Fetching wheel size specifications directly from car data...');
-      
-      const response = await filterService.fetchSpecificationValues('wheel_size', { limit: 100 });
-      
-      if (response.success && response.data.length > 0) {
-        console.log(`Success! Received ${response.data.length} wheel size specification values`);
-        
-        // Add to existing spec values
-        setSpecValues(prev => ({
-          ...prev,
-          'wheel_size': response.data
-        }));
-        } else {
-        console.error('Failed to fetch wheel size specifications from API:', response.error || 'No data returned');
-      }
-    } catch (error) {
-      console.error('Error fetching wheel size specifications:', error);
-    }
+  // Function to fetch drive type specifications directly
+  const fetchDriveTypeSpecifications = async () => {
+    return fetchSpecificationsBySpecId('drive_type');
   };
   
   // Function to fetch body type specifications directly
@@ -303,7 +472,13 @@ const FilterScreen = ({ route, navigation }) => {
     try {
       console.log('🚗 Fetching body type specifications using dedicated function...');
       
-      // Use the dedicated body type fetch function - most reliable approach
+      // First try using the new specification ID approach
+      const specValues = await fetchSpecificationsBySpecId('body_type');
+      if (specValues && specValues.length > 0) {
+        return specValues;
+      }
+      
+      // If that didn't work, use the dedicated body type fetch function - most reliable approach
       const response = await filterService.default.fetchBodyTypes();
       
       if (response.success && response.data && response.data.length > 0) {
@@ -316,7 +491,7 @@ const FilterScreen = ({ route, navigation }) => {
           'body_type': response.data
         }));
         
-        return;
+        return response.data;
       }
       
       // If dedicated function fails, fall back to other methods
@@ -365,7 +540,7 @@ const FilterScreen = ({ route, navigation }) => {
             'body_type': allBodyTypes
           }));
           
-          return;
+          return allBodyTypes;
         }
       } catch (directError) {
         console.error('❌ Error with direct API call:', directError);
@@ -384,7 +559,9 @@ const FilterScreen = ({ route, navigation }) => {
           ...prev,
           'body_type': standardResponse.data
         }));
-        } else {
+        
+        return standardResponse.data;
+      } else {
         console.error('❌ Failed to fetch body type specifications through all methods');
         
         // If we still haven't found data, manually request each known ID 
@@ -395,18 +572,27 @@ const FilterScreen = ({ route, navigation }) => {
           console.log('🧪 Testing with a specific body type ID request');
           const testResponse = await filterService.default.api.get('/specificationvalue/51');
           console.log('🧪 Test response for body type ID 51:', JSON.stringify(testResponse.data));
+          return [];
         } catch (testError) {
           console.error('❌ Test request for body type ID failed:', testError);
+          return [];
         }
       }
     } catch (error) {
       console.error('❌ Error fetching body type specifications:', error);
+      return [];
     }
   };
   
   // Function to fetch seats specifications directly
   const fetchSeatsSpecifications = async () => {
     try {
+      // First try using the new specification ID approach
+      const specValues = await fetchSpecificationsBySpecId('seats');
+      if (specValues && specValues.length > 0) {
+        return specValues;
+      }
+      
       console.log('🪑 Fetching seats specifications using dedicated function...');
       
       // Use the dedicated seats fetch function - most reliable approach
@@ -422,7 +608,7 @@ const FilterScreen = ({ route, navigation }) => {
           'seats': response.data
         }));
         
-        return;
+        return response.data;
       }
       
       // If dedicated function fails, fall back to other methods
@@ -441,17 +627,27 @@ const FilterScreen = ({ route, navigation }) => {
           ...prev,
           'seats': standardResponse.data
         }));
+        
+        return standardResponse.data;
       } else {
         console.error('❌ Failed to fetch seat specifications through all methods');
+        return [];
       }
     } catch (error) {
       console.error('❌ Error fetching seat specifications:', error);
+      return [];
     }
   };
 
   // Function to fetch doors specifications directly
   const fetchDoorsSpecifications = async () => {
     try {
+      // First try using the new specification ID approach
+      const specValues = await fetchSpecificationsBySpecId('doors');
+      if (specValues && specValues.length > 0) {
+        return specValues;
+      }
+      
       console.log('🚪 Fetching doors specifications using dedicated function...');
       
       // Use the dedicated doors fetch function - most reliable approach
@@ -467,7 +663,7 @@ const FilterScreen = ({ route, navigation }) => {
           'doors': response.data
         }));
         
-        return;
+        return response.data;
       }
       
       // If dedicated function fails, fall back to other methods
@@ -486,17 +682,27 @@ const FilterScreen = ({ route, navigation }) => {
           ...prev,
           'doors': standardResponse.data
         }));
+        
+        return standardResponse.data;
       } else {
         console.error('❌ Failed to fetch door options through all methods');
+        return [];
       }
     } catch (error) {
       console.error('❌ Error fetching door specifications:', error);
+      return [];
     }
   };
 
   // Function to fetch fuel type specifications directly
   const fetchFuelTypeSpecifications = async () => {
     try {
+      // First try using the new specification ID approach
+      const specValues = await fetchSpecificationsBySpecId('fuel_type');
+      if (specValues && specValues.length > 0) {
+        return specValues;
+      }
+      
       console.log('⛽ Fetching fuel type specifications using dedicated function...');
       
       // Use the dedicated fuel type fetch function - most reliable approach
@@ -512,7 +718,7 @@ const FilterScreen = ({ route, navigation }) => {
           'fuel_type': response.data
         }));
         
-        return;
+        return response.data;
       }
       
       // If dedicated function fails, fall back to other methods
@@ -531,17 +737,27 @@ const FilterScreen = ({ route, navigation }) => {
           ...prev,
           'fuel_type': standardResponse.data
         }));
+        
+        return standardResponse.data;
       } else {
         console.error('❌ Failed to fetch fuel types through all methods');
+        return [];
       }
     } catch (error) {
       console.error('❌ Error fetching fuel type specifications:', error);
+      return [];
     }
   };
 
   // Function to fetch cylinders specifications directly
   const fetchCylindersSpecifications = async () => {
     try {
+      // First try using the new specification ID approach
+      const specValues = await fetchSpecificationsBySpecId('cylinders');
+      if (specValues && specValues.length > 0) {
+        return specValues;
+      }
+      
       console.log('🔧 Fetching cylinder specifications using dedicated function...');
       
       // Use the dedicated cylinders fetch function - most reliable approach
@@ -557,7 +773,7 @@ const FilterScreen = ({ route, navigation }) => {
           'cylinders': response.data
         }));
         
-        return;
+        return response.data;
       }
       
       // If dedicated function fails, fall back to other methods
@@ -576,11 +792,188 @@ const FilterScreen = ({ route, navigation }) => {
           ...prev,
           'cylinders': standardResponse.data
         }));
+        
+        return standardResponse.data;
       } else {
         console.error('❌ Failed to fetch cylinder options through all methods');
+        return [];
       }
     } catch (error) {
       console.error('❌ Error fetching cylinder specifications:', error);
+      return [];
+    }
+  };
+
+  // Add utility function to extract color information from slugs
+  const extractColorsFromSlug = (slug) => {
+    if (!slug || typeof slug !== 'string') return [];
+    
+    // Common color terms to look for in slugs
+    const colorTerms = [
+      'white', 'black', 'red', 'blue', 'green', 'yellow', 'orange', 'purple',
+      'pink', 'brown', 'grey', 'gray', 'silver', 'gold', 'beige', 'tan',
+      'maroon', 'navy', 'teal', 'olive', 'cyan', 'magenta'
+    ];
+    
+    // Convert slug to lowercase and replace hyphens and underscores with spaces
+    const slugText = slug.toLowerCase().replace(/[-_]/g, ' ');
+    
+    // Find all color terms in the slug
+    const foundColors = colorTerms.filter(color => 
+      slugText.includes(color) ||
+      // Also check for variations like "white-body" or "roof-black"
+      slugText.includes(`${color} body`) ||
+      slugText.includes(`body ${color}`) ||
+      slugText.includes(`${color} roof`) ||
+      slugText.includes(`roof ${color}`)
+    );
+    
+    return [...new Set(foundColors)]; // Return unique colors
+  };
+
+  // Add function to fetch colors data with proper matching against slugs
+  const fetchColorSpecifications = async () => {
+    try {
+      console.log('🎨 Fetching color specifications using dedicated function...');
+      
+      // First try using the direct specification values endpoint with correct ID (3)
+      const response = await filterService.fetchSpecificationValuesBySpecId(3, { limit: 1000 });
+      
+      if (response.success && response.data) {
+        console.log(`✅ Success! Received ${response.data.length} color values directly from API`);
+        
+        // Add to existing spec values
+        setSpecValues(prev => ({
+          ...prev,
+          'color': response.data
+        }));
+        
+        return response.data;
+      }
+      
+      // If direct approach fails, use fallback color data
+      console.log('⚠️ Using fallback color data since API fetch failed');
+      
+      // Complete list of common car colors
+      const completeColorValues = [
+        { id: 1, name: "White", status: "published" },
+        { id: 2, name: "Black", status: "published" },
+        { id: 3, name: "Silver", status: "published" },
+        { id: 4, name: "Gray", status: "published" },
+        { id: 5, name: "Red", status: "published" },
+        { id: 6, name: "Blue", status: "published" },
+        { id: 7, name: "Green", status: "published" },
+        { id: 8, name: "Yellow", status: "published" },
+        { id: 9, name: "Brown", status: "published" },
+        { id: 10, name: "Orange", status: "published" },
+        { id: 11, name: "Beige", status: "published" },
+        { id: 12, name: "Purple", status: "published" },
+        { id: 13, name: "Gold", status: "published" },
+        { id: 14, name: "Maroon", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'color': completeColorValues
+      }));
+      
+      return completeColorValues;
+    } catch (error) {
+      console.error('❌ Error fetching color specifications:', error);
+      return [];
+    }
+  };
+
+  // Function to fetch wheel size specifications directly
+  const fetchWheelSizeSpecifications = async () => {
+    return fetchSpecificationsBySpecId('wheel_size');
+  };
+
+  // Function to fetch transmission specifications directly
+  const fetchTransmissionSpecifications = async () => {
+    try {
+      console.log('🔄 Fetching transmission specifications directly from API...');
+      
+      // First try using the direct specification values endpoint with correct ID (12)
+      const response = await filterService.fetchSpecificationValuesBySpecId(12, { limit: 1000 });
+      
+      if (response.success && response.data) {
+        console.log(`✅ Success! Received ${response.data.length} transmission values directly from API`);
+        console.log('📊 Transmission API response:', JSON.stringify(response.data.slice(0, 5)));
+        console.log('📊 All transmission values from API:', response.data.map(item => item.name).join(', '));
+        
+        // Add to existing spec values
+        setSpecValues(prev => ({
+          ...prev,
+          'transmission': response.data
+        }));
+        
+        return response.data;
+      }
+      
+      // If direct approach fails, try alternative approaches
+      console.log('⚠️ Direct API approach failed, trying alternative approaches for transmissions...');
+      
+      // Try the standard method through filterService as fallback
+      const standardResponse = await filterService.fetchSpecificationValues('transmission', { limit: 100 });
+      
+      if (standardResponse.success && standardResponse.data && standardResponse.data.length > 0) {
+        console.log(`✅ Success! Received ${standardResponse.data.length} transmission values from filterService`);
+        console.log('📊 Transmission standard response:', JSON.stringify(standardResponse.data.slice(0, 5)));
+        console.log('📊 All transmission values from standard method:', standardResponse.data.map(item => item.name).join(', '));
+        
+        // Add to existing spec values
+        setSpecValues(prev => ({
+          ...prev,
+          'transmission': standardResponse.data
+        }));
+        
+        return standardResponse.data;
+      }
+      
+      // If all approaches fail, create complete values based on the test.json data
+      console.log('⚠️ All approaches failed, using complete transmission values from API data as fallback');
+      
+      // Complete values from test.json data (all transmissions from the API)
+      const completeTransmissionValues = [
+        { id: 94, name: "Manual", status: "published" },
+        { id: 95, name: "Automatic", status: "published" },
+        { id: 96, name: "Semi-Automatic", status: "published" },
+        { id: 97, name: "CVT", status: "published" },
+        { id: 104, name: "Dual-Clutch", status: "published" },
+        { id: 105, name: "Tiptronic", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'transmission': completeTransmissionValues
+      }));
+      
+      console.log('📊 Using complete transmission values:', completeTransmissionValues.map(item => item.name).join(', '));
+      return completeTransmissionValues;
+    } catch (error) {
+      console.error('❌ Error fetching transmission specifications:', error);
+      
+      // Fallback to complete values in case of error
+      const completeTransmissionValues = [
+        { id: 94, name: "Manual", status: "published" },
+        { id: 95, name: "Automatic", status: "published" },
+        { id: 96, name: "Semi-Automatic", status: "published" },
+        { id: 97, name: "CVT", status: "published" },
+        { id: 104, name: "Dual-Clutch", status: "published" },
+        { id: 105, name: "Tiptronic", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'transmission': completeTransmissionValues
+      }));
+      
+      console.log('📊 Using complete transmission values after error:', completeTransmissionValues.map(item => item.name).join(', '));
+      return completeTransmissionValues;
     }
   };
 
@@ -589,100 +982,146 @@ const FilterScreen = ({ route, navigation }) => {
     // Fetch all specification values at once
     fetchAllSpecValues();
     
-    // Specifically fetch body types directly since this is critical
+    // Specifically fetch critical specifications directly
     fetchBodyTypeSpecifications();
-    
-    // Also fetch seats data directly
     fetchSeatsSpecifications();
-    
-    // Also fetch doors data directly
     fetchDoorsSpecifications();
-    
-    // Also fetch fuel type data directly
     fetchFuelTypeSpecifications();
-    
-    // Also fetch cylinders data directly
     fetchCylindersSpecifications();
+    fetchTransmissionSpecifications();
+    fetchColorSpecifications();
   }, []);
 
-  // Load filter data when active filter changes
+  // Load filter data when the component mounts or when the active filter changes
   useEffect(() => {
     loadFilterData();
+    
+    // Always preload regional specifications data since it's commonly used
+    if (!specValues['regional_specification'] || specValues['regional_specification'].length === 0) {
+      console.log('🌎 Preloading regional specifications data on component mount');
+      fetchRegionalSpecifications();
+    }
   }, [activeFilter]);
 
   // Load filter data based on active filter
   const loadFilterData = async () => {
-    if (loading) return;
-    
     setLoading(true);
-    
     try {
+      console.log('🔍 Loading filter data for:', activeFilter);
+      // Always fetch regional specifications to ensure we have them available
+      if (!specValues['regional_specification'] || specValues['regional_specification'].length === 0) {
+        console.log('🌎 Pre-loading regional specifications');
+        await fetchRegionalSpecifications();
+      }
+      
       switch (activeFilter) {
         case 'brands':
-          await fetchBrands();
+          if (brands.length === 0) {
+            console.log('🏢 Brand filter activated - fetching brands');
+            await fetchBrands();
+          }
           break;
+          
         case 'models':
-          await fetchModels();
+          if (models.length === 0) {
+            console.log('🚗 Model filter activated - fetching models');
+            await fetchModels();
+          }
           break;
+          
         case 'trims':
-          await fetchTrims();
+          if (trims.length === 0) {
+            console.log('🏁 Trim filter activated - fetching trims');
+            await fetchTrims();
+          }
           break;
+          
         case 'years':
-          await fetchYears();
+          if (years.length === 0) {
+            console.log('📅 Year filter activated - fetching years');
+            await fetchYears();
+          }
           break;
+          
         case 'bodyType':
-          // When the body type filter is activated, log extra information for debugging
-          console.log('🔍 Body Type filter activated - fetching values');
-          await fetchBodyTypeSpecifications();
-          break;
-        case 'seats':
-          if (!specValues['seats'] || specValues['seats'].length === 0) {
-            await fetchSeatsSpecifications();
+          if (!specValues['body_type'] || specValues['body_type'].length === 0) {
+            console.log('🚙 Body Type filter activated - fetching values');
+            await fetchBodyTypeSpecifications();
           }
           break;
-        case 'doors':
-          if (!specValues['doors'] || specValues['doors'].length === 0) {
-            await fetchDoorsSpecifications();
-          }
-          break;
+          
         case 'fuelType':
           if (!specValues['fuel_type'] || specValues['fuel_type'].length === 0) {
             console.log('⛽ Fuel Type filter activated - fetching values');
             await fetchFuelTypeSpecifications();
           }
           break;
+          
+        case 'transmission':
+          if (!specValues['transmission'] || specValues['transmission'].length === 0) {
+            console.log('🔄 Transmission filter activated - forcefully fetching fresh values');
+            await fetchTransmissionSpecifications();
+          }
+          break;
+          
+        case 'driveType':
+          if (!specValues['drive_type'] || specValues['drive_type'].length === 0) {
+            console.log('🚗 Drive Type filter activated - fetching values');
+            await fetchDriveTypeSpecifications();
+          }
+          break;
+          
+        case 'color':
+          if (!specValues['color'] || specValues['color'].length === 0) {
+            console.log('🎨 Color filter activated - fetching values');
+            await fetchColorSpecifications();
+          }
+          break;
+          
+        case 'interiorColor':
+          if (!specValues['interior_color'] || specValues['interior_color'].length === 0) {
+            console.log('🚗 Interior Color filter activated - fetching values');
+            await fetchInteriorColorSpecifications();
+          }
+          break;
+          
+        case 'wheelSize':
+          if (!specValues['wheel_size'] || specValues['wheel_size'].length === 0) {
+            console.log('🛞 Wheel Size filter activated - fetching values');
+            await fetchWheelSizeSpecifications();
+          }
+          break;
+          
+        case 'regionalSpec':
+          // Always fetch fresh regional specification values when the filter is activated
+          console.log('🌎 Regional Specification filter activated - forcefully fetching fresh values');
+          await fetchRegionalSpecifications();
+          break;
+          
+        case 'steeringSide':
+          console.log('🚘 Steering Side filter activated - forcefully fetching fresh values');
+          await fetchSteeringSideSpecifications();
+          break;
+          
+        case 'seats':
+          if (!specValues['seats'] || specValues['seats'].length === 0) {
+            console.log('💺 Seats filter activated - fetching values');
+            await fetchSeatsSpecifications();
+          }
+          break;
+          
+        case 'doors':
+          if (!specValues['doors'] || specValues['doors'].length === 0) {
+            console.log('🚪 Doors filter activated - fetching values');
+            await fetchDoorsSpecifications();
+          }
+          break;
+          
         case 'cylinders':
           if (!specValues['cylinders'] || specValues['cylinders'].length === 0) {
             console.log('🔧 Cylinders filter activated - fetching values');
             await fetchCylindersSpecifications();
           }
-          break;
-        case 'regionalSpec':
-          if (!specValues['regional_specification'] || specValues['regional_specification'].length === 0) {
-            await fetchRegionalSpecifications();
-          }
-          break;
-        case 'interiorColor':
-          if (!specValues['interior_color'] || specValues['interior_color'].length === 0) {
-            await fetchInteriorColorSpecifications();
-          }
-          break;
-        case 'steeringSide':
-          if (!specValues['steering_side'] || specValues['steering_side'].length === 0) {
-            await fetchSteeringSideSpecifications();
-          }
-          break;
-        case 'color':
-          if (!specValues['color'] || specValues['color'].length === 0) {
-            await fetchColorSpecifications();
-          }
-          break;
-        case 'wheelSize':
-          if (!specValues['wheel_size'] || specValues['wheel_size'].length === 0) {
-            await fetchWheelSizeSpecifications();
-          }
-          break;
-        default:
           break;
       }
     } catch (error) {
@@ -713,32 +1152,57 @@ const FilterScreen = ({ route, navigation }) => {
 
   // Fetch models data
   const fetchModels = async () => {
-    // Include brand filter if brands are selected
-    const params = { limit: 100 };
-    
-    if (selectedBrandIds.length > 0) {
-      params.brandId = selectedBrandIds.join(',');
+    // Only fetch models if at least one brand is selected
+    if (selectedBrandIds.length === 0) {
+      // Clear existing models when no brand is selected
+      setModels([]);
+      return;
     }
     
-    const response = await filterService.fetchCarModels(params);
-    if (response.success) {
-      // Filter out duplicate models by name
-      const uniqueModels = [];
-      const modelNames = new Set();
-      
-      response.data.forEach(model => {
-        if (!modelNames.has(model.name)) {
-          modelNames.add(model.name);
-          uniqueModels.push(model);
-        }
-      });
-      
-      setModels(uniqueModels);
+    // Include brand filter if brands are selected
+    const params = { limit: 100 };
+    params.brandId = selectedBrandIds.join(',');
+    
+    console.log(`🚗 Fetching models for selected brands: ${selectedBrands.join(', ')} (IDs: ${selectedBrandIds.join(', ')})`);
+    
+    setLoading(true);
+    try {
+      const response = await filterService.fetchCarModels(params);
+      if (response.success) {
+        // Filter out duplicate models by name
+        const uniqueModels = [];
+        const modelNames = new Set();
+        
+        response.data.forEach(model => {
+          if (!modelNames.has(model.name)) {
+            modelNames.add(model.name);
+            uniqueModels.push(model);
+          }
+        });
+        
+        console.log(`✅ Found ${uniqueModels.length} models for selected brands`);
+        setModels(uniqueModels);
+      } else {
+        console.error('❌ Error fetching models:', response.error);
+        setModels([]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching models:', error);
+      setModels([]);
+    } finally {
+      setLoading(false);
     }
   };
 
   // Fetch trims data
   const fetchTrims = async () => {
+    // Only fetch trims if at least one model is selected
+    if (selectedModelIds.length === 0) {
+      // Clear existing trims when no model is selected
+      setTrims([]);
+      return;
+    }
+    
     // Include brand and model filters if selected
     const params = { limit: 100 };
     
@@ -750,21 +1214,35 @@ const FilterScreen = ({ route, navigation }) => {
       params.modelId = selectedModelIds.join(',');
     }
     
-    const response = await filterService.fetchTrims(params);
-    if (response.success) {
-      // Filter out duplicate trims by name to avoid showing duplicates in the UI
-      const uniqueTrims = [];
-      const trimNames = new Set();
-      
-      // Filter to keep only unique trim names
-      response.data.forEach(trim => {
-        if (!trimNames.has(trim.name)) {
-          trimNames.add(trim.name);
-          uniqueTrims.push(trim);
-        }
-      });
-      
-      setTrims(uniqueTrims);
+    console.log(`🏁 Fetching trims for selected models: ${selectedModels.join(', ')} (IDs: ${selectedModelIds.join(', ')})`);
+    
+    setLoading(true);
+    try {
+      const response = await filterService.fetchTrims(params);
+      if (response.success) {
+        // Filter out duplicate trims by name to avoid showing duplicates in the UI
+        const uniqueTrims = [];
+        const trimNames = new Set();
+        
+        // Filter to keep only unique trim names
+        response.data.forEach(trim => {
+          if (!trimNames.has(trim.name)) {
+            trimNames.add(trim.name);
+            uniqueTrims.push(trim);
+          }
+        });
+        
+        console.log(`✅ Found ${uniqueTrims.length} trims for selected models`);
+        setTrims(uniqueTrims);
+      } else {
+        console.error('❌ Error fetching trims:', response.error);
+        setTrims([]);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching trims:', error);
+      setTrims([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -812,6 +1290,12 @@ const FilterScreen = ({ route, navigation }) => {
       setSelectedBrands(prev => [...prev, brandName]);
       setSelectedBrandIds(prev => [...prev, brandId]);
     }
+    
+    // Clear model and trim selections when brand selection changes
+    setSelectedModels([]);
+    setSelectedModelIds([]);
+    setSelectedTrims([]);
+    setSelectedTrimIds([]);
   };
   
   // Handle model selection
@@ -824,6 +1308,10 @@ const FilterScreen = ({ route, navigation }) => {
       setSelectedModels(prev => [...prev, modelName]);
       setSelectedModelIds(prev => [...prev, modelId]);
     }
+    
+    // Clear trim selections when model selection changes
+    setSelectedTrims([]);
+    setSelectedTrimIds([]);
   };
 
   // Handle trim selection
@@ -893,61 +1381,29 @@ const FilterScreen = ({ route, navigation }) => {
       trimIds: selectedTrimIds,
       years: selectedYears,
       yearIds: selectedYearIds,
-      specifications: selectedSpecValues
+      specifications: selectedSpecValues,
+      extractColorsFromSlug: true // Flag to indicate color extraction from slugs should be used
     };
     
-    // Log selected regional specifications
+    // Extra validation and logging for selected specifications
     if (selectedSpecValues.regional_specification && selectedSpecValues.regional_specification.length > 0) {
-      console.log('Selected Regional Specifications:', selectedSpecValues.regional_specification.join(', '));
+      console.log('🌎 Selected Regional Specifications:', selectedSpecValues.regional_specification.join(', '));
     }
     
     // Log selected interior colors
     if (selectedSpecValues.interior_color && selectedSpecValues.interior_color.length > 0) {
-      console.log('Selected Interior Colors:', selectedSpecValues.interior_color.join(', '));
-    }
-    
-    // Log selected steering side values
-    if (selectedSpecValues.steering_side && selectedSpecValues.steering_side.length > 0) {
-      console.log('Selected Steering Side:', selectedSpecValues.steering_side.join(', '));
+      console.log('🎨 Selected Interior Colors:', selectedSpecValues.interior_color.join(', '));
     }
     
     // Log selected exterior colors
     if (selectedSpecValues.color && selectedSpecValues.color.length > 0) {
-      console.log('Selected Exterior Colors:', selectedSpecValues.color.join(', '));
-    }
-    
-    // Log selected wheel sizes
-    if (selectedSpecValues.wheel_size && selectedSpecValues.wheel_size.length > 0) {
-      console.log('Selected Wheel Sizes:', selectedSpecValues.wheel_size.join(', '));
-    }
-    
-    // Log selected body types
-    if (selectedSpecValues.body_type && selectedSpecValues.body_type.length > 0) {
-      console.log('Selected Body Types:', selectedSpecValues.body_type.join(', '));
-    }
-    
-    // Log selected seats
-    if (selectedSpecValues.seats && selectedSpecValues.seats.length > 0) {
-      console.log('Selected Seats:', selectedSpecValues.seats.join(', '));
-    }
-    
-    // Log selected doors
-    if (selectedSpecValues.doors && selectedSpecValues.doors.length > 0) {
-      console.log('Selected Doors:', selectedSpecValues.doors.join(', '));
-    }
-    
-    // Log selected fuel types
-    if (selectedSpecValues.fuel_type && selectedSpecValues.fuel_type.length > 0) {
-      console.log('Selected Fuel Types:', selectedSpecValues.fuel_type.join(', '));
-    }
-    
-    // Log selected cylinders
-    if (selectedSpecValues.cylinders && selectedSpecValues.cylinders.length > 0) {
-      console.log('Selected Cylinders:', selectedSpecValues.cylinders.join(', '));
+      console.log('🎨 Selected Exterior Colors:', selectedSpecValues.color.join(', '));
+      console.log('ℹ️ Will also check car slugs for color matches');
     }
     
     // Call the callback with filters
     if (onApplyCallback) {
+      console.log('📤 Sending filter data to ExploreScreen');
       onApplyCallback(filters);
     }
     
@@ -1073,10 +1529,28 @@ const FilterScreen = ({ route, navigation }) => {
     const isCylinders = specKey === 'cylinders';
     const isSelected = selectedSpecValues[specKey]?.includes(item.name);
     
+    // Debug log for regional spec items
+    if (isRegionalSpec) {
+      console.log(`🌎 Rendering regional spec item: ${item.name} (ID: ${item.id}, Status: ${item.status || 'unknown'})`);
+    }
+    
     // Debug log for body type items
     if (isBodyType) {
       console.log(`🔍 Rendering body type item: ${item.name} (ID: ${item.id})`);
     }
+    
+    // Debug log for steering side items
+    if (isSteeringSide) {
+      console.log(`🚘 Rendering steering side item: ${item.name} (ID: ${item.id}, Status: ${item.status || 'unknown'})`);
+    }
+    
+    // Debug log for transmission items
+    if (specKey === 'transmission') {
+      console.log(`🔄 Rendering transmission item: ${item.name} (ID: ${item.id}, Status: ${item.status || 'unknown'})`);
+    }
+    
+    // Make sure we have a valid item name
+    const itemName = item.name || 'Unknown';
     
     // For interior colors, determine the actual color to display
     let colorPreview = null;
@@ -1249,9 +1723,6 @@ const FilterScreen = ({ route, navigation }) => {
     // If none exists, default to 'published'
     const status = item.status || 'published';
     
-    // Make sure we have a valid item name
-    const itemName = item.name || 'Unknown';
-    
     return (
       <TouchableOpacity
         style={[
@@ -1315,76 +1786,143 @@ const FilterScreen = ({ route, navigation }) => {
 
     switch (activeFilter) {
       case 'brands':
-      return (
+        return (
           <View style={styles.filterContent}>
             <Text style={styles.filterTitle}>Select Brand</Text>
-            <FlatList
-              data={brands}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={renderBrandItem}
-              showsVerticalScrollIndicator={false}
-            />
-        </View>
-      );
+            {brands.length > 0 ? (
+              <FlatList
+                data={brands}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderBrandItem}
+                showsVerticalScrollIndicator={false}
+              />
+            ) : (
+              <View style={styles.emptyContentContainer}>
+                <Text style={styles.emptyText}>No brands available</Text>
+                <TouchableOpacity
+                  style={styles.reloadButton}
+                  onPress={fetchBrands}
+                >
+                  <Text style={styles.reloadButtonText}>Retry Loading Brands</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        );
       
       case 'models':
-      return (
+        return (
           <View style={styles.filterContent}>
             <Text style={styles.filterTitle}>Select Model</Text>
-              {models.length > 0 ? (
+            {selectedBrands.length > 0 ? (
+              models.length > 0 ? (
                 <FlatList
                   data={models}
                   keyExtractor={(item) => item.id.toString()}
                   renderItem={renderModelItem}
-                showsVerticalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  ListHeaderComponent={
+                    <View style={styles.infoContainer}>
+                      <Text style={styles.infoText}>
+                        Showing models for: {selectedBrands.join(', ')}
+                      </Text>
+                    </View>
+                  }
                 />
               ) : (
-              <Text style={styles.emptyText}>
-                {selectedBrands.length > 0 
-                  ? 'No models available for selected brands'
-                  : 'Please select a brand first'}
-              </Text>
-          )}
-        </View>
-      );
+                <View style={styles.emptyContentContainer}>
+                  <Text style={styles.emptyText}>No models available for selected brands</Text>
+                  <TouchableOpacity
+                    style={styles.reloadButton}
+                    onPress={fetchModels}
+                  >
+                    <Text style={styles.reloadButtonText}>Retry Loading Models</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+            ) : (
+              <View style={styles.emptyContentContainer}>
+                <Text style={styles.emptyText}>Please select a brand first</Text>
+                <TouchableOpacity
+                  style={styles.reloadButton}
+                  onPress={() => setActiveFilter('brands')}
+                >
+                  <Text style={styles.reloadButtonText}>Go to Brand Selection</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        );
       
       case 'trims':
-      return (
+        return (
           <View style={styles.filterContent}>
             <Text style={styles.filterTitle}>Select Trim</Text>
-              {trims.length > 0 ? (
+            {selectedModels.length > 0 ? (
+              trims.length > 0 ? (
                 <FlatList
                   data={trims}
                   keyExtractor={(item) => item.id.toString()}
                   renderItem={renderTrimItem}
-                showsVerticalScrollIndicator={false}
+                  showsVerticalScrollIndicator={false}
+                  ListHeaderComponent={
+                    <View style={styles.infoContainer}>
+                      <Text style={styles.infoText}>
+                        Showing trims for: {selectedModels.join(', ')}
+                      </Text>
+                    </View>
+                  }
                 />
               ) : (
-              <Text style={styles.emptyText}>
-                {selectedModels.length > 0 
-                  ? 'No trims available for selected models'
-                  : 'Please select a model first'}
-              </Text>
-          )}
-        </View>
-      );
+                <View style={styles.emptyContentContainer}>
+                  <Text style={styles.emptyText}>No trims available for selected models</Text>
+                  <TouchableOpacity
+                    style={styles.reloadButton}
+                    onPress={fetchTrims}
+                  >
+                    <Text style={styles.reloadButtonText}>Retry Loading Trims</Text>
+                  </TouchableOpacity>
+                </View>
+              )
+            ) : (
+              <View style={styles.emptyContentContainer}>
+                <Text style={styles.emptyText}>Please select a model first</Text>
+                {selectedBrands.length > 0 ? (
+                  <TouchableOpacity
+                    style={styles.reloadButton}
+                    onPress={() => setActiveFilter('models')}
+                  >
+                    <Text style={styles.reloadButtonText}>Go to Model Selection</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.reloadButton}
+                    onPress={() => setActiveFilter('brands')}
+                  >
+                    <Text style={styles.reloadButtonText}>Go to Brand Selection</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </View>
+        );
       
       case 'years':
-      return (
+        return (
           <View style={styles.filterContent}>
             <Text style={styles.filterTitle}>Select Year</Text>
-              {years.length > 0 ? (
-                <FlatList
-                  data={years}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderYearItem}
+            {years.length > 0 ? (
+              <FlatList
+                data={years}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={renderYearItem}
                 showsVerticalScrollIndicator={false}
-                />
-              ) : (
-                <Text style={styles.emptyText}>No years available</Text>
-          )}
-        </View>
-      );
+              />
+            ) : (
+              <Text style={styles.emptyText}>No years available</Text>
+            )}
+          </View>
+        );
       
       case 'bodyType':
         // Special handling for body type
@@ -1699,14 +2237,41 @@ const FilterScreen = ({ route, navigation }) => {
           
           // Log when displaying regional specification filter
           if (specKey === 'regional_specification') {
-            console.log(`Showing ${values.length} Regional Specification values:`, 
-              values.slice(0, 5).map(v => v.name).join(', ') + (values.length > 5 ? '...' : ''));
+            console.log(`Showing ${values.length} Regional Specification values`);
+            if (values.length > 0) {
+              console.log('First 5 values:', values.slice(0, 5).map(v => `${v.name} (ID: ${v.id})`).join(', '));
+              if (values.length > 5) {
+                console.log('Last 5 values:', values.slice(-5).map(v => `${v.name} (ID: ${v.id})`).join(', '));
+              }
+            } else {
+              console.log('⚠️ No regional specification values available!');
+            }
           }
           
           // Log when displaying interior color filter
           if (specKey === 'interior_color') {
             console.log(`Showing ${values.length} Interior Color values:`, 
               values.slice(0, 5).map(v => v.name).join(', ') + (values.length > 5 ? '...' : ''));
+          }
+          
+          // Log when displaying steering side filter
+          if (specKey === 'steering_side') {
+            console.log(`Showing ${values.length} Steering Side values`);
+            if (values.length > 0) {
+              console.log('All steering side values:', values.map(v => `${v.name} (ID: ${v.id})`).join(', '));
+            } else {
+              console.log('⚠️ No steering side values available!');
+            }
+          }
+          
+          // Log when displaying transmission filter
+          if (specKey === 'transmission') {
+            console.log(`Showing ${values.length} Transmission values`);
+            if (values.length > 0) {
+              console.log('All transmission values:', values.map(v => `${v.name} (ID: ${v.id})`).join(', '));
+            } else {
+              console.log('⚠️ No transmission values available!');
+            }
           }
       
       return (
@@ -1840,6 +2405,43 @@ const FilterScreen = ({ route, navigation }) => {
     
     return count;
   };
+
+  // Add effect for brand selection changes to update models
+  useEffect(() => {
+    // When brands selection changes, refetch models and clear existing model selection
+    if (activeFilter === 'models' || activeFilter === 'brands') {
+      if (selectedBrands.length === 0) {
+        // If no brands selected, clear models
+        setModels([]);
+        setSelectedModels([]);
+        setSelectedModelIds([]);
+      } else {
+        // Fetch models for selected brands
+        fetchModels();
+      }
+    }
+    
+    // Also clear trim selection since models changed
+    setSelectedTrims([]);
+    setSelectedTrimIds([]);
+    setTrims([]);
+  }, [selectedBrands, selectedBrandIds]);
+
+  // Add effect for model selection changes to update trims
+  useEffect(() => {
+    // When models selection changes, refetch trims and clear existing trim selection
+    if (activeFilter === 'trims' || activeFilter === 'models') {
+      if (selectedModels.length === 0) {
+        // If no models selected, clear trims
+        setTrims([]);
+        setSelectedTrims([]);
+        setSelectedTrimIds([]);
+      } else {
+        // Fetch trims for selected models
+        fetchTrims();
+      }
+    }
+  }, [selectedModels, selectedModelIds]);
 
   return (
     <SafeAreaView style={styles.container}>

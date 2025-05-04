@@ -1293,6 +1293,59 @@ export const fetchCylindersData = async () => {
   }
 };
 
+// Fetch specification values by specification ID
+export const fetchSpecificationValuesBySpecId = async (specId, params = {}) => {
+  try {
+    console.log(`📋 Fetching specification values for specification ID: ${specId}`);
+    
+    // Ensure we include required parameters
+    const updatedParams = {
+      ...params,
+      page: params.page || 1,
+      limit: params.limit || 1000,
+      lang: params.lang || 'en'
+    };
+    
+    // Use the direct specification values list endpoint
+    const response = await api.get('/specificationvalue/list', { params: updatedParams });
+    
+    if (response.data && Array.isArray(response.data.data)) {
+      console.log(`✅ Received ${response.data.data.length} total specification values`);
+      
+      // Filter by the specification ID we're looking for
+      const filteredValues = response.data.data.filter(item => 
+        (item.specification && item.specification.id === specId) || 
+        (item.Specification && item.Specification.id === specId)
+      );
+      
+      console.log(`✅ Filtered to ${filteredValues.length} values for specification ID ${specId}`);
+      
+      if (filteredValues.length > 0) {
+        console.log(`📊 First few values: ${filteredValues.slice(0, 3).map(v => v.name).join(', ')}...`);
+      }
+      
+      return {
+        success: true,
+        data: filteredValues,
+        pagination: response.data.pagination
+      };
+    }
+    
+    return {
+      success: false,
+      data: [],
+      error: 'No specification values found'
+    };
+  } catch (error) {
+    console.error(`Error fetching specification values for ID ${specId}:`, error);
+    return {
+      success: false,
+      data: [],
+      error: error.message || 'Failed to fetch specification values'
+    };
+  }
+};
+
 export default {
   fetchBrands,
   fetchCarModels,
@@ -1306,5 +1359,6 @@ export default {
   fetchDoorsData,
   fetchFuelTypeData,
   fetchCylindersData,
+  fetchSpecificationValuesBySpecId,
   api
 }; 

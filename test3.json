@@ -1,0 +1,1315 @@
+{
+    "success": true,
+    "message": "Car retrieved successfully",
+    "data": {
+      "id": 44,
+      "stockId": "GLY-GALAXY E5-EXPLORER+-EV-0-AT-GRY-BLU-24",
+      "description": "<p><strong>2024 GEELY GALAXY E5 EXPLORER+ - GREY inside BLUE</strong></p><p></p><p>Key features</p><p>•\t18" alloy wheels</p><p>•\tBattery Energy (kWh) – 60.22</p><p>•\tCLTC Range (km) – 530</p><p>•\tDC Fast Charging Time (SOC30%-80%) – 20min</p><p>•\tAC Slow Charging Time (SOC10%-100%) – 9h</p><p>•\tDriving Modes</p><p>•\tFlying Eave Tiger Eye LED Headlights</p><p>•\tLED DRLs</p><p>•\tLED Rear Fog Light</p><p>•\tRain-sensing frameless Wipers</p><p>•\tElectrically Adjustable &amp; Heated Exterior Mirrors</p><p>•\tElectric Tailgate</p><p>•\tStarry Sky Panoramic Sunroof</p><p>•\tAluminum Alloy Roof Rack</p><p>•\tCotton Candy Series Seats</p><p>•\tHeated/Ventilated Front Seats</p><p>•\t50W Ultra-Fast Wireless Phone Charging</p><p>•\tGEA Global Smart New Energy Architecture</p><p>•\tGalaxy 11-in-1 Intelligent Electric Drive</p><p>•\tGCS Comfort Braking System</p><p>•\tACC Full-Speed Adaptive Cruise Control Assist</p><p>•\tICC Intelligent Cruise Control Assist</p><p>•\tLDW Lane Departure Warning</p><p>•\tLKA Lane Keeping Assist</p><p>•\tELKA Emergency Lane-Keeping Assist</p><p>•\tTSI Traffic Sign Recognition</p><p>•\tFCW Forward Collision Warning</p><p>•\t15.4" 2.5K HD Full Screen</p><p>•\t10.2" Full LCD Instrument Cluster</p><p>•\tUltra-Wide HUD Head-Up Display</p><p>•\t16 Speakers (including Driver's Headrest Speakers)</p><p>•\t256-Color Intelligent Dynamic Ambient Lighting</p><p>•\tKeyless Start</p><p>•\tAutomatic Drive Lock System</p><p>•\tABS Anti-lock Braking System</p><p>•\tEBD Electronic Brakeforce Distribution</p><p>•\tESC Electronic Stability Control</p><p>•\tHAC Hill Start Assist System </p><p>•\tCBC Cornering Brake Control System </p><p>•\tEPB Electronic Parking Brake System </p><p>•\tARP Electronic Anti-Rollover Protection </p><p>•\tTPMS Intelligent Tire Pressure Monitoring System </p><p>•\tG-TCS All-Weather Traction Control System </p><p>•\tAUTOHOLD Automatic Parking Brake </p><p>•\tGod's Eye 540° Transparent Chassis </p><p>•\tAEB-P Active Emergency Braking Assist (with Pedestrian Detection) </p><p>•\tLCA Lane Change Assist </p><p>•\tBSD Blind Spot Detection</p>",
+      "slug": "2024-geely-galaxy-e5-explorer-2024-geely-galaxy-e5-explorer-grey-inside-blue",
+      "status": "published",
+      "brochureId": "b8e0bf84-fa72-4074-9a3d-2c3bd30ffe94",
+      "brandId": 7,
+      "modelId": 9,
+      "trimId": 14,
+      "yearId": 2,
+      "engineSize": null,
+      "horsepower": null,
+      "additionalInfo": "2024 GEELY GALAXY E5 EXPLORER+ - GREY inside BLUE",
+      "createdAt": "2025-03-11T19:39:44.864Z",
+      "updatedAt": "2025-03-13T06:58:51.325Z",
+      "Brand": {
+        "id": 7,
+        "name": "GEELY"
+      },
+      "CarModel": {
+        "id": 9,
+        "name": "GALAXY E5"
+      },
+      "Trim": {
+        "id": 14,
+        "name": "EXPLORER+"
+      },
+      "Year": {
+        "id": 2,
+        "year": 2024
+      },
+      "CarTranslations": [],
+      "CarImages": [
+        {
+          "id": 4787,
+          "fileId": "3f0cd2e1-3b57-44f2-9300-a773f27ef235",
+          "type": "interior",
+          "order": 1,
+          "FileSystem": {
+            "id": "3f0cd2e1-3b57-44f2-9300-a773f27ef235",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-9-244074.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074.jpg",
+            "parentId": null,
+            "size": 363470,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074.webp",
+            "createdAt": "2025-03-11T19:37:09.333Z",
+            "updatedAt": "2025-03-11T19:37:09.333Z"
+          }
+        },
+        {
+          "id": 4788,
+          "fileId": "43f5d2ec-57a1-4e19-9bf4-621f9363b960",
+          "type": "interior",
+          "order": 2,
+          "FileSystem": {
+            "id": "43f5d2ec-57a1-4e19-9bf4-621f9363b960",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-10-547185.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185.jpg",
+            "parentId": null,
+            "size": 411072,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185.webp",
+            "createdAt": "2025-03-11T19:37:13.638Z",
+            "updatedAt": "2025-03-11T19:37:13.638Z"
+          }
+        },
+        {
+          "id": 4789,
+          "fileId": "6a5c3d9a-1e3e-4458-a9f6-cade023dc36c",
+          "type": "interior",
+          "order": 3,
+          "FileSystem": {
+            "id": "6a5c3d9a-1e3e-4458-a9f6-cade023dc36c",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-11-719635.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635.jpg",
+            "parentId": null,
+            "size": 456872,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635.webp",
+            "createdAt": "2025-03-11T19:37:17.117Z",
+            "updatedAt": "2025-03-11T19:37:17.117Z"
+          }
+        },
+        {
+          "id": 4790,
+          "fileId": "3c30b22e-3337-41c8-8c58-f4bb85e4240f",
+          "type": "interior",
+          "order": 4,
+          "FileSystem": {
+            "id": "3c30b22e-3337-41c8-8c58-f4bb85e4240f",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-19-631316.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316.jpg",
+            "parentId": null,
+            "size": 481344,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316.webp",
+            "createdAt": "2025-03-11T19:37:46.562Z",
+            "updatedAt": "2025-03-11T19:37:46.562Z"
+          }
+        },
+        {
+          "id": 4791,
+          "fileId": "c1ada15e-4c4b-4e59-85ed-d6eb30951f1a",
+          "type": "interior",
+          "order": 5,
+          "FileSystem": {
+            "id": "c1ada15e-4c4b-4e59-85ed-d6eb30951f1a",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-15-633421.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421.jpg",
+            "parentId": null,
+            "size": 461001,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421.webp",
+            "createdAt": "2025-03-11T19:37:30.638Z",
+            "updatedAt": "2025-03-11T19:37:30.638Z"
+          }
+        },
+        {
+          "id": 4792,
+          "fileId": "25287bc1-af10-4c4a-ae77-29ea55c75f11",
+          "type": "interior",
+          "order": 6,
+          "FileSystem": {
+            "id": "25287bc1-af10-4c4a-ae77-29ea55c75f11",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-16-276440.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440.jpg",
+            "parentId": null,
+            "size": 361176,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440.webp",
+            "createdAt": "2025-03-11T19:37:34.211Z",
+            "updatedAt": "2025-03-11T19:37:34.211Z"
+          }
+        },
+        {
+          "id": 4793,
+          "fileId": "d8a5c479-92f9-483f-9348-2c7cc8a9bec9",
+          "type": "interior",
+          "order": 7,
+          "FileSystem": {
+            "id": "d8a5c479-92f9-483f-9348-2c7cc8a9bec9",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-14-432435.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435.jpg",
+            "parentId": null,
+            "size": 438703,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435.webp",
+            "createdAt": "2025-03-11T19:37:27.337Z",
+            "updatedAt": "2025-03-11T19:37:27.337Z"
+          }
+        },
+        {
+          "id": 4794,
+          "fileId": "bb8bee7b-fa52-4739-b3a1-fd1be0ee499e",
+          "type": "interior",
+          "order": 8,
+          "FileSystem": {
+            "id": "bb8bee7b-fa52-4739-b3a1-fd1be0ee499e",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-18-448226.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226.jpg",
+            "parentId": null,
+            "size": 453312,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226.webp",
+            "createdAt": "2025-03-11T19:37:42.354Z",
+            "updatedAt": "2025-03-11T19:37:42.354Z"
+          }
+        },
+        {
+          "id": 4795,
+          "fileId": "a9f46993-d3d3-4034-8539-da7dc4fb750f",
+          "type": "interior",
+          "order": 9,
+          "FileSystem": {
+            "id": "a9f46993-d3d3-4034-8539-da7dc4fb750f",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-17-790576.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576.jpg",
+            "parentId": null,
+            "size": 383422,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576.webp",
+            "createdAt": "2025-03-11T19:37:38.081Z",
+            "updatedAt": "2025-03-11T19:37:38.081Z"
+          }
+        },
+        {
+          "id": 4796,
+          "fileId": "eff946ed-02d1-4799-ab2c-2b5bb6e9e7bc",
+          "type": "interior",
+          "order": 10,
+          "FileSystem": {
+            "id": "eff946ed-02d1-4799-ab2c-2b5bb6e9e7bc",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-20-683236.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236.jpg",
+            "parentId": null,
+            "size": 535217,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236.webp",
+            "createdAt": "2025-03-11T19:37:51.229Z",
+            "updatedAt": "2025-03-11T19:37:51.229Z"
+          }
+        },
+        {
+          "id": 4797,
+          "fileId": "a1cbf81f-c1e4-47d4-b61d-b662d5aeb63d",
+          "type": "interior",
+          "order": 11,
+          "FileSystem": {
+            "id": "a1cbf81f-c1e4-47d4-b61d-b662d5aeb63d",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-21-816226.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226.jpg",
+            "parentId": null,
+            "size": 342010,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226.webp",
+            "createdAt": "2025-03-11T19:37:55.517Z",
+            "updatedAt": "2025-03-11T19:37:55.517Z"
+          }
+        },
+        {
+          "id": 4798,
+          "fileId": "0b67d971-da67-4a1d-baea-dd3d6f226a49",
+          "type": "interior",
+          "order": 12,
+          "FileSystem": {
+            "id": "0b67d971-da67-4a1d-baea-dd3d6f226a49",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-12-534695.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695.jpg",
+            "parentId": null,
+            "size": 250515,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695.webp",
+            "createdAt": "2025-03-11T19:37:20.067Z",
+            "updatedAt": "2025-03-11T19:37:20.067Z"
+          }
+        },
+        {
+          "id": 4799,
+          "fileId": "d5305031-fe0c-466d-a931-cc71f9aa41dc",
+          "type": "interior",
+          "order": 13,
+          "FileSystem": {
+            "id": "d5305031-fe0c-466d-a931-cc71f9aa41dc",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-8-383000.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000.jpg",
+            "parentId": null,
+            "size": 379936,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000.webp",
+            "createdAt": "2025-03-11T19:37:06.141Z",
+            "updatedAt": "2025-03-11T19:37:06.141Z"
+          }
+        },
+        {
+          "id": 4800,
+          "fileId": "d4b67f5e-41db-4ba0-985f-9a0eb580c563",
+          "type": "interior",
+          "order": 14,
+          "FileSystem": {
+            "id": "d4b67f5e-41db-4ba0-985f-9a0eb580c563",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-13-697807.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807.jpg",
+            "parentId": null,
+            "size": 407759,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807.webp",
+            "createdAt": "2025-03-11T19:37:23.139Z",
+            "updatedAt": "2025-03-11T19:37:23.139Z"
+          }
+        },
+        {
+          "id": 4801,
+          "fileId": "a3f38fe3-4fba-497f-9644-45697d232c5c",
+          "type": "interior",
+          "order": 15,
+          "FileSystem": {
+            "id": "a3f38fe3-4fba-497f-9644-45697d232c5c",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-24-591924.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924.jpg",
+            "parentId": null,
+            "size": 517816,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924.webp",
+            "createdAt": "2025-03-11T19:38:08.918Z",
+            "updatedAt": "2025-03-11T19:38:08.918Z"
+          }
+        },
+        {
+          "id": 4802,
+          "fileId": "5b801949-2a27-43c1-b96a-ecc654644ce0",
+          "type": "interior",
+          "order": 16,
+          "FileSystem": {
+            "id": "5b801949-2a27-43c1-b96a-ecc654644ce0",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-23-733939.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939.jpg",
+            "parentId": null,
+            "size": 546933,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939.webp",
+            "createdAt": "2025-03-11T19:38:04.568Z",
+            "updatedAt": "2025-03-11T19:38:04.568Z"
+          }
+        },
+        {
+          "id": 4803,
+          "fileId": "926e2c33-eeb0-4bf3-9dd0-7f6684377deb",
+          "type": "interior",
+          "order": 17,
+          "FileSystem": {
+            "id": "926e2c33-eeb0-4bf3-9dd0-7f6684377deb",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-22-591255.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255.jpg",
+            "parentId": null,
+            "size": 380608,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255.webp",
+            "createdAt": "2025-03-11T19:37:59.840Z",
+            "updatedAt": "2025-03-11T19:37:59.840Z"
+          }
+        },
+        {
+          "id": 4804,
+          "fileId": "c5847f07-9d97-44c1-b3bb-c71e0bf359bd",
+          "type": "interior",
+          "order": 18,
+          "FileSystem": {
+            "id": "c5847f07-9d97-44c1-b3bb-c71e0bf359bd",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-7-596024.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024.jpg",
+            "parentId": null,
+            "size": 417345,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024.webp",
+            "createdAt": "2025-03-11T19:37:02.912Z",
+            "updatedAt": "2025-03-11T19:37:02.912Z"
+          }
+        },
+        {
+          "id": 4805,
+          "fileId": "3e7fb572-18e9-4a54-b78c-1d2efb3a8c51",
+          "type": "exterior",
+          "order": 1,
+          "FileSystem": {
+            "id": "3e7fb572-18e9-4a54-b78c-1d2efb3a8c51",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-2-162652.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652.jpg",
+            "parentId": null,
+            "size": 624701,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652.webp",
+            "createdAt": "2025-03-11T19:37:09.245Z",
+            "updatedAt": "2025-03-11T19:37:09.245Z"
+          }
+        },
+        {
+          "id": 4806,
+          "fileId": "a97be892-df20-47f2-9880-2812a7cbd2cc",
+          "type": "exterior",
+          "order": 2,
+          "FileSystem": {
+            "id": "a97be892-df20-47f2-9880-2812a7cbd2cc",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-1-358785.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785.jpg",
+            "parentId": null,
+            "size": 543748,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785.webp",
+            "createdAt": "2025-03-11T19:37:04.536Z",
+            "updatedAt": "2025-03-11T19:37:04.536Z"
+          }
+        },
+        {
+          "id": 4807,
+          "fileId": "cb5bd2da-2d00-498a-95da-27cef9e83104",
+          "type": "exterior",
+          "order": 3,
+          "FileSystem": {
+            "id": "cb5bd2da-2d00-498a-95da-27cef9e83104",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-3-218285.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285.jpg",
+            "parentId": null,
+            "size": 637415,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285.webp",
+            "createdAt": "2025-03-11T19:37:13.446Z",
+            "updatedAt": "2025-03-11T19:37:13.446Z"
+          }
+        },
+        {
+          "id": 4808,
+          "fileId": "c663d954-14aa-4243-ba1b-8b5753767d93",
+          "type": "exterior",
+          "order": 4,
+          "FileSystem": {
+            "id": "c663d954-14aa-4243-ba1b-8b5753767d93",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-6-458307.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307.jpg",
+            "parentId": null,
+            "size": 632695,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307.webp",
+            "createdAt": "2025-03-11T19:37:26.565Z",
+            "updatedAt": "2025-03-11T19:37:26.565Z"
+          }
+        },
+        {
+          "id": 4809,
+          "fileId": "aa0136c8-bcb3-4a05-a215-bc44a68d4b72",
+          "type": "exterior",
+          "order": 5,
+          "FileSystem": {
+            "id": "aa0136c8-bcb3-4a05-a215-bc44a68d4b72",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-4-372451.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451.jpg",
+            "parentId": null,
+            "size": 707824,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451.webp",
+            "createdAt": "2025-03-11T19:37:18.572Z",
+            "updatedAt": "2025-03-11T19:37:18.572Z"
+          }
+        },
+        {
+          "id": 4810,
+          "fileId": "b3aa3b02-af79-48f7-a3dc-a325cebf86d9",
+          "type": "exterior",
+          "order": 6,
+          "FileSystem": {
+            "id": "b3aa3b02-af79-48f7-a3dc-a325cebf86d9",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-5-388805.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805.jpg",
+            "parentId": null,
+            "size": 463212,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805.webp",
+            "createdAt": "2025-03-11T19:37:22.706Z",
+            "updatedAt": "2025-03-11T19:37:22.706Z"
+          }
+        },
+        {
+          "id": 4811,
+          "fileId": "91dbe56d-29e2-420e-85d9-86552ada19c8",
+          "type": "exterior",
+          "order": 7,
+          "FileSystem": {
+            "id": "91dbe56d-29e2-420e-85d9-86552ada19c8",
+            "name": "2024-GEELY-GALAXYE5-EXPLORER-26-788373.jpg",
+            "isDirectory": false,
+            "path": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373.jpg",
+            "parentId": null,
+            "size": 609098,
+            "mimeType": "image/jpeg",
+            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373.jpg",
+            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373-compressed.jpg",
+            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373-thumbnail.jpg",
+            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373.webp",
+            "createdAt": "2025-03-11T19:36:59.545Z",
+            "updatedAt": "2025-03-11T19:36:59.545Z"
+          }
+        }
+      ],
+      "SpecificationValues": [
+        {
+          "id": 10,
+          "name": "China",
+          "Specification": {
+            "id": 1,
+            "name": "Regional Specification",
+            "key": "regional_specification",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:18:10.620Z",
+            "updatedAt": "2025-03-12T11:33:14.746Z"
+          }
+        },
+        {
+          "id": 11,
+          "name": "Left-hand drive",
+          "Specification": {
+            "id": 2,
+            "name": "Steering Side",
+            "key": "steering_side",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:18:20.146Z",
+            "updatedAt": "2025-03-12T11:33:14.746Z"
+          }
+        },
+        {
+          "id": 20,
+          "name": "Grey",
+          "Specification": {
+            "id": 3,
+            "name": "Color",
+            "key": "color",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:18:27.091Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 43,
+          "name": "18 inches",
+          "Specification": {
+            "id": 5,
+            "name": "Wheel Size",
+            "key": "wheel_size",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:18:38.865Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 51,
+          "name": "SUV",
+          "Specification": {
+            "id": 6,
+            "name": "Body Type",
+            "key": "body_type",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-18T10:18:46.179Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 61,
+          "name": "5-Seater",
+          "Specification": {
+            "id": 7,
+            "name": "Seats",
+            "key": "seats",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:18:51.983Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 71,
+          "name": "4 Doors",
+          "Specification": {
+            "id": 8,
+            "name": "Doors",
+            "key": "doors",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:18:57.361Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 76,
+          "name": "Electric",
+          "Specification": {
+            "id": 9,
+            "name": "Fuel Type",
+            "key": "fuel_type",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:19:02.365Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 89,
+          "name": "None - Electric",
+          "Specification": {
+            "id": 10,
+            "name": "Cylinders",
+            "key": "cylinders",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:19:07.655Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 90,
+          "name": "Front-Wheel Drive (FWD)",
+          "Specification": {
+            "id": 11,
+            "name": "Drive Type",
+            "key": "drive_type",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:19:12.962Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 95,
+          "name": "Automatic",
+          "Specification": {
+            "id": 12,
+            "name": "Transmission",
+            "key": "transmission",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:19:19.421Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        },
+        {
+          "id": 103,
+          "name": "Blue",
+          "Specification": {
+            "id": 4,
+            "name": "Interior Color",
+            "key": "interior_color",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-18T10:18:33.133Z",
+            "updatedAt": "2025-03-12T11:33:09.072Z"
+          }
+        }
+      ],
+      "FeatureValues": [
+        {
+          "id": 6,
+          "name": "USB",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 14,
+          "name": "Power Mirrors",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 20,
+          "name": "Information Cluster",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 21,
+          "name": "Leather seats",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 23,
+          "name": "Multiple off road option selector",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 25,
+          "name": "Air conditioning",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 29,
+          "name": "Power seats",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 30,
+          "name": "Climate control",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 32,
+          "name": "Cruise control",
+          "Feature": {
+            "id": 1,
+            "name": "Interior Feature",
+            "key": "interior_feature",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:24.441Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 39,
+          "name": "Sunroof",
+          "Feature": {
+            "id": 2,
+            "name": "Exterior and Controls",
+            "key": "exterior_and_controls",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:34.642Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 44,
+          "name": "DRLs",
+          "Feature": {
+            "id": 2,
+            "name": "Exterior and Controls",
+            "key": "exterior_and_controls",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:34.642Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 52,
+          "name": "Keyless go",
+          "Feature": {
+            "id": 2,
+            "name": "Exterior and Controls",
+            "key": "exterior_and_controls",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:34.642Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 62,
+          "name": "Auto High Beam Control",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 64,
+          "name": "Anti-Theft Alarm System",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 70,
+          "name": "LED headlights",
+          "Feature": {
+            "id": 2,
+            "name": "Exterior and Controls",
+            "key": "exterior_and_controls",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:34.642Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 73,
+          "name": "Vehicle Stability Control",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 77,
+          "name": "ABS",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 78,
+          "name": "Airbags (front and side)",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 80,
+          "name": "Front wheel drive",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 83,
+          "name": "Traction Control",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 84,
+          "name": "Brake Assist (BA)",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 90,
+          "name": "Autonomous Emergency Braking (AEB)",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 92,
+          "name": "Electronic Brake-Force Distribution (EBD)",
+          "Feature": {
+            "id": 3,
+            "name": "Security",
+            "key": "security",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:45:47.615Z",
+            "updatedAt": "2025-03-18T06:27:40.580Z"
+          }
+        },
+        {
+          "id": 105,
+          "name": "Drive Modes",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 110,
+          "name": "Rear AC Vents",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 112,
+          "name": "Heads up display",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 120,
+          "name": "Steering Switches",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 121,
+          "name": "Power Windows",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 126,
+          "name": "Tyre pressure warning system",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 128,
+          "name": "Power locks",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 130,
+          "name": "Auto Brake Hold",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 133,
+          "name": "Push Start",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 137,
+          "name": "Rear Camera",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 140,
+          "name": "Parking sensor rear",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 143,
+          "name": "Wireless Charger",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 146,
+          "name": "Power Trunk",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 147,
+          "name": "Power Steering",
+          "Feature": {
+            "id": 4,
+            "name": "Comfort & Convenience",
+            "key": "comfort_and_convenience",
+            "status": "published",
+            "mandatory": true,
+            "createdAt": "2025-02-17T10:45:59.421Z",
+            "updatedAt": "2025-03-04T11:43:39.090Z"
+          }
+        },
+        {
+          "id": 153,
+          "name": "USB & Auxiliary Cable",
+          "Feature": {
+            "id": 5,
+            "name": "Infotainment",
+            "key": "infotainment",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:46:07.851Z",
+            "updatedAt": "2025-03-04T11:43:33.105Z"
+          }
+        },
+        {
+          "id": 156,
+          "name": "Bluetooth system",
+          "Feature": {
+            "id": 5,
+            "name": "Infotainment",
+            "key": "infotainment",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:46:07.851Z",
+            "updatedAt": "2025-03-04T11:43:33.105Z"
+          }
+        },
+        {
+          "id": 159,
+          "name": "Rear Speakers",
+          "Feature": {
+            "id": 5,
+            "name": "Infotainment",
+            "key": "infotainment",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:46:07.851Z",
+            "updatedAt": "2025-03-04T11:43:33.105Z"
+          }
+        },
+        {
+          "id": 160,
+          "name": "Front Speakers",
+          "Feature": {
+            "id": 5,
+            "name": "Infotainment",
+            "key": "infotainment",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:46:07.851Z",
+            "updatedAt": "2025-03-04T11:43:33.105Z"
+          }
+        },
+        {
+          "id": 162,
+          "name": "Apple Car Play",
+          "Feature": {
+            "id": 5,
+            "name": "Infotainment",
+            "key": "infotainment",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:46:07.851Z",
+            "updatedAt": "2025-03-04T11:43:33.105Z"
+          }
+        },
+        {
+          "id": 163,
+          "name": "Android Auto",
+          "Feature": {
+            "id": 5,
+            "name": "Infotainment",
+            "key": "infotainment",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:46:07.851Z",
+            "updatedAt": "2025-03-04T11:43:33.105Z"
+          }
+        },
+        {
+          "id": 164,
+          "name": "Touch Screen",
+          "Feature": {
+            "id": 5,
+            "name": "Infotainment",
+            "key": "infotainment",
+            "status": "published",
+            "mandatory": false,
+            "createdAt": "2025-02-17T10:46:07.851Z",
+            "updatedAt": "2025-03-04T11:43:33.105Z"
+          }
+        }
+      ],
+      "SEO_Metadatum": null,
+      "Tags": [],
+      "brochureFile": {
+        "id": "b8e0bf84-fa72-4074-9a3d-2c3bd30ffe94",
+        "name": "GEELY-GALAXY-E5-EXPLORER-EV-0-AT-GREY-BLUE-2024-209293.pdf",
+        "isDirectory": false,
+        "path": "/GEELY-GALAXY-E5-EXPLORER-EV-0-AT-GREY-BLUE-2024-209293.pdf",
+        "parentId": null,
+        "size": 7639298,
+        "mimeType": "application/pdf",
+        "originalPath": "/GEELY-GALAXY-E5-EXPLORER-EV-0-AT-GREY-BLUE-2024-209293.pdf",
+        "compressedPath": null,
+        "thumbnailPath": null,
+        "webpPath": null,
+        "createdAt": "2025-03-13T06:58:35.012Z",
+        "updatedAt": "2025-03-13T06:58:35.012Z"
+      },
+      "inWishlist": false
+    }
+  }

@@ -1,303 +1,1299 @@
 {
   "success": true,
-  "message": "Cars retrieved successfully",
+  "message": "Specification values retrieved successfully",
   "data": [
     {
-      "id": 124,
-      "stockId": "TOY-UC-UBGLX-PV-1.5-AT-WHBKR-BK-RD-25",
-      "slug": "2025-toyota-urban-cruiser-glx-2025-toyota-urban-cruiser-glx-1-5-white-body-black-roof-inside-black-red",
+      "id": 103,
+      "name": "Blue",
+      "slug": "blue",
       "status": "published",
-      "engineSize": 1.5,
-      "additionalInfo": "2025 TOYOTA URBAN CRUISER GLX 1.5 - WHITE BODY & BLACK ROOF inside BLACK & RED",
-      "createdAt": "2025-03-19T13:58:17.970Z",
-      "updatedAt": "2025-03-19T13:58:17.970Z",
-      "Brand": {
-        "id": 2,
-        "name": "TOYOTA",
-        "slug": "toyota",
-        "BrandTranslations": []
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
       },
-      "CarModel": {
-        "id": 45,
-        "name": "URBAN CRUISER",
-        "slug": "urban-cruiser",
-        "CarModelTranslations": []
+      "createdAt": "2025-03-17T08:09:27.634Z",
+      "updatedAt": "2025-03-17T08:09:31.562Z"
+    },
+    {
+      "id": 101,
+      "name": "Maroon",
+      "slug": "maroon",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
       },
-      "Trim": {
-        "id": 61,
-        "name": "GLX",
-        "slug": "glx",
-        "TrimTranslations": []
-      },
-      "Year": {
+      "createdAt": "2025-03-13T19:37:46.355Z",
+      "updatedAt": "2025-03-13T19:37:52.809Z"
+    },
+    {
+      "id": 98,
+      "name": "Yemen",
+      "slug": "yemen",
+      "status": "published",
+      "specification": {
         "id": 1,
-        "year": 2025
+        "name": "c",
+        "key": "regional_specification"
       },
-      "Tags": [],
-      "SpecificationValues": [
-        {
-          "id": 1,
-          "name": "GCC",
-          "slug": "gcc",
-          "Specification": {
-            "id": 1,
-            "name": "Regional Specification",
-            "key": "regional_specification",
-            "SpecificationTranslations": []
-          },
-          "SpecificationValueTranslations": []
-        },
-        {
-          "id": 11,
-          "name": "Left-hand drive",
-          "slug": "left-hand-drive",
-          "Specification": {
-            "id": 2,
-            "name": "Steering Side",
-            "key": "steering_side",
-            "SpecificationTranslations": []
-          },
-          "SpecificationValueTranslations": []
-        },
-        {
-          "id": 51,
-          "name": "SUV",
-          "slug": "suv",
-          "Specification": {
-            "id": 6,
-            "name": "Body Type",
-            "key": "body_type",
-            "SpecificationTranslations": []
-          },
-          "SpecificationValueTranslations": []
-        },
-        {
-          "id": 74,
-          "name": "Petrol",
-          "slug": "petrol",
-          "Specification": {
-            "id": 9,
-            "name": "Fuel Type",
-            "key": "fuel_type",
-            "SpecificationTranslations": []
-          },
-          "SpecificationValueTranslations": []
-        },
-        {
-          "id": 95,
-          "name": "Automatic",
-          "slug": "automatic",
-          "Specification": {
-            "id": 12,
-            "name": "Transmission",
-            "key": "transmission",
-            "SpecificationTranslations": []
-          },
-          "SpecificationValueTranslations": []
-        }
-      ],
-      "CarImages": [
-        {
-          "id": 5926,
-          "fileId": "5be3e5b5-4211-416e-a677-8739b7ad10f9",
-          "type": "exterior",
-          "order": 1,
-          "FileSystem": {
-            "id": "5be3e5b5-4211-416e-a677-8739b7ad10f9",
-            "path": "/2025-TOYOTA-URBANCRUISER-GLX-2-572510.jpg",
-            "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-2-572510.webp",
-            "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-2-572510-thumbnail.jpg"
-          }
-        },
-        {
-          "id": 5927,
-          "fileId": "147f505a-4f5b-48d0-8ad6-4992d12a02fd",
-          "type": "exterior",
-          "order": 2,
-          "FileSystem": {
-            "id": "147f505a-4f5b-48d0-8ad6-4992d12a02fd",
-            "path": "/2025-TOYOTA-URBANCRUISER-GLX-1-620558.jpg",
-            "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-1-620558.webp",
-            "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-1-620558-thumbnail.jpg"
-          }
-        },
-        {
-          "id": 5928,
-          "fileId": "d15c33c9-991f-44de-ad5e-ffa8b305f221",
-          "type": "exterior",
-          "order": 3,
-          "FileSystem": {
-            "id": "d15c33c9-991f-44de-ad5e-ffa8b305f221",
-            "path": "/2025-TOYOTA-URBANCRUISER-GLX-3-390307.jpg",
-            "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-3-390307.webp",
-            "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-3-390307-thumbnail.jpg"
-          }
-        },
-        {
-          "id": 5929,
-          "fileId": "a8c76a90-0e0d-42ea-92bb-359029d94fc9",
-          "type": "exterior",
-          "order": 4,
-          "FileSystem": {
-            "id": "a8c76a90-0e0d-42ea-92bb-359029d94fc9",
-            "path": "/2025-TOYOTA-URBANCRUISER-GLX-4-674110.jpg",
-            "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-4-674110.webp",
-            "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-4-674110-thumbnail.jpg"
-          }
-        },
-        {
-          "id": 5930,
-          "fileId": "7daae521-f7b6-4ca5-addf-2d42a948bb01",
-          "type": "exterior",
-          "order": 5,
-          "FileSystem": {
-            "id": "7daae521-f7b6-4ca5-addf-2d42a948bb01",
-            "path": "/2025-TOYOTA-URBANCRUISER-GLX-5-103414.jpg",
-            "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-5-103414.webp",
-            "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-5-103414-thumbnail.jpg"
-          }
-        },
-        {
-          "id": 5931,
-          "fileId": "e4e52e22-5b62-4bab-8f0f-ece80506a8b2",
-          "type": "exterior",
-          "order": 6,
-          "FileSystem": {
-            "id": "e4e52e22-5b62-4bab-8f0f-ece80506a8b2",
-            "path": "/2025-TOYOTA-URBANCRUISER-GLX-6-151642.jpg",
-            "webpPath": "/2025-TOYOTA-URBANCRUISER-GLX-6-151642.webp",
-            "thumbnailPath": "/2025-TOYOTA-URBANCRUISER-GLX-6-151642-thumbnail.jpg"
-          }
-        }
-      ],
-      "inWishlist": false
-    }
-  ],
-  "pagination": {
-    "totalItems": 109,
-    "totalPages": 109,
-    "currentPage": 1,
-    "pageSize": 1
-  }
-}
-
-{
-  "success": true,
-  "message": "Specifications retrieved successfully",
-  "data": [
+      "createdAt": "2025-03-12T11:55:04.299Z",
+      "updatedAt": "2025-03-13T00:41:02.696Z"
+    },
     {
       "id": 12,
-      "name": "Transmission",
-      "key": "transmission",
+      "name": "Right-hand drive",
+      "slug": "right-hand-drive",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:19:19.421Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 2,
+        "name": "Steering Side",
+        "key": "steering_side"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     },
     {
-      "id": 11,
-      "name": "Drive Type",
-      "key": "drive_type",
+      "id": 13,
+      "name": "White",
+      "slug": "white",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:19:12.962Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     },
     {
-      "id": 10,
-      "name": "Cylinders",
-      "key": "cylinders",
+      "id": 14,
+      "name": "Black",
+      "slug": "black",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:19:07.655Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     },
     {
-      "id": 9,
-      "name": "Fuel Type",
-      "key": "fuel_type",
+      "id": 15,
+      "name": "Silver",
+      "slug": "silver",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:19:02.365Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     },
     {
-      "id": 8,
-      "name": "Doors",
-      "key": "doors",
+      "id": 16,
+      "name": "Blue",
+      "slug": "blue",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:18:57.361Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     },
     {
-      "id": 7,
-      "name": "Seats",
-      "key": "seats",
+      "id": 17,
+      "name": "Red",
+      "slug": "red",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:18:51.983Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     },
     {
-      "id": 6,
-      "name": "Body Type",
-      "key": "body_type",
+      "id": 18,
+      "name": "Green",
+      "slug": "green",
       "status": "published",
-      "mandatory": true,
-      "createdAt": "2025-02-18T10:18:46.179Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     },
     {
-      "id": 5,
-      "name": "Wheel Size",
-      "key": "wheel_size",
+      "id": 19,
+      "name": "Yellow",
+      "slug": "yellow",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:18:38.865Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     },
     {
-      "id": 4,
-      "name": "Interior Color",
-      "key": "interior_color",
+      "id": 20,
+      "name": "Grey",
+      "slug": "grey",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:18:33.133Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 21,
+      "name": "Brown",
+      "slug": "brown",
+      "status": "published",
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 22,
+      "name": "Orange",
+      "slug": "orange",
+      "status": "published",
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 23,
+      "name": "Purple",
+      "slug": "purple",
+      "status": "published",
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 24,
+      "name": "Pink",
+      "slug": "pink",
+      "status": "published",
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 25,
+      "name": "Gold",
+      "slug": "gold",
+      "status": "published",
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 26,
+      "name": "Beige",
+      "slug": "beige",
+      "status": "published",
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 27,
+      "name": "Maroon",
+      "slug": "maroon",
+      "status": "published",
+      "specification": {
+        "id": 3,
+        "name": "Color",
+        "key": "color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 28,
+      "name": "Beige",
+      "slug": "beige",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 29,
+      "name": "Black",
+      "slug": "black",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 30,
+      "name": "Grey",
+      "slug": "grey",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 31,
+      "name": "Brown",
+      "slug": "brown",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 32,
+      "name": "White",
+      "slug": "white",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 33,
+      "name": "Red",
+      "slug": "red",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 35,
+      "name": "Tan",
+      "slug": "tan",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 36,
+      "name": "Ivory",
+      "slug": "ivory",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 38,
+      "name": "Cream",
+      "slug": "cream",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 39,
+      "name": "14 inches",
+      "slug": "14-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 40,
+      "name": "15 inches",
+      "slug": "15-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 41,
+      "name": "16 inches",
+      "slug": "16-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 42,
+      "name": "17 inches",
+      "slug": "17-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 43,
+      "name": "18 inches",
+      "slug": "18-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 44,
+      "name": "19 inches",
+      "slug": "19-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 45,
+      "name": "20 inches",
+      "slug": "20-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 46,
+      "name": "21 inches",
+      "slug": "21-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 47,
+      "name": "22 inches",
+      "slug": "22-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 48,
+      "name": "23 inches",
+      "slug": "23-inches",
+      "status": "published",
+      "specification": {
+        "id": 5,
+        "name": "Wheel Size",
+        "key": "wheel_size"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 49,
+      "name": "Sedan",
+      "slug": "sedan",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 50,
+      "name": "Hatchback",
+      "slug": "hatchback",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 51,
+      "name": "SUV",
+      "slug": "suv",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 52,
+      "name": "Crossover",
+      "slug": "crossover",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 53,
+      "name": "Coupe",
+      "slug": "coupe",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 54,
+      "name": "Convertible",
+      "slug": "convertible",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 55,
+      "name": "Pickup Truck",
+      "slug": "pickup-truck",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 56,
+      "name": "Van",
+      "slug": "van",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 57,
+      "name": "Wagon",
+      "slug": "wagon",
+      "status": "published",
+      "specification": {
+        "id": 6,
+        "name": "Body Type",
+        "key": "body_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 58,
+      "name": "2-Seater",
+      "slug": "2-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 59,
+      "name": "3-Seater",
+      "slug": "3-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 60,
+      "name": "4-Seater",
+      "slug": "4-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 61,
+      "name": "5-Seater",
+      "slug": "5-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 62,
+      "name": "6-Seater",
+      "slug": "6-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 63,
+      "name": "7-Seater",
+      "slug": "7-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 64,
+      "name": "8-Seater",
+      "slug": "8-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 65,
+      "name": "9-Seater",
+      "slug": "9-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 66,
+      "name": "10-Seater",
+      "slug": "10-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 67,
+      "name": "12-Seater",
+      "slug": "12-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 69,
+      "name": "2 Doors",
+      "slug": "2-doors",
+      "status": "published",
+      "specification": {
+        "id": 8,
+        "name": "Doors",
+        "key": "doors"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 70,
+      "name": "3 Doors",
+      "slug": "3-doors",
+      "status": "published",
+      "specification": {
+        "id": 8,
+        "name": "Doors",
+        "key": "doors"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 71,
+      "name": "4 Doors",
+      "slug": "4-doors",
+      "status": "published",
+      "specification": {
+        "id": 8,
+        "name": "Doors",
+        "key": "doors"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 72,
+      "name": "5 Doors",
+      "slug": "5-doors",
+      "status": "published",
+      "specification": {
+        "id": 8,
+        "name": "Doors",
+        "key": "doors"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 73,
+      "name": "6+ Doors",
+      "slug": "6+-doors",
+      "status": "published",
+      "specification": {
+        "id": 8,
+        "name": "Doors",
+        "key": "doors"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 74,
+      "name": "Petrol",
+      "slug": "petrol",
+      "status": "published",
+      "specification": {
+        "id": 9,
+        "name": "Fuel Type",
+        "key": "fuel_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 75,
+      "name": "Diesel",
+      "slug": "diesel",
+      "status": "published",
+      "specification": {
+        "id": 9,
+        "name": "Fuel Type",
+        "key": "fuel_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 76,
+      "name": "Electric",
+      "slug": "electric",
+      "status": "published",
+      "specification": {
+        "id": 9,
+        "name": "Fuel Type",
+        "key": "fuel_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 77,
+      "name": "Hybrid",
+      "slug": "hybrid",
+      "status": "published",
+      "specification": {
+        "id": 9,
+        "name": "Fuel Type",
+        "key": "fuel_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 79,
+      "name": "LPG",
+      "slug": "lpg",
+      "status": "published",
+      "specification": {
+        "id": 9,
+        "name": "Fuel Type",
+        "key": "fuel_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 80,
+      "name": "Hydrogen",
+      "slug": "hydrogen",
+      "status": "published",
+      "specification": {
+        "id": 9,
+        "name": "Fuel Type",
+        "key": "fuel_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 81,
+      "name": "2 Cylinders",
+      "slug": "2-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 82,
+      "name": "3 Cylinders",
+      "slug": "3-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 83,
+      "name": "4 Cylinders",
+      "slug": "4-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 84,
+      "name": "5 Cylinders",
+      "slug": "5-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 85,
+      "name": "6 Cylinders",
+      "slug": "6-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 86,
+      "name": "8 Cylinders",
+      "slug": "8-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 87,
+      "name": "10 Cylinders",
+      "slug": "10-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 88,
+      "name": "12 Cylinders",
+      "slug": "12-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 90,
+      "name": "Front-Wheel Drive (FWD)",
+      "slug": "front-wheel-drive-(fwd)",
+      "status": "published",
+      "specification": {
+        "id": 11,
+        "name": "Drive Type",
+        "key": "drive_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 91,
+      "name": "Rear-Wheel Drive (RWD)",
+      "slug": "rear-wheel-drive-(rwd)",
+      "status": "published",
+      "specification": {
+        "id": 11,
+        "name": "Drive Type",
+        "key": "drive_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 92,
+      "name": "All-Wheel Drive (AWD)",
+      "slug": "all-wheel-drive-(awd)",
+      "status": "published",
+      "specification": {
+        "id": 11,
+        "name": "Drive Type",
+        "key": "drive_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 93,
+      "name": "Four-Wheel Drive (4WD)",
+      "slug": "four-wheel-drive-(4wd)",
+      "status": "published",
+      "specification": {
+        "id": 11,
+        "name": "Drive Type",
+        "key": "drive_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 94,
+      "name": "Manual",
+      "slug": "manual",
+      "status": "published",
+      "specification": {
+        "id": 12,
+        "name": "Transmission",
+        "key": "transmission"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 95,
+      "name": "Automatic",
+      "slug": "automatic",
+      "status": "published",
+      "specification": {
+        "id": 12,
+        "name": "Transmission",
+        "key": "transmission"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 96,
+      "name": "Semi-Automatic",
+      "slug": "semi-automatic",
+      "status": "published",
+      "specification": {
+        "id": 12,
+        "name": "Transmission",
+        "key": "transmission"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 97,
+      "name": "CVT",
+      "slug": "cvt-(continuously-variable-transmission)",
+      "status": "published",
+      "specification": {
+        "id": 12,
+        "name": "Transmission",
+        "key": "transmission"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-03T08:30:46.954Z"
+    },
+    {
+      "id": 68,
+      "name": "13-Seater",
+      "slug": "15-seater",
+      "status": "published",
+      "specification": {
+        "id": 7,
+        "name": "Seats",
+        "key": "seats"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-19T13:46:19.172Z"
     },
     {
       "id": 3,
-      "name": "Color",
-      "key": "color",
+      "name": "US",
+      "slug": "us",
+      "status": "draft",
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-04T17:18:36.280Z"
+    },
+    {
+      "id": 78,
+      "name": "Plug-in Hybrid",
+      "slug": "cng",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:18:27.091Z",
-      "updatedAt": "2025-03-12T11:33:09.072Z"
+      "specification": {
+        "id": 9,
+        "name": "Fuel Type",
+        "key": "fuel_type"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-04T17:19:50.152Z"
+    },
+    {
+      "id": 89,
+      "name": "None - Electric",
+      "slug": "16-cylinders",
+      "status": "published",
+      "specification": {
+        "id": 10,
+        "name": "Cylinders",
+        "key": "cylinders"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-04T21:03:17.354Z"
+    },
+    {
+      "id": 37,
+      "name": "Green",
+      "slug": "charcoal",
+      "status": "published",
+      "specification": {
+        "id": 4,
+        "name": "Interior Color",
+        "key": "interior_color"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-11T08:54:08.274Z"
     },
     {
       "id": 2,
-      "name": "Steering Side",
-      "key": "steering_side",
+      "name": "EU",
+      "slug": "eu",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:18:20.146Z",
-      "updatedAt": "2025-03-12T11:33:14.746Z"
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-17T10:08:12.596Z"
+    },
+    {
+      "id": 4,
+      "name": "Asia",
+      "slug": "asia",
+      "status": "published",
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-17T10:08:12.596Z"
+    },
+    {
+      "id": 5,
+      "name": "Africa",
+      "slug": "africa",
+      "status": "published",
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-17T10:08:12.596Z"
+    },
+    {
+      "id": 6,
+      "name": "Latin America",
+      "slug": "latin-america",
+      "status": "published",
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-17T10:08:21.438Z"
+    },
+    {
+      "id": 7,
+      "name": "Australia",
+      "slug": "australia",
+      "status": "published",
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-17T10:08:21.438Z"
+    },
+    {
+      "id": 8,
+      "name": "Japan",
+      "slug": "japan",
+      "status": "published",
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-17T10:08:21.438Z"
     },
     {
       "id": 1,
-      "name": "Regional Specification",
-      "key": "regional_specification",
+      "name": "GCC",
+      "slug": "gcc",
       "status": "published",
-      "mandatory": false,
-      "createdAt": "2025-02-18T10:18:10.620Z",
-      "updatedAt": "2025-03-12T11:33:14.746Z"
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 9,
+      "name": "India",
+      "slug": "india",
+      "status": "published",
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-03-17T10:08:21.438Z"
+    },
+    {
+      "id": 10,
+      "name": "China",
+      "slug": "china",
+      "status": "published",
+      "specification": {
+        "id": 1,
+        "name": "Regional Specification",
+        "key": "regional_specification"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
+    },
+    {
+      "id": 11,
+      "name": "Left-hand drive",
+      "slug": "left-hand-drive",
+      "status": "published",
+      "specification": {
+        "id": 2,
+        "name": "Steering Side",
+        "key": "steering_side"
+      },
+      "createdAt": "2025-02-18T10:20:07.064Z",
+      "updatedAt": "2025-02-18T10:20:07.064Z"
     }
   ],
   "pagination": {
-    "totalItems": 12,
+    "totalItems": 99,
     "totalPages": 1,
     "currentPage": 1,
-    "pageSize": 100
+    "pageSize": 1000
   }
 }
