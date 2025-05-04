@@ -448,7 +448,7 @@ export const getCarList = async (params = {}) => {
   try {
     // Set a larger default limit if not specified
     if (!params.limit) {
-      params.limit = 1000;
+      params.limit = 10;
     }
     
     // Debug the parameters being sent to the API

@@ -193,7 +193,7 @@ const CarDetailScreen = () => {
     if (!value) return null;
     
     return (
-      <View style={styles.specItem}>
+      <View style={styles.specItem} key={`spec-${label}`}>
         <Text style={styles.specLabel}>{label}:</Text>
         <Text style={styles.specValue}>{value}</Text>
       </View>
@@ -201,7 +201,7 @@ const CarDetailScreen = () => {
   };
 
   const renderFeatureItem = ({ item }) => (
-    <View style={styles.featureItem}>
+    <View style={styles.featureItem} key={`feature-${item.id || Math.random().toString()}`}>
       <Icon name="check-circle" size={20} color={COLORS.primary} />
       <Text style={styles.featureText}>{item.name}</Text>
     </View>
@@ -341,7 +341,7 @@ const CarDetailScreen = () => {
               // Only show important specs as badges
               if (['Fuel Type', 'Transmission', 'Regional Specification', 'Steering Side'].includes(spec.Specification?.name)) {
                 return (
-                  <View key={`badge-${index}`} style={styles.badge}>
+                  <View key={`badge-${spec.id || index}`} style={styles.badge}>
                     <Text style={styles.badgeText}>{spec.name}</Text>
                   </View>
                 );
@@ -377,7 +377,12 @@ const CarDetailScreen = () => {
               {specifications.map((spec, index) => {
                 // Only show certain specs in overview
                 if (['Color', 'Fuel Type', 'Cylinders', 'Transmission'].includes(spec.Specification?.name)) {
-                  return renderSpecification(spec.Specification.name, spec.name);
+                  return (
+                    <View key={`overview-spec-${spec.id || index}`} style={styles.specItem}>
+                      <Text style={styles.specLabel}>{spec.Specification.name}:</Text>
+                      <Text style={styles.specValue}>{spec.name}</Text>
+                    </View>
+                  );
                 }
                 return null;
               })}
@@ -391,7 +396,7 @@ const CarDetailScreen = () => {
           
           {/* Group features by category */}
           {Object.entries(groupedSpecs).map(([category, specs]) => (
-            <View key={category} style={styles.featureCategory}>
+            <View key={`category-${category}`} style={styles.featureCategory}>
               <TouchableOpacity 
                 style={styles.featureCategoryHeader}
                 onPress={() => {
@@ -407,8 +412,8 @@ const CarDetailScreen = () => {
           
           {/* Show all features */}
           <View style={styles.featuresGrid}>
-            {features.map((feature, index) => (
-              <View key={`feature-${index}`} style={styles.featureItem}>
+            {features.map((feature) => (
+              <View key={`feature-${feature.id || Math.random().toString()}`} style={styles.featureItem}>
                 <Icon name="check-circle" size={20} color={COLORS.primary} />
                 <Text style={styles.featureText}>{feature.name}</Text>
               </View>
