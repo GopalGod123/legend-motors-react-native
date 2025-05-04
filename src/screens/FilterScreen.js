@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  ActivityIndicator,
-  ScrollView,
   SafeAreaView,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import * as filterService from '../services/filtersService';
+
+// Import our optimized components
+import {
+  FilterHeader,
+  FilterList,
+  FilterContent,
+  FilterFooter,
+} from '../components/filter';
 
 const FilterScreen = ({ route, navigation }) => {
   // Get parameters from navigation or use defaults
@@ -81,18 +83,18 @@ const FilterScreen = ({ route, navigation }) => {
 
   // Specification ID mapping
   const specIdMap = {
-    'body_type': 6,      // Body Type specification ID
-    'fuel_type': 9,      // Fuel Type specification ID
-    'transmission': 12,  // Transmission specification ID
-    'drive_type': 11,    // Drive Type specification ID
-    'color': 3,          // Color specification ID
-    'interior_color': 4, // Interior Color specification ID
-    'regional_specification': 1, // Regional Specification ID
-    'steering_side': 2,  // Steering Side specification ID
-    'wheel_size': 5,     // Wheel Size specification ID
-    'seats': 7,          // Seats specification ID
-    'doors': 8,          // Doors specification ID
-    'cylinders': 10      // Cylinders specification ID
+    'body_type': 6,
+    'fuel_type': 9,
+    'transmission': 12,
+    'drive_type': 11,
+    'color': 3,
+    'interior_color': 4,
+    'regional_specification': 1,
+    'steering_side': 2,
+    'wheel_size': 5,
+    'seats': 7,
+    'doors': 8,
+    'cylinders': 10
   };
 
   // Fetch all specification values once
@@ -470,117 +472,129 @@ const FilterScreen = ({ route, navigation }) => {
   // Function to fetch body type specifications directly
   const fetchBodyTypeSpecifications = async () => {
     try {
-      console.log('🚗 Fetching body type specifications using dedicated function...');
+      console.log('🚗 Starting body type specifications fetch...');
       
-      // First try using the new specification ID approach
+      // First try using the specification ID approach
       const specValues = await fetchSpecificationsBySpecId('body_type');
       if (specValues && specValues.length > 0) {
-        return specValues;
-      }
-      
-      // If that didn't work, use the dedicated body type fetch function - most reliable approach
-      const response = await filterService.default.fetchBodyTypes();
-      
-      if (response.success && response.data && response.data.length > 0) {
-        console.log(`✅ Success! Received ${response.data.length} body type values from dedicated function`);
-        console.log('📊 Body types from dedicated function:', JSON.stringify(response.data.map(item => item.name)));
+        console.log(`✅ Success! Received ${specValues.length} body type values through specification ID approach`);
         
         // Add to existing spec values
         setSpecValues(prev => ({
           ...prev,
-          'body_type': response.data
+          'body_type': specValues
         }));
         
-        return response.data;
+        return specValues;
       }
       
-      // If dedicated function fails, fall back to other methods
-      console.log('⚠️ Dedicated function failed, trying alternative approaches...');
-      
-      // Try direct API call for body types
+      // Try with dedicated function
       try {
-        console.log('📞 Attempting direct API call to /specificationvalue/by-specification/body_type');
+        console.log('🚗 Trying dedicated function for body types...');
+        const response = await filterService.default.fetchBodyTypes();
         
-        // First try with pagination to get all results
-        let allBodyTypes = [];
-        let page = 1;
-        let hasMore = true;
-        
-        while (hasMore) {
-          const directResponse = await filterService.default.api.get('/specificationvalue/by-specification/body_type', {
-        params: {
-              limit: 20, // Smaller limit to test pagination
-              page: page
-            }
-          });
-          
-          if (directResponse.data && Array.isArray(directResponse.data.data) && directResponse.data.data.length > 0) {
-            console.log(`📄 Page ${page}: Received ${directResponse.data.data.length} body types`);
-            allBodyTypes = [...allBodyTypes, ...directResponse.data.data];
-            
-            // Check if there are more pages
-            const pagination = directResponse.data.pagination;
-            if (pagination && pagination.currentPage < pagination.totalPages) {
-              page++;
-            } else {
-              hasMore = false;
-            }
-          } else {
-            hasMore = false;
-          }
-        }
-        
-        if (allBodyTypes.length > 0) {
-          console.log(`✅ Success! Received ${allBodyTypes.length} total body type values from paging`);
-          console.log('📊 Body types from paging:', JSON.stringify(allBodyTypes.map(item => item.name)));
+        if (response && response.success && response.data && response.data.length > 0) {
+          console.log(`✅ Success! Received ${response.data.length} body type values from dedicated function`);
+          console.log('📊 Body types from dedicated function:', response.data.map(item => item.name).join(', '));
           
           // Add to existing spec values
           setSpecValues(prev => ({
             ...prev,
-            'body_type': allBodyTypes
+            'body_type': response.data
           }));
           
-          return allBodyTypes;
+          return response.data;
+        }
+      } catch (error) {
+        console.error('❌ Error with dedicated body type function:', error);
+      }
+      
+      // Try direct API call with specific ID
+      try {
+        console.log('📞 Attempting direct API call for body types with ID 6...');
+        const directResponse = await filterService.fetchSpecificationValuesBySpecId(6, { limit: 100 });
+        
+        if (directResponse && directResponse.success && directResponse.data && directResponse.data.length > 0) {
+          console.log(`✅ Success! Received ${directResponse.data.length} body types from direct API call with ID 6`);
+          
+          // Add to existing spec values
+          setSpecValues(prev => ({
+            ...prev,
+            'body_type': directResponse.data
+          }));
+          
+          return directResponse.data;
         }
       } catch (directError) {
-        console.error('❌ Error with direct API call:', directError);
+        console.error('❌ Error with direct API call for body types with ID 6:', directError);
       }
       
-      // If direct API call fails, use the standard method through filterService
-      console.log('📞 Attempting to fetch body types through filterService');
-      const standardResponse = await filterService.fetchSpecificationValues('body_type', { limit: 1000 });
-      
-      if (standardResponse.success && standardResponse.data && standardResponse.data.length > 0) {
-        console.log(`✅ Success! Received ${standardResponse.data.length} body type values from filterService`);
-        console.log('📊 Body types from filterService:', JSON.stringify(standardResponse.data.map(item => item.name)));
+      // Try direct endpoint call
+      try {
+        console.log('📞 Attempting direct API call to explicit body type endpoint...');
+        const directEndpointResponse = await filterService.default.api.get('/specificationvalue/by-specification/body_type', {
+          params: {
+            limit: 100
+          }
+        });
         
-        // Add to existing spec values
-        setSpecValues(prev => ({
-          ...prev,
-          'body_type': standardResponse.data
-        }));
-        
-        return standardResponse.data;
-      } else {
-        console.error('❌ Failed to fetch body type specifications through all methods');
-        
-        // If we still haven't found data, manually request each known ID 
-        console.log('🔍 Attempting to fetch individual body types by ID...');
-        
-        // Try one more approach - direct call to a specific body type ID
-        try {
-          console.log('🧪 Testing with a specific body type ID request');
-          const testResponse = await filterService.default.api.get('/specificationvalue/51');
-          console.log('🧪 Test response for body type ID 51:', JSON.stringify(testResponse.data));
-          return [];
-        } catch (testError) {
-          console.error('❌ Test request for body type ID failed:', testError);
-          return [];
+        if (directEndpointResponse && directEndpointResponse.data && Array.isArray(directEndpointResponse.data.data) && directEndpointResponse.data.data.length > 0) {
+          console.log(`✅ Success! Received ${directEndpointResponse.data.data.length} body types from direct endpoint call`);
+          
+          // Add to existing spec values
+          setSpecValues(prev => ({
+            ...prev,
+            'body_type': directEndpointResponse.data.data
+          }));
+          
+          return directEndpointResponse.data.data;
         }
+      } catch (endpointError) {
+        console.error('❌ Error with direct endpoint call for body types:', endpointError);
       }
+      
+      // If all approaches fail, use fallback values
+      console.log('⚠️ All approaches failed for body types, using fallback values...');
+      const fallbackBodyTypes = [
+        { id: 51, name: "Sedan", status: "published" },
+        { id: 52, name: "SUV", status: "published" },
+        { id: 53, name: "Hatchback", status: "published" },
+        { id: 54, name: "Coupe", status: "published" },
+        { id: 55, name: "Wagon", status: "published" },
+        { id: 56, name: "Van", status: "published" },
+        { id: 57, name: "Truck", status: "published" },
+        { id: 58, name: "Convertible", status: "published" },
+        { id: 59, name: "Crossover", status: "published" },
+        { id: 60, name: "Minivan", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'body_type': fallbackBodyTypes
+      }));
+      
+      console.log('📊 Using fallback body types:', fallbackBodyTypes.map(item => item.name).join(', '));
+      return fallbackBodyTypes;
     } catch (error) {
       console.error('❌ Error fetching body type specifications:', error);
-      return [];
+      
+      // Use fallback values in case of any errors
+      const fallbackBodyTypes = [
+        { id: 51, name: "Sedan", status: "published" },
+        { id: 52, name: "SUV", status: "published" },
+        { id: 53, name: "Hatchback", status: "published" },
+        { id: 54, name: "Coupe", status: "published" },
+        { id: 55, name: "Wagon", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'body_type': fallbackBodyTypes
+      }));
+      
+      return fallbackBodyTypes;
     }
   };
   
@@ -697,52 +711,88 @@ const FilterScreen = ({ route, navigation }) => {
   // Function to fetch fuel type specifications directly
   const fetchFuelTypeSpecifications = async () => {
     try {
-      // First try using the new specification ID approach
+      console.log('⛽ Starting fuel type specifications fetch...');
+      
+      // First try using the specification ID approach
       const specValues = await fetchSpecificationsBySpecId('fuel_type');
       if (specValues && specValues.length > 0) {
+        console.log(`✅ Success! Received ${specValues.length} fuel types through specification ID approach`);
+        
+        // Add to existing spec values
+        setSpecValues(prev => ({
+          ...prev,
+          'fuel_type': specValues
+        }));
+        
         return specValues;
       }
       
       console.log('⛽ Fetching fuel type specifications using dedicated function...');
       
-      // Use the dedicated fuel type fetch function - most reliable approach
-      const response = await filterService.default.fetchFuelTypeData();
-      
-      if (response.success && response.data && response.data.length > 0) {
-        console.log(`✅ Success! Received ${response.data.length} fuel types from dedicated function`);
-        console.log('📊 Fuel types from dedicated function:', JSON.stringify(response.data.map(item => item.name)));
+      // Try with service function specifically for fuel types
+      try {
+        const response = await filterService.fetchFuelTypeData();
         
-        // Add to existing spec values
-        setSpecValues(prev => ({
-          ...prev,
-          'fuel_type': response.data
-        }));
-        
-        return response.data;
+        if (response.success && response.data && response.data.length > 0) {
+          console.log(`✅ Success! Received ${response.data.length} fuel types from dedicated function`);
+          console.log('📊 Fuel types from dedicated function:', response.data.map(item => item.name).join(', '));
+          
+          // Add to existing spec values
+          setSpecValues(prev => ({
+            ...prev,
+            'fuel_type': response.data
+          }));
+          
+          return response.data;
+        }
+      } catch (error) {
+        console.error('❌ Error with fuel type dedicated function:', error);
       }
       
-      // If dedicated function fails, fall back to other methods
-      console.log('⚠️ Dedicated function failed for fuel types, trying alternative approach...');
-      
-      // Try the standard method through filterService as fallback
-      console.log('📞 Attempting to fetch fuel types through filterService');
-      const standardResponse = await filterService.fetchSpecificationValues('fuel_type', { limit: 1000 });
-      
-      if (standardResponse.success && standardResponse.data && standardResponse.data.length > 0) {
-        console.log(`✅ Success! Received ${standardResponse.data.length} fuel types from filterService`);
-        console.log('📊 Fuel types from filterService:', JSON.stringify(standardResponse.data.map(item => item.name)));
+      // Try direct API call for fuel types
+      try {
+        console.log('📞 Attempting direct API call for fuel types...');
+        const directResponse = await filterService.default.api.get('/specificationvalue/by-specification/fuel_type', {
+          params: {
+            limit: 100
+          }
+        });
         
-        // Add to existing spec values
-        setSpecValues(prev => ({
-          ...prev,
-          'fuel_type': standardResponse.data
-        }));
-        
-        return standardResponse.data;
-      } else {
-        console.error('❌ Failed to fetch fuel types through all methods');
-        return [];
+        if (directResponse.data && Array.isArray(directResponse.data.data) && directResponse.data.data.length > 0) {
+          console.log(`✅ Success! Received ${directResponse.data.data.length} fuel types from direct API call`);
+          
+          // Add to existing spec values
+          setSpecValues(prev => ({
+            ...prev,
+            'fuel_type': directResponse.data.data
+          }));
+          
+          return directResponse.data.data;
+        }
+      } catch (directError) {
+        console.error('❌ Error with direct API call for fuel types:', directError);
       }
+      
+      // If all approaches fail, use fallback values
+      console.log('⚠️ All approaches failed for fuel types, using fallback values...');
+      const fallbackFuelTypes = [
+        { id: 74, name: "Petrol", status: "published" },
+        { id: 75, name: "Diesel", status: "published" },
+        { id: 76, name: "Hybrid", status: "published" },
+        { id: 77, name: "Electric", status: "published" },
+        { id: 78, name: "LPG", status: "published" },
+        { id: 79, name: "CNG", status: "published" },
+        { id: 80, name: "Plug-in Hybrid", status: "published" }
+      ];
+      
+      // Add to existing spec values
+      setSpecValues(prev => ({
+        ...prev,
+        'fuel_type': fallbackFuelTypes
+      }));
+      
+      console.log('📊 Using fallback fuel types:', fallbackFuelTypes.map(item => item.name).join(', '));
+      return fallbackFuelTypes;
     } catch (error) {
       console.error('❌ Error fetching fuel type specifications:', error);
       return [];
@@ -804,34 +854,94 @@ const FilterScreen = ({ route, navigation }) => {
     }
   };
 
-  // Add utility function to extract color information from slugs
-  const extractColorsFromSlug = (slug) => {
+  // Enhanced extract colors function to be more robust
+  const extractColorsFromSlug = (slug, type = 'exterior') => {
     if (!slug || typeof slug !== 'string') return [];
     
-    // Common color terms to look for in slugs
+    // More comprehensive list of color terms to look for in slugs
     const colorTerms = [
       'white', 'black', 'red', 'blue', 'green', 'yellow', 'orange', 'purple',
       'pink', 'brown', 'grey', 'gray', 'silver', 'gold', 'beige', 'tan',
-      'maroon', 'navy', 'teal', 'olive', 'cyan', 'magenta'
+      'maroon', 'navy', 'teal', 'olive', 'cyan', 'magenta', 'burgundy',
+      'turquoise', 'bronze', 'champagne', 'copper', 'crimson', 'indigo'
     ];
     
     // Convert slug to lowercase and replace hyphens and underscores with spaces
     const slugText = slug.toLowerCase().replace(/[-_]/g, ' ');
     
-    // Find all color terms in the slug
-    const foundColors = colorTerms.filter(color => 
-      slugText.includes(color) ||
-      // Also check for variations like "white-body" or "roof-black"
-      slugText.includes(`${color} body`) ||
-      slugText.includes(`body ${color}`) ||
-      slugText.includes(`${color} roof`) ||
-      slugText.includes(`roof ${color}`)
-    );
+    // Identify interior vs exterior colors based on context clues in the slug
+    const interiorColorPatterns = ['inside', 'interior', 'and'];
+    const exteriorColorPatterns = ['body', 'roof', 'pearl', 'metallic', 'outside'];
+    
+    // Extract parts of slug text that likely contain interior or exterior color info
+    let interiorPart = '';
+    let exteriorPart = slugText;
+    
+    // Many slugs use 'inside' to denote interior colors
+    if (slugText.includes('inside')) {
+      const parts = slugText.split('inside');
+      exteriorPart = parts[0]; // Everything before "inside" is exterior
+      interiorPart = parts[1]; // Everything after "inside" is interior
+    }
+    
+    // Find all color terms in the appropriate part of the slug
+    let foundColors = [];
+    
+    if (type === 'interior' && interiorPart) {
+      // Extract interior colors from the interior part of the slug
+      foundColors = colorTerms.filter(color => 
+        interiorPart.includes(color) || 
+        interiorPart.includes(`${color} and`) ||
+        interiorPart.includes(`and ${color}`)
+      );
+      
+      console.log(`🏠 Interior part: "${interiorPart.trim()}" - Found colors: ${foundColors.join(', ')}`);
+    } else if (type === 'exterior') {
+      // For exterior, look for color terms with exterior indicators
+      foundColors = colorTerms.filter(color => {
+        // First check for explicit exterior markers
+        if (exteriorPart.includes(`${color} body`) || 
+            exteriorPart.includes(`body ${color}`) ||
+            exteriorPart.includes(`${color} roof`) ||
+            exteriorPart.includes(`roof ${color}`) ||
+            exteriorPart.includes(`${color} metallic`) ||
+            exteriorPart.includes(`metallic ${color}`) ||
+            exteriorPart.includes(`${color} pearl`)) {
+          return true;
+        }
+        
+        // If no interior markers in slug, look for colors before any interior marker
+        if (!interiorPart && exteriorPart.includes(color)) {
+          return true;
+        }
+        
+        // Check if color is in the exterior part but not close to interior indicators
+        if (exteriorPart.includes(color)) {
+          // Avoid detecting colors that are likely interior
+          const isLikelyInteriorColor = interiorColorPatterns.some(pattern => 
+            exteriorPart.includes(`${color} ${pattern}`) || 
+            exteriorPart.includes(`${pattern} ${color}`)
+          );
+          
+          return !isLikelyInteriorColor;
+        }
+        
+        return false;
+      });
+      
+      console.log(`🚗 Exterior part: "${exteriorPart.trim()}" - Found colors: ${foundColors.join(', ')}`);
+    }
     
     return [...new Set(foundColors)]; // Return unique colors
   };
 
-  // Add function to fetch colors data with proper matching against slugs
+  // Normalize color names for matching
+  const normalizeColorName = (colorName) => {
+    if (!colorName) return '';
+    return colorName.toLowerCase().trim();
+  };
+
+  // Enhanced function to fetch color specifications
   const fetchColorSpecifications = async () => {
     try {
       console.log('🎨 Fetching color specifications using dedicated function...');
@@ -854,22 +964,28 @@ const FilterScreen = ({ route, navigation }) => {
       // If direct approach fails, use fallback color data
       console.log('⚠️ Using fallback color data since API fetch failed');
       
-      // Complete list of common car colors
+      // Complete list of common car colors - expanded with more options
       const completeColorValues = [
         { id: 1, name: "White", status: "published" },
         { id: 2, name: "Black", status: "published" },
         { id: 3, name: "Silver", status: "published" },
         { id: 4, name: "Gray", status: "published" },
-        { id: 5, name: "Red", status: "published" },
-        { id: 6, name: "Blue", status: "published" },
-        { id: 7, name: "Green", status: "published" },
-        { id: 8, name: "Yellow", status: "published" },
-        { id: 9, name: "Brown", status: "published" },
-        { id: 10, name: "Orange", status: "published" },
-        { id: 11, name: "Beige", status: "published" },
-        { id: 12, name: "Purple", status: "published" },
-        { id: 13, name: "Gold", status: "published" },
-        { id: 14, name: "Maroon", status: "published" }
+        { id: 5, name: "Grey", status: "published" },
+        { id: 6, name: "Red", status: "published" },
+        { id: 7, name: "Blue", status: "published" },
+        { id: 8, name: "Green", status: "published" },
+        { id: 9, name: "Yellow", status: "published" },
+        { id: 10, name: "Brown", status: "published" },
+        { id: 11, name: "Orange", status: "published" },
+        { id: 12, name: "Beige", status: "published" },
+        { id: 13, name: "Purple", status: "published" },
+        { id: 14, name: "Gold", status: "published" },
+        { id: 15, name: "Maroon", status: "published" },
+        { id: 16, name: "Tan", status: "published" },
+        { id: 17, name: "Navy", status: "published" },
+        { id: 18, name: "Burgundy", status: "published" },
+        { id: 19, name: "Turquoise", status: "published" },
+        { id: 20, name: "Bronze", status: "published" }
       ];
       
       // Add to existing spec values
@@ -893,50 +1009,71 @@ const FilterScreen = ({ route, navigation }) => {
   // Function to fetch transmission specifications directly
   const fetchTransmissionSpecifications = async () => {
     try {
-      console.log('🔄 Fetching transmission specifications directly from API...');
+      console.log('🔄 Starting transmission specifications fetch...');
       
-      // First try using the direct specification values endpoint with correct ID (12)
-      const response = await filterService.fetchSpecificationValuesBySpecId(12, { limit: 1000 });
-      
-      if (response.success && response.data) {
-        console.log(`✅ Success! Received ${response.data.length} transmission values directly from API`);
-        console.log('📊 Transmission API response:', JSON.stringify(response.data.slice(0, 5)));
-        console.log('📊 All transmission values from API:', response.data.map(item => item.name).join(', '));
+      // First try using the specification ID approach
+      const specValues = await fetchSpecificationsBySpecId('transmission');
+      if (specValues && specValues.length > 0) {
+        console.log(`✅ Success! Received ${specValues.length} transmission values through specification ID approach`);
         
         // Add to existing spec values
         setSpecValues(prev => ({
           ...prev,
-          'transmission': response.data
+          'transmission': specValues
         }));
         
-        return response.data;
+        return specValues;
       }
       
-      // If direct approach fails, try alternative approaches
-      console.log('⚠️ Direct API approach failed, trying alternative approaches for transmissions...');
+      console.log('🔄 Fetching transmission specifications using direct API call...');
       
-      // Try the standard method through filterService as fallback
-      const standardResponse = await filterService.fetchSpecificationValues('transmission', { limit: 100 });
-      
-      if (standardResponse.success && standardResponse.data && standardResponse.data.length > 0) {
-        console.log(`✅ Success! Received ${standardResponse.data.length} transmission values from filterService`);
-        console.log('📊 Transmission standard response:', JSON.stringify(standardResponse.data.slice(0, 5)));
-        console.log('📊 All transmission values from standard method:', standardResponse.data.map(item => item.name).join(', '));
+      // Try direct API call for transmission with ID 12
+      try {
+        const response = await filterService.fetchSpecificationValuesBySpecId(12, { limit: 1000 });
         
-        // Add to existing spec values
-        setSpecValues(prev => ({
-          ...prev,
-          'transmission': standardResponse.data
-        }));
-        
-        return standardResponse.data;
+        if (response.success && response.data && response.data.length > 0) {
+          console.log(`✅ Success! Received ${response.data.length} transmission values directly from API`);
+          console.log('📊 Transmission values from API:', response.data.map(item => item.name).join(', '));
+          
+          // Add to existing spec values
+          setSpecValues(prev => ({
+            ...prev,
+            'transmission': response.data
+          }));
+          
+          return response.data;
+        }
+      } catch (error) {
+        console.error('❌ Error fetching transmission values by spec ID:', error);
       }
       
-      // If all approaches fail, create complete values based on the test.json data
-      console.log('⚠️ All approaches failed, using complete transmission values from API data as fallback');
+      // Try direct endpoint call
+      try {
+        console.log('📞 Attempting direct API call for transmissions...');
+        const directResponse = await filterService.default.api.get('/specificationvalue/by-specification/transmission', {
+          params: {
+            limit: 100
+          }
+        });
+        
+        if (directResponse.data && Array.isArray(directResponse.data.data) && directResponse.data.data.length > 0) {
+          console.log(`✅ Success! Received ${directResponse.data.data.length} transmission values from direct API call`);
+          
+          // Add to existing spec values
+          setSpecValues(prev => ({
+            ...prev,
+            'transmission': directResponse.data.data
+          }));
+          
+          return directResponse.data.data;
+        }
+      } catch (directError) {
+        console.error('❌ Error with direct API call for transmissions:', directError);
+      }
       
-      // Complete values from test.json data (all transmissions from the API)
-      const completeTransmissionValues = [
+      // If all approaches fail, use fallback values
+      console.log('⚠️ All approaches failed for transmissions, using fallback values...');
+      const fallbackTransmissions = [
         { id: 94, name: "Manual", status: "published" },
         { id: 95, name: "Automatic", status: "published" },
         { id: 96, name: "Semi-Automatic", status: "published" },
@@ -948,32 +1085,29 @@ const FilterScreen = ({ route, navigation }) => {
       // Add to existing spec values
       setSpecValues(prev => ({
         ...prev,
-        'transmission': completeTransmissionValues
+        'transmission': fallbackTransmissions
       }));
       
-      console.log('📊 Using complete transmission values:', completeTransmissionValues.map(item => item.name).join(', '));
-      return completeTransmissionValues;
+      console.log('📊 Using fallback transmission values:', fallbackTransmissions.map(item => item.name).join(', '));
+      return fallbackTransmissions;
     } catch (error) {
       console.error('❌ Error fetching transmission specifications:', error);
       
-      // Fallback to complete values in case of error
-      const completeTransmissionValues = [
+      // Fallback to safe values
+      const fallbackTransmissions = [
         { id: 94, name: "Manual", status: "published" },
         { id: 95, name: "Automatic", status: "published" },
         { id: 96, name: "Semi-Automatic", status: "published" },
-        { id: 97, name: "CVT", status: "published" },
-        { id: 104, name: "Dual-Clutch", status: "published" },
-        { id: 105, name: "Tiptronic", status: "published" }
+        { id: 97, name: "CVT", status: "published" }
       ];
       
       // Add to existing spec values
       setSpecValues(prev => ({
         ...prev,
-        'transmission': completeTransmissionValues
+        'transmission': fallbackTransmissions
       }));
       
-      console.log('📊 Using complete transmission values after error:', completeTransmissionValues.map(item => item.name).join(', '));
-      return completeTransmissionValues;
+      return fallbackTransmissions;
     }
   };
 
@@ -983,25 +1117,246 @@ const FilterScreen = ({ route, navigation }) => {
     fetchAllSpecValues();
     
     // Specifically fetch critical specifications directly
-    fetchBodyTypeSpecifications();
-    fetchSeatsSpecifications();
-    fetchDoorsSpecifications();
-    fetchFuelTypeSpecifications();
-    fetchCylindersSpecifications();
-    fetchTransmissionSpecifications();
-    fetchColorSpecifications();
+    // Set a small delay to avoid hitting API rate limits
+    const fetchCriticalSpecifications = async () => {
+      try {
+        console.log('🔄 Fetching critical specifications...');
+        
+        // First batch of critical specifications
+        await Promise.all([
+          fetchBodyTypeSpecifications(),
+          fetchColorSpecifications()
+        ]);
+        
+        // Small delay before next batch
+        setTimeout(async () => {
+          await Promise.all([
+            fetchFuelTypeSpecifications(),
+            fetchTransmissionSpecifications()
+          ]);
+          
+          // Small delay before next batch
+          setTimeout(async () => {
+            await Promise.all([
+              fetchSeatsSpecifications(),
+              fetchDoorsSpecifications(),
+              fetchCylindersSpecifications()
+            ]);
+          }, 500);
+        }, 500);
+      } catch (error) {
+        console.error('Error fetching critical specifications:', error);
+      }
+    };
+    
+    fetchCriticalSpecifications();
   }, []);
 
+  // Add fallback values for body type, fuel type, and transmission
+  const addFallbackValues = () => {
+    // Fallback body type values
+    if (!specValues['body_type'] || specValues['body_type'].length === 0) {
+      const fallbackBodyTypes = [
+        { id: 51, name: "Sedan", status: "published" },
+        { id: 52, name: "SUV", status: "published" },
+        { id: 53, name: "Hatchback", status: "published" },
+        { id: 54, name: "Coupe", status: "published" },
+        { id: 55, name: "Wagon", status: "published" },
+        { id: 56, name: "Van", status: "published" },
+        { id: 57, name: "Truck", status: "published" },
+        { id: 58, name: "Convertible", status: "published" },
+        { id: 59, name: "Crossover", status: "published" },
+        { id: 60, name: "Minivan", status: "published" }
+      ];
+      
+      setSpecValues(prev => ({
+        ...prev,
+        'body_type': fallbackBodyTypes
+      }));
+      
+      console.log('🚗 Using fallback body types:', fallbackBodyTypes.map(item => item.name).join(', '));
+    }
+    
+    // Fallback fuel type values
+    if (!specValues['fuel_type'] || specValues['fuel_type'].length === 0) {
+      const fallbackFuelTypes = [
+        { id: 74, name: "Petrol", status: "published" },
+        { id: 75, name: "Diesel", status: "published" },
+        { id: 76, name: "Hybrid", status: "published" },
+        { id: 77, name: "Electric", status: "published" },
+        { id: 78, name: "LPG", status: "published" },
+        { id: 79, name: "CNG", status: "published" },
+        { id: 80, name: "Plug-in Hybrid", status: "published" }
+      ];
+      
+      setSpecValues(prev => ({
+        ...prev,
+        'fuel_type': fallbackFuelTypes
+      }));
+      
+      console.log('⛽ Using fallback fuel types:', fallbackFuelTypes.map(item => item.name).join(', '));
+    }
+    
+    // Fallback transmission values
+    if (!specValues['transmission'] || specValues['transmission'].length === 0) {
+      const fallbackTransmissions = [
+        { id: 94, name: "Manual", status: "published" },
+        { id: 95, name: "Automatic", status: "published" },
+        { id: 96, name: "Semi-Automatic", status: "published" },
+        { id: 97, name: "CVT", status: "published" },
+        { id: 104, name: "Dual-Clutch", status: "published" },
+        { id: 105, name: "Tiptronic", status: "published" }
+      ];
+      
+      setSpecValues(prev => ({
+        ...prev,
+        'transmission': fallbackTransmissions
+      }));
+      
+      console.log('🔄 Using fallback transmissions:', fallbackTransmissions.map(item => item.name).join(', '));
+    }
+  };
+  
   // Load filter data when the component mounts or when the active filter changes
   useEffect(() => {
     loadFilterData();
     
-    // Always preload regional specifications data since it's commonly used
-    if (!specValues['regional_specification'] || specValues['regional_specification'].length === 0) {
-      console.log('🌎 Preloading regional specifications data on component mount');
-      fetchRegionalSpecifications();
+    // Check if we need to add fallback values
+    if (
+      (!specValues['body_type'] || specValues['body_type'].length === 0) ||
+      (!specValues['fuel_type'] || specValues['fuel_type'].length === 0) ||
+      (!specValues['transmission'] || specValues['transmission'].length === 0)
+    ) {
+      // Add a small delay to allow API fetches to complete first
+      setTimeout(() => {
+        addFallbackValues();
+      }, 1000);
     }
   }, [activeFilter]);
+
+  // Get data for current filter
+  const getCurrentFilterData = () => {
+    switch (activeFilter) {
+      case 'brands':
+        return brands;
+      case 'models':
+        return models;
+      case 'trims':
+        return trims;
+      case 'years':
+        return years;
+      default:
+        if (specFilterKeyMap[activeFilter]) {
+          const specKey = specFilterKeyMap[activeFilter];
+          return specValues[specKey] || [];
+        }
+        return [];
+    }
+  };
+
+  // Get empty message for current filter
+  const getEmptyMessage = () => {
+    switch (activeFilter) {
+      case 'brands':
+        return 'No brands available';
+      case 'models':
+        return selectedBrands.length > 0 
+          ? 'No models available for selected brands' 
+          : 'Please select a brand first';
+      case 'trims':
+        return selectedModels.length > 0 
+          ? 'No trims available for selected models' 
+          : 'Please select a model first';
+      case 'years':
+        return 'No years available';
+      default:
+        return 'No options available from API';
+    }
+  };
+
+  // Get info text for current filter
+  const getInfoText = () => {
+    switch (activeFilter) {
+      case 'models':
+        return selectedBrands.length > 0 
+          ? `Showing models for: ${selectedBrands.join(', ')}` 
+          : '';
+      case 'trims':
+        return selectedModels.length > 0 
+          ? `Showing trims for: ${selectedModels.join(', ')}` 
+          : '';
+      default:
+        return '';
+    }
+  };
+
+  // Get selected items for current filter
+  const getSelectedItems = () => {
+    switch (activeFilter) {
+      case 'brands':
+        return selectedBrands;
+      case 'models':
+        return selectedModels;
+      case 'trims':
+        return selectedTrims;
+      case 'years':
+        return selectedYears;
+      default:
+        if (specFilterKeyMap[activeFilter]) {
+          const specKey = specFilterKeyMap[activeFilter];
+          return selectedSpecValues[specKey] || [];
+        }
+        return [];
+    }
+  };
+
+  // Get item select handler for current filter
+  const getItemSelectHandler = () => {
+    switch (activeFilter) {
+      case 'brands':
+        return handleBrandSelect;
+      case 'models':
+        return handleModelSelect;
+      case 'trims':
+        return handleTrimSelect;
+      case 'years':
+        return handleYearSelect;
+      default:
+        return handleSpecValueSelect;
+    }
+  };
+
+  // Get retry handler for current filter
+  const getRetryHandler = () => {
+    switch (activeFilter) {
+      case 'brands':
+        return fetchBrands;
+      case 'models':
+        return fetchModels;
+      case 'trims':
+        return fetchTrims;
+      case 'years':
+        return fetchYears;
+      case 'bodyType':
+        return fetchBodyTypeSpecifications;
+      case 'fuelType':
+        return fetchFuelTypeSpecifications;
+      case 'transmission':
+        return fetchTransmissionSpecifications;
+      case 'color':
+        return fetchColorSpecifications;
+      case 'regionalSpec':
+        return fetchRegionalSpecifications;
+      case 'steeringSide':
+        return fetchSteeringSideSpecifications;
+      default:
+        if (specFilterKeyMap[activeFilter]) {
+          const specKey = specFilterKeyMap[activeFilter];
+          return () => fetchSpecificationsBySpecId(specKey);
+        }
+        return null;
+    }
+  };
 
   // Load filter data based on active filter
   const loadFilterData = async () => {
@@ -1281,7 +1636,10 @@ const FilterScreen = ({ route, navigation }) => {
   };
 
   // Handle brand selection
-  const handleBrandSelect = (brandId, brandName) => {
+  const handleBrandSelect = (item) => {
+    const brandId = item.id;
+    const brandName = item.name;
+    
     // Toggle brand selection
     if (selectedBrands.includes(brandName)) {
       setSelectedBrands(prev => prev.filter(name => name !== brandName));
@@ -1299,7 +1657,10 @@ const FilterScreen = ({ route, navigation }) => {
   };
   
   // Handle model selection
-  const handleModelSelect = (modelId, modelName) => {
+  const handleModelSelect = (item) => {
+    const modelId = item.id;
+    const modelName = item.name;
+    
     // Toggle model selection
     if (selectedModels.includes(modelName)) {
       setSelectedModels(prev => prev.filter(name => name !== modelName));
@@ -1315,7 +1676,10 @@ const FilterScreen = ({ route, navigation }) => {
   };
 
   // Handle trim selection
-  const handleTrimSelect = (trimId, trimName) => {
+  const handleTrimSelect = (item) => {
+    const trimId = item.id;
+    const trimName = item.name;
+    
     // Toggle trim selection
     if (selectedTrims.includes(trimName)) {
       setSelectedTrims(prev => prev.filter(name => name !== trimName));
@@ -1327,7 +1691,10 @@ const FilterScreen = ({ route, navigation }) => {
   };
 
   // Handle year selection
-  const handleYearSelect = (yearId, yearValue) => {
+  const handleYearSelect = (item) => {
+    const yearId = item.id;
+    const yearValue = item.year;
+    
     // Toggle year selection
     if (selectedYears.includes(yearValue)) {
       setSelectedYears(prev => prev.filter(year => year !== yearValue));
@@ -1339,7 +1706,11 @@ const FilterScreen = ({ route, navigation }) => {
   };
 
   // Handle specification value selection
-  const handleSpecValueSelect = (specKey, valueId, valueName) => {
+  const handleSpecValueSelect = (item) => {
+    const specKey = specFilterKeyMap[activeFilter];
+    const valueId = item.id;
+    const valueName = item.name;
+    
     // Log selection for debugging
     if (specKey === 'body_type') {
       console.log(`${selectedSpecValues[specKey]?.includes(valueName) ? 'Deselecting' : 'Selecting'} Body Type: ${valueName} (ID: ${valueId})`);
@@ -1369,7 +1740,7 @@ const FilterScreen = ({ route, navigation }) => {
     setActiveFilter(filterId);
   };
 
-  // Handle apply button press
+  // Handle apply button press - enhance to properly use slug extracted colors
   const handleApply = () => {
     // Construct filters object
     const filters = {
@@ -1382,28 +1753,161 @@ const FilterScreen = ({ route, navigation }) => {
       years: selectedYears,
       yearIds: selectedYearIds,
       specifications: selectedSpecValues,
-      extractColorsFromSlug: true // Flag to indicate color extraction from slugs should be used
+      extractColorsFromSlug: true, // Flag to indicate color extraction from slugs should be used
+      
+      // Add helper function for matching extracted colors from slugs
+      // This will be used by the ExploreScreen to match colors from slugs
+      matchExtractedColors: (slug) => {
+        // If no color filters are selected, don't filter by color
+        if (!selectedSpecValues.color || selectedSpecValues.color.length === 0) {
+          return true;
+        }
+        
+        // Extract colors from the slug
+        const extractedColors = extractColorsFromSlug(slug);
+        console.log(`🔎 Checking slug colors: ${extractedColors.join(', ')} against selected colors: ${selectedSpecValues.color.join(', ')}`);
+        
+        // If no colors found in the slug but we're filtering by color, don't exclude it
+        // Some cars might not have color in their slug but could match in other ways
+        if (extractedColors.length === 0) {
+          console.log(`⚠️ No colors found in slug: ${slug}, but not excluding`);
+          return true;
+        }
+        
+        // Check if any of the extracted colors match our selected color filters
+        // Normalize both for comparison (lowercase, trim)
+        const normalizedSelectedColors = selectedSpecValues.color.map(normalizeColorName);
+        
+        // Check for matches
+        const matchFound = extractedColors.some(extractedColor => 
+          normalizedSelectedColors.includes(normalizeColorName(extractedColor))
+        );
+        
+        console.log(`${matchFound ? '✅' : '❌'} Color match for slug: ${matchFound ? 'Found' : 'Not found'}`);
+        
+        // If any color matches, include the car
+        return matchFound;
+      },
+      
+      // Add flags to help ExploreScreen understand the filter combinations
+      hasBrandFilter: selectedBrands.length > 0,
+      hasModelFilter: selectedModels.length > 0,
+      hasTrimFilter: selectedTrims.length > 0,
+      hasYearFilter: selectedYears.length > 0,
+      
+      // Add helper method to check if a car should be included based on specifications
+      // This ensures specs are filtered only for cars that match brand/model/trim hierarchy
+      matchSpecifications: (car) => {
+        // First check if the car matches the brand/model/trim filters
+        let includeBasedOnHierarchy = true;
+        
+        // Brand filter
+        if (selectedBrands.length > 0) {
+          includeBasedOnHierarchy = selectedBrands.some(brand => 
+            car.brand && car.brand.toLowerCase() === brand.toLowerCase()
+          );
+          if (!includeBasedOnHierarchy) return false;
+        }
+        
+        // Model filter (if we have brand match)
+        if (includeBasedOnHierarchy && selectedModels.length > 0) {
+          includeBasedOnHierarchy = selectedModels.some(model => 
+            car.model && car.model.toLowerCase() === model.toLowerCase()
+          );
+          if (!includeBasedOnHierarchy) return false;
+        }
+        
+        // Trim filter (if we have brand and model match)
+        if (includeBasedOnHierarchy && selectedTrims.length > 0) {
+          includeBasedOnHierarchy = selectedTrims.some(trim => 
+            car.trim && car.trim.toLowerCase() === trim.toLowerCase()
+          );
+          if (!includeBasedOnHierarchy) return false;
+        }
+        
+        // Year filter 
+        if (includeBasedOnHierarchy && selectedYears.length > 0) {
+          includeBasedOnHierarchy = selectedYears.some(year => 
+            car.year && car.year.toString() === year.toString()
+          );
+          if (!includeBasedOnHierarchy) return false;
+        }
+        
+        // If car passes the brand/model/trim/year hierarchy, now check specifications
+        if (selectedSpecValues && Object.keys(selectedSpecValues).length > 0) {
+          // Check each specification category (body_type, fuel_type, etc.)
+          for (const specKey in selectedSpecValues) {
+            const selectedValues = selectedSpecValues[specKey];
+            
+            // Skip if no values selected for this specification type
+            if (!selectedValues || selectedValues.length === 0) continue;
+            
+            // Handle color separately using the matchExtractedColors function
+            if (specKey === 'color' && car.slug) {
+              const colorMatch = filters.matchExtractedColors(car.slug);
+              if (!colorMatch) return false;
+              continue;
+            }
+            
+            // Handle interior color separately 
+            if (specKey === 'interior_color' && car.slug) {
+              // Extract interior colors from slug
+              const interiorColors = extractColorsFromSlug(car.slug, 'interior');
+              const normalizedSelectedColors = selectedValues.map(normalizeColorName);
+              
+              const interiorColorMatch = interiorColors.some(extractedColor => 
+                normalizedSelectedColors.includes(normalizeColorName(extractedColor))
+              );
+              
+              if (!interiorColorMatch) return false;
+              continue;
+            }
+            
+            // For other specifications, check in SpecificationValues
+            let specMatch = false;
+            
+            if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
+              specMatch = car.SpecificationValues.some(spec => {
+                // Check if specification matches the key we're looking for
+                const specMatches = 
+                  (spec.Specification && spec.Specification.key === specKey) ||
+                  (spec.specification && spec.specification.key === specKey);
+                
+                if (!specMatches) return false;
+                
+                // Check if the specification value matches any of our selected values
+                return selectedValues.some(selectedValue => 
+                  spec.name && selectedValue && 
+                  spec.name.toLowerCase() === selectedValue.toLowerCase()
+                );
+              });
+            }
+            
+            // If no match found for this specification, exclude the car
+            if (!specMatch) {
+              return false;
+            }
+          }
+        }
+        
+        // If we got here, the car matches all filters
+        return true;
+      },
+      
+      // Backward compatibility
+      useSpecificationValues: true
     };
-    
-    // Extra validation and logging for selected specifications
-    if (selectedSpecValues.regional_specification && selectedSpecValues.regional_specification.length > 0) {
-      console.log('🌎 Selected Regional Specifications:', selectedSpecValues.regional_specification.join(', '));
-    }
-    
-    // Log selected interior colors
-    if (selectedSpecValues.interior_color && selectedSpecValues.interior_color.length > 0) {
-      console.log('🎨 Selected Interior Colors:', selectedSpecValues.interior_color.join(', '));
-    }
-    
-    // Log selected exterior colors
-    if (selectedSpecValues.color && selectedSpecValues.color.length > 0) {
-      console.log('🎨 Selected Exterior Colors:', selectedSpecValues.color.join(', '));
-      console.log('ℹ️ Will also check car slugs for color matches');
-    }
     
     // Call the callback with filters
     if (onApplyCallback) {
-      console.log('📤 Sending filter data to ExploreScreen');
+      console.log('📤 Sending filter data to ExploreScreen with enhanced filtering');
+      console.log('🎛️ Selected filters:', {
+        brands: selectedBrands,
+        models: selectedModels,
+        trims: selectedTrims,
+        years: selectedYears,
+        specifications: Object.keys(selectedSpecValues).map(key => `${key}: ${selectedSpecValues[key].join(', ')}`)
+      });
       onApplyCallback(filters);
     }
     
@@ -1424,973 +1928,13 @@ const FilterScreen = ({ route, navigation }) => {
     setSelectedSpecValues({});
   };
 
-  // Render filter item in the left sidebar
-  const renderFilterItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.filterItem,
-        activeFilter === item.id && styles.activeFilterItem,
-      ]}
-      onPress={() => handleFilterSelect(item.id)}
-    >
-      <Text style={[
-        styles.filterItemText,
-        activeFilter === item.id && styles.activeFilterItemText
-      ]}>
-        {item.label}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  // Render brand item
-  const renderBrandItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.checkboxItem}
-      onPress={() => handleBrandSelect(item.id, item.name)}
-    >
-      <View style={[
-        styles.checkbox,
-        selectedBrands.includes(item.name) && styles.checkboxSelected
-      ]}>
-        {selectedBrands.includes(item.name) && (
-          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-        )}
-      </View>
-      <Text style={styles.checkboxLabel}>{item.name}</Text>
-    </TouchableOpacity>
-  );
-  
-  // Render model item
-  const renderModelItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.checkboxItem}
-      onPress={() => handleModelSelect(item.id, item.name)}
-    >
-      <View style={[
-        styles.checkbox,
-        selectedModels.includes(item.name) && styles.checkboxSelected
-      ]}>
-        {selectedModels.includes(item.name) && (
-          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-        )}
-      </View>
-      <Text style={styles.checkboxLabel}>{item.name}</Text>
-    </TouchableOpacity>
-  );
-
-  // Render trim item
-  const renderTrimItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.checkboxItem}
-      onPress={() => handleTrimSelect(item.id, item.name)}
-    >
-      <View style={[
-        styles.checkbox,
-        selectedTrims.includes(item.name) && styles.checkboxSelected
-      ]}>
-        {selectedTrims.includes(item.name) && (
-          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-        )}
-      </View>
-      <Text style={styles.checkboxLabel}>{item.name}</Text>
-    </TouchableOpacity>
-  );
-
-  // Render year item
-  const renderYearItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.checkboxItem}
-      onPress={() => handleYearSelect(item.id, item.year)}
-    >
-      <View style={[
-        styles.checkbox,
-        selectedYears.includes(item.year) && styles.checkboxSelected
-      ]}>
-        {selectedYears.includes(item.year) && (
-          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-        )}
-      </View>
-      <Text style={styles.checkboxLabel}>{item.year}</Text>
-    </TouchableOpacity>
-  );
-
-  // Render specification value item
-  const renderSpecValueItem = (specKey) => ({ item }) => {
-    // Add specific classes for special specification items
-    const isRegionalSpec = specKey === 'regional_specification';
-    const isInteriorColor = specKey === 'interior_color';
-    const isExteriorColor = specKey === 'color';
-    const isSteeringSide = specKey === 'steering_side';
-    const isWheelSize = specKey === 'wheel_size';
-    const isBodyType = specKey === 'body_type';
-    const isSeats = specKey === 'seats';
-    const isDoors = specKey === 'doors';
-    const isFuelType = specKey === 'fuel_type';
-    const isCylinders = specKey === 'cylinders';
-    const isSelected = selectedSpecValues[specKey]?.includes(item.name);
-    
-    // Debug log for regional spec items
-    if (isRegionalSpec) {
-      console.log(`🌎 Rendering regional spec item: ${item.name} (ID: ${item.id}, Status: ${item.status || 'unknown'})`);
-    }
-    
-    // Debug log for body type items
-    if (isBodyType) {
-      console.log(`🔍 Rendering body type item: ${item.name} (ID: ${item.id})`);
-    }
-    
-    // Debug log for steering side items
-    if (isSteeringSide) {
-      console.log(`🚘 Rendering steering side item: ${item.name} (ID: ${item.id}, Status: ${item.status || 'unknown'})`);
-    }
-    
-    // Debug log for transmission items
-    if (specKey === 'transmission') {
-      console.log(`🔄 Rendering transmission item: ${item.name} (ID: ${item.id}, Status: ${item.status || 'unknown'})`);
-    }
-    
-    // Make sure we have a valid item name
-    const itemName = item.name || 'Unknown';
-    
-    // For interior colors, determine the actual color to display
-    let colorPreview = null;
-    if (isInteriorColor || isExteriorColor) {
-      const colorMap = {
-        'Black': '#000000',
-        'White': '#FFFFFF',
-        'Grey': '#808080',
-        'Red': '#FF0000',
-        'Blue': '#0000FF',
-        'Green': '#008000',
-        'Yellow': '#FFFF00',
-        'Brown': '#A52A2A',
-        'Beige': '#F5F5DC',
-        'Maroon': '#800000',
-        'Tan': '#D2B48C',
-        'Ivory': '#FFFFF0',
-        'Cream': '#FFFDD0',
-        'Silver': '#C0C0C0',
-        'Gold': '#FFD700',
-        'Orange': '#FFA500',
-        'Purple': '#800080'
-      };
-      
-      const colorCode = colorMap[item.name] || '#CCCCCC';
-      colorPreview = (
-        <View 
-          style={{
-            width: 20,
-            height: 20,
-            borderRadius: 10,
-            backgroundColor: colorCode,
-            marginRight: 10,
-            borderWidth: 1,
-            borderColor: '#DDDDDD'
-          }}
-        />
-      );
-    }
-    
-    // For steering side, add an icon
-    let steeringIcon = null;
-    if (isSteeringSide) {
-      steeringIcon = (
-        <Ionicons 
-          name={item.name.toLowerCase().includes('right') ? 'car' : 'car-sport'} 
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
-        />
-      );
-    }
-    
-    // For wheel size, add an icon
-    let wheelSizeIcon = null;
-    if (isWheelSize) {
-      wheelSizeIcon = (
-        <Ionicons 
-          name="disc-outline" 
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
-        />
-      );
-    }
-    
-    // For body type, add an icon
-    let bodyTypeIcon = null;
-    if (isBodyType) {
-      let iconName = 'car-outline';
-      
-      // Determine appropriate icon based on body type
-      if (item.name.toLowerCase().includes('suv')) {
-        iconName = 'car-sport';
-      } else if (item.name.toLowerCase().includes('van') || item.name.toLowerCase().includes('wagon')) {
-        iconName = 'car-sport-outline';
-      } else if (item.name.toLowerCase().includes('sedan')) {
-        iconName = 'car-outline';
-      } else if (item.name.toLowerCase().includes('pickup') || item.name.toLowerCase().includes('truck')) {
-        iconName = 'cube-outline';
-      } else if (item.name.toLowerCase().includes('crossover')) {
-        iconName = 'car-sport';
-      } else if (item.name.toLowerCase().includes('hatchback')) {
-        iconName = 'car';
-      } else if (item.name.toLowerCase().includes('coupe')) {
-        iconName = 'speedometer-outline';
-      } else if (item.name.toLowerCase().includes('convertible')) {
-        iconName = 'sunny-outline';
-      }
-      
-      bodyTypeIcon = (
-        <Ionicons 
-          name={iconName}
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
-        />
-      );
-    }
-    
-    // For seats, add an icon
-    let seatsIcon = null;
-    if (isSeats) {
-      seatsIcon = (
-        <Ionicons 
-          name="people-outline" 
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
-        />
-      );
-    }
-    
-    // For doors, add an icon
-    let doorsIcon = null;
-    if (isDoors) {
-      doorsIcon = (
-        <Ionicons 
-          name="exit-outline" 
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
-        />
-      );
-    }
-    
-    // For fuel type, add an icon
-    let fuelTypeIcon = null;
-    if (isFuelType) {
-      let iconName = 'flame-outline';
-      
-      // Determine appropriate icon based on fuel type
-      if (item.name.toLowerCase().includes('electric')) {
-        iconName = 'flash-outline';
-      } else if (item.name.toLowerCase().includes('hybrid')) {
-        iconName = 'battery-charging-outline';
-      }
-      
-      fuelTypeIcon = (
-        <Ionicons 
-          name={iconName}
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
-        />
-      );
-    }
-    
-    // For cylinders, add an icon
-    let cylindersIcon = null;
-    if (isCylinders) {
-      let iconName = 'hardware-chip-outline';
-      
-      // Special icon for electric vehicles (no cylinders)
-      if (item.name.toLowerCase().includes('electric') || item.name.toLowerCase().includes('none')) {
-        iconName = 'flash-outline';
-      }
-      
-      cylindersIcon = (
-        <Ionicons 
-          name={iconName}
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
-        />
-      );
-    }
-    
-    // Get status from either structure (uppercase or lowercase)
-    // If none exists, default to 'published'
-    const status = item.status || 'published';
-    
-    return (
-      <TouchableOpacity
-        style={[
-          styles.checkboxItem,
-          isRegionalSpec && styles.regionalSpecItem,
-          isSteeringSide && styles.steeringSideItem,
-          isExteriorColor && styles.colorItem,
-          isWheelSize && styles.wheelSizeItem,
-          isBodyType && styles.bodyTypeItem,
-          isSeats && styles.seatsItem,
-          isDoors && styles.doorsItem,
-          isFuelType && styles.fuelTypeItem,
-          isCylinders && styles.cylindersItem
-        ]}
-        onPress={() => handleSpecValueSelect(specKey, item.id, itemName)}
-      >
-        <View style={[
-          styles.checkbox,
-          isSelected && styles.checkboxSelected
-        ]}>
-          {isSelected && (
-            <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-          )}
-        </View>
-        
-        {colorPreview}
-        {steeringIcon}
-        {wheelSizeIcon}
-        {bodyTypeIcon}
-        {seatsIcon}
-        {doorsIcon}
-        {fuelTypeIcon}
-        {cylindersIcon}
-        
-        <Text style={[
-          styles.checkboxLabel,
-          (isRegionalSpec || isSteeringSide || isBodyType || isFuelType || isCylinders) && isSelected && styles.selectedSpecText
-        ]}>
-          {itemName}
-        </Text>
-        
-        {(isRegionalSpec || isSteeringSide || isBodyType || isFuelType || isCylinders) && (
-          <Text style={styles.itemStatus}>
-            {status}
-          </Text>
-        )}
-      </TouchableOpacity>
-    );
+  // Get the current title for the filter content
+  const getFilterTitle = () => {
+    const filter = filterItems.find(item => item.id === activeFilter);
+    return filter ? `Select ${filter.label}` : 'Select Filter';
   };
 
-  // Render content based on active filter
-  const renderContent = () => {
-    if (loading) {
-      return (
-            <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={styles.loadingText}>Loading...</Text>
-            </View>
-      );
-    }
-
-    switch (activeFilter) {
-      case 'brands':
-        return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Brand</Text>
-            {brands.length > 0 ? (
-              <FlatList
-                data={brands}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderBrandItem}
-                showsVerticalScrollIndicator={false}
-              />
-            ) : (
-              <View style={styles.emptyContentContainer}>
-                <Text style={styles.emptyText}>No brands available</Text>
-                <TouchableOpacity
-                  style={styles.reloadButton}
-                  onPress={fetchBrands}
-                >
-                  <Text style={styles.reloadButtonText}>Retry Loading Brands</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        );
-      
-      case 'models':
-        return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Model</Text>
-            {selectedBrands.length > 0 ? (
-              models.length > 0 ? (
-                <FlatList
-                  data={models}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderModelItem}
-                  showsVerticalScrollIndicator={false}
-                  ListHeaderComponent={
-                    <View style={styles.infoContainer}>
-                      <Text style={styles.infoText}>
-                        Showing models for: {selectedBrands.join(', ')}
-                      </Text>
-                    </View>
-                  }
-                />
-              ) : (
-                <View style={styles.emptyContentContainer}>
-                  <Text style={styles.emptyText}>No models available for selected brands</Text>
-                  <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={fetchModels}
-                  >
-                    <Text style={styles.reloadButtonText}>Retry Loading Models</Text>
-                  </TouchableOpacity>
-                </View>
-              )
-            ) : (
-              <View style={styles.emptyContentContainer}>
-                <Text style={styles.emptyText}>Please select a brand first</Text>
-                <TouchableOpacity
-                  style={styles.reloadButton}
-                  onPress={() => setActiveFilter('brands')}
-                >
-                  <Text style={styles.reloadButtonText}>Go to Brand Selection</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        );
-      
-      case 'trims':
-        return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Trim</Text>
-            {selectedModels.length > 0 ? (
-              trims.length > 0 ? (
-                <FlatList
-                  data={trims}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderTrimItem}
-                  showsVerticalScrollIndicator={false}
-                  ListHeaderComponent={
-                    <View style={styles.infoContainer}>
-                      <Text style={styles.infoText}>
-                        Showing trims for: {selectedModels.join(', ')}
-                      </Text>
-                    </View>
-                  }
-                />
-              ) : (
-                <View style={styles.emptyContentContainer}>
-                  <Text style={styles.emptyText}>No trims available for selected models</Text>
-                  <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={fetchTrims}
-                  >
-                    <Text style={styles.reloadButtonText}>Retry Loading Trims</Text>
-                  </TouchableOpacity>
-                </View>
-              )
-            ) : (
-              <View style={styles.emptyContentContainer}>
-                <Text style={styles.emptyText}>Please select a model first</Text>
-                {selectedBrands.length > 0 ? (
-                  <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={() => setActiveFilter('models')}
-                  >
-                    <Text style={styles.reloadButtonText}>Go to Model Selection</Text>
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={() => setActiveFilter('brands')}
-                  >
-                    <Text style={styles.reloadButtonText}>Go to Brand Selection</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-          </View>
-        );
-      
-      case 'years':
-        return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Year</Text>
-            {years.length > 0 ? (
-              <FlatList
-                data={years}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderYearItem}
-                showsVerticalScrollIndicator={false}
-              />
-            ) : (
-              <Text style={styles.emptyText}>No years available</Text>
-            )}
-          </View>
-        );
-      
-      case 'bodyType':
-        // Special handling for body type
-        const bodyTypeValues = specValues['body_type'] || [];
-        console.log(`🚗 Rendering Body Type filter with ${bodyTypeValues.length} values:`, 
-          JSON.stringify(bodyTypeValues.map(v => ({id: v.id, name: v.name}))));
-        
-        // Expected body types based on API data
-        const expectedBodyTypes = ["Sedan", "Hatchback", "SUV", "Crossover", "Coupe", "Convertible", "Pickup Truck", "Van", "Wagon"];
-        const currentBodyTypes = bodyTypeValues.map(item => item.name);
-        const missingBodyTypes = expectedBodyTypes.filter(type => !currentBodyTypes.includes(type));
-      
-      return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Body Type</Text>
-            {bodyTypeValues.length > 0 ? (
-              <>
-                <FlatList
-                  data={bodyTypeValues}
-                  keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderSpecValueItem('body_type')}
-                  showsVerticalScrollIndicator={false}
-                  ListHeaderComponent={
-                    missingBodyTypes.length > 0 ? (
-                      <View style={styles.infoContainer}>
-                        <Text style={styles.infoText}>
-                          Note: Some body types may not be available from the API at this time.
-                        </Text>
-                      </View>
-                    ) : null
-                  }
-                />
-                
-                {missingBodyTypes.length > 0 && (
-                <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={() => {
-                      console.log('🔄 Manually triggering body type fetch...');
-                      fetchBodyTypeSpecifications();
-                    }}
-                  >
-                    <Text style={styles.reloadButtonText}>Refresh Body Types</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            ) : (
-              <View style={styles.emptyContentContainer}>
-                <Text style={styles.emptyText}>No body types available from API</Text>
-                <TouchableOpacity
-                  style={styles.reloadButton}
-                  onPress={() => {
-                    console.log('🔄 Manually triggering body type fetch...');
-                    fetchBodyTypeSpecifications();
-                  }}
-                >
-                  <Text style={styles.reloadButtonText}>Retry Loading Body Types</Text>
-                </TouchableOpacity>
-              </View>
-          )}
-        </View>
-      );
-      
-      case 'seats':
-        // Special handling for seats, similar to body type
-        const seatsValues = specValues['seats'] || [];
-        console.log(`🪑 Rendering Seats filter with ${seatsValues.length} values:`, 
-          JSON.stringify(seatsValues.map(v => ({id: v.id, name: v.name}))));
-        
-        // Expected seat specifications based on API data
-        const expectedSeats = ["2-Seater", "3-Seater", "4-Seater", "5-Seater", "6-Seater", "7-Seater", "8-Seater", "9-Seater", "12-Seater"];
-        const currentSeats = seatsValues.map(item => item.name);
-        const missingSeats = expectedSeats.filter(type => !currentSeats.includes(type));
-      
-      return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Seats</Text>
-            {seatsValues.length > 0 ? (
-              <>
-            <FlatList
-                  data={seatsValues}
-              keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderSpecValueItem('seats')}
-                  showsVerticalScrollIndicator={false}
-                  ListHeaderComponent={
-                    missingSeats.length > 0 ? (
-                      <View style={styles.infoContainer}>
-                        <Text style={styles.infoText}>
-                          Note: Some seat configurations may not be available from the API at this time.
-                        </Text>
-                      </View>
-                    ) : null
-                  }
-                />
-                
-                {missingSeats.length > 0 && (
-                <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={() => {
-                      console.log('🔄 Manually triggering seats fetch...');
-                      fetchSeatsSpecifications();
-                    }}
-                  >
-                    <Text style={styles.reloadButtonText}>Refresh Seat Options</Text>
-                  </TouchableOpacity>
-                )}
-              </>
-            ) : (
-              <View style={styles.emptyContentContainer}>
-                <Text style={styles.emptyText}>No seat options available from API</Text>
-                <TouchableOpacity
-                  style={styles.reloadButton}
-                  onPress={() => {
-                    console.log('🔄 Manually triggering seats fetch...');
-                    fetchSeatsSpecifications();
-                  }}
-                >
-                  <Text style={styles.reloadButtonText}>Retry Loading Seat Options</Text>
-                </TouchableOpacity>
-              </View>
-          )}
-        </View>
-      );
-      
-      case 'doors':
-        // Special handling for doors, similar to seats and body types
-        const doorsValues = specValues['doors'] || [];
-        console.log(`🚪 Rendering Doors filter with ${doorsValues.length} values:`, 
-          JSON.stringify(doorsValues.map(v => ({id: v.id, name: v.name}))));
-        
-        // Expected door options based on API data
-        const expectedDoors = ["2 Doors", "3 Doors", "4 Doors", "5 Doors"];
-        const currentDoors = doorsValues.map(item => item.name);
-        const missingDoors = expectedDoors.filter(type => !currentDoors.includes(type));
-      
-      return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Number of Doors</Text>
-            {doorsValues.length > 0 ? (
-              <>
-            <FlatList
-              data={doorsValues}
-              keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderSpecValueItem('doors')}
-                  showsVerticalScrollIndicator={false}
-                  ListHeaderComponent={
-                    missingDoors.length > 0 ? (
-                      <View style={styles.infoContainer}>
-                        <Text style={styles.infoText}>
-                          Note: Some door options may not be available from the API at this time.
-                        </Text>
-                      </View>
-                    ) : null
-                  }
-                />
-                
-                {missingDoors.length > 0 && (
-                <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={() => {
-                      console.log('🔄 Manually triggering doors fetch...');
-                      fetchDoorsSpecifications();
-                    }}
-                  >
-                    <Text style={styles.reloadButtonText}>Refresh Door Options</Text>
-                </TouchableOpacity>
-              )}
-              </>
-            ) : (
-              <View style={styles.emptyContentContainer}>
-                <Text style={styles.emptyText}>No door options available from API</Text>
-                <TouchableOpacity
-                  style={styles.reloadButton}
-                  onPress={() => {
-                    console.log('🔄 Manually triggering doors fetch...');
-                    fetchDoorsSpecifications();
-                  }}
-                >
-                  <Text style={styles.reloadButtonText}>Retry Loading Door Options</Text>
-                </TouchableOpacity>
-              </View>
-          )}
-        </View>
-      );
-      
-      case 'fuelType':
-        // Special handling for fuel types, similar to seats, doors, and body types
-        const fuelTypeValues = specValues['fuel_type'] || [];
-        console.log(`⛽ Rendering Fuel Type filter with ${fuelTypeValues.length} values:`, 
-          JSON.stringify(fuelTypeValues.map(v => ({id: v.id, name: v.name}))));
-        
-        // Expected fuel types based on API data
-        const expectedFuelTypes = ["Petrol", "Diesel", "Hybrid", "Electric", "LPG"];
-        const currentFuelTypes = fuelTypeValues.map(item => item.name);
-        const missingFuelTypes = expectedFuelTypes.filter(type => !currentFuelTypes.includes(type));
-      
-      return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Fuel Type</Text>
-            {fuelTypeValues.length > 0 ? (
-              <>
-            <FlatList
-                  data={fuelTypeValues}
-              keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderSpecValueItem('fuel_type')}
-                  showsVerticalScrollIndicator={false}
-                  ListHeaderComponent={
-                    missingFuelTypes.length > 0 ? (
-                      <View style={styles.infoContainer}>
-                        <Text style={styles.infoText}>
-                          Note: Some fuel types may not be available from the API at this time.
-                        </Text>
-                      </View>
-                    ) : null
-                  }
-                />
-                
-                {missingFuelTypes.length > 0 && (
-                <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={() => {
-                      console.log('🔄 Manually triggering fuel type fetch...');
-                      fetchFuelTypeSpecifications();
-                    }}
-                  >
-                    <Text style={styles.reloadButtonText}>Refresh Fuel Types</Text>
-                </TouchableOpacity>
-              )}
-              </>
-            ) : (
-              <View style={styles.emptyContentContainer}>
-                <Text style={styles.emptyText}>No fuel types available from API</Text>
-                <TouchableOpacity
-                  style={styles.reloadButton}
-                  onPress={() => {
-                    console.log('🔄 Manually triggering fuel type fetch...');
-                    fetchFuelTypeSpecifications();
-                  }}
-                >
-                  <Text style={styles.reloadButtonText}>Retry Loading Fuel Types</Text>
-                </TouchableOpacity>
-              </View>
-          )}
-        </View>
-      );
-      
-      case 'cylinders':
-        // Special handling for cylinders, similar to other filters
-        const cylindersValues = specValues['cylinders'] || [];
-        console.log(`🔧 Rendering Cylinders filter with ${cylindersValues.length} values:`, 
-          JSON.stringify(cylindersValues.map(v => ({id: v.id, name: v.name}))));
-        
-        // Expected cylinder options based on API data
-        const expectedCylinders = ["3 Cylinders", "4 Cylinders", "6 Cylinders", "8 Cylinders", "12 Cylinders", "None - Electric"];
-        const currentCylinders = cylindersValues.map(item => item.name);
-        const missingCylinders = expectedCylinders.filter(type => !currentCylinders.includes(type));
-      
-      return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Select Cylinders</Text>
-            {cylindersValues.length > 0 ? (
-              <>
-            <FlatList
-                  data={cylindersValues}
-              keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderSpecValueItem('cylinders')}
-                  showsVerticalScrollIndicator={false}
-                  ListHeaderComponent={
-                    missingCylinders.length > 0 ? (
-                      <View style={styles.infoContainer}>
-                        <Text style={styles.infoText}>
-                          Note: Some cylinder options may not be available from the API at this time.
-                        </Text>
-                      </View>
-                    ) : null
-                  }
-                />
-                
-                {missingCylinders.length > 0 && (
-                <TouchableOpacity
-                    style={styles.reloadButton}
-                    onPress={() => {
-                      console.log('🔄 Manually triggering cylinders fetch...');
-                      fetchCylindersSpecifications();
-                    }}
-                  >
-                    <Text style={styles.reloadButtonText}>Refresh Cylinder Options</Text>
-                </TouchableOpacity>
-              )}
-              </>
-            ) : (
-              <View style={styles.emptyContentContainer}>
-                <Text style={styles.emptyText}>No cylinder options available from API</Text>
-                <TouchableOpacity
-                  style={styles.reloadButton}
-                  onPress={() => {
-                    console.log('🔄 Manually triggering cylinders fetch...');
-                    fetchCylindersSpecifications();
-                  }}
-                >
-                  <Text style={styles.reloadButtonText}>Retry Loading Cylinder Options</Text>
-                </TouchableOpacity>
-              </View>
-          )}
-        </View>
-      );
-      
-      default:
-        if (specFilterKeyMap[activeFilter]) {
-          const specKey = specFilterKeyMap[activeFilter];
-          const values = specValues[specKey] || [];
-          const title = filterItems.find(item => item.id === activeFilter)?.label || '';
-          
-          // Log when displaying regional specification filter
-          if (specKey === 'regional_specification') {
-            console.log(`Showing ${values.length} Regional Specification values`);
-            if (values.length > 0) {
-              console.log('First 5 values:', values.slice(0, 5).map(v => `${v.name} (ID: ${v.id})`).join(', '));
-              if (values.length > 5) {
-                console.log('Last 5 values:', values.slice(-5).map(v => `${v.name} (ID: ${v.id})`).join(', '));
-              }
-            } else {
-              console.log('⚠️ No regional specification values available!');
-            }
-          }
-          
-          // Log when displaying interior color filter
-          if (specKey === 'interior_color') {
-            console.log(`Showing ${values.length} Interior Color values:`, 
-              values.slice(0, 5).map(v => v.name).join(', ') + (values.length > 5 ? '...' : ''));
-          }
-          
-          // Log when displaying steering side filter
-          if (specKey === 'steering_side') {
-            console.log(`Showing ${values.length} Steering Side values`);
-            if (values.length > 0) {
-              console.log('All steering side values:', values.map(v => `${v.name} (ID: ${v.id})`).join(', '));
-            } else {
-              console.log('⚠️ No steering side values available!');
-            }
-          }
-          
-          // Log when displaying transmission filter
-          if (specKey === 'transmission') {
-            console.log(`Showing ${values.length} Transmission values`);
-            if (values.length > 0) {
-              console.log('All transmission values:', values.map(v => `${v.name} (ID: ${v.id})`).join(', '));
-            } else {
-              console.log('⚠️ No transmission values available!');
-            }
-          }
-      
-      return (
-            <View style={styles.filterContent}>
-              <Text style={styles.filterTitle}>{`Select ${title}`}</Text>
-              {values.length > 0 ? (
-                <FlatList
-                  data={values}
-              keyExtractor={(item) => item.id.toString()}
-                  renderItem={renderSpecValueItem(specKey)}
-                  showsVerticalScrollIndicator={false}
-                />
-              ) : (
-                <View style={styles.emptyContentContainer}>
-                  <Text style={styles.emptyText}>No options available from API</Text>
-                  
-                  {specKey === 'regional_specification' && (
-                <TouchableOpacity
-                      style={styles.reloadButton}
-                      onPress={fetchRegionalSpecifications}
-                    >
-                      <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                </TouchableOpacity>
-              )}
-                  
-                  {specKey === 'interior_color' && (
-                <TouchableOpacity
-                      style={styles.reloadButton}
-                      onPress={fetchInteriorColorSpecifications}
-                    >
-                      <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                  </TouchableOpacity>
-                )}
-                    
-                    {specKey === 'steering_side' && (
-                  <TouchableOpacity
-                        style={styles.reloadButton}
-                        onPress={fetchSteeringSideSpecifications}
-                      >
-                        <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                </TouchableOpacity>
-              )}
-                    
-                    {specKey === 'color' && (
-                <TouchableOpacity
-                        style={styles.reloadButton}
-                        onPress={fetchColorSpecifications}
-                      >
-                        <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                  </TouchableOpacity>
-                )}
-                    
-                    {specKey === 'wheel_size' && (
-                  <TouchableOpacity
-                        style={styles.reloadButton}
-                        onPress={fetchWheelSizeSpecifications}
-                      >
-                        <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                </TouchableOpacity>
-              )}
-                    
-                    {specKey === 'body_type' && (
-                <TouchableOpacity
-                        style={styles.reloadButton}
-                        onPress={fetchBodyTypeSpecifications}
-                      >
-                        <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                  </TouchableOpacity>
-                )}
-                    
-                    {specKey === 'seats' && (
-                  <TouchableOpacity
-                        style={styles.reloadButton}
-                        onPress={fetchSeatsSpecifications}
-                      >
-                        <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                </TouchableOpacity>
-              )}
-                    
-                    {specKey === 'doors' && (
-                <TouchableOpacity
-                        style={styles.reloadButton}
-                        onPress={fetchDoorsSpecifications}
-                      >
-                        <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                  </TouchableOpacity>
-                )}
-                    
-                    {specKey === 'cylinders' && (
-                  <TouchableOpacity
-                        style={styles.reloadButton}
-                        onPress={fetchCylindersSpecifications}
-                      >
-                        <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
-                </TouchableOpacity>
-              )}
-                    
-                  <TouchableOpacity
-                      style={[styles.reloadButton, {marginTop: 8, backgroundColor: '#4a90e2'}]}
-                      onPress={fetchAllSpecValues}
-                    >
-                      <Text style={styles.reloadButtonText}>Try Loading All Data</Text>
-                  </TouchableOpacity>
-            </View>
-          )}
-        </View>
-      );
-    }
-    
-    return (
-          <View style={styles.filterContent}>
-            <Text style={styles.filterTitle}>Coming Soon</Text>
-            <Text style={styles.emptyText}>This filter is not yet available</Text>
-      </View>
-    );
-    }
-  };
-
-  // Selected filter count
+  // Get selected count
   const getSelectedCount = () => {
     let count = 0;
     count += selectedBrands.length;
@@ -2406,87 +1950,41 @@ const FilterScreen = ({ route, navigation }) => {
     return count;
   };
 
-  // Add effect for brand selection changes to update models
-  useEffect(() => {
-    // When brands selection changes, refetch models and clear existing model selection
-    if (activeFilter === 'models' || activeFilter === 'brands') {
-      if (selectedBrands.length === 0) {
-        // If no brands selected, clear models
-        setModels([]);
-        setSelectedModels([]);
-        setSelectedModelIds([]);
-      } else {
-        // Fetch models for selected brands
-        fetchModels();
-      }
-    }
-    
-    // Also clear trim selection since models changed
-    setSelectedTrims([]);
-    setSelectedTrimIds([]);
-    setTrims([]);
-  }, [selectedBrands, selectedBrandIds]);
-
-  // Add effect for model selection changes to update trims
-  useEffect(() => {
-    // When models selection changes, refetch trims and clear existing trim selection
-    if (activeFilter === 'trims' || activeFilter === 'models') {
-      if (selectedModels.length === 0) {
-        // If no models selected, clear trims
-        setTrims([]);
-        setSelectedTrims([]);
-        setSelectedTrimIds([]);
-      } else {
-        // Fetch trims for selected models
-        fetchTrims();
-      }
-    }
-  }, [selectedModels, selectedModelIds]);
-
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={24} color="#333333" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Filters</Text>
-      </View>
+      {/* Filter Header */}
+      <FilterHeader onBack={() => navigation.goBack()} />
 
       <View style={styles.content}>
-        <View style={styles.filterList}>
-          <FlatList
-            data={filterItems}
-            renderItem={renderFilterItem}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
+        {/* Filter List Sidebar */}
+        <FilterList 
+          filterItems={filterItems}
+          activeFilter={activeFilter}
+          onSelect={handleFilterSelect}
+        />
+
+        {/* Filter Content */}
+        <View style={styles.filterContentContainer}>
+          <FilterContent
+            title={getFilterTitle()}
+            data={getCurrentFilterData()}
+            loading={loading}
+            emptyMessage={getEmptyMessage()}
+            selectedItems={getSelectedItems()}
+            onSelectItem={getItemSelectHandler()}
+            onRetry={getRetryHandler()}
+            infoText={getInfoText()}
+            itemType={activeFilter}
           />
         </View>
-
-        <View style={styles.filterContentContainer}>
-        {renderContent()}
-        </View>
       </View>
 
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.resetButton}
-          onPress={handleReset}
-        >
-          <Text style={styles.resetButtonText}>Reset</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.applyButton}
-          onPress={handleApply}
-        >
-          <Text style={styles.applyButtonText}>
-            Apply {getSelectedCount() > 0 ? `(${getSelectedCount()})` : ''}
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {/* Filter Footer */}
+      <FilterFooter
+        onReset={handleReset}
+        onApply={handleApply}
+        selectedCount={getSelectedCount()}
+      />
     </SafeAreaView>
   );
 };
@@ -2496,200 +1994,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333333',
-  },
   content: {
     flex: 1,
     flexDirection: 'row',
   },
-  filterList: {
-    width: '35%',
-    backgroundColor: '#F5F5F5',
-    paddingVertical: 12,
-  },
-  filterItem: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-  },
-  activeFilterItem: {
-    backgroundColor: '#FFFFFF',
-    borderLeftWidth: 3,
-    borderLeftColor: '#F47B20',
-  },
-  filterItemText: {
-    fontSize: 16,
-    color: '#666666',
-  },
-  activeFilterItemText: {
-    color: '#F47B20',
-    fontWeight: '600',
-  },
   filterContentContainer: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  filterContent: {
-    flex: 1,
-    padding: 16,
-  },
-  filterTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 16,
-    color: '#333333',
-  },
-  checkboxItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderWidth: 2,
-    borderColor: '#CCCCCC',
-    borderRadius: 4,
-    marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkboxSelected: {
-    backgroundColor: '#F47B20',
-    borderColor: '#F47B20',
-  },
-  checkboxLabel: {
-    fontSize: 16,
-    color: '#333333',
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: '#666666',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#999999',
-    textAlign: 'center',
-    marginTop: 32,
-  },
-  footer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
-  },
-  resetButton: {
-    flex: 1,
-    paddingVertical: 12,
-    marginRight: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#CCCCCC',
-    borderRadius: 8,
-  },
-  resetButtonText: {
-    fontSize: 16,
-    color: '#333333',
-  },
-  applyButton: {
-    flex: 1,
-    paddingVertical: 12,
-    marginLeft: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F47B20',
-    borderRadius: 8,
-  },
-  applyButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  itemStatus: {
-    fontSize: 12,
-    color: '#999999',
-    marginLeft: 'auto',
-  },
-  regionalSpecItem: {
-    backgroundColor: '#F8F8F8',
-  },
-  steeringSideItem: {
-    backgroundColor: '#F0F5FF',
-  },
-  selectedSpecText: {
-    fontWeight: '600',
-  },
-  emptyContentContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  reloadButton: {
-    marginTop: 16,
-    padding: 12,
-    backgroundColor: '#F47B20',
-    borderRadius: 8,
-  },
-  reloadButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  colorItem: {
-    backgroundColor: '#FFF0F5',
-  },
-  wheelSizeItem: {
-    backgroundColor: '#FFF5EE',
-  },
-  bodyTypeItem: {
-    backgroundColor: '#FFF5F5',
-  },
-  seatsItem: {
-    backgroundColor: '#FFF5FF',
-  },
-  doorsItem: {
-    backgroundColor: '#FFF5FF',
-  },
-  fuelTypeItem: {
-    backgroundColor: '#FFFAED',
-  },
-  infoContainer: {
-    padding: 12,
-    marginBottom: 12,
-    backgroundColor: '#FFF9F0',
-    borderLeftWidth: 3,
-    borderLeftColor: '#F47B20',
-    borderRadius: 4,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#666666',
-    lineHeight: 20,
-  },
-  cylindersItem: {
-    backgroundColor: '#F0FFF0',
   },
 });
 

@@ -1,22 +1,67 @@
-import React, { useState, useEffect, useCallback, Fragment } from 'react';
+import React, { useState, useEffect, useCallback, Component } from 'react';
 import {
   View,
-  Text,
-  StyleSheet,
   FlatList,
-  TouchableOpacity,
-  TextInput,
   ActivityIndicator,
   SafeAreaView,
   StatusBar,
   Share,
   Alert,
+  StyleSheet,
+  TouchableOpacity,
+  Text,
+  TextInput,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
+import { COLORS, SPACING } from '../utils/constants';
 import { getCarList, searchCars, searchCarModels } from '../services/api';
-import { CarImage, CarImageCarousel } from '../components/common';
-import FilterScreen from './FilterScreen'; // Import FilterScreen
+
+// Import our optimized components
+import {
+  Header,
+  SearchBar,
+  FilterTabs,
+  CarListItem,
+  ResultsHeader,
+  EmptyState,
+} from '../components/explore';
+
+// Create an error boundary component to catch any rendering errors
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("CarList rendering error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Something went wrong displaying the cars.</Text>
+          <TouchableOpacity 
+            style={styles.errorButton}
+            onPress={() => {
+              this.setState({ hasError: false });
+              this.props.onRetry();
+            }}
+          >
+            <Text style={styles.errorButtonText}>Try Again</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 const ExploreScreen = () => {
   const navigation = useNavigation();
@@ -38,6 +83,10 @@ const ExploreScreen = () => {
   
   // Add state for filters
   const [appliedFilters, setAppliedFilters] = useState({});
+  
+  // Add state for filtered cars
+  const [filteredCars, setFilteredCars] = useState([]);
+  const [allCars, setAllCars] = useState([]);
 
   // Filter categories
   const filterCategories = [
@@ -45,7 +94,7 @@ const ExploreScreen = () => {
     { id: 'brands', label: 'Brands' },
     { id: 'trims', label: 'Trims' },
     { id: 'priceRange', label: 'Price Range' },
-    { id: 'advanced', label: 'Advanced Filters' }, // Add advanced filters option
+    { id: 'advanced', label: 'Advanced Filters' },
   ];
 
   // Add state to track when a specific car is being viewed
@@ -133,7 +182,7 @@ const ExploreScreen = () => {
         return;
       }
       
-      // First search car models to get model IDs - this is the main API search method
+      // First search car models to get model IDs
       console.log(`Searching car models with term: "${trimmedQuery}" using carmodel/list API`);
       
       // Try with a more resilient approach - catch errors at each step
@@ -148,9 +197,6 @@ const ExploreScreen = () => {
       if (modelSearchResults.success && modelSearchResults.data && modelSearchResults.data.length > 0) {
         // Log the car model information
         console.log(`Found ${modelSearchResults.data.length} car models matching "${trimmedQuery}"`);
-        modelSearchResults.data.forEach(model => {
-          console.log(`Model: ${model.name}, ID: ${model.id}, Brand: ${model.brand?.name || 'Unknown'}`);
-        });
         
         // Save the full model info for display
         setSearchedModels(modelSearchResults.data);
@@ -169,7 +215,6 @@ const ExploreScreen = () => {
           // Show some results even if car fetching fails
           setCars([]);
           setTotalCars(0);
-          // We still have model results to show
         }
       } 
       // If no car models match or error occurred, try direct car search as fallback
@@ -266,7 +311,11 @@ const ExploreScreen = () => {
         console.log(`Found ${carData.length} cars matching model IDs: ${modelIdParam}`);
         
         // Process car data to ensure consistent format
-        const processedCars = carData.map(car => processCar(car));
+        const processedCars = carData
+          .filter(car => car) // Filter out undefined or null items
+          .map(car => processCar(car))
+          .filter(car => car); // Filter out any null results from processCar
+          
         setCars(processedCars);
         setTotalCars(processedCars.length);
         setHasMoreData(false); // Disable pagination during search
@@ -286,10 +335,10 @@ const ExploreScreen = () => {
   const filterCarsByQuery = (query) => {
     const cleanQuery = query.toLowerCase().replace(/[^\w\s]/gi, '').trim();
     
-    const filtered = cars.filter(car => {
-      // Skip if car data is invalid
-      if (!car) return false;
+    // First filter out any undefined or null cars
+    const validCars = cars.filter(car => car && car.id);
       
+    const filtered = validCars.filter(car => {
       // Function to safely check if a field contains the search query
       const fieldContainsQuery = (field) => {
         if (!field) return false;
@@ -317,7 +366,6 @@ const ExploreScreen = () => {
       // Check in colors and additional info if available
       if (car.extractedColors && car.extractedColors.some(color => fieldContainsQuery(color))) return true;
       if (fieldContainsQuery(car.color)) return true;
-      if (fieldContainsQuery(car.additionalInfo)) return true;
       
       return false;
     });
@@ -340,7 +388,12 @@ const ExploreScreen = () => {
   const fetchCars = async (newPage = 1) => {
     // Always set loading to true and clear existing cars when starting a new fetch
     setLoading(true);
+    
+    if (newPage === 1) {
     setCars([]);
+      setFilteredCars([]);
+    }
+    
     setLoadingMore(false); // Ensure loading more indicator is off
     
     try {
@@ -359,17 +412,14 @@ const ExploreScreen = () => {
         status: 'published' // Default to published cars
       };
       
-      // Apply filters to API parameters according to Swagger documentation
+      // Apply filters to API parameters
       if (hasFilters) {
         // Convert brand names to IDs if available
         if (appliedFilters.brands && appliedFilters.brands.length > 0) {
           // For brandId, we need to use comma-separated list of IDs
-          // If we have the ID directly
           if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
             params.brandId = appliedFilters.brandIds.join(',');
           } 
-          // Log what we're sending to API
-          console.log('Sending brand filter to API:', params.brandId || 'using client-side filtering');
         }
         
         // Convert model names to IDs if available
@@ -378,8 +428,6 @@ const ExploreScreen = () => {
           if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
             params.modelId = appliedFilters.modelIds.join(',');
           }
-          // Log what we're sending to API
-          console.log('Sending model filter to API:', params.modelId || 'using client-side filtering');
         }
         
         // Convert trim names to IDs if available
@@ -388,8 +436,6 @@ const ExploreScreen = () => {
           if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
             params.trimId = appliedFilters.trimIds.join(',');
           }
-          // Log what we're sending to API
-          console.log('Sending trim filter to API:', params.trimId || 'using client-side filtering');
         }
         
         // Convert year values to IDs if available
@@ -398,8 +444,6 @@ const ExploreScreen = () => {
           if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
             params.yearId = appliedFilters.yearIds.join(',');
           }
-          // Log what we're sending to API
-          console.log('Sending year filter to API:', params.yearId || 'using client-side filtering');
         }
         
         // Other filters like price range
@@ -415,13 +459,6 @@ const ExploreScreen = () => {
       
       // Get car data from API with filters applied
       const response = await getCarList(params);
-      console.log('API response received, status:', response ? 'success' : 'failed');
-      
-      // Add this block to log the original API response structure
-      console.log('API response structure:', Object.keys(response || {}).join(', '));
-      if (response && response.data) {
-        console.log('API data structure:', Object.keys(response.data).join(', '));
-      }
       
       // Handle different API response structures
       let carData = [];
@@ -437,581 +474,47 @@ const ExploreScreen = () => {
 
         // Extract car data from response
         if (response.data && Array.isArray(response.data)) {
-          // Format: { data: [...cars] }
           carData = response.data;
-          console.log('Found cars in response.data array');
           if (!totalCount) totalCount = response.data.length;
         } else if (response.data && response.data.data && Array.isArray(response.data.data)) {
-          // Format: { data: { data: [...cars] } }
           carData = response.data.data;
-          console.log('Found cars in response.data.data array');
           if (!totalCount) totalCount = response.data.data.length;
         } else if (response.data && Array.isArray(response.data.cars)) {
-          // Format: { data: { cars: [...] } }
           carData = response.data.cars;
-          console.log('Found cars in response.data.cars array');
           if (!totalCount) totalCount = response.data.cars.length;
           // Check if there's a "total" property
           if (response.data.total) totalCount = response.data.total;
-        } else if (response.data) {
-          // Try to iterate through response.data to find car objects
-          console.log('Searching for cars in response.data object properties');
-          
-          // Look at each property in data to find something that looks like a car array
-          for (const key in response.data) {
-            if (Array.isArray(response.data[key])) {
-              // Check if this array contains objects that look like cars
-              const possibleCars = response.data[key];
-              if (possibleCars.length > 0 && 
-                  (possibleCars[0].Brand || 
-                   possibleCars[0].brand || 
-                   possibleCars[0].CarModel || 
-                   possibleCars[0].model)) {
-                console.log(`Found car-like objects in response.data.${key}`);
-                carData = possibleCars;
-                if (!totalCount) totalCount = possibleCars.length;
-                break;
-              }
-            }
-          }
-        } else {
-          // Try other possible structures
-          console.log('Searching for cars in response root object properties');
-          for (const key in response) {
-            if (Array.isArray(response[key])) {
-              // Check if this array contains objects that look like cars
-              const possibleCars = response[key];
-              if (possibleCars.length > 0 && 
-                  (possibleCars[0].Brand || 
-                   possibleCars[0].brand || 
-                   possibleCars[0].CarModel || 
-                   possibleCars[0].model)) {
-                console.log(`Found car-like objects in response.${key}`);
-                carData = possibleCars;
-                if (!totalCount) totalCount = possibleCars.length;
-                break;
-              }
-            } else if (response[key] && typeof response[key] === 'object') {
-              for (const innerKey in response[key]) {
-                if (Array.isArray(response[key][innerKey])) {
-                  // Check if this array contains objects that look like cars
-                  const possibleCars = response[key][innerKey];
-                  if (possibleCars.length > 0 && 
-                      (possibleCars[0].Brand || 
-                       possibleCars[0].brand || 
-                       possibleCars[0].CarModel || 
-                       possibleCars[0].model)) {
-                    console.log(`Found car-like objects in response.${key}.${innerKey}`);
-                    carData = possibleCars;
-                    if (!totalCount) totalCount = possibleCars.length;
-                    break;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-      
-      console.log(`Found ${carData.length} cars in response, total count: ${totalCount}`);
-      
-      // Log the first car object to see its structure
-      if (carData.length > 0) {
-        console.log('First car structure keys:', Object.keys(carData[0]).join(', '));
-        // Log Brand info specifically
-        if (carData[0].Brand) {
-          console.log('First car Brand:', JSON.stringify(carData[0].Brand));
-        }
-      }
-      
-      // If no car data was found in the API response, use mock data
-      if (!carData || carData.length === 0) {
-        console.log('No car data found in API response, using mock data...');
-        const mockResponse = generateMockCars(newPage);
-        carData = mockResponse.data.cars || [];
-        if (!totalCount) totalCount = mockResponse.data.total || 0;
-      } else {
-        // Only add mock BYD cars if specifically filtering for BYD and none found in API data
-        const isBYDFilterActive = appliedFilters.brands && 
-                                 appliedFilters.brands.length > 0 && 
-                                 appliedFilters.brands.some(brand => 
-                                   String(brand).toUpperCase() === 'BYD');
-        
-        if (isBYDFilterActive) {
-          // Check if there are any BYD cars in the API response
-          const hasBYD = carData.some(car => 
-            (car.Brand && car.Brand.name && car.Brand.name.toUpperCase() === 'BYD') || 
-            (car.brand && car.brand.toUpperCase() === 'BYD')
-          );
-          
-          if (!hasBYD) {
-            console.log('BYD filter applied but no BYD cars found in API, adding BYD mock cars...');
-            const bydMockCars = generateMockCars(1).data.cars.filter(car => 
-              car.Brand && car.Brand.name === 'BYD'
-            );
-            
-            // Generate unique timestamps for each mock car's ID to prevent conflicts
-            bydMockCars.forEach(car => {
-              // Ensure uniqueness by using a timestamp and random number in the ID
-              const timestamp = Date.now();
-              const random = Math.floor(Math.random() * 10000);
-              car.id = `mock-byd-${timestamp}-${random}`;
-            });
-            
-            // Add BYD cars to the response
-            carData = [...carData, ...bydMockCars];
-            
-            // Update the total count
-            totalCount += bydMockCars.length;
-            console.log(`Added ${bydMockCars.length} mock BYD cars, new total: ${totalCount}`);
-          }
         }
       }
       
       // Process car data to normalize it
-      const processedCars = carData.map(car => processCar(car));
+      const processedCars = carData
+        .filter(car => car) // Filter out undefined or null items
+        .map(car => processCar(car))
+        .filter(car => car); // Filter out any null results from processCar
       
-      // Log all brand names to debug
-      const availableBrands = processedCars.map(car => {
-        if (car.Brand && car.Brand.name) {
-          return car.Brand.name;
-        } else {
-          return car.brand;
-        }
-      });
-      console.log('Available brands in data:', [...new Set(availableBrands)].join(', '));
-      
-      // Log BYD cars specifically
-      const bydCars = processedCars.filter(car => 
-        (car.Brand && car.Brand.name && car.Brand.name.toUpperCase() === 'BYD') ||
-        (car.brand && car.brand.toUpperCase() === 'BYD')
-      );
-      console.log(`Found ${bydCars.length} BYD cars in data`);
-      if (bydCars.length > 0) {
-        bydCars.forEach(car => {
-          console.log(`BYD car in data: ID=${car.id}, Stock=${car.stockId}, Brand=${car.Brand?.name || car.brand}`);
-        });
+      // Store all cars
+      if (newPage === 1) {
+        setAllCars(processedCars);
+      } else {
+        setAllCars(prev => [...prev, ...processedCars]);
       }
       
-      // Add debug logging to see what brand structure we have in the data
-      if (processedCars.length > 0) {
-        console.log('Sample car brand data:', JSON.stringify({
-          brand: processedCars[0].brand,
-          Brand: processedCars[0].Brand
-        }));
-      }
+      // Apply manual filters for specifications if needed
+      let filteredCarsResult = processedCars;
       
-      // Apply filters manually on the client side if needed
-      let filteredCars = [];
-      
-      if (hasFilters) {
-        console.log(`Applying filters to ${processedCars.length} cars`);
-        
-        // Log the filter values we're applying
-        if (appliedFilters.brands && appliedFilters.brands.length > 0) {
-          console.log('Filtering by brands:', appliedFilters.brands.join(', '));
+      // Apply specifications filtering
+      if (hasFilters && appliedFilters.specifications && Object.keys(appliedFilters.specifications).length > 0) {
+        // Check if we have the enhanced matchSpecifications function
+        if (appliedFilters.matchSpecifications) {
+          filteredCarsResult = processedCars.filter(car => appliedFilters.matchSpecifications(car));
+                  } else {
+          // Use standard filtering
+          filteredCarsResult = filterCarsByApiCriteria(processedCars, appliedFilters);
         }
-        if (appliedFilters.models && appliedFilters.models.length > 0) {
-          console.log('Filtering by models:', appliedFilters.models.join(', '));
-        }
-        if (appliedFilters.trims && appliedFilters.trims.length > 0) {
-          console.log('Filtering by trims:', appliedFilters.trims.join(', '));
-        }
-        
-        filteredCars = processedCars.filter(car => {
-          // Skip any mock cars unless specifically filtering for something that requires mock data
-          const isMockCar = String(car.id).includes('mock-');
-          const isBYDFilter = appliedFilters.brands && 
-                             appliedFilters.brands.length > 0 && 
-                             appliedFilters.brands.some(brand => 
-                               String(brand).toUpperCase() === 'BYD');
-          
-          // Only include mock cars if specifically filtering for BYD and there are no real BYD cars
-          if (isMockCar && !isBYDFilter) {
-            return false;
-          }
-          
-          // For debugging, store our match results
-          const matchResults = {
-            brandMatch: true,
-            modelMatch: true,
-            trimMatch: true
-          };
-          
-          // Brand filter - match by ID or name (string)
-          if (appliedFilters.brands && appliedFilters.brands.length > 0) {
-            // First try to match by ID if we have brandIds
-            if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0 && car.Brand && car.Brand.id) {
-              const brandIdMatches = appliedFilters.brandIds.some(id => 
-                String(car.Brand.id) === String(id)
-              );
-              
-              if (brandIdMatches) {
-                console.log(`Brand ID match found: Car Brand ID ${car.Brand.id} matches filter`);
-                matchResults.brandMatch = true;
-                return true; // If we match by ID, no need to check other filters
-              }
-            }
-            
-            // Fall back to name matching if ID matching didn't work
-            const brandMatches = appliedFilters.brands.some(brandName => {
-              // Skip undefined/empty values
-              if (!brandName) return false;
-              
-              // Get car's brand name from the Brand object or fallback to the brand property
-              let carBrandName = '';
-              if (car.Brand && car.Brand.name) {
-                // First try to get it from the Brand object structure
-                carBrandName = String(car.Brand.name).toUpperCase();
-              } else {
-                // Fallback to direct brand property
-                carBrandName = String(car.brand || '').toUpperCase();
-              }
-              
-              // Convert filter brand name to string and uppercase for case-insensitive comparison
-              const filterBrandName = String(brandName).toUpperCase();
-              
-              // Special case handling for BYD
-              if (filterBrandName === 'BYD') {
-                const isBYD = carBrandName === 'BYD';
-                if (isBYD) {
-                  console.log(`BYD match found for car ID ${car.id}, stock ${car.stockId}, is mock: ${isMockCar}`);
-                }
-                return isBYD;
-              }
-              
-              // Return true if brand names match (case insensitive) or contain each other
-              const isMatch = carBrandName === filterBrandName || 
-                     carBrandName.includes(filterBrandName) ||
-                     filterBrandName.includes(carBrandName);
-                     
-              if (isMatch) {
-                console.log(`Brand match found: Car ${carBrandName} matches filter ${filterBrandName}, is mock: ${isMockCar}`);
-              }
-              
-              return isMatch;
-            });
-            
-            // If no brand match, exclude this car
-            matchResults.brandMatch = brandMatches;
-            if (!brandMatches) return false;
-          }
-          
-          // Model filter - match by ID or name (string)
-          if (appliedFilters.models && appliedFilters.models.length > 0) {
-            // First try to match by ID if we have modelIds
-            if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0 && car.CarModel && car.CarModel.id) {
-              const modelIdMatches = appliedFilters.modelIds.some(id => 
-                String(car.CarModel.id) === String(id)
-              );
-              
-              if (modelIdMatches) {
-                console.log(`Model ID match found: Car Model ID ${car.CarModel.id} matches filter`);
-                matchResults.modelMatch = true;
-                return true; // If we match by ID, no need to check other filters
-              }
-            }
-            
-            // Fall back to name matching if ID matching didn't work
-            const modelMatches = appliedFilters.models.some(modelName => {
-              // Skip undefined/empty values
-              if (!modelName) return false;
-              
-              // Get car's model name from the CarModel object or fallback to the model property
-              let carModelName = '';
-              if (car.CarModel && car.CarModel.name) {
-                // First try to get it from the CarModel object structure
-                carModelName = String(car.CarModel.name).toUpperCase();
-              } else {
-                // Fallback to direct model property
-                carModelName = String(car.model || '').toUpperCase();
-              }
-              
-              // Convert filter model name to string and uppercase for case-insensitive comparison
-              const filterModelName = String(modelName).toUpperCase();
-              
-              // Return true if model names match (case insensitive) or contain each other
-              const modelMatch = carModelName === filterModelName || 
-                       carModelName.includes(filterModelName) ||
-                       filterModelName.includes(carModelName);
-                      
-              if (modelMatch) {
-                console.log(`Model match found: Car ${carModelName} matches filter ${filterModelName}, is mock: ${isMockCar}`);
-              }
-              
-              return modelMatch;
-            });
-            
-            // If no model match, exclude this car
-            matchResults.modelMatch = modelMatches;
-            if (!modelMatches) return false;
-          }
-          
-          // Trim filter logic - similar to brand and model filtering above
-          if (appliedFilters.trims && appliedFilters.trims.length > 0) {
-            // First try to match by ID if we have trimIds
-            if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0 && car.Trim && car.Trim.id) {
-              const trimIdMatches = appliedFilters.trimIds.some(id => 
-                String(car.Trim.id) === String(id)
-              );
-              
-              if (trimIdMatches) {
-                console.log(`Trim ID match found: Car Trim ID ${car.Trim.id} matches filter`);
-                matchResults.trimMatch = true;
-                return true; // If we match by ID, no need to check other filters
-              }
-            }
-            
-            // Fall back to name matching if ID matching didn't work
-            const trimMatches = appliedFilters.trims.some(trimName => {
-              // Skip undefined/empty values
-              if (!trimName) return false;
-              
-              // Get car's trim name from the Trim object or fallback to the trim property
-              let carTrimName = '';
-              if (car.Trim && car.Trim.name) {
-                // First try to get it from the Trim object structure
-                carTrimName = String(car.Trim.name).toUpperCase();
-              } else {
-                // Fallback to direct trim property
-                carTrimName = String(car.trim || '').toUpperCase();
-              }
-              
-              // Convert filter trim name to string and uppercase for case-insensitive comparison
-              const filterTrimName = String(trimName).toUpperCase();
-              
-              // Return true if trim names match (case insensitive) or contain each other
-              const trimMatch = carTrimName === filterTrimName || 
-                       carTrimName.includes(filterTrimName) ||
-                       filterTrimName.includes(carTrimName);
-                      
-              if (trimMatch) {
-                console.log(`Trim match found: Car ${carTrimName} matches filter ${filterTrimName}, is mock: ${isMockCar}`);
-              }
-              
-              return trimMatch;
-            });
-            
-            // If no trim match, exclude this car
-            matchResults.trimMatch = trimMatches;
-            if (!trimMatches) return false;
-          }
-          
-          // Year filter
-          if (appliedFilters.years && appliedFilters.years.length > 0) {
-            const yearMatches = appliedFilters.years.some(yearStr => {
-              // Skip undefined/empty values
-              if (!yearStr) return false;
-              
-              // Convert car's year to string for comparison
-              const carYear = String(car.year || 
-                             (car.Year && car.Year.year ? car.Year.year : ''));
-              
-              // Convert filter year to string for comparison
-              const filterYear = String(yearStr);
-              
-              // Return true if years match exactly
-              const yearMatch = carYear === filterYear;
-              
-              if (yearMatch) {
-                console.log(`Year match found: Car ${carYear} matches filter ${filterYear}`);
-              }
-              
-              return yearMatch;
-            });
-            
-            // If no year match, exclude this car
-            if (!yearMatches) return false;
-          }
-          
-          // Specification filters
-          if (appliedFilters.specifications && Object.keys(appliedFilters.specifications).length > 0) {
-            // Go through each specification type
-            for (const specKey in appliedFilters.specifications) {
-              // Get the selected values for this specification
-              const selectedValues = appliedFilters.specifications[specKey];
-              
-              // If no values selected for this spec, skip it
-              if (!selectedValues || selectedValues.length === 0) continue;
-              
-              // Find if the car has this specification
-              let specMatch = false;
-              
-              // Special logging for regional_specification
-              if (specKey === 'regional_specification') {
-                console.log(`🌎 Filtering mock car ${car.id} by Regional Specification: ${selectedValues.join(', ')}`);
-                // Log the car's regional specification if available 
-                if (car.regionalSpec) {
-                  console.log(`🌎 Mock car ${car.id} has direct regionalSpec: ${car.regionalSpec}`);
-                }
-                if (car.SpecificationValues) {
-                  const regSpecs = car.SpecificationValues.filter(sv => 
-                    sv.Specification?.key === 'regional_specification'
-                  );
-                  if (regSpecs.length > 0) {
-                    console.log(`🌎 Mock car ${car.id} has SpecificationValues for regional spec: ${regSpecs.map(s => s.name).join(', ')}`);
-                  }
-                }
-              }
-              
-              // Special logging and handling for color specifications
-              if (specKey === 'color') {
-                console.log(`🎨 Filtering car ${car.id} by Color: ${selectedValues.join(', ')}`);
-                
-              // Check car specifications if available
-              if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
-                specMatch = car.SpecificationValues.some(spec => {
-                    // Check if this spec matches our key using Specification object
-                    if (spec.Specification && spec.Specification.key === 'color') {
-                      return selectedValues.some(selectedValue => {
-                        return spec.name && selectedValue && 
-                          spec.name.toLowerCase() === selectedValue.toLowerCase();
-                      });
-                    }
-                    return false;
-                  });
-                  
-                  if (specMatch) {
-                    console.log(`🎨 Car ${car.id} matches color specification through SpecificationValues`);
-                  }
-                }
-                
-                // If no match from specifications, check direct color property
-                if (!specMatch && car.color) {
-                  const colorMatch = selectedValues.some(selectedValue => 
-                    car.color.toLowerCase() === selectedValue.toLowerCase()
-                  );
-                  
-                  if (colorMatch) {
-                    console.log(`🎨 Car ${car.id} matches color through direct color property: ${car.color}`);
-                    specMatch = true;
-                  }
-                }
-                
-                // If still no match, check extracted colors from slug
-                if (!specMatch && car.extractedColors && car.extractedColors.length > 0) {
-                  const slugColorMatch = selectedValues.some(selectedValue => 
-                    car.extractedColors.some(extractedColor => 
-                      extractedColor.toLowerCase().includes(selectedValue.toLowerCase()) ||
-                      selectedValue.toLowerCase().includes(extractedColor.toLowerCase())
-                    )
-                  );
-                  
-                  if (slugColorMatch) {
-                    console.log(`🎨 Car ${car.id} matches color through extracted colors from slug: ${car.extractedColors.join(', ')}`);
-                    specMatch = true;
-                  }
-                }
-                
-                // If no color match found, exclude the car
-                if (!specMatch) {
-                  console.log(`❌ Car ${car.id} EXCLUDED: does not match color specification`);
-                  return false;
-                }
-                
-                // Skip the rest of the specifications loop since we've handled color
-                continue;
-              }
-              
-              // Check car specifications if available - using the test2.json structure
-              if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
-                specMatch = car.SpecificationValues.some(spec => {
-                  // Check if this spec matches our key using Specification object
-                  if (spec.Specification && spec.Specification.key === specKey) {
-                    // For regional specifications, use partial matching
-                    if (specKey === 'regional_specification') {
-                      return selectedValues.some(selectedValue => {
-                        if (!spec.name || !selectedValue) return false;
-                        
-                        // Try both exact match and partial match
-                        const exactMatch = spec.name.toLowerCase() === selectedValue.toLowerCase();
-                        const containsMatch = spec.name.toLowerCase().includes(selectedValue.toLowerCase()) || 
-                                           selectedValue.toLowerCase().includes(spec.name.toLowerCase());
-                        
-                        if (exactMatch || containsMatch) {
-                          console.log(`🌎 Mock car regional spec match: "${spec.name}" matches "${selectedValue}"`);
-                          return true;
-                        }
-                        return false;
-                      });
-                    } else {
-                      // Standard matching for other specifications
-                      const nameMatches = selectedValues.some(selectedValue => 
-                    spec.name && selectedValue && 
-                        spec.name.toLowerCase() === selectedValue.toLowerCase()
-                      );
-                      
-                      if (nameMatches) {
-                        console.log(`✅ Mock car ID ${car.id} matches ${specKey} with value "${spec.name}"`);
-                        return true;
-                      }
-                      return false;
-                    }
-                  }
-                  return false;
-                });
-              }
-              
-              // Also check direct properties on the car for common specs as fallback
-              if (!specMatch) {
-                // Map specification keys to possible car properties
-                const propertyMap = {
-                  'transmission': 'transmission',
-                  'fuel_type': 'fuelType',
-                  'body_type': 'type',
-                  'drive_type': 'driveType',
-                  'color': 'color',
-                  'interior_color': 'interiorColor',
-                  'regional_specification': 'regionalSpec',
-                  'steering_side': 'steeringSide', 
-                  'wheel_size': 'wheelSize',
-                  'seats': 'seats',
-                  'doors': 'doors',
-                  'cylinders': 'cylinders'
-                };
-                
-                // If we have a mapping for this spec key, check the property
-                if (propertyMap[specKey] && car[propertyMap[specKey]]) {
-                  const propValue = car[propertyMap[specKey]].toLowerCase();
-                  
-                  specMatch = selectedValues.some(selectedValue => {
-                    // For regional specifications, try partial matching
-                    if (specKey === 'regional_specification') {
-                      const exactMatch = propValue === selectedValue.toLowerCase();
-                      const containsMatch = propValue.includes(selectedValue.toLowerCase()) || 
-                                         selectedValue.toLowerCase().includes(propValue);
-                      
-                      if (exactMatch || containsMatch) {
-                        console.log(`🌎 Mock car regional spec match via property: "${propValue}" matches "${selectedValue}"`);
-                        return true;
-                      }
-                      return false;
-                    } else {
-                      // Standard exact matching for other specs
-                      const isMatch = propValue === selectedValue.toLowerCase();
-                      if (isMatch) {
-                        console.log(`✅ Mock car ${car.id} matches ${specKey} via property ${propertyMap[specKey]}="${propValue}"`);
-                      }
-                      return isMatch;
-                    }
-                  });
-                }
-              }
-              
-              // If this specification doesn't match, exclude the car and log the reason
-              if (!specMatch) {
-                console.log(`❌ Mock car ${car.id} EXCLUDED: does not match ${specKey} specification`);
-                return false;
-              }
-            }
-          }
-          
-          // If we made it here, the car matches all filters
-          return true;
-        });
         
         // Log more details on why filtering may have failed
-        if (filteredCars.length === 0 && processedCars.length > 0) {
+        if (filteredCarsResult.length === 0 && processedCars.length > 0) {
           console.log('No cars matched the filters. Sample car data:', JSON.stringify({
             brand: processedCars[0].brand,
             Brand: processedCars[0].Brand,
@@ -1022,39 +525,49 @@ const ExploreScreen = () => {
           }));
         }
         
-        // IMPORTANT: When filters are applied, ONLY use the filtered cars
-        console.log(`After filtering: ${filteredCars.length} cars match the criteria`);
+        console.log(`After filtering: ${filteredCarsResult.length} cars match the criteria`);
         
-        // Set car state based on pagination
+        // Set filtered cars state
         if (newPage === 1) {
-          // When filters are applied, ONLY show filtered cars
-          setCars(filteredCars);
+          setFilteredCars(filteredCarsResult);
+        } else {
+          setFilteredCars(prev => [...prev, ...filteredCarsResult]);
+        }
+        
+        // Update the display cars
+        if (newPage === 1) {
+          setCars(filteredCarsResult);
           setPage(1);
         } else {
-          // When loading more with filters, add to existing filtered cars
-          setCars(prevCars => [...prevCars, ...filteredCars]);
+          setCars(prev => [...prev, ...filteredCarsResult]);
           setPage(newPage);
         }
         
         // Update the total count to reflect filtered results
-        setTotalCars(filteredCars.length);
-        console.log(`Setting total count for filtered results: ${filteredCars.length}`);
+        setTotalCars(filteredCarsResult.length);
+        console.log(`Setting total count for filtered results: ${filteredCarsResult.length}`);
         
         // Determine if there might be more data to load
-        // For filtered results, we need to fetch everything and filter locally,
-        // so there is no more data if we've loaded less than a full page
-        setHasMoreData(filteredCars.length >= PAGE_SIZE);
+        const hasMore = newPage * PAGE_SIZE < totalCount && filteredCarsResult.length >= PAGE_SIZE;
+        setHasMoreData(hasMore);
       } else {
         // If no filters applied, use all processed cars
-        filteredCars = processedCars;
+        filteredCarsResult = processedCars;
+        
+        // Set filtered cars state (same as all cars in this case)
+        if (newPage === 1) {
+          setFilteredCars(filteredCarsResult);
+        } else {
+          setFilteredCars(prev => [...prev, ...filteredCarsResult]);
+        }
         
         // Set car state based on pagination
         if (newPage === 1) {
-          setCars(filteredCars);
+          setCars(filteredCarsResult);
           // Save the first page result count to help with pagination
           setPage(1);
         } else {
-          setCars(prevCars => [...prevCars, ...filteredCars]);
+          setCars(prev => [...prev, ...filteredCarsResult]);
           // Update the page number
           setPage(newPage);
         }
@@ -1072,359 +585,133 @@ const ExploreScreen = () => {
     } catch (error) {
       console.error('Error fetching cars:', error);
       // Use mock data in case of error
-      const mockData = generateMockCars(newPage);
       
-      // If we have filters, apply them to the mock data
-      let mockCars = mockData.data.cars;
-      const hasFilters = Object.keys(appliedFilters).length > 0;
+      // Set empty states to prevent crashes
+      setCars([]);
+      setFilteredCars([]);
+      setTotalCars(0);
+      setHasMoreData(false);
       
-      if (hasFilters) {
-        // Apply filters to mock data
-        mockCars = mockCars.filter(car => {
-          // Brand filter
-          if (appliedFilters.brands && appliedFilters.brands.length > 0) {
-            // First try to match by ID if we have brandIds
-            if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0 && car.Brand && car.Brand.id) {
-              const brandIdMatches = appliedFilters.brandIds.some(id => 
-                String(car.Brand.id) === String(id)
-              );
-              
-              if (!brandIdMatches) return false;
-            } else {
-              // Fallback to name matching
-              const brandName = car.Brand?.name || car.brand;
-              if (!brandName) return false;
-              
-              const matchesBrand = appliedFilters.brands.some(filterBrand => 
-                String(brandName).toUpperCase() === String(filterBrand).toUpperCase()
-              );
-              
-              if (!matchesBrand) return false;
-            }
-          }
-          
-          // Model filter
-          if (appliedFilters.models && appliedFilters.models.length > 0) {
-            // First try to match by ID if we have modelIds
-            if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0 && car.CarModel && car.CarModel.id) {
-              const modelIdMatches = appliedFilters.modelIds.some(id => 
-                String(car.CarModel.id) === String(id)
-              );
-              
-              if (!modelIdMatches) return false;
-            } else {
-              // Fallback to name matching
-              const modelName = car.CarModel?.name || car.model;
-              if (!modelName) return false;
-              
-              const matchesModel = appliedFilters.models.some(filterModel => 
-                String(modelName).toUpperCase() === String(filterModel).toUpperCase()
-              );
-              
-              if (!matchesModel) return false;
-            }
-          }
-          
-          // Trim filter
-          if (appliedFilters.trims && appliedFilters.trims.length > 0) {
-            // First try to match by ID if we have trimIds
-            if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0 && car.Trim && car.Trim.id) {
-              const trimIdMatches = appliedFilters.trimIds.some(id => 
-                String(car.Trim.id) === String(id)
-              );
-              
-              if (!trimIdMatches) return false;
-            } else {
-              // Fallback to name matching
-              const trimName = car.Trim?.name || car.trim;
-              if (!trimName) return false;
-              
-              const matchesTrim = appliedFilters.trims.some(filterTrim => 
-                String(trimName).toUpperCase() === String(filterTrim).toUpperCase()
-              );
-              
-              if (!matchesTrim) return false;
-            }
-          }
-          
-          // Year filter
-          if (appliedFilters.years && appliedFilters.years.length > 0) {
-            // First try to match by ID if we have yearIds
-            if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0 && car.Year && car.Year.id) {
-              const yearIdMatches = appliedFilters.yearIds.some(id => 
-                String(car.Year.id) === String(id)
-              );
-              
-              if (!yearIdMatches) return false;
-            } else {
-              // Fallback to value matching
-              const yearValue = car.Year?.year || car.year;
-              if (!yearValue) return false;
-              
-              const matchesYear = appliedFilters.years.some(filterYear => 
-                String(yearValue) === String(filterYear)
-              );
-              
-              if (!matchesYear) return false;
-            }
-          }
-          
-          // Handle specification filters (body type, transmission, etc.)
-          if (appliedFilters.specifications && Object.keys(appliedFilters.specifications).length > 0) {
-            // Go through each specification type
-            for (const specKey in appliedFilters.specifications) {
-              // Get the selected values for this specification
-              const selectedValues = appliedFilters.specifications[specKey];
-              
-              // If no values selected for this spec, skip it
-              if (!selectedValues || selectedValues.length === 0) continue;
-              
-              // Find if the car has this specification
-              let specMatch = false;
-              
-              // Special logging for regional_specification
-              if (specKey === 'regional_specification') {
-                console.log(`🌎 Filtering mock car ${car.id} by Regional Specification: ${selectedValues.join(', ')}`);
-                // Log the car's regional specification if available 
-                if (car.regionalSpec) {
-                  console.log(`🌎 Mock car ${car.id} has direct regionalSpec: ${car.regionalSpec}`);
-                }
-                if (car.SpecificationValues) {
-                  const regSpecs = car.SpecificationValues.filter(sv => 
-                    sv.Specification?.key === 'regional_specification'
-                  );
-                  if (regSpecs.length > 0) {
-                    console.log(`🌎 Mock car ${car.id} has SpecificationValues for regional spec: ${regSpecs.map(s => s.name).join(', ')}`);
-                  }
-                }
-              }
-              
-              // Special logging and handling for color specifications
-              if (specKey === 'color') {
-                console.log(`🎨 Filtering car ${car.id} by Color: ${selectedValues.join(', ')}`);
-                
-                // Check car specifications if available
-                if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
-                  specMatch = car.SpecificationValues.some(spec => {
-                    // Check if this spec matches our key using Specification object
-                    if (spec.Specification && spec.Specification.key === 'color') {
-                      return selectedValues.some(selectedValue => {
-                        return spec.name && selectedValue && 
-                          spec.name.toLowerCase() === selectedValue.toLowerCase();
-                      });
-                    }
-                    return false;
-                  });
-                  
-                  if (specMatch) {
-                    console.log(`🎨 Car ${car.id} matches color specification through SpecificationValues`);
-                  }
-                }
-                
-                // If no match from specifications, check direct color property
-                if (!specMatch && car.color) {
-                  const colorMatch = selectedValues.some(selectedValue => 
-                    car.color.toLowerCase() === selectedValue.toLowerCase()
-                  );
-                  
-                  if (colorMatch) {
-                    console.log(`🎨 Car ${car.id} matches color through direct color property: ${car.color}`);
-                    specMatch = true;
-                  }
-                }
-                
-                // If still no match, check extracted colors from slug
-                if (!specMatch && car.extractedColors && car.extractedColors.length > 0) {
-                  const slugColorMatch = selectedValues.some(selectedValue => 
-                    car.extractedColors.some(extractedColor => 
-                      extractedColor.toLowerCase().includes(selectedValue.toLowerCase()) ||
-                      selectedValue.toLowerCase().includes(extractedColor.toLowerCase())
-                    )
-                  );
-                  
-                  if (slugColorMatch) {
-                    console.log(`🎨 Car ${car.id} matches color through extracted colors from slug: ${car.extractedColors.join(', ')}`);
-                    specMatch = true;
-                  }
-                }
-                
-                // If no color match found, exclude the car
-                if (!specMatch) {
-                  console.log(`❌ Car ${car.id} EXCLUDED: does not match color specification`);
-                  return false;
-                }
-                
-                // Skip the rest of the specifications loop since we've handled color
-                continue;
-              }
-              
-              // Check car specifications if available - using the test2.json structure
-              if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
-                specMatch = car.SpecificationValues.some(spec => {
-                  // Check if this spec matches our key using Specification object
-                  if (spec.Specification && spec.Specification.key === specKey) {
-                    // For regional specifications, use partial matching
-                    if (specKey === 'regional_specification') {
-                      return selectedValues.some(selectedValue => {
-                        if (!spec.name || !selectedValue) return false;
-                        
-                        // Try both exact match and partial match
-                        const exactMatch = spec.name.toLowerCase() === selectedValue.toLowerCase();
-                        const containsMatch = spec.name.toLowerCase().includes(selectedValue.toLowerCase()) || 
-                                           selectedValue.toLowerCase().includes(spec.name.toLowerCase());
-                        
-                        if (exactMatch || containsMatch) {
-                          console.log(`🌎 Mock car regional spec match: "${spec.name}" matches "${selectedValue}"`);
-                          return true;
-                        }
-                        return false;
-                      });
-                    } else {
-                      // Standard matching for other specifications
-                      const nameMatches = selectedValues.some(selectedValue => 
-                        spec.name && selectedValue && 
-                        spec.name.toLowerCase() === selectedValue.toLowerCase()
-                      );
-                      
-                      if (nameMatches) {
-                        console.log(`✅ Mock car ID ${car.id} matches ${specKey} with value "${spec.name}"`);
-                        return true;
-                      }
-                      return false;
-                    }
-                  }
-                  return false;
-                });
-              }
-              
-              // Also check direct properties on the car for common specs as fallback
-              if (!specMatch) {
-                // Map specification keys to possible car properties
-                const propertyMap = {
-                  'transmission': 'transmission',
-                  'fuel_type': 'fuelType',
-                  'body_type': 'type',
-                  'drive_type': 'driveType',
-                  'color': 'color',
-                  'interior_color': 'interiorColor',
-                  'regional_specification': 'regionalSpec',
-                  'steering_side': 'steeringSide', 
-                  'wheel_size': 'wheelSize',
-                  'seats': 'seats',
-                  'doors': 'doors',
-                  'cylinders': 'cylinders'
-                };
-                
-                // If we have a mapping for this spec key, check the property
-                if (propertyMap[specKey] && car[propertyMap[specKey]]) {
-                  const propValue = car[propertyMap[specKey]].toLowerCase();
-                  
-                  specMatch = selectedValues.some(selectedValue => {
-                    // For regional specifications, try partial matching
-                    if (specKey === 'regional_specification') {
-                      const exactMatch = propValue === selectedValue.toLowerCase();
-                      const containsMatch = propValue.includes(selectedValue.toLowerCase()) || 
-                                         selectedValue.toLowerCase().includes(propValue);
-                      
-                      if (exactMatch || containsMatch) {
-                        console.log(`🌎 Mock car regional spec match via property: "${propValue}" matches "${selectedValue}"`);
-                        return true;
-                      }
-                      return false;
-                    } else {
-                      // Standard exact matching for other specs
-                      const isMatch = propValue === selectedValue.toLowerCase();
-                      if (isMatch) {
-                        console.log(`✅ Mock car ${car.id} matches ${specKey} via property ${propertyMap[specKey]}="${propValue}"`);
-                      }
-                      return isMatch;
-                    }
-                  });
-                }
-              }
-              
-              // If this specification doesn't match, exclude the car and log the reason
-              if (!specMatch) {
-                console.log(`❌ Mock car ${car.id} EXCLUDED: does not match ${specKey} specification`);
-                return false;
-              }
-            }
-          }
-          
-          return true;
-        });
-        
-        // Update total count for filtered mock data
-        if (newPage === 1) {
-        setCars(mockCars);
-          setPage(1);
-        } else {
-          setCars(prevCars => [...prevCars, ...mockCars]);
-          setPage(newPage);
-        }
-        
-        setTotalCars(mockCars.length);
-        setHasMoreData(mockCars.length >= PAGE_SIZE);
-      } else {
-        // No filters, use all mock cars
-        if (newPage === 1) {
-          setCars(mockCars);
-          setPage(1);
-        } else {
-          setCars(prevCars => [...prevCars, ...mockCars]);
-          setPage(newPage);
-        }
-        
-        setTotalCars(mockData.data.total);
-        setHasMoreData(mockCars.length >= PAGE_SIZE);
-      }
     } finally {
-        setLoading(false);
-        setLoadingMore(false);
-      }
+      setLoading(false);
+      setLoadingMore(false);
+    }
   };
 
   // Add utility function to extract color information from slugs
-  const extractColorsFromSlug = (slug) => {
+  const extractColorsFromSlug = (slug, type = 'exterior') => {
     if (!slug || typeof slug !== 'string') return [];
     
     // Common color terms to look for in slugs
     const colorTerms = [
       'white', 'black', 'red', 'blue', 'green', 'yellow', 'orange', 'purple',
       'pink', 'brown', 'grey', 'gray', 'silver', 'gold', 'beige', 'tan',
-      'maroon', 'navy', 'teal', 'olive', 'cyan', 'magenta'
+      'maroon', 'navy', 'teal', 'olive', 'cyan', 'magenta', 'ivory', 'cream'
     ];
     
     // Convert slug to lowercase and replace hyphens and underscores with spaces
     const slugText = slug.toLowerCase().replace(/[-_]/g, ' ');
     
-    // Find all color terms in the slug
-    const foundColors = colorTerms.filter(color => 
-      slugText.includes(color) ||
-      // Also check for variations like "white-body" or "roof-black"
-      slugText.includes(`${color} body`) ||
-      slugText.includes(`body ${color}`) ||
-      slugText.includes(`${color} roof`) ||
-      slugText.includes(`roof ${color}`)
-    );
+    // Identify interior vs exterior colors based on context clues in the slug
+    const interiorColorPatterns = ['inside', 'interior', 'and'];
+    const exteriorColorPatterns = ['body', 'roof', 'pearl', 'metallic', 'outside'];
+    
+    // Extract parts of slug text that likely contain interior or exterior color info
+    let interiorPart = '';
+    let exteriorPart = slugText;
+    
+    // Many slugs use 'inside' to denote interior colors
+    if (slugText.includes('inside')) {
+      const parts = slugText.split('inside');
+      exteriorPart = parts[0]; // Everything before "inside" is exterior
+      interiorPart = parts[1]; // Everything after "inside" is interior
+    }
+    
+    // Find all color terms in the appropriate part of the slug
+    let foundColors = [];
+    
+    if (type === 'interior' && interiorPart) {
+      // Extract interior colors from the interior part of the slug
+      foundColors = colorTerms.filter(color => 
+        interiorPart.includes(color) || 
+        interiorPart.includes(`${color} and`) ||
+        interiorPart.includes(`and ${color}`)
+      );
+      
+      console.log(`🏠 Interior part: "${interiorPart.trim()}" - Found colors: ${foundColors.join(', ')}`);
+    } else if (type === 'exterior') {
+      // For exterior, look for color terms with exterior indicators
+      foundColors = colorTerms.filter(color => {
+        // First check for explicit exterior markers
+        if (exteriorPart.includes(`${color} body`) || 
+            exteriorPart.includes(`body ${color}`) ||
+            exteriorPart.includes(`${color} roof`) ||
+            exteriorPart.includes(`roof ${color}`) ||
+            exteriorPart.includes(`${color} metallic`) ||
+            exteriorPart.includes(`metallic ${color}`) ||
+            exteriorPart.includes(`${color} pearl`)) {
+          return true;
+        }
+        
+        // If no interior markers in slug, look for colors before any interior marker
+        if (!interiorPart && exteriorPart.includes(color)) {
+          return true;
+        }
+        
+        // Check if color is in the exterior part but not close to interior indicators
+        if (exteriorPart.includes(color)) {
+          // Avoid detecting colors that are likely interior
+          const isLikelyInteriorColor = interiorColorPatterns.some(pattern => 
+            exteriorPart.includes(`${color} ${pattern}`) || 
+            exteriorPart.includes(`${pattern} ${color}`)
+          );
+          
+          return !isLikelyInteriorColor;
+        }
+        
+        return false;
+      });
+      
+      console.log(`🚗 Exterior part: "${exteriorPart.trim()}" - Found colors: ${foundColors.join(', ')}`);
+    }
     
     return [...new Set(foundColors)]; // Return unique colors
   };
 
   // Helper function to process car data into a consistent format
   const processCar = (car) => {
+    // Return early if car is undefined or null
+    if (!car) {
+      console.warn('Attempted to process undefined or null car');
+      return null;
+    }
+    
     // Ensure the car has a valid ID
     if (!car.id) {
       car.id = `generated-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
     }
     
     // Extract colors from slug if available
-    let extractedColors = [];
+    let extractedExteriorColors = [];
+    let extractedInteriorColors = [];
+    
     if (car.slug) {
-      extractedColors = extractColorsFromSlug(car.slug);
-      if (extractedColors.length > 0) {
-        console.log(`🎨 Extracted colors from slug for car ${car.id}: ${extractedColors.join(', ')}`);
+      // Extract separate color lists for exterior and interior
+      extractedExteriorColors = extractColorsFromSlug(car.slug, 'exterior');
+      extractedInteriorColors = extractColorsFromSlug(car.slug, 'interior');
+      
+      console.log(`🎨 Car ${car.id} - SLUG: "${car.slug}"`);
+      if (extractedExteriorColors.length > 0) {
+        console.log(`🚗 Exterior colors: ${extractedExteriorColors.join(', ')}`);
       }
+      if (extractedInteriorColors.length > 0) {
+        console.log(`🏠 Interior colors: ${extractedInteriorColors.join(', ')}`);
+      }
+      if (extractedExteriorColors.length === 0 && extractedInteriorColors.length === 0) {
+        console.log(`⚠️ No colors detected in slug`);
+      }
+    } else {
+      console.log(`⚠️ Car ${car.id} - No slug available`);
     }
     
     // Process car images
@@ -1491,7 +778,9 @@ const ExploreScreen = () => {
       year: car.year || (car.Year ? car.Year.year : new Date().getFullYear()),
       price: car.price || 0,
       color: car.color || 'Not specified',
-      extractedColors: extractedColors, // Add extracted colors from slug
+      extractedExteriorColors: extractedExteriorColors, // Add exterior colors
+      extractedInteriorColors: extractedInteriorColors, // Add interior colors
+      extractedColors: extractedExteriorColors, // Keep for backward compatibility
       slug: normalizedSlug, // Use normalized slug for search
       engineSize: car.engineSize || '',
       fuelType: car.fuelType || 
@@ -1531,11 +820,15 @@ const ExploreScreen = () => {
     };
   };
 
-  // Update the loadMoreData function to prevent loading more data
+  // Update the loadMoreData function to handle pagination correctly
   const loadMoreData = () => {
-    // Disable loading more data - we'll show all results at once
-    console.log('Pagination disabled - showing all cars at once');
-    return;
+    if (loadingMore || !hasMoreData) return;
+    
+    console.log(`Loading more data, page ${page + 1}`);
+    setLoadingMore(true);
+    
+    // Load the next page
+    fetchCars(page + 1);
   };
 
   const toggleFavorite = (carId) => {
@@ -1560,17 +853,8 @@ const ExploreScreen = () => {
 
   // Add function to handle opening the filter modal
   const handleOpenFilter = () => {
-    // Navigate to FilterScreen with current filters
-    navigation.navigate('FilterScreen', {
-      filterType: 'brands',
-      onApplyCallback: handleFilterApply,
-      // Pass current filters so they can be pre-selected
-      currentFilters: appliedFilters
-    });
-  };
-
-  // Update the function to properly apply filters from FilterScreen
-  const handleFilterApply = (filters) => {
+    // Create a callback function that will be properly bound
+    const applyFilterCallback = (filters) => {
     // Preserve search query if we're currently searching
     if (searchQuery) {
       filters.searchQuery = searchQuery;
@@ -1588,575 +872,392 @@ const ExploreScreen = () => {
       });
     }
     
-    // Log specification filters in more detail for debugging
-    if (filters.specifications) {
-      console.log('Applying specification filters:');
-      Object.keys(filters.specifications).forEach(specKey => {
-        if (filters.specifications[specKey] && filters.specifications[specKey].length > 0) {
-          const specValues = filters.specifications[specKey];
-          console.log(`📋 Selected ${specKey} values (${specValues.length}):`, specValues.join(', '));
-          
-          // Log some specific details for key specifications
-          if (specKey === 'transmission') {
-            console.log('🔄 Transmission filter will match cars with specification ID 12');
-          } else if (specKey === 'regional_specification') {
-            console.log('🌎 Regional Specification filter will match cars with specification ID 1');
-            // Add special handling for regional specifications validation
-            console.log('🌎 IMPORTANT: Using case-insensitive and partial matching for regional specifications');
-          } else if (specKey === 'steering_side') {
-            console.log('🚘 Steering Side filter will match cars with specification ID 2');
-          } else if (specKey === 'body_type') {
-            console.log('🚗 Body Type filter will match cars with specification ID 6');
-          } else if (specKey === 'color') {
-            console.log('🎨 Color filter will match cars with specification ID 3');
-            // Note if we should also check for color in slugs
-            if (filters.extractColorsFromSlug) {
-              console.log('🎨 Will also check for color matches in car slugs');
-            }
-          }
-        }
-      });
-    }
-    
     // Save the applied filters to state - this will trigger the useEffect to refetch
     setAppliedFilters(filters);
     
-    // Set loading state to true until the useEffect fetches new data
-    setLoading(true);
+    // For safety, check if we have the enhanced matchSpecifications function
+    if (filters.matchSpecifications) {
+      console.log('Using enhanced multi-directional filtering with accurate permutation combinations');
+      
+      // Log the number of cars in each hierarchy
+      if (filters.hasBrandFilter) {
+        console.log(`⭐ Filter includes ${filters.brands.length} brands: ${filters.brands.join(', ')}`);
+      }
+      
+      if (filters.hasModelFilter) {
+        console.log(`⭐ Filter includes ${filters.models.length} models: ${filters.models.join(', ')}`);
+      }
+      
+      if (filters.hasTrimFilter) {
+        console.log(`⭐ Filter includes ${filters.trims.length} trims: ${filters.trims.join(', ')}`);
+      }
+      
+      // Log specifications info
+      if (filters.specifications) {
+        Object.keys(filters.specifications).forEach(key => {
+          const values = filters.specifications[key];
+          if (values && values.length > 0) {
+            console.log(`⭐ Filter includes ${values.length} ${key} specifications: ${values.join(', ')}`);
+          }
+        });
+      }
+    }
+    
+    // Apply the filters immediately if we have cars loaded
+      if (allCars && allCars.length > 0) {
+      applyFiltersToExistingCars(allCars, filters);
+    } else {
+      // Otherwise, reset page to 1 and fetch new cars with filters
+        setPage(1);
+      fetchCars(1);
+    }
   };
 
-  const handleFilterSelect = (filterId) => {
-    setActiveFilter(filterId);
+    // Navigate to FilterScreen with current filters
+    navigation.navigate('FilterScreen', {
+      filterType: 'brands',
+      onApplyCallback: applyFilterCallback, // Use the locally defined function
+      // Pass current filters so they can be pre-selected
+      currentFilters: appliedFilters
+    });
+  };
+
+  // Update the function to apply filters to existing cars
+  const applyFiltersToExistingCars = (cars, filters) => {
+    console.log(`Applying filters to ${cars.length} existing cars...`);
     
-    // If "All" is selected, clear all filters
-    if (filterId === 'all') {
-      setAppliedFilters({});
-    setPage(1);
-    fetchCars(1);
+    if (!cars || cars.length === 0) {
+      setFilteredCars([]);
+      setCars([]);
+      setTotalCars(0);
       return;
     }
     
-    // If advanced filters is selected, open the filter screen
-    if (filterId === 'advanced') {
-      handleOpenFilter();
+    let filteredResults = [];
+    
+    // Use the enhanced matchSpecifications function if available, otherwise use standard filtering
+    if (filters.matchSpecifications) {
+      // Apply the multi-directional filtering logic
+      filteredResults = cars.filter(car => filters.matchSpecifications(car));
     } else {
-      // For other filters, don't clear filters, just keep existing
-      // Reset pagination and reload with current filters
-    setPage(1);
-    fetchCars(1);
+      // Fallback to standard filtering
+      filteredResults = filterCarsByApiCriteria(cars, filters);
     }
+    
+    console.log(`After filtering: ${filteredResults.length} cars match the criteria`);
+    
+    // Update both filtered and display cars
+    setFilteredCars(filteredResults);
+    setCars(filteredResults);
+    setTotalCars(filteredResults.length);
   };
-
-  // Function to navigate to car detail
-  const navigateToCarDetail = (car) => {
-    console.log(`Navigating to car detail for car ID: ${car.id}`);
-    // Navigate to the CarDetailScreen with the car ID
-    navigation.navigate('CarDetailScreen', { carId: car.id });
-  };
-
-  // Function to go back to all cars
-  const viewAllCars = () => {
-    setIsViewingSpecificCar(false);
-    navigation.setParams({ carId: undefined });
-    fetchCars(1);
-  };
-
-  // Render individual car item
-  const renderCarItem = ({ item }) => {
-    // Check if this is a mock car
-    const isMockCar = String(item.id).includes('mock-');
-    
-    // Get specification values for display
-    const getSpecValue = (specKey) => {
-      if (item.SpecificationValues && Array.isArray(item.SpecificationValues)) {
-        const specValue = item.SpecificationValues.find(spec => 
-          (spec.Specification && spec.Specification.key === specKey) ||
-          (spec.specification && spec.specification.key === specKey)
-        );
-        return specValue ? specValue.name : null;
-      }
-      return null;
-    };
-    
-    // Extract values from the car object
-    const transmission = getSpecValue('transmission') || item.transmission || 'N/A';
-    const fuelType = getSpecValue('fuel_type') || item.fuelType || 'N/A';
-    const bodyType = getSpecValue('body_type') || item.type || 'N/A';
-    const regionalSpec = getSpecValue('regional_specification') || item.regionalSpec || '';
-    const steeringSide = getSpecValue('steering_side') || item.steeringSide || '';
-    
-    // Extract basic information
-    const brand = item.Brand?.name || item.brand || '';
-    const model = item.CarModel?.name || item.model || '';
-    const trim = item.Trim?.name || item.trim || '';
-    const year = item.Year?.year || item.year || '';
-    
-    // Use the images array directly from the processed car
-    const carImages = item.images || [item.image] || [require('../components/home/car_Image.png')];
-    
-    // Check if we need to highlight parts of text due to search
-    const highlightText = (text, type) => {
-      if (!filteredBySearch || !text || !debouncedSearchQuery) {
-        return <Text style={type === 'title' ? styles.carTitle : type === 'subtitle' ? styles.carSubtitle : styles.specText}>{text}</Text>;
-      }
-      
-      const query = debouncedSearchQuery.toLowerCase();
-      
-      // No highlighting if query not in text
-      if (!text.toLowerCase().includes(query)) {
-        // Try with special characters removed for more flexible matching
-        const cleanQuery = query.replace(/[^\w\s]/gi, '').trim();
-        const cleanText = text.toLowerCase().replace(/[^\w\s]/gi, '');
-        
-        // If no match even with clean versions, return the original text
-        if (!cleanText.includes(cleanQuery)) {
-          return <Text style={type === 'title' ? styles.carTitle : type === 'subtitle' ? styles.carSubtitle : styles.specText}>{text}</Text>;
-        }
-        
-        // If we match with clean version but not original, we'll highlight based on positions in cleaned text
-        try {
-          // This is an approximation - it won't be perfect for all cases with special chars
-          const startIndex = cleanText.indexOf(cleanQuery);
-          const endIndex = startIndex + cleanQuery.length;
-          
-          // Very basic highlighting based on approximate position
-          return (
-            <Text style={type === 'title' ? styles.carTitle : type === 'subtitle' ? styles.carSubtitle : styles.specText}>
-              {text.substring(0, startIndex)}
-              <Text style={styles.highlightedText}>{text.substring(startIndex, endIndex)}</Text>
-              {text.substring(endIndex)}
-            </Text>
-          );
-        } catch (e) {
-          // Fallback to regular text if there's any error
-          return <Text style={type === 'title' ? styles.carTitle : type === 'subtitle' ? styles.carSubtitle : styles.specText}>{text}</Text>;
+  
+  // Add a standard filtering function for backward compatibility
+  const filterCarsByApiCriteria = (cars, filters) => {
+    // Standard filtering based on explicit criteria
+    return cars.filter(car => {
+      // Filter by brands
+      if (filters.brands && filters.brands.length > 0) {
+        if (!car.brand || !filters.brands.some(b => car.brand.toLowerCase().includes(b.toLowerCase()))) {
+          return false;
         }
       }
       
-      // Standard highlighting for direct matches
-      try {
-        const parts = text.split(new RegExp(`(${query})`, 'gi'));
-        
-        return (
-          <Text style={type === 'title' ? styles.carTitle : type === 'subtitle' ? styles.carSubtitle : styles.specText}>
-            {parts.map((part, index) => 
-              part.toLowerCase() === query.toLowerCase() ? 
-                <Text key={index} style={styles.highlightedText}>{part}</Text> : 
-                <Fragment key={index}>{part}</Fragment>
-            )}
-          </Text>
-        );
-      } catch (e) {
-        // Fallback to regular text if there's any error with regex
-        return <Text style={type === 'title' ? styles.carTitle : type === 'subtitle' ? styles.carSubtitle : styles.specText}>{text}</Text>;
+      // Filter by models
+      if (filters.models && filters.models.length > 0) {
+        if (!car.model || !filters.models.some(m => car.model.toLowerCase().includes(m.toLowerCase()))) {
+          return false;
+        }
       }
-    };
-    
-    return (
-      <TouchableOpacity 
-        style={[styles.carCard, item.inWishlist && styles.favoriteHighlight]}
-        onPress={() => navigateToCarDetail(item)}
-        activeOpacity={0.8}
-      >
-        <CarImageCarousel
-          images={carImages}
-          style={styles.carImage}
-          height={180}
-          onImagePress={() => navigateToCarDetail(item)}
-        />
-        
-        <View style={styles.carTypeContainer}>
-          <Text style={styles.carTypeText}>{bodyType}</Text>
-        </View>
-        
-        {item.stockId && (
-          <View style={styles.stockIdContainer}>
-            <Text style={styles.stockIdText}>{item.stockId}</Text>
-          </View>
-        )}
-        
-        {isMockCar && (
-          <View style={[styles.stockIdContainer, { backgroundColor: 'rgba(255, 0, 0, 0.6)' }]}>
-            <Text style={styles.stockIdText}>MOCK DATA</Text>
-          </View>
-        )}
-        
-        <View style={styles.carDetails}>
-          {filteredBySearch ? 
-            highlightText(`${year} ${brand} ${model}`, 'title') : 
-            <Text style={styles.carTitle}>
-              {year} {brand} {model}
-            </Text>
-          }
-          
-          {filteredBySearch ?
-            highlightText(`${trim ? `${trim} - ` : ''}${item.color || 'N/A'}`, 'subtitle') :
-            <Text style={styles.carSubtitle}>
-              {trim ? `${trim} - ` : ''}{item.color || 'N/A'}
-            </Text>
-          }
-          
-          <View style={styles.specRow}>
-            {item.engineSize && (
-              <View style={styles.specItem}>
-                <Text style={styles.specIcon}>🔧</Text>
-                <Text style={styles.specText}>{item.engineSize}L</Text>
-              </View>
-            )}
-            <View style={styles.specItem}>
-              <Text style={styles.specIcon}>⚡</Text>
-              <Text style={styles.specText}>{fuelType}</Text>
-            </View>
-            <View style={styles.specItem}>
-              <Text style={styles.specIcon}>🔄</Text>
-              <Text style={styles.specText}>{transmission}</Text>
-            </View>
-          </View>
-          
-          <View style={styles.specRow}>
-            {regionalSpec && (
-              <View style={styles.originBadge}>
-                <Text style={styles.originText}>{regionalSpec}</Text>
-              </View>
-            )}
-            {steeringSide && (
-              <View style={styles.steeringBadge}>
-                <Text style={styles.steeringText}>{steeringSide}</Text>
-              </View>
-            )}
-          </View>
-          
-          <Text style={styles.carPrice}>
-            {item.price ? `AED ${item.price.toLocaleString()}` : 'Price on Request'}
-          </Text>
-          
-          {item.slug && (
-            <Text style={styles.slugText} numberOfLines={1} ellipsizeMode="tail">
-              ID: {item.id} | Slug: {item.slug}
-            </Text>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  };
-
-  // Render footer for FlatList (loading indicator for pagination)
-  const renderFooter = () => {
-    if (!loadingMore) return null;
-    
-    return (
-      <View style={styles.footerLoader}>
-        <ActivityIndicator size="small" color={COLORS.primary} />
-        <Text style={styles.loadingMoreText}>Loading more cars...</Text>
-      </View>
-    );
-  };
-
-  // Filter tabs at top
-  const renderFilterItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.filterButton,
-        activeFilter === item.id && styles.activeFilterButton
-      ]}
-      onPress={() => handleFilterSelect(item.id)}
-    >
-      <Text 
-        style={[
-          styles.filterButtonText,
-          activeFilter === item.id && styles.activeFilterText
-        ]}
-      >
-        {item.label}
-      </Text>
-    </TouchableOpacity>
-  );
-
-  // Render empty state when no cars match filters
-  const renderEmptyState = () => {
-    if (loading) return null;
-    
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyTitle}>No Cars Found</Text>
-        <Text style={styles.emptyDescription}>
-          No cars match your current filter criteria. 
-          Try adjusting your filters or clear them to see all available cars.
-        </Text>
-        <TouchableOpacity 
-          style={styles.clearFiltersButtonLarge}
-          onPress={() => {
-            // Reset filters and revert to "All" tab
-            setAppliedFilters({});
-            setActiveFilter('all');
-            // Loading state will be managed by the useEffect hook
-            setLoading(true);
-          }}
-        >
-          <Text style={styles.clearFiltersText}>Clear All Filters</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  // Add this function to generate mock cars
-  const generateMockCars = (page) => {
-    const mockCars = [
-      // Toyota mock car
-      {
-        id: "mock-1001", // Use string IDs to avoid conflicts with API data
-        stockId: "TOY-TEST-001",
-        Brand: {
-          id: 2,
-          name: "TOYOTA",
-          slug: "toyota"
-        },
-        CarModel: {
-          id: 41,
-          name: "COROLLA CROSS",
-          slug: "corolla-cross"
-        },
-        Trim: {
-          id: 54,
-          name: "MID",
-          slug: "mid"
-        },
-        Year: {
-          id: 1,
-          year: 2024
-        },
-        price: 29500,
-        color: "White",
-        engineSize: 1.8,
-        type: "SUV",
-        fuelType: "Gasoline",
-        transmission: "Automatic",
-        regionalSpec: "GCC",
-        steeringSide: "Left-hand drive",
-        // Add SpecificationValues array with proper specification structures
-        SpecificationValues: [
-          {
-            id: 101,
-            name: "Automatic",
-            Specification: { id: 12, key: "transmission", name: "Transmission" }
-          },
-          {
-            id: 102,
-            name: "Gasoline",
-            Specification: { id: 9, key: "fuel_type", name: "Fuel Type" }
-          },
-          {
-            id: 103,
-            name: "SUV",
-            Specification: { id: 6, key: "body_type", name: "Body Type" }
-          },
-          {
-            id: 104,
-            name: "GCC",
-            Specification: { id: 1, key: "regional_specification", name: "Regional Specification" }
-          },
-          {
-            id: 105,
-            name: "Left-hand drive",
-            Specification: { id: 2, key: "steering_side", name: "Steering Side" }
-          }
-        ]
-      },
-      // BYD mock car 1 - to ensure we have BYD data
-      {
-        id: "mock-1002", // Use string IDs to avoid conflicts with API data
-        stockId: "BYD-TEST-001",
-        Brand: {
-          id: 3,
-          name: "BYD",
-          slug: "byd"
-        },
-        CarModel: {
-          id: 4,
-          name: "SONG PLUS",
-          slug: "song-plus"
-        },
-        Trim: {
-          id: 4,
-          name: "FLAGSHIP",
-          slug: "flagship"
-        },
-        Year: {
-          id: 1,
-          year: 2024
-        },
-        price: 37500,
-        color: "Grey",
-        engineSize: null,
-        type: "SUV",
-        fuelType: "Electric",
-        transmission: "Automatic",
-        regionalSpec: "China",
-        steeringSide: "Left-hand drive",
-        // Add SpecificationValues array with proper specification structures
-        SpecificationValues: [
-          {
-            id: 201,
-            name: "Automatic",
-            Specification: { id: 12, key: "transmission", name: "Transmission" }
-          },
-          {
-            id: 202,
-            name: "Electric",
-            Specification: { id: 9, key: "fuel_type", name: "Fuel Type" }
-          },
-          {
-            id: 203,
-            name: "SUV",
-            Specification: { id: 6, key: "body_type", name: "Body Type" }
-          },
-          {
-            id: 204,
-            name: "China",
-            Specification: { id: 1, key: "regional_specification", name: "Regional Specification" }
-          },
-          {
-            id: 205,
-            name: "Left-hand drive",
-            Specification: { id: 2, key: "steering_side", name: "Steering Side" }
-          }
-        ]
-      },
-      // BYD mock car 2
-      {
-        id: "mock-1003", // Use string IDs to avoid conflicts with API data
-        stockId: "BYD-TEST-002",
-        Brand: {
-          id: 3,
-          name: "BYD",
-          slug: "byd"
-        },
-        CarModel: {
-          id: 5,
-          name: "ATTO 3",
-          slug: "atto-3"
-        },
-        Trim: {
-          id: 5,
-          name: "COMFORT",
-          slug: "comfort"
-        },
-        Year: {
-          id: 1,
-          year: 2024
-        },
-        price: 33000,
-        color: "Blue",
-        engineSize: null,
-        type: "SUV",
-        fuelType: "Electric",
-        transmission: "Automatic",
-        regionalSpec: "EU",
-        steeringSide: "Right-hand drive",
-        // Add SpecificationValues array with proper specification structures
-        SpecificationValues: [
-          {
-            id: 301,
-            name: "Automatic",
-            Specification: { id: 12, key: "transmission", name: "Transmission" }
-          },
-          {
-            id: 302,
-            name: "Electric",
-            Specification: { id: 9, key: "fuel_type", name: "Fuel Type" }
-          },
-          {
-            id: 303,
-            name: "SUV",
-            Specification: { id: 6, key: "body_type", name: "Body Type" }
-          },
-          {
-            id: 304,
-            name: "EU",
-            Specification: { id: 1, key: "regional_specification", name: "Regional Specification" }
-          },
-          {
-            id: 305,
-            name: "Right-hand drive",
-            Specification: { id: 2, key: "steering_side", name: "Steering Side" }
-          }
-        ]
-      },
-      // Add a US specification car
-      {
-        id: "mock-1004",
-        stockId: "LEX-TEST-001",
-        Brand: {
-          id: 4,
-          name: "LEXUS",
-          slug: "lexus"
-        },
-        CarModel: {
-          id: 6,
-          name: "RX",
-          slug: "rx"
-        },
-        Trim: {
-          id: 6,
-          name: "PREMIUM",
-          slug: "premium"
-        },
-        Year: {
-          id: 1,
-          year: 2023
-        },
-        price: 55000,
-        color: "Black",
-        engineSize: 3.5,
-        type: "SUV",
-        fuelType: "Hybrid",
-        transmission: "Automatic",
-        regionalSpec: "US",
-        steeringSide: "Left-hand drive",
-        // Add SpecificationValues array with proper specification structures
-        SpecificationValues: [
-          {
-            id: 401,
-            name: "Automatic",
-            Specification: { id: 12, key: "transmission", name: "Transmission" }
-          },
-          {
-            id: 402,
-            name: "Hybrid",
-            Specification: { id: 9, key: "fuel_type", name: "Fuel Type" }
-          },
-          {
-            id: 403,
-            name: "SUV",
-            Specification: { id: 6, key: "body_type", name: "Body Type" }
-          },
-          {
-            id: 404,
-            name: "US",
-            Specification: { id: 1, key: "regional_specification", name: "Regional Specification" }
-          },
-          {
-            id: 405,
-            name: "Left-hand drive",
-            Specification: { id: 2, key: "steering_side", name: "Steering Side" }
-          }
-        ]
+      
+      // Filter by trims
+      if (filters.trims && filters.trims.length > 0) {
+        if (!car.trim || !filters.trims.some(t => car.trim.toLowerCase().includes(t.toLowerCase()))) {
+          return false;
+        }
       }
-    ];
-    
-    // Calculate start and end index based on pagination
-    const startIndex = (page - 1) * PAGE_SIZE;
-    const endIndex = startIndex + PAGE_SIZE;
-    
-    // Return a subset of mock cars based on pagination
-    const paginatedCars = mockCars.slice(startIndex, endIndex);
-    
-    return {
-      data: {
-        cars: paginatedCars,
-        total: mockCars.length
+      
+      // Filter by years
+      if (filters.years && filters.years.length > 0) {
+        if (!car.year || !filters.years.includes(car.year.toString())) {
+          return false;
+        }
       }
-    };
+      
+      // Filter by specifications
+      if (filters.specifications) {
+        for (const specKey in filters.specifications) {
+          const selectedValues = filters.specifications[specKey];
+          if (!selectedValues || selectedValues.length === 0) continue;
+          
+          // Special handling for color specifications
+          if (specKey === 'color') {
+            console.log(`🎨 Filtering car ${car.id} by Exterior Color: ${selectedValues.join(', ')}`);
+            if (car.slug) {
+              console.log(`🔍 Checking slug: "${car.slug}"`);
+            }
+            
+            // Check car specifications if available
+            let specMatch = false;
+            
+            if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
+              specMatch = car.SpecificationValues.some(spec => {
+                // Check if this spec matches our key
+                if (spec.Specification && spec.Specification.key === specKey) {
+                  return selectedValues.some(selectedValue => 
+                    spec.name && selectedValue && 
+                    spec.name.toLowerCase() === selectedValue.toLowerCase()
+                  );
+                }
+                return false;
+              });
+            }
+            
+            // If no match from specifications, check direct color property
+            if (!specMatch && car.color) {
+              specMatch = selectedValues.some(selectedValue => 
+                car.color.toLowerCase().includes(selectedValue.toLowerCase())
+              );
+            }
+            
+            // If still no match, check extracted colors from slug
+            if (!specMatch && car.extractedExteriorColors && car.extractedExteriorColors.length > 0) {
+              const slugColorMatch = selectedValues.some(selectedValue => 
+                car.extractedExteriorColors.some(extractedColor => 
+                  extractedColor.toLowerCase().includes(selectedValue.toLowerCase()) ||
+                  selectedValue.toLowerCase().includes(extractedColor.toLowerCase())
+                )
+              );
+              
+              if (slugColorMatch) {
+                console.log(`🎨 Car ${car.id} matches color through extracted colors from slug: ${car.extractedExteriorColors.join(', ')}`);
+                specMatch = true;
+              }
+            }
+            
+            // If no color match found, exclude the car
+            if (!specMatch) {
+              console.log(`❌ Car ${car.id} EXCLUDED: does not match exterior color specification`);
+              return false;
+            }
+            
+            // Skip to the next specification type since we've handled color
+            continue;
+          }
+          
+          // Add special handling for interior color specifications
+          if (specKey === 'interior_color') {
+            console.log(`🎨 Filtering car ${car.id} by Interior Color: ${selectedValues.join(', ')}`);
+            if (car.slug) {
+              console.log(`🔍 Checking slug for interior colors: "${car.slug}"`);
+            }
+            
+            // Check car specifications if available
+            let specMatch = false;
+            
+            if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
+              specMatch = car.SpecificationValues.some(spec => {
+                // Check if this spec matches our key
+                if (spec.Specification && spec.Specification.key === specKey) {
+                  return selectedValues.some(selectedValue => 
+                    spec.name && selectedValue && 
+                    spec.name.toLowerCase() === selectedValue.toLowerCase()
+                  );
+                }
+                return false;
+              });
+            }
+            
+            // If no match from specifications, check direct interiorColor property
+            if (!specMatch && car.interiorColor) {
+              specMatch = selectedValues.some(selectedValue => 
+                car.interiorColor.toLowerCase() === selectedValue.toLowerCase()
+              );
+            }
+            
+            // If still no match and we have extracted interior colors from the slug, check those
+            if (!specMatch && car.extractedInteriorColors && car.extractedInteriorColors.length > 0) {
+              // Check if any extracted interior color matches any selected color
+              specMatch = car.extractedInteriorColors.some(extractedColor => {
+                const matches = selectedValues.some(selectedValue => 
+                  extractedColor.toLowerCase().includes(selectedValue.toLowerCase()) ||
+                  selectedValue.toLowerCase().includes(extractedColor.toLowerCase())
+                );
+                
+                if (matches) {
+                  console.log(`✅ Match found! "${extractedColor}" matches selected interior color`);
+                }
+                return matches;
+              });
+              
+              if (specMatch) {
+                console.log(`✅ Car ${car.id} matches interior color through extracted colors from slug: ${car.extractedInteriorColors.join(', ')}`);
+              }
+            }
+            
+            // If no interior color match found, exclude the car
+            if (!specMatch) {
+              console.log(`❌ Car ${car.id} EXCLUDED: does not match interior color specification`);
+              return false;
+            }
+            
+            // Skip to the next specification type since we've handled interior color
+            continue;
+          }
+          
+          // Filter by body type
+          if (specKey === 'body_type') {
+            console.log(`🚗 Filtering car ${car.id} by Body Type: ${selectedValues.join(', ')}`);
+            
+            // Check car specifications if available
+            let specMatch = false;
+            
+            if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
+              specMatch = car.SpecificationValues.some(spec => {
+                // Check if this spec matches our key
+                const matchesBodyType = 
+                  (spec.Specification && spec.Specification.key === 'body_type') ||
+                  (spec.specification && spec.specification.key === 'body_type');
+                  
+                if (!matchesBodyType) return false;
+                
+                return selectedValues.some(selectedValue => 
+                  spec.name && selectedValue && 
+                  spec.name.toLowerCase() === selectedValue.toLowerCase()
+                );
+              });
+            }
+            
+            // If no match from specifications, check type property
+            if (!specMatch && car.type) {
+              specMatch = selectedValues.some(selectedValue => 
+                car.type.toLowerCase().includes(selectedValue.toLowerCase())
+              );
+            }
+            
+            // If no body type match found, exclude the car
+            if (!specMatch) {
+              console.log(`❌ Car ${car.id} EXCLUDED: does not match body type specification`);
+              return false;
+            }
+            
+            // Skip to the next specification type since we've handled body type
+            continue;
+          }
+          
+          // Filter by fuel type
+          if (specKey === 'fuel_type') {
+            console.log(`⛽ Filtering car ${car.id} by Fuel Type: ${selectedValues.join(', ')}`);
+            
+            // Check car specifications if available
+            let specMatch = false;
+            
+            if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
+              specMatch = car.SpecificationValues.some(spec => {
+                // Check if this spec matches our key
+                const matchesFuelType = 
+                  (spec.Specification && spec.Specification.key === 'fuel_type') ||
+                  (spec.specification && spec.specification.key === 'fuel_type');
+                  
+                if (!matchesFuelType) return false;
+                
+                return selectedValues.some(selectedValue => 
+                  spec.name && selectedValue && 
+                  spec.name.toLowerCase() === selectedValue.toLowerCase()
+                );
+              });
+            }
+            
+            // If no match from specifications, check fuelType property
+            if (!specMatch && car.fuelType) {
+              specMatch = selectedValues.some(selectedValue => 
+                car.fuelType.toLowerCase().includes(selectedValue.toLowerCase())
+              );
+            }
+            
+            // If no fuel type match found, exclude the car
+            if (!specMatch) {
+              console.log(`❌ Car ${car.id} EXCLUDED: does not match fuel type specification`);
+              return false;
+            }
+            
+            // Skip to the next specification type since we've handled fuel type
+            continue;
+          }
+          
+          // Filter by transmission
+          if (specKey === 'transmission') {
+            console.log(`🔄 Filtering car ${car.id} by Transmission: ${selectedValues.join(', ')}`);
+            
+            // Check car specifications if available
+            let specMatch = false;
+            
+            if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
+              specMatch = car.SpecificationValues.some(spec => {
+                // Check if this spec matches our key
+                const matchesTransmission = 
+                  (spec.Specification && spec.Specification.key === 'transmission') ||
+                  (spec.specification && spec.specification.key === 'transmission');
+                  
+                if (!matchesTransmission) return false;
+                
+                return selectedValues.some(selectedValue => 
+                  spec.name && selectedValue && 
+                  spec.name.toLowerCase() === selectedValue.toLowerCase()
+                );
+              });
+            }
+            
+            // If no match from specifications, check transmission property
+            if (!specMatch && car.transmission) {
+              specMatch = selectedValues.some(selectedValue => 
+                car.transmission.toLowerCase().includes(selectedValue.toLowerCase())
+              );
+            }
+            
+            // If no transmission match found, exclude the car
+            if (!specMatch) {
+              console.log(`❌ Car ${car.id} EXCLUDED: does not match transmission specification`);
+              return false;
+            }
+            
+            // Skip to the next specification type since we've handled transmission
+            continue;
+          }
+          
+          // Check car specifications if available - using the general approach for other specs
+          let specMatch = false;
+          if (car.SpecificationValues && Array.isArray(car.SpecificationValues)) {
+            specMatch = car.SpecificationValues.some(spec => {
+              // Check for specification key in either uppercase or lowercase property
+              const hasUppercaseSpec = spec.Specification && spec.Specification.key === specKey;
+              const hasLowercaseSpec = spec.specification && spec.specification.key === specKey;
+              
+              if (hasUppercaseSpec || hasLowercaseSpec) {
+                // Check if the value matches any of our selected values
+                return selectedValues.some(selectedValue => {
+                  const nameMatches = spec.name && selectedValue && 
+                    spec.name.toLowerCase() === selectedValue.toLowerCase();
+                  
+                  return nameMatches;
+                });
+              }
+              
+              return false;
+            });
+          }
+          
+          // If no match found for this specification, exclude the car
+          if (!specMatch) {
+            console.log(`❌ Car ${car.id} EXCLUDED: does not match ${specKey} specification`);
+            return false;
+          }
+        }
+      }
+      
+      // If we got here, the car matches all filters
+      return true;
+    });
   };
 
   // Function to fetch a specific car by ID
@@ -2191,9 +1292,13 @@ const ExploreScreen = () => {
         if (carData.length > 0) {
           console.log(`Found car with ID ${carId}`);
           // Process the car data to ensure consistent format
-          const processedCars = carData.map(car => processCar(car));
+          const processedCars = carData
+            .filter(car => car) // Filter out undefined or null items
+            .map(car => processCar(car))
+            .filter(car => car); // Filter out any null results from processCar
+            
           setCars(processedCars);
-          setTotalCars(1);
+          setTotalCars(processedCars.length);
           setHasMoreData(false);
         } else {
           // If car not found in API, try to use mock data with matching ID
@@ -2204,8 +1309,13 @@ const ExploreScreen = () => {
           if (mockCar) {
             console.log(`Found mock car with ID ${carId}`);
             const processedMockCar = processCar(mockCar);
+            if (processedMockCar) {
             setCars([processedMockCar]);
             setTotalCars(1);
+            } else {
+              setCars([]);
+              setTotalCars(0);
+            }
           } else {
             console.log(`Car with ID ${carId} not found in mock data either`);
             setCars([]);
@@ -2264,46 +1374,96 @@ const ExploreScreen = () => {
     </TouchableOpacity>
   );
 
+  // Function to view all cars (back from viewing a specific car)
+  const viewAllCars = () => {
+    setIsViewingSpecificCar(false);
+    navigation.setParams({ carId: undefined });
+    // Reset to initial page
+    fetchCars(1);
+  };
+  
+  // Check if any filters are applied
+  const hasFilters = () => {
+    return Object.keys(appliedFilters).length > 0;
+  };
+  
+  // Clear all applied filters
+  const clearAllFilters = () => {
+    setAppliedFilters({});
+    setActiveFilter('all');
+    fetchCars(1);
+  };
+  
+  // Handle filter tab selection
+  const handleFilterSelect = (filterId) => {
+    setActiveFilter(filterId);
+    
+    if (filterId === 'advanced') {
+      // Open the filter screen
+      handleOpenFilter();
+    }
+  };
+  
+  // Render a car item in the list
+  const renderCarItem = ({ item }) => {
+    // Skip rendering if item is undefined or doesn't have an id
+    if (!item || !item.id) {
+      console.warn('Attempted to render a car without an id');
+      return null;
+    }
+    
+    return (
+      <CarListItem 
+        car={item} 
+        onPress={() => navigation.navigate('CarDetail', { carId: item.id })}
+        isFavorite={favorites.includes(item.id)}
+        onToggleFavorite={() => toggleFavorite(item.id)}
+        onShare={() => handleShare(item)}
+      />
+    );
+  };
+  
+  // Render footer with loading indicator when loading more data
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    
+    return (
+      <View style={styles.footerLoader}>
+        <ActivityIndicator size="small" color={COLORS.primary} />
+        <Text style={{ marginLeft: 10 }}>Loading more cars...</Text>
+      </View>
+    );
+  };
+
+  const retryFetchCars = () => {
+    setCars([]);
+    fetchCars(1);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Explore</Text>
-        {isViewingSpecificCar && (
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={viewAllCars}
-          >
-            <Text style={styles.backButtonText}>← Back to All Cars</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      {/* Header Component */}
+      <Header 
+        isViewingSpecificCar={isViewingSpecificCar} 
+        onBackToAllCars={viewAllCars}
+      />
       
-      <View style={styles.searchContainer}>
-        <View style={styles.searchInputContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search for cars..."
-            value={searchQuery}
-            onChangeText={handleSearchChange}
-            editable={!isViewingSpecificCar}
-          />
-          {searchQuery ? (
-            <TouchableOpacity onPress={clearSearch} style={styles.clearSearchButton}>
-              <Text style={styles.clearSearchIcon}>❌</Text>
-            </TouchableOpacity>
-          ) : (
-            <Text style={styles.searchIcon}>🔍</Text>
-          )}
-        </View>
-      </View>
+      {/* Search Bar Component */}
+      <SearchBar 
+        searchQuery={searchQuery}
+        onChangeText={handleSearchChange}
+        onClearSearch={clearSearch}
+        disabled={isViewingSpecificCar}
+      />
       
+      {/* Show car models if found during search */}
       {filteredBySearch && searchedModels.length > 0 && (
         <View style={styles.carModelsContainer}>
           <TouchableOpacity 
             style={styles.toggleCarModelsButton}
-            onPress={toggleCarIds}
+            onPress={() => setShowCarIds(!showCarIds)}
           >
             <Text style={styles.toggleCarModelsText}>
               {showCarIds ? 'Hide Matching Models' : `Show ${searchedModels.length} Matching Models`}
@@ -2329,274 +1489,61 @@ const ExploreScreen = () => {
         </View>
       )}
       
+      {/* Filter Tabs Component - Only show when not viewing a specific car */}
       {!isViewingSpecificCar && (
-        <View style={styles.filtersContainer}>
-          <Text style={styles.filtersTitle}>Advanced Filters</Text>
-          
-          <FlatList
-            horizontal
-            data={filterCategories}
-            renderItem={renderFilterItem}
-            keyExtractor={item => item.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filtersList}
-          />
-        </View>
+        <FilterTabs 
+          categories={filterCategories}
+          activeFilter={activeFilter}
+          onSelect={handleFilterSelect}
+        />
       )}
       
-      <View style={styles.resultsHeader}>
-        <Text style={styles.resultsText}>
-          {isViewingSpecificCar
-            ? `Viewing car details (ID: ${route.params?.carId || 'unknown'})`
-            : filteredBySearch 
-              ? `Found ${cars.length} cars matching "${debouncedSearchQuery}"`
-              : Object.keys(appliedFilters).length > 0 
-                ? `Showing ${cars.length} cars` 
-                : `Total: ${cars.length} cars`}
-        </Text>
-        {!isViewingSpecificCar && (Object.keys(appliedFilters).length > 0 || filteredBySearch) && (
-          <TouchableOpacity 
-            style={styles.clearFiltersButton}
-            onPress={() => {
-              // Reset filters and revert to "All" tab
-              setAppliedFilters({});
-              setActiveFilter('all');
-              setSearchQuery('');
-              setFilteredBySearch(false);
-              // Loading state will be managed by the useEffect hook
-              setLoading(true);
-            }}
-          >
-            <Text style={styles.clearFiltersText}>Clear All</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      {/* Results Header Component */}
+      <ResultsHeader 
+        totalCars={totalCars}
+        searchQuery={debouncedSearchQuery}
+        isViewingSpecificCar={isViewingSpecificCar}
+        carId={route.params?.carId}
+        filteredBySearch={filteredBySearch}
+        hasFilters={hasFilters()}
+        onClearFilters={clearAllFilters}
+      />
       
+      {/* Main Car List */}
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.primary} style={styles.mainLoader} />
       ) : (
+        <ErrorBoundary onRetry={retryFetchCars}>
         <FlatList
-          data={cars}
+            data={(cars || []).filter(car => car && car.id)}
           renderItem={renderCarItem}
-          keyExtractor={item => String(item.id)}
+            keyExtractor={item => String(item?.id || `empty-${Math.random()}`)}
           contentContainerStyle={styles.carsList}
           showsVerticalScrollIndicator={false}
-          onEndReached={null} // Disable loading more on scroll end
-          initialNumToRender={100} // Render more items initially
-          maxToRenderPerBatch={50} // Increase batch size
-          windowSize={21} // Increase window size for better performance
-          ListFooterComponent={null} // Remove footer component
-          ListEmptyComponent={renderEmptyState}
+            onEndReached={hasMoreData ? loadMoreData : null}
+            initialNumToRender={50}
+            maxToRenderPerBatch={20}
+            windowSize={21}
+          ListFooterComponent={renderFooter}
+          ListEmptyComponent={<EmptyState onClearFilters={clearAllFilters} />}
         />
+        </ErrorBoundary>
       )}
     </SafeAreaView>
   );
 };
 
+// Retain only the styles that aren't moved to components
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-  },
-  header: {
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerTitle: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '600',
-    color: COLORS.textDark,
-  },
-  backButton: {
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.md,
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.md,
-  },
-  backButtonText: {
-    fontSize: FONT_SIZES.sm,
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  searchContainer: {
-    paddingHorizontal: SPACING.lg,
-    marginBottom: SPACING.md,
-  },
-  searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: BORDER_RADIUS.md,
-    paddingHorizontal: SPACING.md,
-    backgroundColor: '#F8F8F8',
-  },
-  searchInput: {
-    flex: 1,
-    height: 45,
-    paddingVertical: SPACING.sm,
-  },
-  searchIcon: {
-    fontSize: FONT_SIZES.lg,
-    color: COLORS.textLight,
-  },
-  clearSearchButton: {
-    padding: 5,
-  },
-  clearSearchIcon: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textLight,
-  },
-  filtersContainer: {
-    paddingHorizontal: SPACING.lg,
-    marginBottom: SPACING.md,
-  },
-  filtersTitle: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '500',
-    color: COLORS.textDark,
-    marginBottom: SPACING.xs,
-  },
-  filtersList: {
-    paddingVertical: SPACING.xs,
-  },
-  filterButton: {
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.md,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 20,
-    marginRight: SPACING.sm,
-  },
-  activeFilterButton: {
-    backgroundColor: COLORS.primary,
-  },
-  filterButtonText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textDark,
-  },
-  activeFilterText: {
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  resultsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.xs,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    marginBottom: SPACING.sm,
-  },
-  resultsText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textLight,
   },
   carsList: {
     paddingHorizontal: SPACING.lg,
     paddingBottom: SPACING.xl,
     flexGrow: 1,
     minHeight: 300,
-  },
-  carCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: BORDER_RADIUS.lg,
-    marginBottom: SPACING.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-  },
-  favoriteHighlight: {
-    borderWidth: 2,
-    borderColor: '#FF6B6B',
-  },
-  carImage: {
-    width: '100%',
-    height: 180,
-  },
-  carTypeContainer: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: 'rgba(255, 140, 0, 0.8)',
-    borderRadius: BORDER_RADIUS.sm,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  carTypeText: {
-    color: '#FFFFFF',
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '500',
-  },
-  stockIdContainer: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: BORDER_RADIUS.sm,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-  },
-  stockIdText: {
-    color: '#FFFFFF',
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '500',
-  },
-  carDetails: {
-    padding: SPACING.md,
-  },
-  carTitle: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-    color: COLORS.textDark,
-    marginBottom: SPACING.sm,
-  },
-  carSubtitle: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textDark,
-    marginBottom: SPACING.md,
-  },
-  specRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.xs,
-  },
-  specItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: SPACING.md,
-  },
-  specIcon: {
-    fontSize: FONT_SIZES.md,
-    marginRight: 4,
-  },
-  specText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textDark,
-  },
-  driveTypeText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textDark,
-  },
-  carPrice: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '600',
-    color: COLORS.textDark,
-  },
-  originBadge: {
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: BORDER_RADIUS.sm,
-    paddingVertical: 2,
-    paddingHorizontal: 4,
-    marginRight: SPACING.sm,
-  },
-  originText: {
-    color: '#FFFFFF',
-    fontSize: FONT_SIZES.xs,
-    fontWeight: '500',
   },
   mainLoader: {
     flex: 1,
@@ -2609,146 +1556,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: SPACING.md,
   },
-  loadingMoreText: {
-    marginLeft: SPACING.sm,
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textLight,
-  },
-  clearFiltersButton: {
-    padding: SPACING.sm,
-    backgroundColor: '#FF6B6B',
-    borderRadius: BORDER_RADIUS.sm,
-    marginLeft: SPACING.md,
-  },
-  clearFiltersText: {
-    fontSize: FONT_SIZES.sm,
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: SPACING.lg,
-  },
-  emptyTitle: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '600',
-    color: COLORS.textDark,
-    marginBottom: SPACING.md,
-  },
-  emptyDescription: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textDark,
-    marginBottom: SPACING.md,
-  },
-  clearFiltersButtonLarge: {
-    padding: SPACING.md,
-    backgroundColor: '#FF6B6B',
-    borderRadius: BORDER_RADIUS.md,
-  },
-  steeringBadge: {
-    backgroundColor: 'rgba(120, 180, 220, 0.7)',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-    marginRight: 8,
-  },
-  steeringText: {
-    fontSize: 12,
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  highlightedText: {
-    backgroundColor: 'rgba(237, 135, 33, 0.2)',
-    fontWeight: '700',
-    color: COLORS.primary,
-  },
-  slugText: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textLight,
-    marginTop: SPACING.xs,
-  },
-  carIdItem: {
-    padding: SPACING.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    backgroundColor: '#FFFFFF',
-  },
-  carIdText: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.primary,
-    fontWeight: '500',
-  },
-  carIdsContainer: {
-    paddingHorizontal: SPACING.lg,
-    marginBottom: SPACING.md,
-    borderWidth: 1,
-    borderColor: '#F0F0F0',
-    borderRadius: BORDER_RADIUS.md,
-    marginHorizontal: SPACING.lg,
-    backgroundColor: '#FFFFFF',
-  },
-  toggleCarIdsButton: {
-    padding: SPACING.sm,
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.sm,
-    alignSelf: 'center',
-    marginVertical: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
-  },
-  toggleCarIdsText: {
-    fontSize: FONT_SIZES.sm,
-    color: '#FFFFFF',
-    fontWeight: '500',
-    textAlign: 'center',
-  },
-  carIdsList: {
-    maxHeight: 200,
-  },
-  carIdsHeader: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '500',
-    color: COLORS.textDark,
-    marginBottom: SPACING.sm,
-    padding: SPACING.sm,
-    backgroundColor: '#F8F8F8',
-    borderRadius: BORDER_RADIUS.sm,
-  },
-  carModelItem: {
-    padding: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    backgroundColor: '#FFFFFF',
-  },
-  carModelName: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-    color: COLORS.primary,
-    marginBottom: SPACING.xs,
-  },
-  carModelDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: SPACING.xs,
-  },
-  carModelBrand: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textDark,
-    fontWeight: '500',
-  },
-  carModelId: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textLight,
-    fontWeight: '400',
-  },
   carModelsContainer: {
     marginHorizontal: SPACING.lg,
     marginBottom: SPACING.md,
     borderWidth: 1,
     borderColor: '#F0F0F0',
-    borderRadius: BORDER_RADIUS.md,
+    borderRadius: 8,
     backgroundColor: '#FFFFFF',
     elevation: 2,
     shadowColor: '#000',
@@ -2759,13 +1572,13 @@ const styles = StyleSheet.create({
   toggleCarModelsButton: {
     padding: SPACING.sm,
     backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.sm,
+    borderRadius: 8,
     alignSelf: 'center',
     marginVertical: SPACING.sm,
     paddingHorizontal: SPACING.lg,
   },
   toggleCarModelsText: {
-    fontSize: FONT_SIZES.sm,
+    fontSize: 14,
     color: '#FFFFFF',
     fontWeight: '500',
     textAlign: 'center',
@@ -2776,13 +1589,63 @@ const styles = StyleSheet.create({
   carModelsHeaderContainer: {
     padding: SPACING.sm,
     backgroundColor: '#F8F8F8',
-    borderRadius: BORDER_RADIUS.sm,
+    borderRadius: 8,
     marginBottom: SPACING.sm,
   },
   carModelsHeader: {
-    fontSize: FONT_SIZES.sm,
+    fontSize: 14,
     fontWeight: '500',
+    color: '#333333',
+  },
+  carModelItem: {
+    padding: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    backgroundColor: '#FFFFFF',
+  },
+  carModelName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.primary,
+    marginBottom: 4,
+  },
+  carModelDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  carModelBrand: {
+    fontSize: 14,
+    color: '#333333',
+    fontWeight: '500',
+  },
+  carModelId: {
+    fontSize: 12,
+    color: '#666666',
+    fontWeight: '400',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+  errorText: {
+    fontSize: 16,
     color: COLORS.textDark,
+    marginBottom: SPACING.md,
+    textAlign: 'center',
+  },
+  errorButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: 8,
+  },
+  errorButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500',
   },
 });
 
