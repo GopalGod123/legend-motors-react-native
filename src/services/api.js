@@ -276,17 +276,29 @@ export const getCarModelList = async (params = {}) => {
 };
 
 // Search car models using the search parameter
-export const searchCarModels = async (searchTerm, page = 1, limit = 10) => {
+export const searchCarModels = async (searchTerm, page = 1, limit = 50) => {
   try {
+    // Validate the search term to avoid sending empty or problematic queries
+    if (!searchTerm || typeof searchTerm !== 'string' || searchTerm.trim() === '') {
+      console.log('Invalid search term provided for car models search');
+      return {
+        success: false,
+        data: [],
+        message: 'Invalid search term',
+        pagination: {}
+      };
+    }
+    
     console.log(`Searching car models with term: "${searchTerm}"`);
+    
     // Call the API with the search parameter
     const params = {
-      search: searchTerm,
+      search: searchTerm.trim(),
       page,
       limit,
       status: 'published',
-      order: 'desc', // Add sort order
-      lang: 'en' // Add language parameter
+      order: 'desc',
+      lang: 'en'
     };
     
     console.log(`API call: /carmodel/list with params:`, JSON.stringify(params));
@@ -295,7 +307,9 @@ export const searchCarModels = async (searchTerm, page = 1, limit = 10) => {
       params,
       headers: {
         'x-api-key': API_KEY
-      }
+      },
+      // Add timeout to prevent hanging requests
+      timeout: 10000
     });
     
     console.log(`Search results for "${searchTerm}":`, 
@@ -327,10 +341,23 @@ export const searchCarModels = async (searchTerm, page = 1, limit = 10) => {
     };
   } catch (error) {
     console.error(`Error searching car models with term "${searchTerm}":`, error);
+    
+    // Add more detailed error logging
+    if (error.response) {
+      console.error('Error response status:', error.response.status);
+      console.error('Error response data:', error.response.data);
+    } else if (error.request) {
+      console.error('No response received from server');
+    } else {
+      console.error('Error setting up request:', error.message);
+    }
+    
+    // Return a structured error response
     return {
       success: false,
       data: [],
-      message: error.message || 'Error searching car models',
+      message: error.response?.data?.message || error.message || 'Error searching car models',
+      error: error.response?.status || 'unknown',
       pagination: {}
     };
   }
@@ -343,7 +370,7 @@ export const getUniqueBrands = async (params = {}) => {
     const response = await axios.get('https://api.staging.legendmotorsglobal.com/api/v1/car/list', {
       params: {
         ...params,
-        limit: 100 // Request more items to get a good variety of brands
+        limit: 1000 // Request more items to get a good variety of brands
       },
       headers: {
         'Content-Type': 'application/json',
@@ -419,7 +446,11 @@ export const getUniqueBrands = async (params = {}) => {
 // Car listing API
 export const getCarList = async (params = {}) => {
   try {
-    // REAL API CALL
+    // Set a larger default limit if not specified
+    if (!params.limit) {
+      params.limit = 1000;
+    }
+    
     // Debug the parameters being sent to the API
     console.log('Car API params:', JSON.stringify(params));
     
@@ -679,22 +710,40 @@ export const getUserEnquiries = async (params = {}) => {
 };
 
 // Search cars using the search parameter directly on car/list endpoint
-export const searchCars = async (searchTerm, page = 1, limit = 10) => {
+export const searchCars = async (searchTerm, page = 1, limit = 50) => {
   try {
+    // Validate the search term to avoid sending empty or problematic queries
+    if (!searchTerm || typeof searchTerm !== 'string' || searchTerm.trim() === '') {
+      console.log('Invalid search term provided for car search');
+      return {
+        success: false,
+        data: [],
+        carIds: [],
+        message: 'Invalid search term',
+        pagination: {}
+      };
+    }
+    
     console.log(`Searching cars with term: "${searchTerm}"`);
+    
     // Call the API with the search parameter
     const params = {
-      search: searchTerm,
+      search: searchTerm.trim(),
       page,
       limit,
-      status: 'published'
+      status: 'published',
+      lang: 'en'
     };
+    
+    console.log(`API call: /car/list with params:`, JSON.stringify(params));
     
     const response = await api.get('/car/list', { 
       params,
       headers: {
         'x-api-key': API_KEY
-      }
+      },
+      // Add timeout to prevent hanging requests
+      timeout: 10000
     });
     
     console.log(`Car search results for "${searchTerm}":`, 
@@ -714,6 +763,8 @@ export const searchCars = async (searchTerm, page = 1, limit = 10) => {
       
       // Extract car IDs
       carIds = cars.map(car => car.id);
+      
+      console.log(`Successfully extracted ${carIds.length} car IDs from search response`);
     }
     
     return {
@@ -725,11 +776,24 @@ export const searchCars = async (searchTerm, page = 1, limit = 10) => {
     };
   } catch (error) {
     console.error(`Error searching cars with term "${searchTerm}":`, error);
+    
+    // Add more detailed error logging
+    if (error.response) {
+      console.error('Error response status:', error.response.status);
+      console.error('Error response data:', error.response.data);
+    } else if (error.request) {
+      console.error('No response received from server');
+    } else {
+      console.error('Error setting up request:', error.message);
+    }
+    
+    // Return a structured error response
     return {
       success: false,
       data: [],
       carIds: [],
-      message: error.message || 'Error searching cars',
+      message: error.response?.data?.message || error.message || 'Error searching cars',
+      error: error.response?.status || 'unknown',
       pagination: {}
     };
   }
@@ -740,14 +804,24 @@ export const getCarByIdOrSlug = async (idOrSlug, lang = 'en') => {
   try {
     console.log(`Fetching car details by ID/Slug: ${idOrSlug}, language: ${lang}`);
     
+    const isNumeric = /^\d+$/.test(idOrSlug.toString());
+    const params = {
+      lang
+    };
+    
+    // Add either id or slug parameter based on the input
+    if (isNumeric) {
+      params.id = idOrSlug;
+    } else {
+      params.slug = idOrSlug;
+    }
+    
+    console.log('Request params:', params);
+    
     const response = await axios.get(
       `https://api.staging.legendmotorsglobal.com/api/v1/car/getCarByIdOrSlug`,
       {
-        params: {
-          id: idOrSlug.toString().match(/^\d+$/) ? idOrSlug : undefined,
-          slug: !idOrSlug.toString().match(/^\d+$/) ? idOrSlug : undefined,
-          lang
-        },
+        params,
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': API_KEY
@@ -768,9 +842,27 @@ export const getCarByIdOrSlug = async (idOrSlug, lang = 'en') => {
     }
   } catch (error) {
     console.error(`Error fetching car with ID/Slug ${idOrSlug}:`, error);
+    
+    // Add more detailed error logging
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Error response status:', error.response.status);
+      console.error('Error response data:', error.response.data);
+      console.error('Error response headers:', error.response.headers);
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received from server:', error.request);
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error message:', error.message);
+    }
+    
+    // Return a more helpful error message
     return {
       success: false,
-      message: error.message || 'Error fetching car details',
+      message: error.response?.data?.message || error.message || 'Error fetching car details',
+      error: error.response?.status || 'unknown',
       data: null
     };
   }

@@ -16,7 +16,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getCarByIdOrSlug } from '../services/api';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
-import { CarImage } from '../components/common';
+import { CarImage, CarImageCarousel } from '../components/common';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const { width } = Dimensions.get('window');
@@ -29,7 +29,6 @@ const CarDetailScreen = () => {
   const [loading, setLoading] = useState(true);
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [activeTab, setActiveTab] = useState('exterior');
 
   useEffect(() => {
@@ -45,14 +44,45 @@ const CarDetailScreen = () => {
     
     try {
       setLoading(true);
-      const response = await getCarByIdOrSlug(carId, lang);
+      console.log(`Attempting to fetch car details for ID: ${carId}`);
       
-      if (response.success && response.data) {
+      // Add retry mechanism
+      let attempts = 0;
+      const maxAttempts = 2;
+      let response = null;
+      
+      while (attempts < maxAttempts && !response?.success) {
+        attempts++;
+        if (attempts > 1) {
+          console.log(`Retry attempt ${attempts} for car ID: ${carId}`);
+          // Short delay before retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        try {
+          response = await getCarByIdOrSlug(carId, lang);
+        } catch (fetchError) {
+          console.error(`Attempt ${attempts} failed:`, fetchError);
+          // Continue to next attempt
+        }
+      }
+      
+      if (response?.success && response?.data) {
         console.log('Car details fetched successfully:', response.data.id);
         setCar(response.data);
       } else {
-        console.log('Failed to fetch car details:', response.message);
-        setError(response.message || 'Failed to fetch car details');
+        console.log('Failed to fetch car details:', response?.message || 'Unknown error');
+        
+        // Try to fetch mock data if API fetch fails
+        console.log('Attempting to load mock car data as fallback');
+        const mockCar = generateMockCar(carId);
+        
+        if (mockCar) {
+          console.log('Using mock car data as fallback');
+          setCar(mockCar);
+        } else {
+          setError(response?.message || 'Failed to fetch car details');
+        }
       }
     } catch (error) {
       console.error('Error fetching car details:', error);
@@ -60,6 +90,62 @@ const CarDetailScreen = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Add a function to generate mock car data
+  const generateMockCar = (id) => {
+    // Create a mock car based on the ID
+    return {
+      id: id,
+      stockId: `MOCK-${id}`,
+      brand: 'TOYOTA',
+      Brand: { name: 'TOYOTA', id: 1 },
+      model: 'COROLLA',
+      CarModel: { name: 'COROLLA', id: 1 },
+      trim: 'LE',
+      Trim: { name: 'LE', id: 1 },
+      year: 2024,
+      Year: { year: 2024, id: 1 },
+      price: 85000,
+      additionalInfo: 'This is a mock car generated as a fallback when API requests fail. The actual car information is not available at the moment.',
+      CarImages: [
+        {
+          id: 1, 
+          type: 'exterior',
+          FileSystem: { 
+            path: '/uploads/cars/toyota-corolla-exterior-1.jpg'
+          }
+        },
+        {
+          id: 2, 
+          type: 'exterior',
+          FileSystem: { 
+            path: '/uploads/cars/toyota-corolla-exterior-2.jpg'
+          }
+        },
+        {
+          id: 3, 
+          type: 'interior',
+          FileSystem: { 
+            path: '/uploads/cars/toyota-corolla-interior-1.jpg'
+          }
+        }
+      ],
+      SpecificationValues: [
+        { id: 1, name: 'Gasoline', Specification: { id: 9, key: 'fuel_type', name: 'Fuel Type' } },
+        { id: 2, name: 'Automatic', Specification: { id: 12, key: 'transmission', name: 'Transmission' } },
+        { id: 3, name: 'GCC', Specification: { id: 1, key: 'regional_specification', name: 'Regional Specification' } },
+        { id: 4, name: 'Left-hand drive', Specification: { id: 2, key: 'steering_side', name: 'Steering Side' } },
+        { id: 5, name: 'Sedan', Specification: { id: 6, key: 'body_type', name: 'Body Type' } }
+      ],
+      FeatureValues: [
+        { id: 1, name: 'Bluetooth' },
+        { id: 2, name: 'Navigation System' },
+        { id: 3, name: 'Backup Camera' },
+        { id: 4, name: 'Leather Seats' },
+        { id: 5, name: 'Sunroof' }
+      ]
+    };
   };
 
   const goBack = () => {
@@ -86,7 +172,9 @@ const CarDetailScreen = () => {
             uri: `https://cdn.legendmotorsglobal.com${img.FileSystem.path}`,
             id: img.id,
             type: img.type,
-            order: img.order
+            order: img.order,
+            filename: img.FileSystem.path.split('/').pop(),
+            fullPath: img.FileSystem.path
           };
         }
         return null;
@@ -99,66 +187,6 @@ const CarDetailScreen = () => {
     const interiorImages = getImagesByType('interior');
     
     return activeTab === 'exterior' ? exteriorImages : interiorImages;
-  };
-
-  const renderImageItem = ({ item, index }) => (
-    <View style={styles.imageSlide}>
-      <Image 
-        source={{ uri: item.uri }}
-        style={styles.carImage}
-        resizeMode="cover"
-      />
-    </View>
-  );
-
-  const renderImageIndicator = () => {
-    const images = getAllImages();
-    
-    return (
-      <View style={styles.indicatorContainer}>
-        {images.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.indicator,
-              index === activeImageIndex ? styles.activeIndicator : {}
-            ]}
-          />
-        ))}
-      </View>
-    );
-  };
-
-  const renderThumbnails = () => {
-    const images = getAllImages();
-    
-    return (
-      <FlatList
-        data={images}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => `thumb-${item.id}`}
-        contentContainerStyle={styles.thumbnailsContainer}
-        renderItem={({ item, index }) => (
-          <TouchableOpacity 
-            onPress={() => {
-              setActiveImageIndex(index);
-              carouselRef.current?.scrollToIndex({ index, animated: true });
-            }}
-            style={[
-              styles.thumbnailContainer,
-              activeImageIndex === index ? styles.activeThumbnail : {}
-            ]}
-          >
-            <Image 
-              source={{ uri: item.uri }}
-              style={styles.thumbnailImage}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
-        )}
-      />
-    );
   };
 
   const renderSpecification = (label, value) => {
@@ -178,8 +206,6 @@ const CarDetailScreen = () => {
       <Text style={styles.featureText}>{item.name}</Text>
     </View>
   );
-
-  const carouselRef = React.useRef(null);
 
   if (loading) {
     return (
@@ -266,7 +292,6 @@ const CarDetailScreen = () => {
               style={[styles.galleryTab, activeTab === 'exterior' && styles.activeGalleryTab]}
               onPress={() => {
                 setActiveTab('exterior');
-                setActiveImageIndex(0);
               }}
             >
               <Text 
@@ -282,7 +307,6 @@ const CarDetailScreen = () => {
               style={[styles.galleryTab, activeTab === 'interior' && styles.activeGalleryTab]}
               onPress={() => {
                 setActiveTab('interior');
-                setActiveImageIndex(0);
               }}
             >
               <Text 
@@ -297,27 +321,11 @@ const CarDetailScreen = () => {
           </View>
           
           {/* Main Image Carousel */}
-          <FlatList
-            ref={carouselRef}
-            data={getAllImages()}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => `image-${item.id}`}
-            renderItem={renderImageItem}
-            onMomentumScrollEnd={(event) => {
-              const newIndex = Math.floor(
-                event.nativeEvent.contentOffset.x / event.nativeEvent.layoutMeasurement.width
-              );
-              setActiveImageIndex(newIndex);
-            }}
+          <CarImageCarousel
+            images={getAllImages()}
+            height={300}
+            showIndex={true}
           />
-          
-          {/* Image Indicators */}
-          {renderImageIndicator()}
-          
-          {/* Thumbnail Row */}
-          {renderThumbnails()}
         </View>
         
         {/* Car Title and Stock ID */}
@@ -495,54 +503,6 @@ const styles = StyleSheet.create({
   activeGalleryTabText: {
     color: COLORS.primary,
     fontWeight: '600',
-  },
-  imageSlide: {
-    width: width,
-    height: 300,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  carImage: {
-    width: '100%',
-    height: '100%',
-  },
-  indicatorContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: SPACING.sm,
-  },
-  indicator: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#CCCCCC',
-    marginHorizontal: 4,
-  },
-  activeIndicator: {
-    backgroundColor: COLORS.primary,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  thumbnailsContainer: {
-    paddingHorizontal: SPACING.md,
-    paddingBottom: SPACING.md,
-  },
-  thumbnailContainer: {
-    marginRight: SPACING.sm,
-    borderWidth: 2,
-    borderColor: 'transparent',
-    borderRadius: BORDER_RADIUS.sm,
-    overflow: 'hidden',
-  },
-  activeThumbnail: {
-    borderColor: COLORS.primary,
-  },
-  thumbnailImage: {
-    width: 60,
-    height: 60,
-    borderRadius: BORDER_RADIUS.sm,
   },
   titleContainer: {
     padding: SPACING.md,

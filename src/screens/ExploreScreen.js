@@ -15,7 +15,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import { getCarList, searchCars, searchCarModels } from '../services/api';
-import { CarImage } from '../components/common';
+import { CarImage, CarImageCarousel } from '../components/common';
 import FilterScreen from './FilterScreen'; // Import FilterScreen
 
 const ExploreScreen = () => {
@@ -32,9 +32,9 @@ const ExploreScreen = () => {
   
   // Pagination state
   const [page, setPage] = useState(1);
-  const [hasMoreData, setHasMoreData] = useState(true);
+  const [hasMoreData, setHasMoreData] = useState(false); // Set default to false to disable pagination
   const [loadingMore, setLoadingMore] = useState(false);
-  const PAGE_SIZE = 10;
+  const PAGE_SIZE = 100; // Increased page size to show more cars at once
   
   // Add state for filters
   const [appliedFilters, setAppliedFilters] = useState({});
@@ -123,13 +123,31 @@ const ExploreScreen = () => {
     setSearchedModels([]); // Reset searched models
     
     try {
-      // First search car models to get model IDs - this is the main API search method
-      console.log(`Searching car models with term: "${query}" using carmodel/list API`);
-      const modelSearchResults = await searchCarModels(query);
+      // Validate search query
+      const trimmedQuery = query.trim();
+      if (trimmedQuery.length < 2) {
+        console.log('Search query too short, minimum 2 characters required');
+        setCars([]);
+        setTotalCars(0);
+        setHasMoreData(false);
+        return;
+      }
       
-      if (modelSearchResults.success && modelSearchResults.data.length > 0) {
+      // First search car models to get model IDs - this is the main API search method
+      console.log(`Searching car models with term: "${trimmedQuery}" using carmodel/list API`);
+      
+      // Try with a more resilient approach - catch errors at each step
+      let modelSearchResults;
+      try {
+        modelSearchResults = await searchCarModels(trimmedQuery);
+      } catch (modelSearchError) {
+        console.error('Error searching car models:', modelSearchError);
+        modelSearchResults = { success: false, data: [], message: 'Error searching car models' };
+      }
+      
+      if (modelSearchResults.success && modelSearchResults.data && modelSearchResults.data.length > 0) {
         // Log the car model information
-        console.log(`Found ${modelSearchResults.data.length} car models matching "${query}"`);
+        console.log(`Found ${modelSearchResults.data.length} car models matching "${trimmedQuery}"`);
         modelSearchResults.data.forEach(model => {
           console.log(`Model: ${model.name}, ID: ${model.id}, Brand: ${model.brand?.name || 'Unknown'}`);
         });
@@ -144,15 +162,30 @@ const ExploreScreen = () => {
         setCarIds(modelIds);
         
         // Fetch cars using these model IDs
-        await fetchCarsByModelIds(modelIds);
+        try {
+          await fetchCarsByModelIds(modelIds);
+        } catch (fetchCarError) {
+          console.error('Error fetching cars by model IDs:', fetchCarError);
+          // Show some results even if car fetching fails
+          setCars([]);
+          setTotalCars(0);
+          // We still have model results to show
+        }
       } 
-      // If no car models match, try direct car search as fallback
+      // If no car models match or error occurred, try direct car search as fallback
       else {
-        console.log(`No car models match for "${query}", trying direct car search...`);
-        const carSearchResults = await searchCars(query);
+        console.log(`No car models match for "${trimmedQuery}", trying direct car search...`);
         
-        if (carSearchResults.success && carSearchResults.data.length > 0) {
-          console.log(`Found ${carSearchResults.data.length} cars directly matching "${query}"`);
+        let carSearchResults;
+        try {
+          carSearchResults = await searchCars(trimmedQuery);
+        } catch (carSearchError) {
+          console.error('Error searching cars directly:', carSearchError);
+          carSearchResults = { success: false, data: [], carIds: [], message: 'Error searching cars' };
+        }
+        
+        if (carSearchResults.success && carSearchResults.data && carSearchResults.data.length > 0) {
+          console.log(`Found ${carSearchResults.data.length} cars directly matching "${trimmedQuery}"`);
           
           // Process car data to ensure consistent format
           const processedCars = carSearchResults.data.map(car => processCar(car));
@@ -161,20 +194,35 @@ const ExploreScreen = () => {
           setHasMoreData(false); // Disable pagination during search
           
           // Store the car IDs
-          setCarIds(carSearchResults.carIds);
+          setCarIds(carSearchResults.carIds || []);
         } else {
-          // If no results from either search, show empty results
-          console.log(`No results found for search term "${query}"`);
-          setCars([]);
-          setTotalCars(0);
-          setHasMoreData(false);
+          // If server search fails completely, try local filtering as last resort
+          console.log(`No results from API search for "${trimmedQuery}", trying local filter`);
+          if (cars.length > 0) {
+            filterCarsByQuery(trimmedQuery);
+          } else {
+            // If no cars available locally for filtering, show empty results
+            console.log(`No results found for search term "${trimmedQuery}"`);
+            setCars([]);
+            setTotalCars(0);
+            setHasMoreData(false);
+          }
         }
       }
     } catch (error) {
       console.error('Error during API search:', error);
-      // Fall back to empty results
+      
+      // Fall back to empty results but with error message
       setCars([]);
       setTotalCars(0);
+      setHasMoreData(false);
+      
+      // You could also display an error message to the user here
+      Alert.alert(
+        'Search Error',
+        'There was a problem with your search. Please try again later or with a different search term.',
+        [{ text: 'OK' }]
+      );
     } finally {
       setLoading(false);
     }
@@ -290,13 +338,10 @@ const ExploreScreen = () => {
   };
 
   const fetchCars = async (newPage = 1) => {
-    if (newPage === 1) {
-      setLoading(true);
-      // Clear existing cars when starting a new filter query
-      setCars([]);
-    } else {
-      setLoadingMore(true);
-    }
+    // Always set loading to true and clear existing cars when starting a new fetch
+    setLoading(true);
+    setCars([]);
+    setLoadingMore(false); // Ensure loading more indicator is off
     
     try {
       // Check if any filters are applied
@@ -309,8 +354,8 @@ const ExploreScreen = () => {
       
       // Base API parameters
       const params = {
-        page: newPage,
-        limit: PAGE_SIZE,
+        page: 1, // Always fetch page 1
+        limit: 100, // Request a larger number of cars
         status: 'published' // Default to published cars
       };
       
@@ -1382,39 +1427,38 @@ const ExploreScreen = () => {
       }
     }
     
-    // Normalize car data format - extract key fields and ensure consistent structure
-    
-    // Handle car images with better fallbacks
-    let carImage = require('../components/home/car_Image.png');
-    
-    // Try multiple image sources based on the correct FileSystem structure
-    if (car.image) {
-      carImage = car.image;
-    } else if (car.CarImages && car.CarImages.length > 0) {
-      // Extract image paths from the FileSystem structure
-      try {
-        // Get the FileSystem object from the first CarImage
-        const fileSystem = car.CarImages[0].FileSystem;
-        
-        if (fileSystem) {
-          // Use the main path, webpPath or thumbnailPath based on availability
-          const imagePath = fileSystem.path || fileSystem.webpPath || fileSystem.thumbnailPath;
-          
+    // Process car images
+    let processedImages = [];
+    if (car.CarImages && Array.isArray(car.CarImages) && car.CarImages.length > 0) {
+      // Sort images by order if available
+      const sortedImages = [...car.CarImages].sort((a, b) => {
+        if (a.order !== undefined && b.order !== undefined) {
+          return a.order - b.order;
+        }
+        return 0;
+      });
+      
+      // Process each image to the correct format
+      processedImages = sortedImages.map(img => {
+        if (img.FileSystem) {
+          // Extract image paths
+          const imagePath = img.FileSystem.path || img.FileSystem.webpPath || img.FileSystem.thumbnailPath;
           if (imagePath) {
-            // For CarImage component, just pass the filename or path
-            // CarImage will handle trying multiple base URLs internally
-            carImage = { 
+            return {
               uri: `https://cdn.legendmotorsglobal.com${imagePath}`,
               filename: imagePath.split('/').pop(),
-              fullPath: imagePath // Pass the full path for fallbacks
+              fullPath: imagePath
             };
-            
-            // console.log(`Image path extracted for car ${car.id}: ${imagePath}`);
           }
         }
-      } catch (error) {
-        console.log('Error processing car image, using fallback:', error.message);
-      }
+        return null;
+      }).filter(img => img !== null);
+    }
+    
+    // If no images found in CarImages array, use the traditional image property
+    if (processedImages.length === 0) {
+      const carImage = car.image ? car.image : require('../components/home/car_Image.png');
+      processedImages = [carImage];
     }
     
     // Extract brand, model, trim consistently
@@ -1474,23 +1518,24 @@ const ExploreScreen = () => {
                     (spec.specification && spec.specification.key === 'drive_type') ||
                     (spec.Specification && spec.Specification.key === 'drive_type')
                   )?.name : 'FWD'),
-      image: carImage,
+      image: processedImages[0], // Keep the original image property for backward compatibility
+      images: processedImages, // Add the new images array for the carousel
       inWishlist: car.inWishlist || false,
       // Pass through the original data structure too, for completeness
       Brand: car.Brand,
       CarModel: car.CarModel,
       Trim: car.Trim,
       Year: car.Year,
+      CarImages: car.CarImages, // Keep the original car images
       SpecificationValues: car.SpecificationValues
     };
   };
 
+  // Update the loadMoreData function to prevent loading more data
   const loadMoreData = () => {
-    // Only load more if we're not already loading and there's more data
-    if (!loadingMore && hasMoreData) {
-      console.log(`Loading more cars: page ${page + 1}`);
-      fetchCars(page + 1);
-    }
+    // Disable loading more data - we'll show all results at once
+    console.log('Pagination disabled - showing all cars at once');
+    return;
   };
 
   const toggleFavorite = (carId) => {
@@ -1646,6 +1691,9 @@ const ExploreScreen = () => {
     const trim = item.Trim?.name || item.trim || '';
     const year = item.Year?.year || item.year || '';
     
+    // Use the images array directly from the processed car
+    const carImages = item.images || [item.image] || [require('../components/home/car_Image.png')];
+    
     // Check if we need to highlight parts of text due to search
     const highlightText = (text, type) => {
       if (!filteredBySearch || !text || !debouncedSearchQuery) {
@@ -1710,10 +1758,11 @@ const ExploreScreen = () => {
         onPress={() => navigateToCarDetail(item)}
         activeOpacity={0.8}
       >
-        <CarImage 
-          source={item.image}
+        <CarImageCarousel
+          images={carImages}
           style={styles.carImage}
-          resizeMode="cover"
+          height={180}
+          onImagePress={() => navigateToCarDetail(item)}
         />
         
         <View style={styles.carTypeContainer}>
@@ -2302,8 +2351,8 @@ const ExploreScreen = () => {
             : filteredBySearch 
               ? `Found ${cars.length} cars matching "${debouncedSearchQuery}"`
               : Object.keys(appliedFilters).length > 0 
-                ? `Showing ${cars.length} of ${totalCars} cars` 
-                : `Total: ${totalCars} cars available`}
+                ? `Showing ${cars.length} cars` 
+                : `Total: ${cars.length} cars`}
         </Text>
         {!isViewingSpecificCar && (Object.keys(appliedFilters).length > 0 || filteredBySearch) && (
           <TouchableOpacity 
@@ -2332,9 +2381,11 @@ const ExploreScreen = () => {
           keyExtractor={item => String(item.id)}
           contentContainerStyle={styles.carsList}
           showsVerticalScrollIndicator={false}
-          onEndReached={!isViewingSpecificCar ? loadMoreData : null}
-          onEndReachedThreshold={0.3}
-          ListFooterComponent={!isViewingSpecificCar ? renderFooter : null}
+          onEndReached={null} // Disable loading more on scroll end
+          initialNumToRender={100} // Render more items initially
+          maxToRenderPerBatch={50} // Increase batch size
+          windowSize={21} // Increase window size for better performance
+          ListFooterComponent={null} // Remove footer component
           ListEmptyComponent={renderEmptyState}
         />
       )}
