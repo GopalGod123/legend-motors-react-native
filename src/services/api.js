@@ -905,11 +905,20 @@ export const addToWishlist = async (carId) => {
   }
 };
 
+// Keep track of deletion requests that are in progress
+const pendingDeletions = {};
+
 export const removeFromWishlist = async (carId) => {
   try {
-    // Ensure token is synchronized before making the request
-    // NOTE: We don't need to call syncAuthToken() since we're using the interceptor
-    // and also manually adding the token below, which could cause duplicate calls.
+    // Check if this carId is already being processed
+    const key = `car_${carId}`;
+    if (pendingDeletions[key]) {
+      console.log(`Delete request for car ${carId} already in progress, skipping duplicate`);
+      return { success: true, message: 'Request already in progress' };
+    }
+    
+    // Mark this request as pending
+    pendingDeletions[key] = true;
     
     // Always use the carId, never the wishlistId
     // Convert to number if it's a string
@@ -943,6 +952,16 @@ export const removeFromWishlist = async (carId) => {
       };
     }
   } catch (error) {
+    // For 404 errors (already deleted), consider it a success
+    if (error.response && error.response.status === 404) {
+      console.log(`Car ${carId} was not found in wishlist (already removed)`);
+      return {
+        success: true,
+        message: 'Car was already removed from wishlist',
+        data: null
+      };
+    }
+    
     console.error('Error removing car from wishlist:', error);
     
     // Return a structured error response
@@ -952,6 +971,12 @@ export const removeFromWishlist = async (carId) => {
       error: error.response?.status || 'unknown',
       data: null
     };
+  } finally {
+    // Clear the pending status after a short delay
+    const key = `car_${carId}`;
+    setTimeout(() => {
+      delete pendingDeletions[key];
+    }, 1000);
   }
 };
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Pressable,
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
+import { useAuth } from '../context/AuthContext';
 
 const LockIcon = () => (
   <Svg width={80} height={80} viewBox="0 0 80 80" fill="none">
@@ -24,11 +25,35 @@ const LockIcon = () => (
 );
 
 const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
+  const { isAuthenticated, user } = useAuth();
+  const [shouldShowModal, setShouldShowModal] = useState(false);
+  
+  useEffect(() => {
+    // Only show the modal if the user is not authenticated and the parent wants to show it
+    const checkAuthAndSetModal = async () => {
+      const isUserAuthenticated = await isAuthenticated();
+      setShouldShowModal(visible && !isUserAuthenticated);
+      
+      // If user is already logged in, close the modal automatically
+      if (isUserAuthenticated && visible) {
+        console.log('User is already logged in, not showing login prompt');
+        onClose();
+      }
+    };
+    
+    checkAuthAndSetModal();
+  }, [visible, isAuthenticated, user]);
+  
+  // If user is logged in, don't render the modal at all
+  if (!shouldShowModal) {
+    return null;
+  }
+
   return (
     <Modal
       animationType="fade"
       transparent={true}
-      visible={visible}
+      visible={shouldShowModal}
       onRequestClose={onClose}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <View style={styles.modalContent}>

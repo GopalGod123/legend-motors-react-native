@@ -8,11 +8,14 @@ import { API_BASE_URL, API_KEY } from '../utils/apiConfig';
 // Create context
 export const WishlistContext = createContext();
 
+// Create a module-level variable to track removals globally across screens
+const globalRemovingItems = {};
+
 // Create provider component
 export const WishlistProvider = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [removingItems, setRemovingItems] = useState({}); // Track items being removed
+  const [removingItems, setRemovingItems] = useState({}); // Track items being removed locally
   const { user, isAuthenticated } = useAuth();
 
   // Fetch wishlist items when user logs in
@@ -107,13 +110,16 @@ export const WishlistProvider = ({ children }) => {
         return false;
       }
       
-      // Check if this item is already being removed
-      if (removingItems[idParam]) {
-        console.log(`Item ${idParam} is already being removed, skipping duplicate request`);
-        return false;
+      // Check if this item is already being removed globally
+      if (globalRemovingItems[idParam]) {
+        console.log(`Item ${idParam} is already being removed globally, skipping duplicate request`);
+        return true; // Return true to prevent error messages in UI
       }
       
-      // Mark this item as being removed
+      // Mark this item as being removed globally
+      globalRemovingItems[idParam] = true;
+      
+      // Also track locally
       setRemovingItems(prev => ({ ...prev, [idParam]: true }));
       
       setLoading(true);
@@ -154,9 +160,11 @@ export const WishlistProvider = ({ children }) => {
         setWishlistItems(prevItems => {
           return prevItems.filter(item => {
             // Filter out this item based on carId or wishlistId
-            return item.carId !== carId && 
-                   item.id !== carId && 
-                   (item.car?.id !== carId);
+            return !(
+              item.carId === carId || 
+              item.id === carId || 
+              (item.car && item.car.id === carId)
+            );
           });
         });
         
@@ -170,12 +178,18 @@ export const WishlistProvider = ({ children }) => {
       return false;
     } finally {
       setLoading(false);
-      // Clear the removing state for this item
+      
+      // Clear the local removing state for this item
       setRemovingItems(prev => {
         const updated = { ...prev };
         delete updated[idParam];
         return updated;
       });
+      
+      // Clear the global tracking after a short delay
+      setTimeout(() => {
+        delete globalRemovingItems[idParam];
+      }, 500);
     }
   };
 

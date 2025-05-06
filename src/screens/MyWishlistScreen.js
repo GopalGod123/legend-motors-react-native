@@ -20,9 +20,6 @@ import { CarImage } from '../components/common';
 
 // Car card component for wishlist items
 const WishlistCarCard = ({ car, onPress, onRemove, isRemoving = false }) => {
-  // Get wishlist context
-  const { isInWishlist, removeItemFromWishlist, addItemToWishlist } = useWishlist();
-  
   // Extract data from the car object
   const brandName = car.Brand?.name || car.brand || '';
   const modelName = car.CarModel?.name || car.model || '';
@@ -48,15 +45,11 @@ const WishlistCarCard = ({ car, onPress, onRemove, isRemoving = false }) => {
       }
       
       // Always use the car ID for removal, not the wishlist ID
-      // The API requires carId as per the documentation
       const carId = car.carId || car.id;
-      console.log(`Attempting to remove car ID ${carId} from wishlist (wishlistId: ${car.wishlistId || 'unknown'})`);
+      console.log(`Card requesting removal of car ID ${carId}`);
       
-      // Since we're in the wishlist screen, we just need to remove items
-      const success = await onRemove(carId);
-      if (!success) {
-        console.error(`Failed to remove car ID ${carId} from wishlist`);
-      }
+      // Only use the parent's onRemove function, not the context directly
+      onRemove(carId);
     } catch (error) {
       console.error('Error toggling wishlist:', error);
     }
