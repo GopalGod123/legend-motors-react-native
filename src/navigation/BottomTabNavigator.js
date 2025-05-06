@@ -2,7 +2,13 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { COLORS } from '../utils/constants';
-import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { 
+  ListSearchIcon, 
+  EyeIcon, 
+  BlogIcon, 
+  ProfileIcon 
+} from '../components/icons';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -59,7 +65,7 @@ const BottomTabNavigator = () => {
         options={{
           tabBarLabel: 'Enquiries',
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="question-answer" size={size} color={color} />
+            <ListSearchIcon width={size} height={size} color={color} />
           ),
         }}
       />
@@ -69,7 +75,7 @@ const BottomTabNavigator = () => {
         options={{
           tabBarLabel: 'Explore',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search" size={size} color={color} />
+            <EyeIcon width={size} height={size} color={color} />
           ),
         }}
       />
@@ -79,7 +85,7 @@ const BottomTabNavigator = () => {
         options={{
           tabBarLabel: 'News/Blogs',
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="article" size={size} color={color} />
+            <BlogIcon width={size} height={size} color={color} />
           ),
         }}
       />
@@ -89,7 +95,7 @@ const BottomTabNavigator = () => {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <FontAwesome name="user" size={size} color={color} />
+            <ProfileIcon width={size} height={size} color={color} />
           ),
         }}
       />

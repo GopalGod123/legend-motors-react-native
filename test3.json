@@ -1,1315 +1,3694 @@
 {
-    "success": true,
-    "message": "Car retrieved successfully",
-    "data": {
-      "id": 44,
-      "stockId": "GLY-GALAXY E5-EXPLORER+-EV-0-AT-GRY-BLU-24",
-      "description": "<p><strong>2024 GEELY GALAXY E5 EXPLORER+ - GREY inside BLUE</strong></p><p></p><p>Key features</p><p>•\t18" alloy wheels</p><p>•\tBattery Energy (kWh) – 60.22</p><p>•\tCLTC Range (km) – 530</p><p>•\tDC Fast Charging Time (SOC30%-80%) – 20min</p><p>•\tAC Slow Charging Time (SOC10%-100%) – 9h</p><p>•\tDriving Modes</p><p>•\tFlying Eave Tiger Eye LED Headlights</p><p>•\tLED DRLs</p><p>•\tLED Rear Fog Light</p><p>•\tRain-sensing frameless Wipers</p><p>•\tElectrically Adjustable &amp; Heated Exterior Mirrors</p><p>•\tElectric Tailgate</p><p>•\tStarry Sky Panoramic Sunroof</p><p>•\tAluminum Alloy Roof Rack</p><p>•\tCotton Candy Series Seats</p><p>•\tHeated/Ventilated Front Seats</p><p>•\t50W Ultra-Fast Wireless Phone Charging</p><p>•\tGEA Global Smart New Energy Architecture</p><p>•\tGalaxy 11-in-1 Intelligent Electric Drive</p><p>•\tGCS Comfort Braking System</p><p>•\tACC Full-Speed Adaptive Cruise Control Assist</p><p>•\tICC Intelligent Cruise Control Assist</p><p>•\tLDW Lane Departure Warning</p><p>•\tLKA Lane Keeping Assist</p><p>•\tELKA Emergency Lane-Keeping Assist</p><p>•\tTSI Traffic Sign Recognition</p><p>•\tFCW Forward Collision Warning</p><p>•\t15.4" 2.5K HD Full Screen</p><p>•\t10.2" Full LCD Instrument Cluster</p><p>•\tUltra-Wide HUD Head-Up Display</p><p>•\t16 Speakers (including Driver's Headrest Speakers)</p><p>•\t256-Color Intelligent Dynamic Ambient Lighting</p><p>•\tKeyless Start</p><p>•\tAutomatic Drive Lock System</p><p>•\tABS Anti-lock Braking System</p><p>•\tEBD Electronic Brakeforce Distribution</p><p>•\tESC Electronic Stability Control</p><p>•\tHAC Hill Start Assist System </p><p>•\tCBC Cornering Brake Control System </p><p>•\tEPB Electronic Parking Brake System </p><p>•\tARP Electronic Anti-Rollover Protection </p><p>•\tTPMS Intelligent Tire Pressure Monitoring System </p><p>•\tG-TCS All-Weather Traction Control System </p><p>•\tAUTOHOLD Automatic Parking Brake </p><p>•\tGod's Eye 540° Transparent Chassis </p><p>•\tAEB-P Active Emergency Braking Assist (with Pedestrian Detection) </p><p>•\tLCA Lane Change Assist </p><p>•\tBSD Blind Spot Detection</p>",
-      "slug": "2024-geely-galaxy-e5-explorer-2024-geely-galaxy-e5-explorer-grey-inside-blue",
+  "success": true,
+  "message": "Tags with full car info retrieved successfully",
+  "data": [
+    {
+      "id": 3,
+      "name": "Hot Deal!",
+      "key": "hot_deal!",
       "status": "published",
-      "brochureId": "b8e0bf84-fa72-4074-9a3d-2c3bd30ffe94",
-      "brandId": 7,
-      "modelId": 9,
-      "trimId": 14,
-      "yearId": 2,
-      "engineSize": null,
-      "horsepower": null,
-      "additionalInfo": "2024 GEELY GALAXY E5 EXPLORER+ - GREY inside BLUE",
-      "createdAt": "2025-03-11T19:39:44.864Z",
-      "updatedAt": "2025-03-13T06:58:51.325Z",
-      "Brand": {
-        "id": 7,
-        "name": "GEELY"
-      },
-      "CarModel": {
-        "id": 9,
-        "name": "GALAXY E5"
-      },
-      "Trim": {
-        "id": 14,
-        "name": "EXPLORER+"
-      },
-      "Year": {
-        "id": 2,
-        "year": 2024
-      },
-      "CarTranslations": [],
-      "CarImages": [
+      "description": "",
+      "displayOrder": 1,
+      "createdAt": "2025-03-18T06:27:23.632Z",
+      "updatedAt": "2025-03-18T11:08:50.085Z",
+      "cars": [
         {
-          "id": 4787,
-          "fileId": "3f0cd2e1-3b57-44f2-9300-a773f27ef235",
-          "type": "interior",
-          "order": 1,
-          "FileSystem": {
-            "id": "3f0cd2e1-3b57-44f2-9300-a773f27ef235",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-9-244074.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074.jpg",
-            "parentId": null,
-            "size": 363470,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-9-244074.webp",
-            "createdAt": "2025-03-11T19:37:09.333Z",
-            "updatedAt": "2025-03-11T19:37:09.333Z"
-          }
-        },
-        {
-          "id": 4788,
-          "fileId": "43f5d2ec-57a1-4e19-9bf4-621f9363b960",
-          "type": "interior",
-          "order": 2,
-          "FileSystem": {
-            "id": "43f5d2ec-57a1-4e19-9bf4-621f9363b960",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-10-547185.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185.jpg",
-            "parentId": null,
-            "size": 411072,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-10-547185.webp",
-            "createdAt": "2025-03-11T19:37:13.638Z",
-            "updatedAt": "2025-03-11T19:37:13.638Z"
-          }
-        },
-        {
-          "id": 4789,
-          "fileId": "6a5c3d9a-1e3e-4458-a9f6-cade023dc36c",
-          "type": "interior",
-          "order": 3,
-          "FileSystem": {
-            "id": "6a5c3d9a-1e3e-4458-a9f6-cade023dc36c",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-11-719635.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635.jpg",
-            "parentId": null,
-            "size": 456872,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-11-719635.webp",
-            "createdAt": "2025-03-11T19:37:17.117Z",
-            "updatedAt": "2025-03-11T19:37:17.117Z"
-          }
-        },
-        {
-          "id": 4790,
-          "fileId": "3c30b22e-3337-41c8-8c58-f4bb85e4240f",
-          "type": "interior",
-          "order": 4,
-          "FileSystem": {
-            "id": "3c30b22e-3337-41c8-8c58-f4bb85e4240f",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-19-631316.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316.jpg",
-            "parentId": null,
-            "size": 481344,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-19-631316.webp",
-            "createdAt": "2025-03-11T19:37:46.562Z",
-            "updatedAt": "2025-03-11T19:37:46.562Z"
-          }
-        },
-        {
-          "id": 4791,
-          "fileId": "c1ada15e-4c4b-4e59-85ed-d6eb30951f1a",
-          "type": "interior",
-          "order": 5,
-          "FileSystem": {
-            "id": "c1ada15e-4c4b-4e59-85ed-d6eb30951f1a",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-15-633421.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421.jpg",
-            "parentId": null,
-            "size": 461001,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-15-633421.webp",
-            "createdAt": "2025-03-11T19:37:30.638Z",
-            "updatedAt": "2025-03-11T19:37:30.638Z"
-          }
-        },
-        {
-          "id": 4792,
-          "fileId": "25287bc1-af10-4c4a-ae77-29ea55c75f11",
-          "type": "interior",
-          "order": 6,
-          "FileSystem": {
-            "id": "25287bc1-af10-4c4a-ae77-29ea55c75f11",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-16-276440.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440.jpg",
-            "parentId": null,
-            "size": 361176,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-16-276440.webp",
-            "createdAt": "2025-03-11T19:37:34.211Z",
-            "updatedAt": "2025-03-11T19:37:34.211Z"
-          }
-        },
-        {
-          "id": 4793,
-          "fileId": "d8a5c479-92f9-483f-9348-2c7cc8a9bec9",
-          "type": "interior",
-          "order": 7,
-          "FileSystem": {
-            "id": "d8a5c479-92f9-483f-9348-2c7cc8a9bec9",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-14-432435.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435.jpg",
-            "parentId": null,
-            "size": 438703,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-14-432435.webp",
-            "createdAt": "2025-03-11T19:37:27.337Z",
-            "updatedAt": "2025-03-11T19:37:27.337Z"
-          }
-        },
-        {
-          "id": 4794,
-          "fileId": "bb8bee7b-fa52-4739-b3a1-fd1be0ee499e",
-          "type": "interior",
-          "order": 8,
-          "FileSystem": {
-            "id": "bb8bee7b-fa52-4739-b3a1-fd1be0ee499e",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-18-448226.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226.jpg",
-            "parentId": null,
-            "size": 453312,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-18-448226.webp",
-            "createdAt": "2025-03-11T19:37:42.354Z",
-            "updatedAt": "2025-03-11T19:37:42.354Z"
-          }
-        },
-        {
-          "id": 4795,
-          "fileId": "a9f46993-d3d3-4034-8539-da7dc4fb750f",
-          "type": "interior",
-          "order": 9,
-          "FileSystem": {
-            "id": "a9f46993-d3d3-4034-8539-da7dc4fb750f",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-17-790576.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576.jpg",
-            "parentId": null,
-            "size": 383422,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-17-790576.webp",
-            "createdAt": "2025-03-11T19:37:38.081Z",
-            "updatedAt": "2025-03-11T19:37:38.081Z"
-          }
-        },
-        {
-          "id": 4796,
-          "fileId": "eff946ed-02d1-4799-ab2c-2b5bb6e9e7bc",
-          "type": "interior",
-          "order": 10,
-          "FileSystem": {
-            "id": "eff946ed-02d1-4799-ab2c-2b5bb6e9e7bc",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-20-683236.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236.jpg",
-            "parentId": null,
-            "size": 535217,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-20-683236.webp",
-            "createdAt": "2025-03-11T19:37:51.229Z",
-            "updatedAt": "2025-03-11T19:37:51.229Z"
-          }
-        },
-        {
-          "id": 4797,
-          "fileId": "a1cbf81f-c1e4-47d4-b61d-b662d5aeb63d",
-          "type": "interior",
-          "order": 11,
-          "FileSystem": {
-            "id": "a1cbf81f-c1e4-47d4-b61d-b662d5aeb63d",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-21-816226.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226.jpg",
-            "parentId": null,
-            "size": 342010,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-21-816226.webp",
-            "createdAt": "2025-03-11T19:37:55.517Z",
-            "updatedAt": "2025-03-11T19:37:55.517Z"
-          }
-        },
-        {
-          "id": 4798,
-          "fileId": "0b67d971-da67-4a1d-baea-dd3d6f226a49",
-          "type": "interior",
-          "order": 12,
-          "FileSystem": {
-            "id": "0b67d971-da67-4a1d-baea-dd3d6f226a49",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-12-534695.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695.jpg",
-            "parentId": null,
-            "size": 250515,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-12-534695.webp",
-            "createdAt": "2025-03-11T19:37:20.067Z",
-            "updatedAt": "2025-03-11T19:37:20.067Z"
-          }
-        },
-        {
-          "id": 4799,
-          "fileId": "d5305031-fe0c-466d-a931-cc71f9aa41dc",
-          "type": "interior",
-          "order": 13,
-          "FileSystem": {
-            "id": "d5305031-fe0c-466d-a931-cc71f9aa41dc",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-8-383000.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000.jpg",
-            "parentId": null,
-            "size": 379936,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-8-383000.webp",
-            "createdAt": "2025-03-11T19:37:06.141Z",
-            "updatedAt": "2025-03-11T19:37:06.141Z"
-          }
-        },
-        {
-          "id": 4800,
-          "fileId": "d4b67f5e-41db-4ba0-985f-9a0eb580c563",
-          "type": "interior",
-          "order": 14,
-          "FileSystem": {
-            "id": "d4b67f5e-41db-4ba0-985f-9a0eb580c563",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-13-697807.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807.jpg",
-            "parentId": null,
-            "size": 407759,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-13-697807.webp",
-            "createdAt": "2025-03-11T19:37:23.139Z",
-            "updatedAt": "2025-03-11T19:37:23.139Z"
-          }
-        },
-        {
-          "id": 4801,
-          "fileId": "a3f38fe3-4fba-497f-9644-45697d232c5c",
-          "type": "interior",
-          "order": 15,
-          "FileSystem": {
-            "id": "a3f38fe3-4fba-497f-9644-45697d232c5c",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-24-591924.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924.jpg",
-            "parentId": null,
-            "size": 517816,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-24-591924.webp",
-            "createdAt": "2025-03-11T19:38:08.918Z",
-            "updatedAt": "2025-03-11T19:38:08.918Z"
-          }
-        },
-        {
-          "id": 4802,
-          "fileId": "5b801949-2a27-43c1-b96a-ecc654644ce0",
-          "type": "interior",
-          "order": 16,
-          "FileSystem": {
-            "id": "5b801949-2a27-43c1-b96a-ecc654644ce0",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-23-733939.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939.jpg",
-            "parentId": null,
-            "size": 546933,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-23-733939.webp",
-            "createdAt": "2025-03-11T19:38:04.568Z",
-            "updatedAt": "2025-03-11T19:38:04.568Z"
-          }
-        },
-        {
-          "id": 4803,
-          "fileId": "926e2c33-eeb0-4bf3-9dd0-7f6684377deb",
-          "type": "interior",
-          "order": 17,
-          "FileSystem": {
-            "id": "926e2c33-eeb0-4bf3-9dd0-7f6684377deb",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-22-591255.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255.jpg",
-            "parentId": null,
-            "size": 380608,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-22-591255.webp",
-            "createdAt": "2025-03-11T19:37:59.840Z",
-            "updatedAt": "2025-03-11T19:37:59.840Z"
-          }
-        },
-        {
-          "id": 4804,
-          "fileId": "c5847f07-9d97-44c1-b3bb-c71e0bf359bd",
-          "type": "interior",
-          "order": 18,
-          "FileSystem": {
-            "id": "c5847f07-9d97-44c1-b3bb-c71e0bf359bd",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-7-596024.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024.jpg",
-            "parentId": null,
-            "size": 417345,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-7-596024.webp",
-            "createdAt": "2025-03-11T19:37:02.912Z",
-            "updatedAt": "2025-03-11T19:37:02.912Z"
-          }
-        },
-        {
-          "id": 4805,
-          "fileId": "3e7fb572-18e9-4a54-b78c-1d2efb3a8c51",
-          "type": "exterior",
-          "order": 1,
-          "FileSystem": {
-            "id": "3e7fb572-18e9-4a54-b78c-1d2efb3a8c51",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-2-162652.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652.jpg",
-            "parentId": null,
-            "size": 624701,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-2-162652.webp",
-            "createdAt": "2025-03-11T19:37:09.245Z",
-            "updatedAt": "2025-03-11T19:37:09.245Z"
-          }
-        },
-        {
-          "id": 4806,
-          "fileId": "a97be892-df20-47f2-9880-2812a7cbd2cc",
-          "type": "exterior",
-          "order": 2,
-          "FileSystem": {
-            "id": "a97be892-df20-47f2-9880-2812a7cbd2cc",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-1-358785.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785.jpg",
-            "parentId": null,
-            "size": 543748,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-1-358785.webp",
-            "createdAt": "2025-03-11T19:37:04.536Z",
-            "updatedAt": "2025-03-11T19:37:04.536Z"
-          }
-        },
-        {
-          "id": 4807,
-          "fileId": "cb5bd2da-2d00-498a-95da-27cef9e83104",
-          "type": "exterior",
-          "order": 3,
-          "FileSystem": {
-            "id": "cb5bd2da-2d00-498a-95da-27cef9e83104",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-3-218285.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285.jpg",
-            "parentId": null,
-            "size": 637415,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-3-218285.webp",
-            "createdAt": "2025-03-11T19:37:13.446Z",
-            "updatedAt": "2025-03-11T19:37:13.446Z"
-          }
-        },
-        {
-          "id": 4808,
-          "fileId": "c663d954-14aa-4243-ba1b-8b5753767d93",
-          "type": "exterior",
-          "order": 4,
-          "FileSystem": {
-            "id": "c663d954-14aa-4243-ba1b-8b5753767d93",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-6-458307.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307.jpg",
-            "parentId": null,
-            "size": 632695,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-6-458307.webp",
-            "createdAt": "2025-03-11T19:37:26.565Z",
-            "updatedAt": "2025-03-11T19:37:26.565Z"
-          }
-        },
-        {
-          "id": 4809,
-          "fileId": "aa0136c8-bcb3-4a05-a215-bc44a68d4b72",
-          "type": "exterior",
-          "order": 5,
-          "FileSystem": {
-            "id": "aa0136c8-bcb3-4a05-a215-bc44a68d4b72",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-4-372451.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451.jpg",
-            "parentId": null,
-            "size": 707824,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-4-372451.webp",
-            "createdAt": "2025-03-11T19:37:18.572Z",
-            "updatedAt": "2025-03-11T19:37:18.572Z"
-          }
-        },
-        {
-          "id": 4810,
-          "fileId": "b3aa3b02-af79-48f7-a3dc-a325cebf86d9",
-          "type": "exterior",
-          "order": 6,
-          "FileSystem": {
-            "id": "b3aa3b02-af79-48f7-a3dc-a325cebf86d9",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-5-388805.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805.jpg",
-            "parentId": null,
-            "size": 463212,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-5-388805.webp",
-            "createdAt": "2025-03-11T19:37:22.706Z",
-            "updatedAt": "2025-03-11T19:37:22.706Z"
-          }
-        },
-        {
-          "id": 4811,
-          "fileId": "91dbe56d-29e2-420e-85d9-86552ada19c8",
-          "type": "exterior",
-          "order": 7,
-          "FileSystem": {
-            "id": "91dbe56d-29e2-420e-85d9-86552ada19c8",
-            "name": "2024-GEELY-GALAXYE5-EXPLORER-26-788373.jpg",
-            "isDirectory": false,
-            "path": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373.jpg",
-            "parentId": null,
-            "size": 609098,
-            "mimeType": "image/jpeg",
-            "originalPath": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373.jpg",
-            "compressedPath": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373-compressed.jpg",
-            "thumbnailPath": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373-thumbnail.jpg",
-            "webpPath": "/2024-GEELY-GALAXYE5-EXPLORER-26-788373.webp",
-            "createdAt": "2025-03-11T19:36:59.545Z",
-            "updatedAt": "2025-03-11T19:36:59.545Z"
-          }
-        }
-      ],
-      "SpecificationValues": [
-        {
-          "id": 10,
-          "name": "China",
-          "Specification": {
-            "id": 1,
-            "name": "Regional Specification",
-            "key": "regional_specification",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:18:10.620Z",
-            "updatedAt": "2025-03-12T11:33:14.746Z"
-          }
-        },
-        {
-          "id": 11,
-          "name": "Left-hand drive",
-          "Specification": {
-            "id": 2,
-            "name": "Steering Side",
-            "key": "steering_side",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:18:20.146Z",
-            "updatedAt": "2025-03-12T11:33:14.746Z"
-          }
-        },
-        {
-          "id": 20,
-          "name": "Grey",
-          "Specification": {
+          "id": 88,
+          "slug": "2024-byd-song-plus-honor-flagship-plus-2024-byd-song-plus-honor-flagship-plus-black-inside-blue",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 BYD SONG PLUS HONOR FLAGSHIP PLUS - BLACK inside BLUE",
+          "createdAt": "2025-03-17T08:05:40.540Z",
+          "updatedAt": "2025-03-17T08:05:40.540Z",
+          "Brand": {
             "id": 3,
-            "name": "Color",
-            "key": "color",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:18:27.091Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        },
-        {
-          "id": 43,
-          "name": "18 inches",
-          "Specification": {
+            "slug": "byd",
+            "name": "BYD",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 4,
+            "slug": "song-plus",
+            "name": "SONG PLUS",
+            "CarModelTranslations": []
+          },
+          "Trim": {
             "id": 5,
-            "name": "Wheel Size",
-            "key": "wheel_size",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:18:38.865Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        },
-        {
-          "id": 51,
-          "name": "SUV",
-          "Specification": {
-            "id": 6,
-            "name": "Body Type",
-            "key": "body_type",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-18T10:18:46.179Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        },
-        {
-          "id": 61,
-          "name": "5-Seater",
-          "Specification": {
-            "id": 7,
-            "name": "Seats",
-            "key": "seats",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:18:51.983Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        },
-        {
-          "id": 71,
-          "name": "4 Doors",
-          "Specification": {
-            "id": 8,
-            "name": "Doors",
-            "key": "doors",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:18:57.361Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        },
-        {
-          "id": 76,
-          "name": "Electric",
-          "Specification": {
-            "id": 9,
-            "name": "Fuel Type",
-            "key": "fuel_type",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:19:02.365Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
+            "slug": "honor-flagship-plus",
+            "name": "HONOR FLAGSHIP PLUS",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 3,
+              "name": "Hot Deal!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76, 
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4733,
+              "fileId": "a894adbf-29ac-4f98-81d0-f53148b51f07",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-1-276857-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-1-276857-compressed.jpg"
+              }
+            },
+            {
+              "id": 4732,
+              "fileId": "b3b2b5ef-9ad1-44e3-b677-a4ab9835d74c",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-2-340363-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-2-340363-compressed.jpg"
+              }
+            },
+            {
+              "id": 4734,
+              "fileId": "afd57f00-7716-435b-aafe-e90f027d6e2f",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-3-907943-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-3-907943-compressed.jpg"
+              }
+            },
+            {
+              "id": 4736,
+              "fileId": "f7330a3c-0b4b-451d-b36b-f4f51b379e4f",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-4-853427-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-4-853427-compressed.jpg"
+              }
+            },
+            {
+              "id": 4737,
+              "fileId": "aeef18a1-530e-4cb3-996d-313271c85ad0",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-5-898675-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-5-898675-compressed.jpg"
+              }
+            },
+            {
+              "id": 4735,
+              "fileId": "13cd3186-d5d3-4742-8398-98f0b8c9f60a",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-6-970239-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORFLAGSHIPPLUS-6-970239-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
           "id": 89,
-          "name": "None - Electric",
-          "Specification": {
-            "id": 10,
-            "name": "Cylinders",
-            "key": "cylinders",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:19:07.655Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        },
-        {
-          "id": 90,
-          "name": "Front-Wheel Drive (FWD)",
-          "Specification": {
-            "id": 11,
-            "name": "Drive Type",
-            "key": "drive_type",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:19:12.962Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        },
-        {
-          "id": 95,
-          "name": "Automatic",
-          "Specification": {
-            "id": 12,
-            "name": "Transmission",
-            "key": "transmission",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:19:19.421Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        },
-        {
-          "id": 103,
-          "name": "Blue",
-          "Specification": {
+          "slug": "2024-changan-deepal-g318-air-suspension-2024-changan-deepal-g318-air-suspension-plug-in-hybrid-green-inside-blue",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 Changan Deepal G318 Air Suspension - Plug-in Hybrid - Green inside Blue",
+          "createdAt": "2025-03-17T08:19:27.740Z",
+          "updatedAt": "2025-03-17T08:19:27.740Z",
+          "Brand": {
             "id": 4,
-            "name": "Interior Color",
-            "key": "interior_color",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-18T10:18:33.133Z",
-            "updatedAt": "2025-03-12T11:33:09.072Z"
-          }
-        }
-      ],
-      "FeatureValues": [
-        {
-          "id": 6,
-          "name": "USB",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 14,
-          "name": "Power Mirrors",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 20,
-          "name": "Information Cluster",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 21,
-          "name": "Leather seats",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 23,
-          "name": "Multiple off road option selector",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 25,
-          "name": "Air conditioning",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 29,
-          "name": "Power seats",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 30,
-          "name": "Climate control",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 32,
-          "name": "Cruise control",
-          "Feature": {
-            "id": 1,
-            "name": "Interior Feature",
-            "key": "interior_feature",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:24.441Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 39,
-          "name": "Sunroof",
-          "Feature": {
+            "slug": "changan",
+            "name": "CHANGAN",
+            "BrandTranslations": []
+          },
+          "CarModel": {
             "id": 2,
-            "name": "Exterior and Controls",
-            "key": "exterior_and_controls",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:34.642Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 44,
-          "name": "DRLs",
-          "Feature": {
+            "slug": "deepal-g318",
+            "name": "DEEPAL G318",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 8,
+            "slug": "air-suspension",
+            "name": "AIR SUSPENSION",
+            "TrimTranslations": []
+          },
+          "Year": {
             "id": 2,
-            "name": "Exterior and Controls",
-            "key": "exterior_and_controls",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:34.642Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 3,
+              "name": "Hot Deal!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4943,
+              "fileId": "4cea79c1-e718-4559-b30e-808ae2f41806",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-3-201654-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-3-201654-compressed.jpg"
+              }
+            },
+            {
+              "id": 4944,
+              "fileId": "a693ad1c-e28d-4309-aa04-7b3623b46919",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-4-425035-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-4-425035-compressed.jpg"
+              }
+            },
+            {
+              "id": 4945,
+              "fileId": "987fedc4-484c-466b-ba61-00364373d55f",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-5-313599-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-5-313599-compressed.jpg"
+              }
+            },
+            {
+              "id": 4946,
+              "fileId": "031814d1-0d48-4374-873b-62b881315388",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-6-808258-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-6-808258-compressed.jpg"
+              }
+            },
+            {
+              "id": 4942,
+              "fileId": "45c1a718-4a2c-4558-8340-d15481483cdf",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-1-864636-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-1-864636-compressed.jpg"
+              }
+            },
+            {
+              "id": 4941,
+              "fileId": "4bc4da1f-dedf-426f-95a9-55b98c9160fb",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-2-788282-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-2-788282-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
-          "id": 52,
-          "name": "Keyless go",
-          "Feature": {
+          "id": 82,
+          "slug": "2024-byd-song-plus-honor-champion-flagship-2024-byd-song-plus-honor-champion-flagship-white-inside-grey-and-blue",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 BYD SONG PLUS HONOR CHAMPION FLAGSHIP - WHITE inside GREY & BLUE",
+          "createdAt": "2025-03-14T14:23:32.934Z",
+          "updatedAt": "2025-03-14T14:23:32.934Z",
+          "Brand": {
+            "id": 3,
+            "slug": "byd",
+            "name": "BYD",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 4,
+            "slug": "song-plus",
+            "name": "SONG PLUS",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 6,
+            "slug": "honor-champion-flagship",
+            "name": "HONOR CHAMPION FLAGSHIP",
+            "TrimTranslations": []
+          },
+          "Year": {
             "id": 2,
-            "name": "Exterior and Controls",
-            "key": "exterior_and_controls",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:34.642Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 3,
+              "name": "Hot Deal!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4235,
+              "fileId": "d5c6eab4-f84b-49ff-8bd2-833e01f6954b",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-1-228592-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-1-228592-compressed.jpg"
+              }
+            },
+            {
+              "id": 4234,
+              "fileId": "22a85481-eeea-4b6c-91d2-9dc16f5ed225",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-2-597488-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-2-597488-compressed.jpg"
+              }
+            },
+            {
+              "id": 4236,
+              "fileId": "334b6dd3-3229-4eff-acbe-0ec33de97a09",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-3-781130-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-3-781130-compressed.jpg"
+              }
+            },
+            {
+              "id": 4238,
+              "fileId": "c62eb9d0-f78c-4834-9121-04d1cca07555",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-4-667802-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-4-667802-compressed.jpg"
+              }
+            },
+            {
+              "id": 4239,
+              "fileId": "55faf87e-ea61-48d0-aeee-72a8aa9fe390",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-5-234292-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-5-234292-compressed.jpg"
+              }
+            },
+            {
+              "id": 4237,
+              "fileId": "d10ef25f-ceed-46a8-aff2-22f4a4198bb0",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-6-724892-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-6-724892-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
-          "id": 62,
-          "name": "Auto High Beam Control",
-          "Feature": {
+          "id": 86,
+          "slug": "2024-byd-song-l-excellent-2024-byd-song-l-excellent-grey-inside-beige-and-grey",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 BYD SONG L EXCELLENT - GREY inside BEIGE & GREY",
+          "createdAt": "2025-03-14T19:34:02.222Z",
+          "updatedAt": "2025-03-14T19:34:02.222Z",
+          "Brand": {
             "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 64,
-          "name": "Anti-Theft Alarm System",
-          "Feature": {
+            "slug": "byd",
+            "name": "BYD",
+            "BrandTranslations": []
+          },
+          "CarModel": {
             "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 70,
-          "name": "LED headlights",
-          "Feature": {
+            "slug": "song-l",
+            "name": "SONG L",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 3,
+            "slug": "excellent",
+            "name": "EXCELLENT",
+            "TrimTranslations": []
+          },
+          "Year": {
             "id": 2,
-            "name": "Exterior and Controls",
-            "key": "exterior_and_controls",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:34.642Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 3,
+              "name": "Hot Deal!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 49,
+              "name": "Sedan",
+              "slug": "sedan",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4107,
+              "fileId": "b019a019-cdb1-4782-bd7b-113b70f7e2cb",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGL-EXCELLENT-1-385538-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGL-EXCELLENT-1-385538-compressed.jpg"
+              }
+            },
+            {
+              "id": 4106,
+              "fileId": "060c974b-9dce-468c-a704-db62965a8f25",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGL-EXCELLENT-2-329632-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGL-EXCELLENT-2-329632-compressed.jpg"
+              }
+            },
+            {
+              "id": 4108,
+              "fileId": "9928c22e-5c9d-474b-94e3-87b1761567d3",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGL-EXCELLENT-3-789746-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGL-EXCELLENT-3-789746-compressed.jpg"
+              }
+            },
+            {
+              "id": 4110,
+              "fileId": "b1bf8934-ff1a-4fe4-a95e-df1e00f90aff",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGL-EXCELLENT-4-212806-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGL-EXCELLENT-4-212806-compressed.jpg"
+              }
+            },
+            {
+              "id": 4111,
+              "fileId": "7af98c04-ca93-4496-a43a-c89895d0addc",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGL-EXCELLENT-5-267663-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGL-EXCELLENT-5-267663-compressed.jpg"
+              }
+            },
+            {
+              "id": 4109,
+              "fileId": "7404bc5c-337f-439d-94a3-5d1bfcb46f87",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGL-EXCELLENT-6-358625-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGL-EXCELLENT-6-358625-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
-          "id": 73,
-          "name": "Vehicle Stability Control",
-          "Feature": {
+          "id": 85,
+          "slug": "2024-byd-seal-06-dm-i-honor-2024-byd-seal-06-dm-i-honor-1-5-plug-in-hybrid-grey-inside-black",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 BYD SEAL 06 DM-i HONOR 1.5 Plug-in Hybrid - Grey inside Black",
+          "createdAt": "2025-03-14T18:26:37.058Z",
+          "updatedAt": "2025-03-14T19:46:58.278Z",
+          "Brand": {
             "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
+            "slug": "byd",
+            "name": "BYD",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 5,
+            "slug": "seal-06-dm",
+            "name": "SEAL 06 DM",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 2,
+            "slug": "i-honor",
+            "name": "I HONOR",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 3,
+              "name": "Hot Deal!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 49,
+              "name": "Sedan",
+              "slug": "sedan",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4148,
+              "fileId": "0460a392-b26f-4a2d-a1b3-5861a0f65150",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SEAL06DM-IHONOR-6-818758-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SEAL06DM-IHONOR-6-818758-compressed.jpg"
+              }
+            },
+            {
+              "id": 4146,
+              "fileId": "f819fa29-d8c7-4d53-bd70-bb866bdf7a55",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SEAL06DM-IHONOR-1-170707-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SEAL06DM-IHONOR-1-170707-compressed.jpg"
+              }
+            },
+            {
+              "id": 4145,
+              "fileId": "2b81c791-a668-49cc-ac16-8ff793ecab28",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SEAL06DM-IHONOR-2-219391-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SEAL06DM-IHONOR-2-219391-compressed.jpg"
+              }
+            },
+            {
+              "id": 4147,
+              "fileId": "4b8c994f-ac21-4463-87b0-7cb1d4b648c5",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SEAL06DM-IHONOR-3-789474-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SEAL06DM-IHONOR-3-789474-compressed.jpg"
+              }
+            },
+            {
+              "id": 4149,
+              "fileId": "57d7de89-6a4b-478b-bc39-cead6241ecc9",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SEAL06DM-IHONOR-4-953693-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SEAL06DM-IHONOR-4-953693-compressed.jpg"
+              }
+            },
+            {
+              "id": 4150,
+              "fileId": "64297462-d433-4e9b-ad7f-9b0bd0fed304",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SEAL06DM-IHONOR-5-796528-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SEAL06DM-IHONOR-5-796528-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
-          "id": 77,
-          "name": "ABS",
-          "Feature": {
+          "id": 87,
+          "slug": "2024-byd-song-plus-flagship-2024-byd-song-plus-flagship-grey-inside-grey",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 BYD SONG PLUS FLAGSHIP - GREY inside GREY",
+          "createdAt": "2025-03-14T19:44:33.597Z",
+          "updatedAt": "2025-03-14T19:44:33.597Z",
+          "Brand": {
             "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 78,
-          "name": "Airbags (front and side)",
-          "Feature": {
-            "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 80,
-          "name": "Front wheel drive",
-          "Feature": {
-            "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
-        },
-        {
-          "id": 83,
-          "name": "Traction Control",
-          "Feature": {
-            "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
+            "slug": "byd",
+            "name": "BYD",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 4,
+            "slug": "song-plus",
+            "name": "SONG PLUS",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 4,
+            "slug": "flagship",
+            "name": "FLAGSHIP",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 3,
+              "name": "Hot Deal!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4169,
+              "fileId": "f06c8c6e-1c0b-4271-b61c-7996fcb045aa",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-FLAGSHIP-1-843060-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-FLAGSHIP-1-843060-compressed.jpg"
+              }
+            },
+            {
+              "id": 4168,
+              "fileId": "c4e1fb13-10cb-4f28-ad66-2ded6a9e9788",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-FLAGSHIP-2-200030-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-FLAGSHIP-2-200030-compressed.jpg"
+              }
+            },
+            {
+              "id": 4170,
+              "fileId": "974b5548-0485-4f60-a14e-ef429faa2fe2",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-FLAGSHIP-3-313652-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-FLAGSHIP-3-313652-compressed.jpg"
+              }
+            },
+            {
+              "id": 4171,
+              "fileId": "2d9faa90-7521-4298-9478-60f1ac73ac5b",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-FLAGSHIP-4-333869-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-FLAGSHIP-4-333869-compressed.jpg"
+              }
+            },
+            {
+              "id": 4172,
+              "fileId": "53db0892-c39d-42c1-a65c-976b88f270bb",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-FLAGSHIP-5-165076-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-FLAGSHIP-5-165076-compressed.jpg"
+              }
+            },
+            {
+              "id": 4173,
+              "fileId": "53f06c6d-3deb-4f92-82cb-69d65fdc7b25",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-FLAGSHIP-6-867149-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-FLAGSHIP-6-867149-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
           "id": 84,
-          "name": "Brake Assist (BA)",
-          "Feature": {
+          "slug": "2024-byd-song-plus-honor-champion-flagship-2024-byd-song-plus-honor-champion-flagship-black-inside-grey-and-blue",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 BYD SONG PLUS HONOR CHAMPION FLAGSHIP - BLACK inside GREY & BLUE",
+          "createdAt": "2025-03-14T14:35:10.114Z",
+          "updatedAt": "2025-03-14T14:35:10.114Z",
+          "Brand": {
             "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
+            "slug": "byd",
+            "name": "BYD",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 4,
+            "slug": "song-plus",
+            "name": "SONG PLUS",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 6,
+            "slug": "honor-champion-flagship",
+            "name": "HONOR CHAMPION FLAGSHIP",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 3,
+              "name": "Hot Deal!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4191,
+              "fileId": "f39471b7-0e3f-482a-be47-0d76bcd7361a",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-1-621950-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-1-621950-compressed.jpg"
+              }
+            },
+            {
+              "id": 4190,
+              "fileId": "6e8dff05-57e3-4207-bda5-55b09349110c",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-2-922488-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-2-922488-compressed.jpg"
+              }
+            },
+            {
+              "id": 4192,
+              "fileId": "533f706b-e1e4-4b4e-ae97-52a05d3ec39f",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-3-734850-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-3-734850-compressed.jpg"
+              }
+            },
+            {
+              "id": 4194,
+              "fileId": "322fbaad-db7f-460d-b2fd-d89f9edee196",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-4-923947-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-4-923947-compressed.jpg"
+              }
+            },
+            {
+              "id": 4195,
+              "fileId": "c05fe3d3-9b1b-48c7-9648-a0f9c17f9d97",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-5-405999-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-5-405999-compressed.jpg"
+              }
+            },
+            {
+              "id": 4193,
+              "fileId": "44f56172-f429-4a06-907f-6c7af72f7ea3",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-6-112160-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-6-112160-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 83,
+          "slug": "2024-byd-song-plus-honor-champion-flagship-2024-byd-song-plus-honor-champion-flagship-grey-inside-grey-and-blue",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 BYD SONG PLUS HONOR CHAMPION FLAGSHIP - GREY inside GREY & BLUE",
+          "createdAt": "2025-03-14T14:29:55.763Z",
+          "updatedAt": "2025-03-14T14:29:55.763Z",
+          "Brand": {
+            "id": 3,
+            "slug": "byd",
+            "name": "BYD",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 4,
+            "slug": "song-plus",
+            "name": "SONG PLUS",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 6,
+            "slug": "honor-champion-flagship",
+            "name": "HONOR CHAMPION FLAGSHIP",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 3,
+              "name": "Hot Deal!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4215,
+              "fileId": "b012dab5-013d-4a2f-8340-bc39f8e14d3b",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-6-106396-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-6-106396-compressed.jpg"
+              }
+            },
+            {
+              "id": 4213,
+              "fileId": "b5f4af2a-62e3-4e23-9b10-971b717bf2bb",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-1-451158-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-1-451158-compressed.jpg"
+              }
+            },
+            {
+              "id": 4212,
+              "fileId": "023d95f9-1ed1-40ad-9f82-7f470a0e7ca4",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-2-836211-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-2-836211-compressed.jpg"
+              }
+            },
+            {
+              "id": 4214,
+              "fileId": "f93da4d4-0ca5-4862-a6d1-3ea67a5745b8",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-3-342656-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-3-342656-compressed.jpg"
+              }
+            },
+            {
+              "id": 4216,
+              "fileId": "edb34549-896e-4e94-96eb-476e739eb03b",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-4-872271-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-4-872271-compressed.jpg"
+              }
+            },
+            {
+              "id": 4217,
+              "fileId": "8e41ad6e-be34-47aa-8c5d-24619b7bb3c1",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-5-602443-thumbnail.jpg",
+                "compressedPath": "/2024-BYD-SONGPLUS-HONORCHAMPIONFLAGSHIP-5-602443-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "name": "Most Popular in UAE",
+      "key": "most_popular_in_uae",
+      "status": "published",
+      "description": "",
+      "displayOrder": 2,
+      "createdAt": "2025-03-18T06:26:20.218Z",
+      "updatedAt": "2025-03-18T11:08:50.090Z",
+      "cars": [
+        {
+          "id": 78,
+          "slug": "2025-toyota-camry-e-2025-toyota-camry-e-2-5-platinum-white-pearl-inside-beige",
+          "status": "published",
+          "engineSize": 2.5,
+          "additionalInfo": "2025 TOYOTA CAMRY E 2.5 - PLATINUM WHITE PEARL inside BEIGE",
+          "createdAt": "2025-03-13T19:35:07.134Z",
+          "updatedAt": "2025-03-13T19:35:07.134Z",
+          "Brand": {
+            "id": 2,
+            "slug": "toyota",
+            "name": "TOYOTA",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 38,
+            "slug": "camry",
+            "name": "CAMRY",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 49,
+            "slug": "e",
+            "name": "E",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 1,
+            "year": 2025
+          },
+          "Tags": [
+            {
+              "id": 1,
+              "name": "Most Popular in UAE",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 74,
+              "name": "Petrol",
+              "slug": "petrol",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 49,
+              "name": "Sedan",
+              "slug": "sedan",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 1,
+              "name": "GCC",
+              "slug": "gcc",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 3872,
+              "fileId": "021cd418-6cc9-4486-937e-dce2d2940cd2",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-CAMRY-E-7-203880-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-CAMRY-E-7-203880-compressed.jpg"
+              }
+            },
+            {
+              "id": 3869,
+              "fileId": "15ac1fae-797d-431f-9784-33e16eda457e",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-CAMRY-E-1-174562-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-CAMRY-E-1-174562-compressed.jpg"
+              }
+            },
+            {
+              "id": 3868,
+              "fileId": "cd7f655a-4637-40fa-a746-d6c784fe1eb8",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-CAMRY-E-2-438114-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-CAMRY-E-2-438114-compressed.jpg"
+              }
+            },
+            {
+              "id": 3870,
+              "fileId": "c44bd923-54a6-48b6-b0ab-3fe0413b9e8e",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-CAMRY-E-3-426190-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-CAMRY-E-3-426190-compressed.jpg"
+              }
+            },
+            {
+              "id": 3873,
+              "fileId": "430abb52-3691-4716-a10f-87f900be631b",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-CAMRY-E-4-715108-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-CAMRY-E-4-715108-compressed.jpg"
+              }
+            },
+            {
+              "id": 3871,
+              "fileId": "b8287e30-1abd-4bfe-a579-d00b477e66cd",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-CAMRY-E-6-825176-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-CAMRY-E-6-825176-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
           "id": 90,
-          "name": "Autonomous Emergency Braking (AEB)",
-          "Feature": {
-            "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
+          "slug": "2024-changan-deepal-g318-air-suspension-2024-changan-deepal-g318-air-suspension-plug-in-hybrid-grey-inside-black",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 Changan Deepal G318 Air Suspension - Plug-in Hybrid - Grey inside Black",
+          "createdAt": "2025-03-17T12:25:35.711Z",
+          "updatedAt": "2025-03-17T12:25:35.711Z",
+          "Brand": {
+            "id": 4,
+            "slug": "changan",
+            "name": "CHANGAN",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 2,
+            "slug": "deepal-g318",
+            "name": "DEEPAL G318",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 8,
+            "slug": "air-suspension",
+            "name": "AIR SUSPENSION",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 1,
+              "name": "Most Popular in UAE",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4920,
+              "fileId": "a3c4086f-f790-4cb3-95f4-cff2e33d0b63",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-1-773700-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-1-773700-compressed.jpg"
+              }
+            },
+            {
+              "id": 4919,
+              "fileId": "4ac74f21-8f38-4596-9838-525b29b2c7fc",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-2-565325-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-2-565325-compressed.jpg"
+              }
+            },
+            {
+              "id": 4921,
+              "fileId": "2dbcc378-6a86-4bd2-88dd-287a797452df",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-3-707897-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-3-707897-compressed.jpg"
+              }
+            },
+            {
+              "id": 4922,
+              "fileId": "72a76a3d-40d7-473c-aedd-51fecc716c20",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-4-105638-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-4-105638-compressed.jpg"
+              }
+            },
+            {
+              "id": 4923,
+              "fileId": "7c710dbf-7a1d-48ad-aa5e-628c312deaa1",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-5-937833-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-5-937833-compressed.jpg"
+              }
+            },
+            {
+              "id": 4924,
+              "fileId": "ab600f76-b133-402d-a85e-ca46a6e7ecc7",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-6-145793-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-6-145793-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 79,
+          "slug": "2025-toyota-hilux-glxs-2025-toyota-hilux-glxs-2-7-super-white-inside-maroon",
+          "status": "published",
+          "engineSize": 2.7,
+          "additionalInfo": "2025 TOYOTA HILUX GLXS 2.7 - SUPER WHITE inside MAROON",
+          "createdAt": "2025-03-13T19:54:28.972Z",
+          "updatedAt": "2025-03-13T19:54:28.972Z",
+          "Brand": {
+            "id": 2,
+            "slug": "toyota",
+            "name": "TOYOTA",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 29,
+            "slug": "hilux",
+            "name": "HILUX",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 50,
+            "slug": "glxs",
+            "name": "GLXS",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 1,
+            "year": 2025
+          },
+          "Tags": [
+            {
+              "id": 1,
+              "name": "Most Popular in UAE",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 74,
+              "name": "Petrol",
+              "slug": "petrol",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 55,
+              "name": "Pickup Truck",
+              "slug": "pickup-truck",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 1,
+              "name": "GCC",
+              "slug": "gcc",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 3894,
+              "fileId": "17ed6c47-e945-4df2-bf51-8477beb65acf",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-HILUX-GLXS-6-238978-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-HILUX-GLXS-6-238978-compressed.jpg"
+              }
+            },
+            {
+              "id": 3892,
+              "fileId": "429202b5-742c-4c5a-b1c7-342649ce498e",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-HILUX-GLXS-1-578502-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-HILUX-GLXS-1-578502-compressed.jpg"
+              }
+            },
+            {
+              "id": 3891,
+              "fileId": "d9cbbdf0-9490-4090-b7a7-f1f0cd698365",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-HILUX-GLXS-2-996385-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-HILUX-GLXS-2-996385-compressed.jpg"
+              }
+            },
+            {
+              "id": 3893,
+              "fileId": "504d26fc-d296-498d-9e93-8e56004af6a2",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-HILUX-GLXS-3-515276-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-HILUX-GLXS-3-515276-compressed.jpg"
+              }
+            },
+            {
+              "id": 3895,
+              "fileId": "11984bde-83b2-40c3-b1cf-3025ce3a243a",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-HILUX-GLXS-4-440800-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-HILUX-GLXS-4-440800-compressed.jpg"
+              }
+            },
+            {
+              "id": 3896,
+              "fileId": "4e195a72-bcd5-43e0-ab99-a239e231f471",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-HILUX-GLXS-5-730265-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-HILUX-GLXS-5-730265-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 91,
+          "slug": "2024-changan-deepal-g318-air-suspension-2024-changan-deepal-g318-air-suspension-plug-in-hybrid-silver-inside-blue",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 Changan Deepal G318 Air Suspension - Plug-in Hybrid - Silver inside Blue",
+          "createdAt": "2025-03-17T12:35:05.365Z",
+          "updatedAt": "2025-03-17T12:35:05.365Z",
+          "Brand": {
+            "id": 4,
+            "slug": "changan",
+            "name": "CHANGAN",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 2,
+            "slug": "deepal-g318",
+            "name": "DEEPAL G318",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 8,
+            "slug": "air-suspension",
+            "name": "AIR SUSPENSION",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 1,
+              "name": "Most Popular in UAE",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4966,
+              "fileId": "2a4d510f-2a46-4c9b-9060-1ecf20eeef4e",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-3-626253-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-3-626253-compressed.jpg"
+              }
+            },
+            {
+              "id": 4968,
+              "fileId": "5071f0b2-4b57-4b73-9b87-6b0a69765610",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-4-395570-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-4-395570-compressed.jpg"
+              }
+            },
+            {
+              "id": 4969,
+              "fileId": "0fcef52e-e665-4cae-b24d-3a22fa314acd",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-5-992575-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-5-992575-compressed.jpg"
+              }
+            },
+            {
+              "id": 4967,
+              "fileId": "96f6b31e-6665-4edf-bc53-977eb4f52e25",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-6-783420-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-6-783420-compressed.jpg"
+              }
+            },
+            {
+              "id": 4965,
+              "fileId": "c2db5f20-0936-4041-a711-4983d49900fa",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-1-723210-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-1-723210-compressed.jpg"
+              }
+            },
+            {
+              "id": 4964,
+              "fileId": "af16a3ae-87bf-4316-bfd3-6d14491c4555",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-2-452515-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-2-452515-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
           "id": 92,
-          "name": "Electronic Brake-Force Distribution (EBD)",
-          "Feature": {
-            "id": 3,
-            "name": "Security",
-            "key": "security",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:45:47.615Z",
-            "updatedAt": "2025-03-18T06:27:40.580Z"
-          }
+          "slug": "2024-changan-deepal-g318-comfort-2024-changan-deepal-g318-comfort-plug-in-hybrid-green-inside-blue",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 Changan Deepal G318 Comfort - Plug-in Hybrid - Green inside Blue",
+          "createdAt": "2025-03-17T12:44:58.695Z",
+          "updatedAt": "2025-03-17T12:44:58.695Z",
+          "Brand": {
+            "id": 4,
+            "slug": "changan",
+            "name": "CHANGAN",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 2,
+            "slug": "deepal-g318",
+            "name": "DEEPAL G318",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 7,
+            "slug": "comfort",
+            "name": "COMFORT",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 1,
+              "name": "Most Popular in UAE",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 4984,
+              "fileId": "c180722b-1b74-4b63-bfb4-af5882fb6cda",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-1-762909-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-1-762909-compressed.jpg"
+              }
+            },
+            {
+              "id": 4983,
+              "fileId": "8d5fcc9e-98d5-45ca-8dc7-a70a059c7084",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-2-351602-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-2-351602-compressed.jpg"
+              }
+            },
+            {
+              "id": 4985,
+              "fileId": "a213ce0f-0329-45af-b9d5-4abe66f6e7d6",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-3-147058-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-3-147058-compressed.jpg"
+              }
+            },
+            {
+              "id": 4986,
+              "fileId": "54201dca-3cb1-4b9d-864f-0c1935af8d31",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-4-759185-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-4-759185-compressed.jpg"
+              }
+            },
+            {
+              "id": 4987,
+              "fileId": "d434511c-c347-49f9-a00b-f177f990c0e6",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-5-670424-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-5-670424-compressed.jpg"
+              }
+            },
+            {
+              "id": 4988,
+              "fileId": "ed00666f-d97a-4a94-9cd6-43537a746dd2",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-6-655072-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-6-655072-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 77,
+          "slug": "2024-kia-ev5-air-2024-kia-ev5-air-530-grey-inside-grey-black",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 KIA EV5 AIR 530 - Grey inside Grey Black",
+          "createdAt": "2025-03-13T18:38:07.408Z",
+          "updatedAt": "2025-03-13T18:38:07.408Z",
+          "Brand": {
+            "id": 15,
+            "slug": "kia",
+            "name": "KIA",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 18,
+            "slug": "ev5",
+            "name": "EV5",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 24,
+            "slug": "air",
+            "name": "AIR",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 1,
+              "name": "Most Popular in UAE",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 3851,
+              "fileId": "dc3ed7f3-49d6-4800-89c5-cb1a6452edd6",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-AIR-1-199314-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-AIR-1-199314-compressed.jpg"
+              }
+            },
+            {
+              "id": 3850,
+              "fileId": "50c7a1f4-e07f-471d-9a9e-6db561042fb9",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-AIR-2-524213-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-AIR-2-524213-compressed.jpg"
+              }
+            },
+            {
+              "id": 3852,
+              "fileId": "b3990b41-1f84-4a51-a200-75dc6a975653",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-AIR-3-160539-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-AIR-3-160539-compressed.jpg"
+              }
+            },
+            {
+              "id": 3854,
+              "fileId": "cdaf78e1-342d-4be9-b580-f93a2874f7b6",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-AIR-4-396146-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-AIR-4-396146-compressed.jpg"
+              }
+            },
+            {
+              "id": 3855,
+              "fileId": "51efb1a5-913d-4526-a354-bec405e37ac1",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-AIR-5-258675-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-AIR-5-258675-compressed.jpg"
+              }
+            },
+            {
+              "id": 3853,
+              "fileId": "cde6d546-203e-4a5f-b765-29a34702539b",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-AIR-6-451128-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-AIR-6-451128-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 80,
+          "slug": "2025-toyota-lc76-hardtop-lx-2025-toyota-lc76-hardtop-lx-b-4-0-white-inside-bluish-grey",
+          "status": "published",
+          "engineSize": 4,
+          "additionalInfo": "2025 TOYOTA LC76 HARDTOP LX B 4.0 - WHITE inside BLUISH GREY",
+          "createdAt": "2025-03-14T08:53:00.931Z",
+          "updatedAt": "2025-03-14T08:54:47.168Z",
+          "Brand": {
+            "id": 2,
+            "slug": "toyota",
+            "name": "TOYOTA",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 39,
+            "slug": "lc76-hardtop",
+            "name": "LC76 HARDTOP",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 51,
+            "slug": "lx",
+            "name": "LX",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 1,
+            "year": 2025
+          },
+          "Tags": [
+            {
+              "id": 1,
+              "name": "Most Popular in UAE",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 98,
+              "name": "Yemen",
+              "slug": "yemen",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 74,
+              "name": "Petrol",
+              "slug": "petrol",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 94,
+              "name": "Manual",
+              "slug": "manual",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 3931,
+              "fileId": "77545ba2-e22e-4b9e-a0b9-19c4d39cb20c",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-LC76HARDTOP-LX-1-964290-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-LC76HARDTOP-LX-1-964290-compressed.jpg"
+              }
+            },
+            {
+              "id": 3930,
+              "fileId": "d53b19cc-28b2-4a9e-be7f-1b6dc8ae56a9",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-LC76HARDTOP-LX-2-559803-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-LC76HARDTOP-LX-2-559803-compressed.jpg"
+              }
+            },
+            {
+              "id": 3932,
+              "fileId": "59cb56da-82ff-4ebc-8909-a22b9694464a",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-LC76HARDTOP-LX-3-712028-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-LC76HARDTOP-LX-3-712028-compressed.jpg"
+              }
+            },
+            {
+              "id": 3933,
+              "fileId": "08ccf04b-67bd-4a08-984e-9cebf8b28309",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-LC76HARDTOP-LX-4-224753-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-LC76HARDTOP-LX-4-224753-compressed.jpg"
+              }
+            },
+            {
+              "id": 3934,
+              "fileId": "f4b3d20b-149a-4ada-a020-c57e23fe6576",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-LC76HARDTOP-LX-5-286740-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-LC76HARDTOP-LX-5-286740-compressed.jpg"
+              }
+            },
+            {
+              "id": 3935,
+              "fileId": "4e2650ed-0fa4-423b-8bf1-b0aa00bdba50",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2025-TOYOTA-LC76HARDTOP-LX-6-593794-thumbnail.jpg",
+                "compressedPath": "/2025-TOYOTA-LC76HARDTOP-LX-6-593794-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         },
         {
           "id": 105,
-          "name": "Drive Modes",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 110,
-          "name": "Rear AC Vents",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 112,
-          "name": "Heads up display",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 120,
-          "name": "Steering Switches",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 121,
-          "name": "Power Windows",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 126,
-          "name": "Tyre pressure warning system",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 128,
-          "name": "Power locks",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 130,
-          "name": "Auto Brake Hold",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 133,
-          "name": "Push Start",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 137,
-          "name": "Rear Camera",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 140,
-          "name": "Parking sensor rear",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 143,
-          "name": "Wireless Charger",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 146,
-          "name": "Power Trunk",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 147,
-          "name": "Power Steering",
-          "Feature": {
-            "id": 4,
-            "name": "Comfort & Convenience",
-            "key": "comfort_and_convenience",
-            "status": "published",
-            "mandatory": true,
-            "createdAt": "2025-02-17T10:45:59.421Z",
-            "updatedAt": "2025-03-04T11:43:39.090Z"
-          }
-        },
-        {
-          "id": 153,
-          "name": "USB & Auxiliary Cable",
-          "Feature": {
-            "id": 5,
-            "name": "Infotainment",
-            "key": "infotainment",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:46:07.851Z",
-            "updatedAt": "2025-03-04T11:43:33.105Z"
-          }
-        },
-        {
-          "id": 156,
-          "name": "Bluetooth system",
-          "Feature": {
-            "id": 5,
-            "name": "Infotainment",
-            "key": "infotainment",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:46:07.851Z",
-            "updatedAt": "2025-03-04T11:43:33.105Z"
-          }
-        },
-        {
-          "id": 159,
-          "name": "Rear Speakers",
-          "Feature": {
-            "id": 5,
-            "name": "Infotainment",
-            "key": "infotainment",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:46:07.851Z",
-            "updatedAt": "2025-03-04T11:43:33.105Z"
-          }
-        },
-        {
-          "id": 160,
-          "name": "Front Speakers",
-          "Feature": {
-            "id": 5,
-            "name": "Infotainment",
-            "key": "infotainment",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:46:07.851Z",
-            "updatedAt": "2025-03-04T11:43:33.105Z"
-          }
-        },
-        {
-          "id": 162,
-          "name": "Apple Car Play",
-          "Feature": {
-            "id": 5,
-            "name": "Infotainment",
-            "key": "infotainment",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:46:07.851Z",
-            "updatedAt": "2025-03-04T11:43:33.105Z"
-          }
-        },
-        {
-          "id": 163,
-          "name": "Android Auto",
-          "Feature": {
-            "id": 5,
-            "name": "Infotainment",
-            "key": "infotainment",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:46:07.851Z",
-            "updatedAt": "2025-03-04T11:43:33.105Z"
-          }
-        },
-        {
-          "id": 164,
-          "name": "Touch Screen",
-          "Feature": {
-            "id": 5,
-            "name": "Infotainment",
-            "key": "infotainment",
-            "status": "published",
-            "mandatory": false,
-            "createdAt": "2025-02-17T10:46:07.851Z",
-            "updatedAt": "2025-03-04T11:43:33.105Z"
-          }
+          "slug": "2024-kia-ev5-land-2024-kia-ev5-land-720-grey-inside-grey-black",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 KIA EV5 LAND 720 - Grey inside Grey & Black",
+          "createdAt": "2025-03-18T09:17:47.128Z",
+          "updatedAt": "2025-03-18T09:17:47.128Z",
+          "Brand": {
+            "id": 15,
+            "slug": "kia",
+            "name": "KIA",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 18,
+            "slug": "ev5",
+            "name": "EV5",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 25,
+            "slug": "land",
+            "name": "LAND",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 1,
+              "name": "Most Popular in UAE",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5284,
+              "fileId": "3b954365-7851-4ce3-886a-c1f5437bd257",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-LAND-8-350575-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-LAND-8-350575-compressed.jpg"
+              }
+            },
+            {
+              "id": 5285,
+              "fileId": "cca03850-533d-4ef9-b219-4a0e4fd5edab",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-LAND-1-183583-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-LAND-1-183583-compressed.jpg"
+              }
+            },
+            {
+              "id": 5283,
+              "fileId": "3ab2cf29-acc3-4374-83fd-b011c41c9ff4",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-LAND-2-666284-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-LAND-2-666284-compressed.jpg"
+              }
+            },
+            {
+              "id": 5286,
+              "fileId": "098e6aaa-9e17-4041-8fd2-2aa7de8efbb4",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-LAND-3-618079-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-LAND-3-618079-compressed.jpg"
+              }
+            },
+            {
+              "id": 5287,
+              "fileId": "741d782f-78f4-496d-9978-e70e2c87f9de",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-LAND-4-136808-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-LAND-4-136808-compressed.jpg"
+              }
+            },
+            {
+              "id": 5288,
+              "fileId": "ad24e40e-b55c-48ac-9885-f40649a62b1b",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-KIA-EV5-LAND-5-595029-thumbnail.jpg",
+                "compressedPath": "/2024-KIA-EV5-LAND-5-595029-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
         }
-      ],
-      "SEO_Metadatum": null,
-      "Tags": [],
-      "brochureFile": {
-        "id": "b8e0bf84-fa72-4074-9a3d-2c3bd30ffe94",
-        "name": "GEELY-GALAXY-E5-EXPLORER-EV-0-AT-GREY-BLUE-2024-209293.pdf",
-        "isDirectory": false,
-        "path": "/GEELY-GALAXY-E5-EXPLORER-EV-0-AT-GREY-BLUE-2024-209293.pdf",
-        "parentId": null,
-        "size": 7639298,
-        "mimeType": "application/pdf",
-        "originalPath": "/GEELY-GALAXY-E5-EXPLORER-EV-0-AT-GREY-BLUE-2024-209293.pdf",
-        "compressedPath": null,
-        "thumbnailPath": null,
-        "webpPath": null,
-        "createdAt": "2025-03-13T06:58:35.012Z",
-        "updatedAt": "2025-03-13T06:58:35.012Z"
-      },
-      "inWishlist": false
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Just Arrived!",
+      "key": "just_arrived!",
+      "status": "published",
+      "description": "",
+      "displayOrder": 3,
+      "createdAt": "2025-03-18T06:26:53.633Z",
+      "updatedAt": "2025-03-18T11:08:50.093Z",
+      "cars": [
+        {
+          "id": 95,
+          "slug": "2024-changan-deepal-g318-air-suspension-2024-changan-deepal-g318-air-suspension-plug-in-hybrid-white-inside-black",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 Changan Deepal G318 Air Suspension - Plug-in Hybrid - White inside Black",
+          "createdAt": "2025-03-18T06:51:33.835Z",
+          "updatedAt": "2025-03-18T06:51:33.835Z",
+          "Brand": {
+            "id": 4,
+            "slug": "changan",
+            "name": "CHANGAN",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 2,
+            "slug": "deepal-g318",
+            "name": "DEEPAL G318",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 8,
+            "slug": "air-suspension",
+            "name": "AIR SUSPENSION",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 2,
+              "name": "Just Arrived!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5480,
+              "fileId": "5c23659a-25eb-4983-ac2c-93f3030b1122",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-3-882087-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-3-882087-compressed.jpg"
+              }
+            },
+            {
+              "id": 5482,
+              "fileId": "9e284439-272b-4b6e-b38d-7e048a5d1e0b",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-4-533645-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-4-533645-compressed.jpg"
+              }
+            },
+            {
+              "id": 5483,
+              "fileId": "ade8f16a-a8d0-43fb-a880-5ec0d61a2d72",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-5-208873-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-5-208873-compressed.jpg"
+              }
+            },
+            {
+              "id": 5481,
+              "fileId": "abc300f3-a494-41d0-92d1-9d6091d992aa",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-6-563929-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-6-563929-compressed.jpg"
+              }
+            },
+            {
+              "id": 5479,
+              "fileId": "0e1cb500-2101-43c1-a6b7-28ce16b13132",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-1-454088-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-1-454088-compressed.jpg"
+              }
+            },
+            {
+              "id": 5478,
+              "fileId": "2c9ebf89-005d-41b5-ba6b-e9dca9f49ab4",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-2-405902-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-AIRSUSPENSION-2-405902-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 96,
+          "slug": "2024-changan-deepal-g318-comfort-2024-changan-deepal-g318-comfort-plug-in-hybrid-white-inside-black",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 Changan Deepal G318 Comfort - Plug-in Hybrid - White inside Black",
+          "createdAt": "2025-03-18T06:56:56.046Z",
+          "updatedAt": "2025-03-18T06:56:56.046Z",
+          "Brand": {
+            "id": 4,
+            "slug": "changan",
+            "name": "CHANGAN",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 2,
+            "slug": "deepal-g318",
+            "name": "DEEPAL G318",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 7,
+            "slug": "comfort",
+            "name": "COMFORT",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 2,
+              "name": "Just Arrived!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5500,
+              "fileId": "0db045ad-2c0e-4714-986c-ae29cf73a717",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-1-704624-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-1-704624-compressed.jpg"
+              }
+            },
+            {
+              "id": 5499,
+              "fileId": "f6b4b050-f28b-45b9-be6b-969fc8967b0f",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-2-230960-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-2-230960-compressed.jpg"
+              }
+            },
+            {
+              "id": 5501,
+              "fileId": "314a9406-253c-4128-a624-c6b5defb826e",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-3-466649-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-3-466649-compressed.jpg"
+              }
+            },
+            {
+              "id": 5502,
+              "fileId": "474c0e0f-749a-4512-bf40-37d45e360702",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-4-464190-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-4-464190-compressed.jpg"
+              }
+            },
+            {
+              "id": 5503,
+              "fileId": "694c0ca0-debb-41fc-8663-9cda7cc2cbbe",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-5-705591-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-5-705591-compressed.jpg"
+              }
+            },
+            {
+              "id": 5504,
+              "fileId": "dac7509b-7ba7-4ea8-8493-bc513a17855a",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-6-579292-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-6-579292-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 94,
+          "slug": "2024-changan-deepal-g318-comfort-2024-changan-deepal-g318-comfort-plug-in-hybrid-silver-inside-blue",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 Changan Deepal G318 Comfort - Plug-in Hybrid - Silver inside Blue",
+          "createdAt": "2025-03-17T13:15:00.959Z",
+          "updatedAt": "2025-03-17T13:15:00.959Z",
+          "Brand": {
+            "id": 4,
+            "slug": "changan",
+            "name": "CHANGAN",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 2,
+            "slug": "deepal-g318",
+            "name": "DEEPAL G318",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 7,
+            "slug": "comfort",
+            "name": "COMFORT",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 2,
+              "name": "Just Arrived!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5028,
+              "fileId": "80250c00-559d-42f3-823f-6ad17c27e279",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-1-492949-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-1-492949-compressed.jpg"
+              }
+            },
+            {
+              "id": 5027,
+              "fileId": "475f6acf-4b56-42d0-9574-2e36dce2f63d",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-2-921634-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-2-921634-compressed.jpg"
+              }
+            },
+            {
+              "id": 5029,
+              "fileId": "a232ef01-8445-46f3-9f07-0f7c8597fa99",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-3-682809-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-3-682809-compressed.jpg"
+              }
+            },
+            {
+              "id": 5031,
+              "fileId": "828b367e-ba6c-4ccc-8aa8-f95ff6f7fffd",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-4-964840-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-4-964840-compressed.jpg"
+              }
+            },
+            {
+              "id": 5032,
+              "fileId": "bdc30f1f-63fc-461d-8708-eccba8d0e750",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-5-457729-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-5-457729-compressed.jpg"
+              }
+            },
+            {
+              "id": 5030,
+              "fileId": "17c707a5-551d-4344-a443-04be5c7a17f0",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-6-252218-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-6-252218-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 100,
+          "slug": "2024-chery-eq3-v3-high-performance-2024-icar-eq3-v3-high-performance-white-inside-green",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 ICAR EQ3 V3 High Performance - White inside Green ",
+          "createdAt": "2025-03-18T07:40:06.205Z",
+          "updatedAt": "2025-03-18T07:40:06.205Z",
+          "Brand": {
+            "id": 5,
+            "slug": "chery",
+            "name": "CHERY",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 17,
+            "slug": "eq3-v3",
+            "name": "ICAR EQ3 V3",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 23,
+            "slug": "high-performance",
+            "name": "HIGH PERFORMANCE",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 2,
+              "name": "Just Arrived!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5390,
+              "fileId": "c46c3b8a-e929-4a26-b18e-4425c09fda3f",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-3-228698-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-3-228698-compressed.jpg"
+              }
+            },
+            {
+              "id": 5392,
+              "fileId": "147f2a4b-50fb-440b-a952-e9d62ba47ef8",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-4-343079-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-4-343079-compressed.jpg"
+              }
+            },
+            {
+              "id": 5391,
+              "fileId": "a3deb4bd-67f0-45c4-ae4e-86bbf1ca1e0a",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-6-391767-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-6-391767-compressed.jpg"
+              }
+            },
+            {
+              "id": 5393,
+              "fileId": "4563693c-b408-4785-8a65-5729ed67186a",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-7-459517-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-7-459517-compressed.jpg"
+              }
+            },
+            {
+              "id": 5389,
+              "fileId": "d2111d1b-a07d-4928-af03-d5edb56a7952",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-1-270493-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-1-270493-compressed.jpg"
+              }
+            },
+            {
+              "id": 5388,
+              "fileId": "fd5bdfaa-c056-46d9-b6d0-11046385319c",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-2-372264-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-2-372264-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 99,
+          "slug": "2024-chery-eq3-v3-high-performance-2024-icar-eq3-v3-high-performance-grey-inside-green",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 ICAR EQ3 V3 High Performance - Grey inside Green",
+          "createdAt": "2025-03-18T07:34:38.461Z",
+          "updatedAt": "2025-03-18T07:34:38.461Z",
+          "Brand": {
+            "id": 5,
+            "slug": "chery",
+            "name": "CHERY",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 17,
+            "slug": "eq3-v3",
+            "name": "ICAR EQ3 V3",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 23,
+            "slug": "high-performance",
+            "name": "HIGH PERFORMANCE",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 2,
+              "name": "Just Arrived!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5412,
+              "fileId": "0d9dfb90-918c-4969-b125-fa92e3ac3dad",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-3-577835-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-3-577835-compressed.jpg"
+              }
+            },
+            {
+              "id": 5414,
+              "fileId": "07325cb1-6ad7-4a18-886f-5690c7d0f032",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-4-295147-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-4-295147-compressed.jpg"
+              }
+            },
+            {
+              "id": 5415,
+              "fileId": "04888995-4163-4950-89de-5d46f5960b5f",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-6-306871-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-6-306871-compressed.jpg"
+              }
+            },
+            {
+              "id": 5413,
+              "fileId": "e1c0a0d4-324c-4fa6-a2a3-d73315c97870",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-7-295587-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-7-295587-compressed.jpg"
+              }
+            },
+            {
+              "id": 5411,
+              "fileId": "a3f10da5-aacb-40bb-b0c7-e3b898d3ba95",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-1-665624-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-1-665624-compressed.jpg"
+              }
+            },
+            {
+              "id": 5410,
+              "fileId": "ee07d3da-f452-477d-aac9-082e94d9f6ce",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-2-487157-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-ICAREQ3V3-HIGHPERFORMANCE-2-487157-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 93,
+          "slug": "2024-changan-deepal-g318-comfort-2024-changan-deepal-g318-comfort-plug-in-hybrid-grey-inside-blue",
+          "status": "published",
+          "engineSize": 1.5,
+          "additionalInfo": "2024 Changan Deepal G318 Comfort - Plug-in Hybrid - Grey inside Blue",
+          "createdAt": "2025-03-17T13:02:57.447Z",
+          "updatedAt": "2025-03-17T13:02:57.447Z",
+          "Brand": {
+            "id": 4,
+            "slug": "changan",
+            "name": "CHANGAN",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 2,
+            "slug": "deepal-g318",
+            "name": "DEEPAL G318",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 7,
+            "slug": "comfort",
+            "name": "COMFORT",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 2,
+              "name": "Just Arrived!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 78,
+              "name": "Plug-in Hybrid",
+              "slug": "cng",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5006,
+              "fileId": "211eb2b0-c149-4414-aac1-bdfaa5b5e1f8",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-1-501606-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-1-501606-compressed.jpg"
+              }
+            },
+            {
+              "id": 5005,
+              "fileId": "64a47627-41dd-4045-819e-6a4bfe189f6a",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-2-825926-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-2-825926-compressed.jpg"
+              }
+            },
+            {
+              "id": 5007,
+              "fileId": "4828bd2a-7319-452f-815d-5b85d206dd9b",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-3-392491-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-3-392491-compressed.jpg"
+              }
+            },
+            {
+              "id": 5009,
+              "fileId": "2301956f-3122-4731-a6a5-25f80b07955d",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-4-806855-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-4-806855-compressed.jpg"
+              }
+            },
+            {
+              "id": 5010,
+              "fileId": "d52b1bfc-cfaa-4800-8ae8-814bba73b157",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-5-901894-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-5-901894-compressed.jpg"
+              }
+            },
+            {
+              "id": 5008,
+              "fileId": "a862467f-706b-4b56-ac0a-53a281f9bfa5",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHANGAN-DEEPALG318-COMFORT-6-612697-thumbnail.jpg",
+                "compressedPath": "/2024-CHANGAN-DEEPALG318-COMFORT-6-612697-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 98,
+          "slug": "2024-chery-eq3-v3-high-performance-2024-icar-eq3-v3-high-performance-green-inside-green",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2024 ICAR EQ3 V3 High Performance - Green inside Green",
+          "createdAt": "2025-03-18T07:23:47.669Z",
+          "updatedAt": "2025-03-18T07:23:47.669Z",
+          "Brand": {
+            "id": 5,
+            "slug": "chery",
+            "name": "CHERY",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 17,
+            "slug": "eq3-v3",
+            "name": "ICAR EQ3 V3",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 23,
+            "slug": "high-performance",
+            "name": "HIGH PERFORMANCE",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 2,
+            "year": 2024
+          },
+          "Tags": [
+            {
+              "id": 2,
+              "name": "Just Arrived!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 51,
+              "name": "SUV",
+              "slug": "suv",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 10,
+              "name": "China",
+              "slug": "china",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5431,
+              "fileId": "1cb8f4c3-c172-4ba6-9f24-e6f3db67b8ee",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-2-409318-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-2-409318-compressed.jpg"
+              }
+            },
+            {
+              "id": 5433,
+              "fileId": "dacd164f-b0f6-4b0c-a1c8-799215b1665c",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-3-641819-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-3-641819-compressed.jpg"
+              }
+            },
+            {
+              "id": 5435,
+              "fileId": "279169dd-5053-4a97-8d63-6e8658f9077a",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-4-944295-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-4-944295-compressed.jpg"
+              }
+            },
+            {
+              "id": 5436,
+              "fileId": "55293de8-78c0-4046-abe2-7328043e04bc",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-5-114655-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-5-114655-compressed.jpg"
+              }
+            },
+            {
+              "id": 5434,
+              "fileId": "9d099393-6845-43ba-a3f2-7e39722d238a",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-7-257502-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-7-257502-compressed.jpg"
+              }
+            },
+            {
+              "id": 5432,
+              "fileId": "2ba34fe5-e8c2-4c2b-b62d-9cff8b9f1f12",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-1-270080-thumbnail.jpg",
+                "compressedPath": "/2024-CHERY-EQ3V3-HIGHPERFORMANCE-1-270080-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        },
+        {
+          "id": 97,
+          "slug": "2022-gmc-hummer-pick-up-edition1-2022-gmc-hummer-ev-pick-up-edition1-white-inside-black-white",
+          "status": "published",
+          "engineSize": null,
+          "additionalInfo": "2022 GMC Hummer EV Pick Up Edition1 - White inside black & white",
+          "createdAt": "2025-03-18T07:12:46.785Z",
+          "updatedAt": "2025-03-18T07:12:46.785Z",
+          "Brand": {
+            "id": 8,
+            "slug": "gmc",
+            "name": "GMC",
+            "BrandTranslations": []
+          },
+          "CarModel": {
+            "id": 13,
+            "slug": "hummer-pick-up",
+            "name": "HUMMER PICK UP",
+            "CarModelTranslations": []
+          },
+          "Trim": {
+            "id": 19,
+            "slug": "edition1",
+            "name": "EDITION1",
+            "TrimTranslations": []
+          },
+          "Year": {
+            "id": 4,
+            "year": 2022
+          },
+          "Tags": [
+            {
+              "id": 2,
+              "name": "Just Arrived!",
+              "TagTranslations": []
+            }
+          ],
+          "SpecificationValues": [
+            {
+              "id": 95,
+              "name": "Automatic",
+              "slug": "automatic",
+              "Specification": {
+                "id": 12,
+                "key": "transmission"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 76,
+              "name": "Electric",
+              "slug": "electric",
+              "Specification": {
+                "id": 9,
+                "key": "fuel_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 55,
+              "name": "Pickup Truck",
+              "slug": "pickup-truck",
+              "Specification": {
+                "id": 6,
+                "key": "body_type"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 11,
+              "name": "Left-hand drive",
+              "slug": "left-hand-drive",
+              "Specification": {
+                "id": 2,
+                "key": "steering_side"
+              },
+              "SpecificationValueTranslations": []
+            },
+            {
+              "id": 1,
+              "name": "GCC",
+              "slug": "gcc",
+              "Specification": {
+                "id": 1,
+                "key": "regional_specification"
+              },
+              "SpecificationValueTranslations": []
+            }
+          ],
+          "CarImages": [
+            {
+              "id": 5457,
+              "fileId": "8dccb312-aa82-4d58-ab57-814eb1a1ac3a",
+              "type": "exterior",
+              "order": 2,
+              "FileSystem": {
+                "thumbnailPath": "/2022-GMC-HUMMERPICKUP-EDITION1-1-364502-thumbnail.jpg",
+                "compressedPath": "/2022-GMC-HUMMERPICKUP-EDITION1-1-364502-compressed.jpg"
+              }
+            },
+            {
+              "id": 5456,
+              "fileId": "99e0339b-2cfc-45b4-800f-223ef60eabb9",
+              "type": "exterior",
+              "order": 1,
+              "FileSystem": {
+                "thumbnailPath": "/2022-GMC-HUMMERPICKUP-EDITION1-2-769738-thumbnail.jpg",
+                "compressedPath": "/2022-GMC-HUMMERPICKUP-EDITION1-2-769738-compressed.jpg"
+              }
+            },
+            {
+              "id": 5459,
+              "fileId": "a6bf8b62-e010-4266-a4a4-34d0b90f01de",
+              "type": "exterior",
+              "order": 4,
+              "FileSystem": {
+                "thumbnailPath": "/2022-GMC-HUMMERPICKUP-EDITION1-3-227593-thumbnail.jpg",
+                "compressedPath": "/2022-GMC-HUMMERPICKUP-EDITION1-3-227593-compressed.jpg"
+              }
+            },
+            {
+              "id": 5458,
+              "fileId": "4216e8f1-38bb-452d-88a6-5123cc6b304a",
+              "type": "exterior",
+              "order": 3,
+              "FileSystem": {
+                "thumbnailPath": "/2022-GMC-HUMMERPICKUP-EDITION1-4-582534-thumbnail.jpg",
+                "compressedPath": "/2022-GMC-HUMMERPICKUP-EDITION1-4-582534-compressed.jpg"
+              }
+            },
+            {
+              "id": 5460,
+              "fileId": "555bf5cf-3f5d-4218-b543-f9ccce26b7d6",
+              "type": "exterior",
+              "order": 5,
+              "FileSystem": {
+                "thumbnailPath": "/2022-GMC-HUMMERPICKUP-EDITION1-5-548436-thumbnail.jpg",
+                "compressedPath": "/2022-GMC-HUMMERPICKUP-EDITION1-5-548436-compressed.jpg"
+              }
+            },
+            {
+              "id": 5461,
+              "fileId": "708ae610-61b5-433d-a478-63445168b853",
+              "type": "exterior",
+              "order": 6,
+              "FileSystem": {
+                "thumbnailPath": "/2022-GMC-HUMMERPICKUP-EDITION1-6-860930-thumbnail.jpg",
+                "compressedPath": "/2022-GMC-HUMMERPICKUP-EDITION1-6-860930-compressed.jpg"
+              }
+            }
+          ],
+          "inWishlist": false
+        }
+      ]
     }
-  }
+  ]
+}

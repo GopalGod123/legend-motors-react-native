@@ -1,188 +1,574 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  FlatList, 
+  Image,
+  Dimensions,
+  Share
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { 
+  MaterialCommunityIcons, 
+  Ionicons, 
+  AntDesign, 
+  FontAwesome 
+} from '@expo/vector-icons';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
+import { CarImage } from '../common';
+import { API_BASE_URL, API_KEY } from '../../utils/apiConfig';
+import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
+
+const { width } = Dimensions.get('window');
+const cardWidth = width * 0.8;
 
 const JustArrived = () => {
+  const [newArrivals, setNewArrivals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState({});
+  const navigation = useNavigation();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    fetchNewArrivals();
+  }, []);
+
+  const fetchNewArrivals = async () => {
+    try {
+      setLoading(true);
+      
+      // Call the API to get "Just Arrived!" cars
+      const response = await axios.get(`${API_BASE_URL}/car/list`, {
+        params: {
+          page: 1,
+          limit: 20,
+          sortBy: 'createdAt',
+          order: 'desc',
+          lang: 'en'
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        }
+      });
+      
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+        console.log(`Fetched ${response.data.data.length} cars for Just Arrived section`);
+        
+        // Filter for cars with "Just Arrived!" tag (id = 2)
+        const cars = response.data.data;
+        const justArrivedCars = cars.filter(car => 
+          car.Tags && 
+          Array.isArray(car.Tags) && 
+          car.Tags.some(tag => tag.name === "Just Arrived!" || tag.id === 2)
+        );
+        
+        if (justArrivedCars.length > 0) {
+          console.log(`Found ${justArrivedCars.length} cars with Just Arrived tag`);
+          setNewArrivals(justArrivedCars);
+        } else {
+          console.log('No cars with Just Arrived tag found, using most recent cars');
+          setNewArrivals(cars.slice(0, 3)); // Use first 3 most recent cars as fallback
+        }
+      } else {
+        console.log('No cars found or response format issue');
+        setNewArrivals([]);
+      }
+    } catch (error) {
+      // Enhanced error logging
+      console.error('Error fetching new arrivals:', error);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error response status:', error.response.status);
+      } else if (error.request) {
+        console.error('No response received:', error.request);
+      } else {
+        console.error('Error in request setup:', error.message);
+      }
+      
+      // Use empty array when API fails
+      setNewArrivals([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const navigateToCarDetail = (car) => {
+    navigation.navigate('CarDetailScreen', { carId: car.id });
+  };
+
+  const navigateToAllNewArrivals = () => {
+    navigation.navigate('ExploreScreen', { 
+      filters: { tagIds: [2] } // Filter for Just Arrived tag
+    });
+  };
+
+  const toggleFavorite = (carId) => {
+    setFavorites(prevFavorites => ({
+      ...prevFavorites,
+      [carId]: !prevFavorites[carId]
+    }));
+    
+    // If user is logged in, you could also call an API to save this preference
+    if (user) {
+      // Example API call (commented out)
+      // api.toggleFavorite(carId, !favorites[carId]);
+      console.log(`Toggled favorite for car ${carId} - ${!favorites[carId] ? 'added to' : 'removed from'} favorites`);
+    } else {
+      // Prompt user to login
+      navigation.navigate('Login', { 
+        returnScreen: 'HomeScreen',
+        message: 'Please login to save favorites'
+      });
+    }
+  };
+
+  const shareCar = async (car) => {
+    try {
+      const carTitle = car.additionalInfo || 
+        `${car.Year?.year || ''} ${car.Brand?.name || car.brand?.name || ''} ${car.CarModel?.name || ''}`;
+      
+      const shareUrl = `https://legendmotorsglobal.com/cars/${car.id}`;
+      
+      await Share.share({
+        message: `Check out this ${carTitle} on Legend Motors! ${shareUrl}`,
+        url: shareUrl,
+        title: 'Share this car'
+      });
+    } catch (error) {
+      console.error('Error sharing car:', error);
+    }
+  };
+
+  const renderCarItem = ({ item }) => {
+    // Extract data from the API response
+    const brandName = item.Brand?.name || item.brand?.name || '';
+    const carModel = item.CarModel?.name || item.model || '';
+    const year = item.Year?.year || item.year || '';
+    const additionalInfo = item.additionalInfo || '';
+    
+    const bodyType = item.SpecificationValues?.find(spec => 
+      spec.Specification?.key === 'body_type'
+    )?.name || item.category || 'SUV';
+    
+    const fuelType = item.SpecificationValues?.find(spec => 
+      spec.Specification?.key === 'fuel_type'
+    )?.name || item.fuelType || 'Electric';
+    
+    const transmission = item.SpecificationValues?.find(spec => 
+      spec.Specification?.key === 'transmission'
+    )?.name || item.transmissionType || 'Automatic';
+    
+    const region = item.SpecificationValues?.find(spec => 
+      spec.Specification?.key === 'regional_specification'
+    )?.name || item.country || 'China';
+    
+    const steeringType = item.SpecificationValues?.find(spec => 
+      spec.Specification?.key === 'steering_side'
+    )?.name || item.steeringType || 'Left hand drive';
+    
+    // Get first image from API response or use fallback
+    let imageSource = require('./HotDealsCar.png');
+    let totalImages = 1;
+    
+    if (item.CarImages && item.CarImages.length > 0) {
+      totalImages = item.CarImages.length;
+      const image = item.CarImages[0];
+      if (image.FileSystem && image.FileSystem.path) {
+        imageSource = { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}` };
+      } else if (image.FileSystem && image.FileSystem.compressedPath) {
+        imageSource = { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.compressedPath}` };
+      } else if (image.FileSystem && image.FileSystem.thumbnailPath) {
+        imageSource = { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.thumbnailPath}` };
+      }
+    } else if (item.images && item.images.length > 0) {
+      totalImages = item.images.length;
+      imageSource = typeof item.images[0] === 'string'
+        ? { uri: item.images[0] }
+        : item.images[0];
+    }
+
+    // Construct the car title
+    let carTitle = '';
+    if (additionalInfo) {
+      carTitle = additionalInfo;
+    } else if (year && brandName && carModel) {
+      carTitle = `${year} ${brandName} ${carModel}`;
+      if (item.Trim?.name) {
+        carTitle += ` ${item.Trim.name}`;
+      }
+    } else {
+      carTitle = item.title || 'Car Details';
+    }
+
+    // Get price from API response if available or use default
+    const price = item.price || item.Price || 750000;
+    
+    // Get favorite status
+    const isFavorite = favorites[item.id] || false;
+
+    return (
+      <TouchableOpacity 
+        style={styles.carCard}
+        onPress={() => navigateToCarDetail(item)}
+        activeOpacity={0.8}
+      >
+        <View style={styles.tagBadge}>
+          <Text style={styles.tagText}>New Arrival</Text>
+        </View>
+        
+        <View style={styles.imageContainer}>
+          {typeof imageSource === 'object' && imageSource.uri ? (
+            <CarImage
+              source={imageSource}
+              style={styles.carImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <Image
+              source={imageSource}
+              style={styles.carImage}
+              resizeMode="cover"
+            />
+          )}
+          
+          {/* Pagination dots for image gallery */}
+          {totalImages > 1 && (
+            <View style={styles.paginationContainer}>
+              {Array.from({length: totalImages > 6 ? 6 : totalImages}).map((_, index) => (
+                <View 
+                  key={index} 
+                  style={[
+                    styles.paginationDot, 
+                    { backgroundColor: index === 0 ? COLORS.white : 'rgba(255, 255, 255, 0.5)' }
+                  ]} 
+                />
+              ))}
+            </View>
+          )}
+        </View>
+        
+        <View style={styles.cardContent}>
+          <View style={styles.categoryRow}>
+            <View style={styles.categoryBadge}>
+              <MaterialCommunityIcons name="car" size={18} color="#FF8C00" />
+              <Text style={styles.categoryText}>{bodyType}</Text>
+            </View>
+          </View>
+          
+          <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">
+            {carTitle}
+          </Text>
+          
+          <View style={styles.specRow}>
+            <View style={styles.specItem}>
+              <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
+              <Text style={styles.specText}>ltr</Text>
+            </View>
+            
+            <View style={styles.specItem}>
+              <Ionicons name="flash" size={16} color="#8A2BE2" />
+              <Text style={styles.specText}>{fuelType}</Text>
+            </View>
+            
+            <View style={styles.specItem}>
+              <MaterialCommunityIcons name="car-shift-pattern" size={16} color="#8A2BE2" />
+              <Text style={styles.specText}>{transmission}</Text>
+            </View>
+            
+            <View style={styles.specItem}>
+              <MaterialCommunityIcons name="map-marker" size={16} color="#8A2BE2" />
+              <Text style={styles.specText}>{region}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.steeringRow}>
+            <View style={styles.specItem}>
+              <MaterialCommunityIcons name="steering" size={16} color="#8A2BE2" />
+              <Text style={styles.specText}>{steeringType}</Text>
+            </View>
+          </View>
+          
+          <View style={styles.priceRow}>
+            <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
+            
+            <View style={styles.actionButtons}>
+              <TouchableOpacity 
+                style={styles.iconButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(item.id);
+                }}
+              >
+                {isFavorite ? (
+                  <AntDesign name="heart" size={24} color="#FF8C00" />
+                ) : (
+                  <AntDesign name="hearto" size={24} color="#FF8C00" />
+                )}
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.iconButton}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  shareCar(item);
+                }}
+              >
+                <Ionicons name="share-social-outline" size={24} color="#777" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const renderLoadingSkeletons = () => {
+    // Create an array of 2 items for the loading skeleton
+    const skeletonItems = Array(2).fill(0).map((_, index) => ({ id: `skeleton-${index}` }));
+    
+    return (
+      <FlatList
+        data={skeletonItems}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.carsList}
+        ItemSeparatorComponent={() => <View style={{ width: 15 }} />}
+        renderItem={() => (
+          <View style={[styles.carCard, styles.skeletonCard]}>
+            <View style={[styles.imageContainer, styles.skeletonImage]} />
+            <View style={styles.cardContent}>
+              <View style={[styles.skeletonText, { width: '40%', marginBottom: 8 }]} />
+              <View style={[styles.skeletonText, { width: '90%', height: 18, marginBottom: 12 }]} />
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                <View style={[styles.skeletonText, { width: '30%', height: 14, marginRight: 8, marginBottom: 8 }]} />
+                <View style={[styles.skeletonText, { width: '30%', height: 14, marginRight: 8, marginBottom: 8 }]} />
+                <View style={[styles.skeletonText, { width: '30%', height: 14, marginRight: 8, marginBottom: 8 }]} />
+                <View style={[styles.skeletonText, { width: '30%', height: 14, marginRight: 8, marginBottom: 8 }]} />
+              </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+                <View style={[styles.skeletonText, { width: '30%', height: 14 }]} />
+                <View style={[styles.skeletonText, { width: '50%', height: 30, borderRadius: 15 }]} />
+              </View>
+            </View>
+          </View>
+        )}
+      />
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Just Arrived</Text>
-        <Text style={styles.subtitle}>Checkout our exclusive offers...</Text>
+        <Text style={styles.title}>Just Arrived!</Text>
+        <TouchableOpacity onPress={navigateToAllNewArrivals}>
+          <Text style={styles.viewAllText}>View All</Text>
+        </TouchableOpacity>
       </View>
       
-      <View style={styles.cardContainer}>
-        <Image
-          source={require("./HotDealsCar.png")}
-          
-          style={styles.carImage}
-          resizeMode="cover"
+      <Text style={styles.subtitle}>Be the first to see our newest vehicles</Text>
+      
+      {loading ? (
+        renderLoadingSkeletons()
+      ) : (
+        <FlatList
+          data={newArrivals}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.carsList}
+          renderItem={renderCarItem}
+          ItemSeparatorComponent={() => <View style={{ width: 15 }} />}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons name="car-clock" size={50} color={COLORS.textLight} />
+              <Text style={styles.emptyText}>No new arrivals found</Text>
+            </View>
+          }
         />
-        
-        <View style={styles.cardContent}>
-          <View style={styles.categoryContainer}>
-            <MaterialCommunityIcons name="car-sports" size={20} color="#FF8C00" />
-            <Text style={styles.categoryText}>SUV</Text>
-          </View>
-          
-          <Text style={styles.carTitle}>
-            2024 BYD SONG PLUS HONOR{'\n'}
-            FLAGSHIP PLUS - BLACK inside BLUE
-          </Text>
-          
-          <View style={styles.detailsContainer}>
-            <View style={styles.detailItem}>
-              <Ionicons name="infinite" size={16} color="#8A2BE2" />
-              <Text style={styles.detailText}>1tr</Text>
-            </View>
-            
-            <View style={styles.detailItem}>
-              <Ionicons name="flash" size={16} color="#8A2BE2" />
-              <Text style={styles.detailText}>Electric</Text>
-            </View>
-            
-            <View style={styles.detailItem}>
-              <AntDesign name="dashboard" size={16} color="#8A2BE2" />
-              <Text style={styles.detailText}>Automatic</Text>
-            </View>
-            
-            <View style={styles.detailItem}>
-              <FontAwesome name="flag" size={16} color="#8A2BE2" />
-              <Text style={styles.detailText}>China</Text>
-            </View>
-          </View>
-          
-          <View style={styles.drivingDetailItem}>
-            <MaterialCommunityIcons name="steering" size={16} color="#8A2BE2" />
-            <Text style={styles.detailText}>Left hand drive</Text>
-          </View>
-          
-          <View style={styles.actionContainer}>
-            <TouchableOpacity style={styles.loginButton}>
-              <Text style={styles.loginButtonText}>Login to view price</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.favoriteButton}>
-              <AntDesign name="hearto" size={24} color="#FF8C00" />
-            </TouchableOpacity>
-            
-            <TouchableOpacity style={styles.shareButton}>
-              <Ionicons name="share-social-outline" size={24} color="#777" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 8,
-    overflow: 'hidden',
-    backgroundColor: 'white',
-    margin: 10,
+    marginVertical: SPACING.xl,
   },
   header: {
-    padding: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    marginBottom: SPACING.xs,
   },
   title: {
-    fontSize: 22,
+    fontSize: FONT_SIZES.xl,
     fontWeight: 'bold',
-    color: '#333',
+    color: COLORS.textDark,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 4,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textMedium,
+    marginBottom: SPACING.md,
+    paddingHorizontal: SPACING.lg,
   },
-  cardContainer: {
-    backgroundColor: 'white',
+  viewAllText: {
+    color: COLORS.primary,
+    fontSize: FONT_SIZES.md,
+    fontWeight: '500',
+  },
+  carsList: {
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
+  },
+  carCard: {
+    width: cardWidth,
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    marginRight: SPACING.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  tagBadge: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    backgroundColor: '#42B72A', // Green color for Just Arrived
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+    zIndex: 1,
+  },
+  tagText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 12,
+  },
+  imageContainer: {
+    width: '100%',
+    height: 180,
+    position: 'relative',
   },
   carImage: {
     width: '100%',
-    height: 200,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    height: '100%',
+  },
+  paginationContainer: {
+    position: 'absolute',
+    bottom: 8,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 3,
   },
   cardContent: {
     padding: 15,
   },
-  categoryContainer: {
+  categoryRow: {
     flexDirection: 'row',
-    alignItems: 'center',
     marginBottom: 8,
   },
+  categoryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   categoryText: {
-    marginLeft: 6,
-    fontSize: 16,
-    fontWeight: '500',
     color: '#FF8C00',
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 5,
   },
   carTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 12,
+    color: '#000',
+    marginBottom: 10,
+    lineHeight: 22,
+    minHeight: 44, // Ensure space for 2 lines
   },
-  detailsContainer: {
+  specRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginBottom: 8,
   },
-  detailItem: {
+  specItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#F0E6FA',
     paddingHorizontal: 10,
     paddingVertical: 5,
-    borderRadius: 15,
+    borderRadius: 20,
     marginRight: 8,
     marginBottom: 8,
   },
-  drivingDetailItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    marginRight: 8,
-    marginBottom: 15,
-    alignSelf: 'flex-start',
-  },
-  detailText: {
+  specText: {
+    color: '#666',
+    fontSize: 12,
     marginLeft: 5,
-    fontSize: 14,
-    color: '#555',
   },
-  actionContainer: {
+  steeringRow: {
+    flexDirection: 'row',
+    marginBottom: 15,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  priceText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#8A2BE2',
+  },
+  actionButtons: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
   },
-  loginButton: {
-    backgroundColor: '#FF8C00',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    flex: 1,
-  },
-  loginButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  favoriteButton: {
+  iconButton: {
     marginLeft: 15,
-    padding: 5,
   },
-  shareButton: {
-    marginLeft: 15,
-    padding: 5,
+  // Skeleton styles
+  skeletonCard: {
+    backgroundColor: COLORS.white,
+  },
+  skeletonImage: {
+    backgroundColor: '#EEEEEE',
+  },
+  skeletonText: {
+    height: 14,
+    backgroundColor: '#EEEEEE',
+    borderRadius: BORDER_RADIUS.sm,
+    marginBottom: 8,
+  },
+  emptyContainer: {
+    width: cardWidth,
+    height: 280,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.white,
+    borderRadius: BORDER_RADIUS.lg,
+  },
+  emptyText: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textLight,
+    marginTop: SPACING.md,
   },
 });
 

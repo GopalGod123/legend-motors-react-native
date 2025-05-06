@@ -7,14 +7,16 @@ const CategoryFilter = () => {
   
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollContent}
+      >
         {categories.map((category, index) => (
-          <View key={index} style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.categoryButton}>
-              <Text style={styles.categoryText}>{category}</Text>
-              <Text style={styles.dropdownIcon}>▼</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity key={index} style={styles.categoryButton}>
+            <Text style={styles.categoryText}>{category}</Text>
+            <Text style={styles.dropdownIcon}>▼</Text>
+          </TouchableOpacity>
         ))}
       </ScrollView>
     </View>
@@ -24,33 +26,33 @@ const CategoryFilter = () => {
 const styles = StyleSheet.create({
   container: {
     marginBottom: SPACING.xl,
+    paddingHorizontal: 23,
   },
   scrollContent: {
     paddingBottom: SPACING.sm,
-  },
-  buttonContainer: {
-    marginRight: SPACING.md,
-    width: 70,
+    paddingTop: SPACING.sm,
   },
   categoryButton: {
-    height: 35,
-    borderWidth: 1,
+    height: 48,
+    borderWidth: 2,
     borderColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.lg,
+    borderRadius: 50,
     backgroundColor: COLORS.white,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: SPACING.sm,
+    paddingHorizontal: SPACING.xl,
+    marginRight: SPACING.md,
+    minWidth: 115,
   },
   categoryText: {
     color: COLORS.primary,
-    fontWeight: '500',
+    fontWeight: '600',
     marginRight: SPACING.xs,
-    fontSize: 13,
+    fontSize: 16,
   },
   dropdownIcon: {
-    fontSize: 8,
+    fontSize: 10,
     color: COLORS.primary,
     marginTop: 2,
   },

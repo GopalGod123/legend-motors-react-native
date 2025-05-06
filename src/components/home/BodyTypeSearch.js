@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import HatchbackIcon from '../icons/HatchbackIcon';
+import { HatchbackIcon, SedanIcon, SUVIcon } from '../icons';
 
 const BodyTypeItem = ({ icon, title }) => {
   return (
@@ -15,12 +15,12 @@ const BodyTypeItem = ({ icon, title }) => {
 
 const BodyTypeSearch = () => {
   const bodyTypes = [
-    { id: 1, title: 'Hatchback', icon: <HatchbackIcon /> },
-    { id: 2, title: 'Hatchback', icon: <HatchbackIcon /> },
-    { id: 3, title: 'Hatchback', icon: <HatchbackIcon /> },
-    { id: 4, title: 'Hatchback', icon: <HatchbackIcon /> },
-    { id: 5, title: 'Sedan', icon: <HatchbackIcon /> },
-    { id: 6, title: 'SUV', icon: <HatchbackIcon /> },
+    { id: 1, title: 'Hatchback', icon: <HatchbackIcon width={60} height={40} /> },
+    { id: 2, title: 'Sedan', icon: <SedanIcon width={60} height={40} /> },
+    { id: 3, title: 'SUV', icon: <SUVIcon width={60} height={40} /> },
+    { id: 4, title: 'Crossover', icon: <HatchbackIcon width={60} height={40} /> },
+    { id: 5, title: 'Coupe', icon: <SedanIcon width={60} height={40} /> },
+    { id: 6, title: 'Convertible', icon: <SUVIcon width={60} height={40} /> },
   ];
 
   return (
@@ -52,12 +52,12 @@ const BodyTypeSearch = () => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: 10,
+    paddingHorizontal: 23,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
     marginBottom: 15,
   },
   title: {
@@ -71,11 +71,11 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   scrollContent: {
-    paddingHorizontal: 10,
+    paddingRight: 20,
   },
   itemContainer: {
     width: 110,
-    marginHorizontal: 5,
+    marginRight: 12,
     alignItems: 'center',
   },
   imageContainer: {

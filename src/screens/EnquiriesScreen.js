@@ -73,7 +73,7 @@ const EnquiriesScreen = () => {
   const handleViewCar = (enquiry) => {
     // Navigate to car details screen with the car ID
     navigation.navigate('ExploreTab', { 
-      screen: 'CarDetails',
+      screen: 'CarDetailScreen',
       params: { carId: enquiry.carId }
     });
   };

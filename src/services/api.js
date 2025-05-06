@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { API_BASE_URL, API_KEY } from '../utils/apiConfig';
-import { generateMockCars } from './mockCarData';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const api = axios.create({
@@ -412,33 +411,19 @@ export const getUniqueBrands = async (params = {}) => {
       };
     }
     
-    // If API fails or returns unexpected format, use fallback data
+    // If API fails or returns unexpected format, return empty data
     return {
-      success: true,
-      data: [
-        { id: 1, name: 'TOYOTA', slug: 'toyota', logo: null },
-        { id: 2, name: 'HONDA', slug: 'honda', logo: null },
-        { id: 3, name: 'MERCEDES', slug: 'mercedes', logo: null },
-        { id: 4, name: 'BMW', slug: 'bmw', logo: null },
-        { id: 5, name: 'CHERY', slug: 'chery', logo: null },
-        { id: 6, name: 'BYD', slug: 'byd', logo: null }
-      ],
-      message: 'Fallback brands retrieved'
+      success: false,
+      data: [],
+      message: 'Failed to retrieve brands'
     };
   } catch (error) {
     console.error('Error fetching unique brands:', error);
-    // Return fallback data on error
+    // Return empty data on error
     return {
-      success: true,
-      data: [
-        { id: 1, name: 'TOYOTA', slug: 'toyota', logo: null },
-        { id: 2, name: 'HONDA', slug: 'honda', logo: null },
-        { id: 3, name: 'MERCEDES', slug: 'mercedes', logo: null },
-        { id: 4, name: 'BMW', slug: 'bmw', logo: null },
-        { id: 5, name: 'CHERY', slug: 'chery', logo: null },
-        { id: 6, name: 'BYD', slug: 'byd', logo: null }
-      ],
-      message: 'Mock brands retrieved for development'
+      success: false,
+      data: [],
+      message: 'Error retrieving brands: ' + error.message
     };
   }
 };
@@ -540,8 +525,17 @@ export const getCarList = async (params = {}) => {
     
   } catch (error) {
     console.error('Error in getCarList API call:', error.message);
-    // Return mock data in case of error
-    return generateMockCars(params.page || 1, params.limit || 10);
+    // Return empty data in case of error
+    return {
+      success: false,
+      data: [],
+      message: "Failed to fetch car data",
+      pagination: {
+        currentPage: params.page || 1,
+        totalPages: 0,
+        totalItems: 0
+      }
+    };
   }
 };
 

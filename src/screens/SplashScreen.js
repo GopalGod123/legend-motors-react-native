@@ -8,9 +8,9 @@ const SplashScreen = () => {
   useEffect(() => {
     // Just wait for a short time to show the splash screen
     const timer = setTimeout(() => {
-      // Always navigate to Main screen, bypassing login
-      navigation.replace('Main');
-    }, 2000); // 2 seconds delay
+      // Navigate to LanguageSelect screen after splash
+      navigation.replace('LanguageSelect');
+    }, 3000); // Increased to 3 seconds to ensure animation is visible
 
     return () => clearTimeout(timer);
   }, [navigation]);
@@ -21,6 +21,7 @@ const SplashScreen = () => {
         source={require('./logo_Animation.gif')} 
         style={styles.logo}
         resizeMode="contain"
+        resizeMethod="resize"
       />
     </View>
   );
@@ -34,8 +35,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   logo: {
-    width: 250,
-    height: 250,
+    width: 300,
+    height: 300,
   },
 });
 

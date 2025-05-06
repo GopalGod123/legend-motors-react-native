@@ -18,8 +18,77 @@ import { getCarByIdOrSlug } from '../services/api';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import { CarImage, CarImageCarousel } from '../components/common';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { extractColorsFromSlug, createColorMatchFunction } from '../utils/colorUtils';
 
 const { width } = Dimensions.get('window');
+
+// Helper function to convert color names to hex color codes
+const getColorHex = (colorName) => {
+  const colorMap = {
+    'white': '#FFFFFF',
+    'black': '#000000',
+    'red': '#FF0000',
+    'blue': '#0000FF',
+    'green': '#008000',
+    'yellow': '#FFFF00',
+    'orange': '#FFA500',
+    'purple': '#800080',
+    'pink': '#FFC0CB',
+    'brown': '#A52A2A',
+    'grey': '#808080',
+    'gray': '#808080',
+    'silver': '#C0C0C0',
+    'gold': '#FFD700',
+    'beige': '#F5F5DC',
+    'tan': '#D2B48C',
+    'maroon': '#800000',
+    'navy': '#000080',
+    'teal': '#008080',
+    'olive': '#808000',
+    'cyan': '#00FFFF',
+    'magenta': '#FF00FF',
+    'ivory': '#FFFFF0',
+    'cream': '#FFFDD0',
+    'burgundy': '#800020',
+    'turquoise': '#40E0D0',
+    'bronze': '#CD7F32',
+    'champagne': '#F7E7CE',
+  };
+  
+  // Default to a light gray if color not found
+  return colorMap[colorName.toLowerCase()] || '#CCCCCC';
+};
+
+// Helper function to determine if a color is dark (for text contrast)
+const isColorDark = (hexColor) => {
+  // Handle invalid input
+  if (!hexColor || typeof hexColor !== 'string' || !hexColor.startsWith('#')) {
+    return false;
+  }
+  
+  // Remove the # and handle both 3 and 6 character hex codes
+  const hex = hexColor.replace('#', '');
+  let r, g, b;
+  
+  if (hex.length === 3) {
+    r = parseInt(hex.charAt(0) + hex.charAt(0), 16);
+    g = parseInt(hex.charAt(1) + hex.charAt(1), 16);
+    b = parseInt(hex.charAt(2) + hex.charAt(2), 16);
+  } else if (hex.length === 6) {
+    r = parseInt(hex.substring(0, 2), 16);
+    g = parseInt(hex.substring(2, 4), 16);
+    b = parseInt(hex.substring(4, 6), 16);
+  } else {
+    return false;
+  }
+  
+  // Calculate luminance using the formula:
+  // Y = 0.2126 * R + 0.7152 * G + 0.0722 * B
+  const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+  
+  // Color is considered dark if luminance is less than 0.5
+  return luminance < 0.5;
+};
 
 const CarDetailScreen = () => {
   const navigation = useNavigation();
@@ -30,10 +99,54 @@ const CarDetailScreen = () => {
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('exterior');
+  const [extractedColors, setExtractedColors] = useState([]);
+  const [extractedInteriorColors, setExtractedInteriorColors] = useState([]);
 
   useEffect(() => {
     fetchCarDetails();
   }, [carId]);
+
+  useEffect(() => {
+    // Extract colors when car data changes
+    if (car && car.slug) {
+      const exteriorColors = extractColorsFromSlug(car.slug, 'exterior');
+      const interiorColors = extractColorsFromSlug(car.slug, 'interior');
+      
+      setExtractedColors(exteriorColors);
+      setExtractedInteriorColors(interiorColors);
+      
+      console.log('Extracted exterior colors:', exteriorColors);
+      console.log('Extracted interior colors:', interiorColors);
+    }
+  }, [car]);
+
+  // Function to handle viewing similar color cars
+  const handleViewSimilarColorCars = () => {
+    if (!car || !car.slug || extractedColors.length === 0) {
+      alert('No color information available for this car.');
+      return;
+    }
+
+    // Create filter object with extracted colors
+    const filters = {
+      specifications: {
+        color: extractedColors
+      },
+      extractColorsFromSlug: true,
+      // Create a match function using our utility
+      matchExtractedColors: createColorMatchFunction(extractedColors),
+      // Flags to help ExploreScreen understand what we're filtering by
+      colorFilter: true,
+      colorNames: extractedColors
+    };
+    
+    // Navigate to ExploreScreen with color filters
+    navigation.navigate('ExploreTab', { 
+      filters: filters,
+      colorSearch: true,
+      title: `Similar ${extractedColors.join('/')} Cars`
+    });
+  };
 
   const fetchCarDetails = async () => {
     if (!carId) {
@@ -72,17 +185,7 @@ const CarDetailScreen = () => {
         setCar(response.data);
       } else {
         console.log('Failed to fetch car details:', response?.message || 'Unknown error');
-        
-        // Try to fetch mock data if API fetch fails
-        console.log('Attempting to load mock car data as fallback');
-        const mockCar = generateMockCar(carId);
-        
-        if (mockCar) {
-          console.log('Using mock car data as fallback');
-          setCar(mockCar);
-        } else {
-          setError(response?.message || 'Failed to fetch car details');
-        }
+        setError(response?.message || 'Failed to fetch car details');
       }
     } catch (error) {
       console.error('Error fetching car details:', error);
@@ -90,62 +193,6 @@ const CarDetailScreen = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Add a function to generate mock car data
-  const generateMockCar = (id) => {
-    // Create a mock car based on the ID
-    return {
-      id: id,
-      stockId: `MOCK-${id}`,
-      brand: 'TOYOTA',
-      Brand: { name: 'TOYOTA', id: 1 },
-      model: 'COROLLA',
-      CarModel: { name: 'COROLLA', id: 1 },
-      trim: 'LE',
-      Trim: { name: 'LE', id: 1 },
-      year: 2024,
-      Year: { year: 2024, id: 1 },
-      price: 85000,
-      additionalInfo: 'This is a mock car generated as a fallback when API requests fail. The actual car information is not available at the moment.',
-      CarImages: [
-        {
-          id: 1, 
-          type: 'exterior',
-          FileSystem: { 
-            path: '/uploads/cars/toyota-corolla-exterior-1.jpg'
-          }
-        },
-        {
-          id: 2, 
-          type: 'exterior',
-          FileSystem: { 
-            path: '/uploads/cars/toyota-corolla-exterior-2.jpg'
-          }
-        },
-        {
-          id: 3, 
-          type: 'interior',
-          FileSystem: { 
-            path: '/uploads/cars/toyota-corolla-interior-1.jpg'
-          }
-        }
-      ],
-      SpecificationValues: [
-        { id: 1, name: 'Gasoline', Specification: { id: 9, key: 'fuel_type', name: 'Fuel Type' } },
-        { id: 2, name: 'Automatic', Specification: { id: 12, key: 'transmission', name: 'Transmission' } },
-        { id: 3, name: 'GCC', Specification: { id: 1, key: 'regional_specification', name: 'Regional Specification' } },
-        { id: 4, name: 'Left-hand drive', Specification: { id: 2, key: 'steering_side', name: 'Steering Side' } },
-        { id: 5, name: 'Sedan', Specification: { id: 6, key: 'body_type', name: 'Body Type' } }
-      ],
-      FeatureValues: [
-        { id: 1, name: 'Bluetooth' },
-        { id: 2, name: 'Navigation System' },
-        { id: 3, name: 'Backup Camera' },
-        { id: 4, name: 'Leather Seats' },
-        { id: 5, name: 'Sunroof' }
-      ]
-    };
   };
 
   const goBack = () => {
@@ -388,6 +435,39 @@ const CarDetailScreen = () => {
               })}
             </View>
           </View>
+          
+          {/* Color chips display */}
+          {extractedColors.length > 0 && (
+            <View style={styles.colorSection}>
+              <Text style={styles.colorSectionTitle}>Detected Colors:</Text>
+              <View style={styles.colorChipsContainer}>
+                {extractedColors.map((colorName, index) => {
+                  const bgColor = getColorHex(colorName);
+                  // Calculate if text should be dark or light based on background color
+                  const isDarkColor = isColorDark(bgColor);
+                  
+                  return (
+                    <View 
+                      key={`color-${index}`} 
+                      style={[
+                        styles.colorChip, 
+                        { backgroundColor: bgColor }
+                      ]}
+                    >
+                      <Text 
+                        style={[
+                          styles.colorChipText, 
+                          { color: isDarkColor ? '#FFFFFF' : '#000000' }
+                        ]}
+                      >
+                        {colorName}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          )}
         </View>
         
         {/* Features Section */}
@@ -440,6 +520,13 @@ const CarDetailScreen = () => {
       
       {/* Bottom Action Bar */}
       <View style={styles.actionBar}>
+        <TouchableOpacity 
+          style={[styles.actionButton, styles.similarCarsButton]}
+          onPress={handleViewSimilarColorCars}
+          disabled={!extractedColors || extractedColors.length === 0}
+        >
+          <Text style={styles.similarCarsButtonText}>Similar Cars</Text>
+        </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.actionButton, styles.inquireButton]}
           onPress={handleInquire}
@@ -643,12 +730,24 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.sm,
     paddingHorizontal: SPACING.md,
     flexDirection: 'row',
+    gap: SPACING.md,
   },
   actionButton: {
     paddingVertical: SPACING.md,
     borderRadius: BORDER_RADIUS.md,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  similarCarsButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+    flex: 1,
+  },
+  similarCarsButtonText: {
+    color: COLORS.primary,
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
   },
   inquireButton: {
     backgroundColor: COLORS.primary,
@@ -704,6 +803,38 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontSize: FONT_SIZES.md,
     fontWeight: '500',
+  },
+  colorSection: {
+    marginTop: SPACING.md,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    paddingTop: SPACING.md,
+  },
+  colorSectionTitle: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '600',
+    color: COLORS.textDark,
+    marginBottom: SPACING.md,
+  },
+  colorChipsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  colorChip: {
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.sm,
+    borderRadius: 20,
+    marginRight: SPACING.sm,
+    marginBottom: SPACING.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.1)',
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  colorChipText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '500',
+    textTransform: 'capitalize',
   },
 });
 

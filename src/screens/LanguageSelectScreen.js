@@ -5,11 +5,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Image
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
-import Logo from '../components/Logo';
-import LoginPromptModal from '../components/LoginPromptModal';
+import LogoImage from '../assets/images/LangaugeScreenLogo.png';
 
 const languages = [
   { id: 'en', name: 'English (US)' },
@@ -22,22 +22,17 @@ const languages = [
 
 const LanguageSelectScreen = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const navigation = useNavigation();
 
   const handleNext = () => {
-    // Show login prompt instead of navigating directly
-    setShowLoginPrompt(true);
-  };
-
-  const handleLoginPress = () => {
-    setShowLoginPrompt(false);
-    navigation.navigate('Login');
-  };
-
-  const handleSkipLogin = () => {
-    setShowLoginPrompt(false);
+    // Navigate directly to Main screen
     navigation.replace('Main');
+  };
+
+  const handleLanguageSelect = (langId) => {
+    setSelectedLanguage(langId);
+    // You could save the selected language here if needed
+    // For example: AsyncStorage.setItem('userLanguage', langId);
   };
 
   return (
@@ -49,7 +44,10 @@ const LanguageSelectScreen = () => {
       </TouchableOpacity>
 
       <View style={styles.logoContainer}>
-        <Logo />
+        <Image 
+          source={LogoImage}
+          style={{ width: 250, height: 100, resizeMode: 'contain' }}
+        />
       </View>
 
       <Text style={styles.title}>Select a Language</Text>
@@ -59,7 +57,7 @@ const LanguageSelectScreen = () => {
           <TouchableOpacity
             key={language.id}
             style={styles.languageItem}
-            onPress={() => setSelectedLanguage(language.id)}>
+            onPress={() => handleLanguageSelect(language.id)}>
             <Text style={styles.languageText}>{language.name}</Text>
             <View
               style={[
@@ -77,12 +75,6 @@ const LanguageSelectScreen = () => {
       <TouchableOpacity style={styles.nextButton} onPress={handleNext}>
         <Text style={styles.nextButtonText}>Next</Text>
       </TouchableOpacity>
-
-      <LoginPromptModal
-        visible={showLoginPrompt}
-        onClose={handleSkipLogin}
-        onLoginPress={handleLoginPress}
-      />
     </View>
   );
 };
@@ -102,7 +94,7 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: 25,
   },
   title: {
     fontSize: 24,

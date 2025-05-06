@@ -15,6 +15,7 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { COLORS, SPACING } from '../utils/constants';
 import { getCarList, searchCars, searchCarModels } from '../services/api';
+import { extractColorsFromSlug } from '../utils/colorUtils';
 
 // Import our optimized components
 import {
@@ -25,6 +26,93 @@ import {
   ResultsHeader,
   EmptyState,
 } from '../components/explore';
+
+// Create color statistics tracker
+const colorStats = {
+  totalCarsProcessed: 0,
+  carsWithSlug: 0,
+  carsWithoutSlug: 0,
+  carsWithExtractedColors: 0,
+  carsWithNoExtractedColors: 0,
+  totalExteriorColors: 0,
+  totalInteriorColors: 0,
+  exteriorColorFrequency: {},
+  interiorColorFrequency: {},
+  
+  // Reset stats
+  reset() {
+    this.totalCarsProcessed = 0;
+    this.carsWithSlug = 0;
+    this.carsWithoutSlug = 0;
+    this.carsWithExtractedColors = 0;
+    this.carsWithNoExtractedColors = 0;
+    this.totalExteriorColors = 0;
+    this.totalInteriorColors = 0;
+    this.exteriorColorFrequency = {};
+    this.interiorColorFrequency = {};
+  },
+  
+  // Track colors for a car
+  trackCar(car, exteriorColors, interiorColors) {
+    this.totalCarsProcessed++;
+    
+    if (car.slug) {
+      this.carsWithSlug++;
+    } else {
+      this.carsWithoutSlug++;
+      return;
+    }
+    
+    if (exteriorColors.length > 0 || interiorColors.length > 0) {
+      this.carsWithExtractedColors++;
+    } else {
+      this.carsWithNoExtractedColors++;
+    }
+    
+    // Track exterior colors
+    this.totalExteriorColors += exteriorColors.length;
+    exteriorColors.forEach(color => {
+      this.exteriorColorFrequency[color] = (this.exteriorColorFrequency[color] || 0) + 1;
+    });
+    
+    // Track interior colors
+    this.totalInteriorColors += interiorColors.length;
+    interiorColors.forEach(color => {
+      this.interiorColorFrequency[color] = (this.interiorColorFrequency[color] || 0) + 1;
+    });
+  },
+  
+  // Print statistics summary
+  printSummary() {
+    const exteriorColorsSorted = Object.entries(this.exteriorColorFrequency)
+      .sort((a, b) => b[1] - a[1]);
+    
+    const interiorColorsSorted = Object.entries(this.interiorColorFrequency)
+      .sort((a, b) => b[1] - a[1]);
+    
+    console.log('\n🎨 =================== COLOR EXTRACTION SUMMARY ===================');
+    console.log(`📊 Total cars processed: ${this.totalCarsProcessed}`);
+    console.log(`📊 Cars with slug: ${this.carsWithSlug} (${(this.carsWithSlug / this.totalCarsProcessed * 100).toFixed(1)}%)`);
+    console.log(`📊 Cars without slug: ${this.carsWithoutSlug} (${(this.carsWithoutSlug / this.totalCarsProcessed * 100).toFixed(1)}%)`);
+    console.log(`📊 Cars with extracted colors: ${this.carsWithExtractedColors} (${(this.carsWithExtractedColors / this.carsWithSlug * 100).toFixed(1)}% of cars with slug)`);
+    console.log(`📊 Cars with no extracted colors: ${this.carsWithNoExtractedColors} (${(this.carsWithNoExtractedColors / this.carsWithSlug * 100).toFixed(1)}% of cars with slug)`);
+    console.log(`📊 Total exterior colors extracted: ${this.totalExteriorColors}`);
+    console.log(`📊 Total interior colors extracted: ${this.totalInteriorColors}`);
+    console.log(`📊 Average exterior colors per car: ${(this.totalExteriorColors / this.carsWithSlug).toFixed(2)}`);
+    
+    console.log('\n📊 EXTERIOR COLORS FREQUENCY:');
+    exteriorColorsSorted.forEach(([color, count]) => {
+      console.log(`   ${color}: ${count} cars (${(count / this.carsWithSlug * 100).toFixed(1)}%)`);
+    });
+    
+    console.log('\n📊 INTERIOR COLORS FREQUENCY:');
+    interiorColorsSorted.forEach(([color, count]) => {
+      console.log(`   ${color}: ${count} cars (${(count / this.carsWithSlug * 100).toFixed(1)}%)`);
+    });
+    
+    console.log('🎨 =================================================================\n');
+  }
+};
 
 // Create an error boundary component to catch any rendering errors
 class ErrorBoundary extends React.Component {
@@ -116,11 +204,26 @@ const ExploreScreen = () => {
       setIsViewingSpecificCar(false);
       if (route.params?.filters) {
         console.log('Received filters from navigation:', route.params.filters);
+        
+        // Special handling for color filters
+        if (route.params?.colorSearch) {
+          console.log('🎨 Color search detected with colors:', route.params.filters.colorNames);
+          
+          // Set any custom header or UI elements for color search
+          if (route.params.title) {
+            // You could set a custom title for the screen here if needed
+            console.log('Setting color search title:', route.params.title);
+          }
+        }
+        
         setAppliedFilters(route.params.filters);
         
         // Update the active filter tab based on the type of filter
         if (route.params.filters.brands && route.params.filters.brands.length > 0) {
           setActiveFilter('brands');
+        } else if (route.params.filters.colorFilter) {
+          // Set color as the active filter if we're filtering by color
+          setActiveFilter('advanced');
         }
 
         // Preserve search query if it exists when filters are applied
@@ -390,8 +493,12 @@ const ExploreScreen = () => {
     setLoading(true);
     
     if (newPage === 1) {
-    setCars([]);
+      setCars([]);
       setFilteredCars([]);
+      
+      // Reset color statistics when starting a new fetch
+      colorStats.reset();
+      console.log('🎨 [Color Extraction] Started new fetch - color statistics reset');
     }
     
     setLoadingMore(false); // Ensure loading more indicator is off
@@ -595,87 +702,15 @@ const ExploreScreen = () => {
     } finally {
       setLoading(false);
       setLoadingMore(false);
-    }
-  };
-
-  // Add utility function to extract color information from slugs
-  const extractColorsFromSlug = (slug, type = 'exterior') => {
-    if (!slug || typeof slug !== 'string') return [];
-    
-    // Common color terms to look for in slugs
-    const colorTerms = [
-      'white', 'black', 'red', 'blue', 'green', 'yellow', 'orange', 'purple',
-      'pink', 'brown', 'grey', 'gray', 'silver', 'gold', 'beige', 'tan',
-      'maroon', 'navy', 'teal', 'olive', 'cyan', 'magenta', 'ivory', 'cream'
-    ];
-    
-    // Convert slug to lowercase and replace hyphens and underscores with spaces
-    const slugText = slug.toLowerCase().replace(/[-_]/g, ' ');
-    
-    // Identify interior vs exterior colors based on context clues in the slug
-    const interiorColorPatterns = ['inside', 'interior', 'and'];
-    const exteriorColorPatterns = ['body', 'roof', 'pearl', 'metallic', 'outside'];
-    
-    // Extract parts of slug text that likely contain interior or exterior color info
-    let interiorPart = '';
-    let exteriorPart = slugText;
-    
-    // Many slugs use 'inside' to denote interior colors
-    if (slugText.includes('inside')) {
-      const parts = slugText.split('inside');
-      exteriorPart = parts[0]; // Everything before "inside" is exterior
-      interiorPart = parts[1]; // Everything after "inside" is interior
-    }
-    
-    // Find all color terms in the appropriate part of the slug
-    let foundColors = [];
-    
-    if (type === 'interior' && interiorPart) {
-      // Extract interior colors from the interior part of the slug
-      foundColors = colorTerms.filter(color => 
-        interiorPart.includes(color) || 
-        interiorPart.includes(`${color} and`) ||
-        interiorPart.includes(`and ${color}`)
-      );
       
-      console.log(`🏠 Interior part: "${interiorPart.trim()}" - Found colors: ${foundColors.join(', ')}`);
-    } else if (type === 'exterior') {
-      // For exterior, look for color terms with exterior indicators
-      foundColors = colorTerms.filter(color => {
-        // First check for explicit exterior markers
-        if (exteriorPart.includes(`${color} body`) || 
-            exteriorPart.includes(`body ${color}`) ||
-            exteriorPart.includes(`${color} roof`) ||
-            exteriorPart.includes(`roof ${color}`) ||
-            exteriorPart.includes(`${color} metallic`) ||
-            exteriorPart.includes(`metallic ${color}`) ||
-            exteriorPart.includes(`${color} pearl`)) {
-          return true;
-        }
-        
-        // If no interior markers in slug, look for colors before any interior marker
-        if (!interiorPart && exteriorPart.includes(color)) {
-          return true;
-        }
-        
-        // Check if color is in the exterior part but not close to interior indicators
-        if (exteriorPart.includes(color)) {
-          // Avoid detecting colors that are likely interior
-          const isLikelyInteriorColor = interiorColorPatterns.some(pattern => 
-            exteriorPart.includes(`${color} ${pattern}`) || 
-            exteriorPart.includes(`${pattern} ${color}`)
-          );
-          
-          return !isLikelyInteriorColor;
-        }
-        
-        return false;
-      });
-      
-      console.log(`🚗 Exterior part: "${exteriorPart.trim()}" - Found colors: ${foundColors.join(', ')}`);
+      // Print color statistics summary
+      if (newPage === 1) {
+        console.log('🎨 [Color Extraction] Finished processing cars - generating color statistics summary');
+        setTimeout(() => {
+          colorStats.printSummary();
+        }, 500); // Slight delay to ensure all console logs are in order
+      }
     }
-    
-    return [...new Set(foundColors)]; // Return unique colors
   };
 
   // Helper function to process car data into a consistent format
@@ -696,23 +731,27 @@ const ExploreScreen = () => {
     let extractedInteriorColors = [];
     
     if (car.slug) {
-      // Extract separate color lists for exterior and interior
+      // Extract separate color lists for exterior and interior using our utilities
       extractedExteriorColors = extractColorsFromSlug(car.slug, 'exterior');
       extractedInteriorColors = extractColorsFromSlug(car.slug, 'interior');
       
-      console.log(`🎨 Car ${car.id} - SLUG: "${car.slug}"`);
-      if (extractedExteriorColors.length > 0) {
-        console.log(`🚗 Exterior colors: ${extractedExteriorColors.join(', ')}`);
-      }
-      if (extractedInteriorColors.length > 0) {
-        console.log(`🏠 Interior colors: ${extractedInteriorColors.join(', ')}`);
-      }
-      if (extractedExteriorColors.length === 0 && extractedInteriorColors.length === 0) {
-        console.log(`⚠️ No colors detected in slug`);
+      // Track colors extracted for each car
+      console.log(`🎨 [Color Extraction] Car ID: ${car.id} | Brand/Model: ${car.brand || ''} ${car.model || ''}`);
+      console.log(`🎨 [Color Extraction] Slug: "${car.slug}"`);
+      console.log(`🎨 [Color Extraction] Exterior colors (${extractedExteriorColors.length}): ${extractedExteriorColors.join(', ') || 'None'}`);
+      console.log(`🎨 [Color Extraction] Interior colors (${extractedInteriorColors.length}): ${extractedInteriorColors.join(', ') || 'None'}`);
+      
+      if (extractedExteriorColors.length > 0 || extractedInteriorColors.length > 0) {
+        console.log(`🎨 [Color Extraction] Successfully extracted colors from slug`);
+      } else {
+        console.log(`🎨 [Color Extraction] No colors detected in slug`);
       }
     } else {
       console.log(`⚠️ Car ${car.id} - No slug available`);
     }
+    
+    // Track this car in our color statistics
+    colorStats.trackCar(car, extractedExteriorColors, extractedInteriorColors);
     
     // Process car images
     let processedImages = [];
@@ -939,6 +978,30 @@ const ExploreScreen = () => {
     if (filters.matchSpecifications) {
       // Apply the multi-directional filtering logic
       filteredResults = cars.filter(car => filters.matchSpecifications(car));
+    } else if (filters.colorFilter && filters.matchExtractedColors) {
+      // Special handling for color filtering based on slug extraction
+      console.log('🎨 Applying color filtering with slug extraction');
+      
+      filteredResults = cars.filter(car => {
+        // Skip cars that don't have a slug
+        if (!car.slug) {
+          console.log(`⚠️ Car ${car.id} has no slug, skipping color filter`);
+          return false;
+        }
+        
+        // Use the matchExtractedColors function to match colors
+        const colorMatch = filters.matchExtractedColors(car.slug);
+        
+        if (colorMatch) {
+          console.log(`✅ Car ${car.id} matches color criteria: ${car.slug}`);
+        } else {
+          console.log(`❌ Car ${car.id} does not match color criteria: ${car.slug}`);
+        }
+        
+        return colorMatch;
+      });
+      
+      console.log(`Found ${filteredResults.length} cars matching color criteria out of ${cars.length} total cars`);
     } else {
       // Fallback to standard filtering
       filteredResults = filterCarsByApiCriteria(cars, filters);
@@ -1415,7 +1478,7 @@ const ExploreScreen = () => {
     return (
       <CarListItem 
         car={item} 
-        onPress={() => navigation.navigate('CarDetail', { carId: item.id })}
+        onPress={() => navigation.navigate('CarDetailScreen', { carId: item.id })}
         isFavorite={favorites.includes(item.id)}
         onToggleFavorite={() => toggleFavorite(item.id)}
         onShare={() => handleShare(item)}
@@ -1449,6 +1512,19 @@ const ExploreScreen = () => {
         isViewingSpecificCar={isViewingSpecificCar} 
         onBackToAllCars={viewAllCars}
       />
+      
+      {/* Debug button for color extraction (hidden in production) */}
+      {(typeof __DEV__ !== 'undefined' && __DEV__) && (
+        <TouchableOpacity 
+          style={styles.debugButton}
+          onPress={() => {
+            console.log('🎨 [Color Extraction] Manual trigger of color statistics summary');
+            colorStats.printSummary();
+          }}
+        >
+          <Text style={styles.debugButtonText}>📊 Show Color Stats</Text>
+        </TouchableOpacity>
+      )}
       
       {/* Search Bar Component */}
       <SearchBar 
@@ -1644,6 +1720,18 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   errorButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  debugButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    margin: SPACING.sm,
+  },
+  debugButtonText: {
     color: '#FFFFFF',
     fontWeight: '500',
   },

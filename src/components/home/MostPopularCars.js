@@ -1,39 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, Share } from 'react-native';
-import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
-import { API_BASE_URL, API_KEY } from '../../utils/apiConfig';
-import { CarImage } from '../common';
-import axios from 'axios';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  FlatList, 
+  Image,
+  Dimensions,
+  Share
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { 
+  MaterialCommunityIcons, 
+  Ionicons, 
+  AntDesign, 
+  FontAwesome 
+} from '@expo/vector-icons';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
+import { CarImage } from '../common';
+import { API_BASE_URL, API_KEY } from '../../utils/apiConfig';
+import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
 
 const { width } = Dimensions.get('window');
-const cardWidth = width * 0.85;
+const cardWidth = width * 0.8;
 
-const HotDeals = () => {
-  const [hotDeals, setHotDeals] = useState([]);
+const MostPopularCars = () => {
+  const [popularCars, setPopularCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState({});
   const navigation = useNavigation();
   const { user } = useAuth();
 
   useEffect(() => {
-    fetchHotDeals();
+    fetchPopularCars();
   }, []);
 
-  const fetchHotDeals = async () => {
+  const fetchPopularCars = async () => {
     try {
       setLoading(true);
-      console.log('Starting to fetch hot deals...');
       
+      // Call the API to get popular cars - using simpler parameters to avoid errors
       const response = await axios.get(`${API_BASE_URL}/car/list`, {
         params: {
           page: 1,
-          limit: 50, // Increase limit to ensure we get enough cars
+          limit: 5,
           sortBy: 'createdAt',
           order: 'desc',
           lang: 'en'
+          // Removed the featured parameter which might be causing errors
         },
         headers: {
           'Content-Type': 'application/json',
@@ -42,87 +57,90 @@ const HotDeals = () => {
       });
       
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
-        console.log(`Fetched ${response.data.data.length} cars for hot deals section`);
-        
-        // Log the first car's tags to debug
-        if (response.data.data.length > 0) {
-          const firstCar = response.data.data[0];
-          console.log('First car tags:', firstCar.Tags || 'No Tags property');
-          console.log('First car full data sample:', JSON.stringify(firstCar).substring(0, 300) + '...');
-        }
-        
-        // More flexible tag matching for "Hot Deal!"
-        const cars = response.data.data;
-        const hotDealCars = cars.filter(car => {
-          // Check if car has Tags property
-          if (!car.Tags || !Array.isArray(car.Tags)) {
-            return false;
-          }
-          
-          // Try different ways to match the "Hot Deal!" tag
-          return car.Tags.some(tag => 
-            tag.name === "Hot Deal!" || 
-            tag.name === "Hot Deal" || 
-            tag.name === "Hot Deals" ||
-            (tag.id && (tag.id === 3 || tag.id === "3"))
-          );
-        });
-        
-        if (hotDealCars.length > 0) {
-          console.log(`Found ${hotDealCars.length} cars with Hot Deal! tag`);
-          // Log first hot deal car for debugging
-          console.log('Sample hot deal car:', JSON.stringify(hotDealCars[0]).substring(0, 300) + '...');
-          setHotDeals(hotDealCars);
-        } else {
-          console.log('No cars with Hot Deal! tag found, trying to check car.tags instead of car.Tags');
-          
-          // Try alternative way to find tags if car.Tags isn't working
-          const altHotDealCars = cars.filter(car => {
-            if (!car.tags && !car.Tags) return false;
-            
-            const tagsArray = car.tags || car.Tags;
-            if (!Array.isArray(tagsArray)) return false;
-            
-            return tagsArray.some(tag => 
-              (tag.name && (
-                tag.name.toLowerCase().includes('hot deal') || 
-                tag.name.toLowerCase().includes('hot offer')
-              )) || 
-              (tag.id && (tag.id === 3 || tag.id === "3"))
-            );
-          });
-          
-          if (altHotDealCars.length > 0) {
-            console.log(`Found ${altHotDealCars.length} cars with alternative tag detection`);
-            setHotDeals(altHotDealCars);
-          } else {
-            // Fall back to just returning the first few cars if no hot deals found
-            console.log('No hot deal cars found with any method, using first 3 cars as fallback');
-            setHotDeals(cars.slice(0, 3));
-          }
-        }
+        console.log(`Fetched ${response.data.data.length} cars for popular section`);
+        setPopularCars(response.data.data);
       } else {
-        console.log('No cars found or response format issue');
-        console.log('Response data:', response.data);
-        setHotDeals([]);
+        console.log('No cars found or response format issue, using fallback data');
+        setPopularCars(getFallbackData());
       }
     } catch (error) {
       // Enhanced error logging
-      console.error('Error fetching hot deals:', error);
+      console.error('Error fetching popular cars:', error);
       if (error.response) {
+        // The request was made and the server responded with an error status
         console.error('Error response data:', error.response.data);
         console.error('Error response status:', error.response.status);
       } else if (error.request) {
+        // The request was made but no response was received
         console.error('No response received:', error.request);
       } else {
+        // Something happened in setting up the request
         console.error('Error in request setup:', error.message);
       }
       
-      // Set empty array when API fails
-      setHotDeals([]);
+      // Use fallback data when API fails
+      setPopularCars(getFallbackData());
     } finally {
       setLoading(false);
     }
+  };
+
+  const getFallbackData = () => {
+    // Fallback data in case API fails
+    return [
+      {
+        id: 1,
+        title: '2024 BYD SONG PLUS HONOR',
+        brand: { name: 'BYD' },
+        model: 'Song Plus',
+        price: '120,000',
+        year: 2024,
+        mileage: '0',
+        fuelType: 'Electric',
+        transmissionType: 'Automatic',
+        bodyType: 'SUV',
+        location: 'Dubai',
+        images: [require('./HotDealsCar.png')],
+      },
+      {
+        id: 2,
+        title: '2023 Toyota Land Cruiser 300',
+        brand: { name: 'Toyota' },
+        model: 'Land Cruiser 300',
+        price: '350,000',
+        year: 2023,
+        mileage: '1,200',
+        fuelType: 'Petrol',
+        transmissionType: 'Automatic', 
+        bodyType: 'SUV',
+        location: 'Abu Dhabi',
+        images: [require('./HotDealsCar.png')],
+      },
+      {
+        id: 3,
+        title: '2024 Mercedes-Benz S500',
+        brand: { name: 'Mercedes-Benz' },
+        model: 'S500',
+        price: '450,000',
+        year: 2024,
+        mileage: '0',
+        fuelType: 'Hybrid',
+        transmissionType: 'Automatic',
+        bodyType: 'Sedan',
+        location: 'Sharjah',
+        images: [require('./HotDealsCar.png')],
+      },
+    ];
+  };
+
+  const navigateToCarDetail = (car) => {
+    navigation.navigate('CarDetailScreen', { carId: car.id });
+  };
+
+  const navigateToAllPopular = () => {
+    navigation.navigate('ExploreScreen', { 
+      filters: { sortBy: 'popularity', order: 'desc' } 
+    });
   };
 
   const toggleFavorite = (carId) => {
@@ -162,17 +180,7 @@ const HotDeals = () => {
     }
   };
 
-  const navigateToCarDetail = (car) => {
-    navigation.navigate('CarDetailScreen', { carId: car.id });
-  };
-
-  const navigateToAllHotDeals = () => {
-    navigation.navigate('ExploreScreen', { 
-      filters: { tagIds: [3] } // Filter for Hot Deal tag
-    });
-  };
-
-  const renderHotDealCard = (item) => {
+  const renderCarItem = ({ item }) => {
     // Extract data from the API response
     const brandName = item.Brand?.name || item.brand?.name || '';
     const carModel = item.CarModel?.name || item.model || '';
@@ -181,7 +189,7 @@ const HotDeals = () => {
     
     const bodyType = item.SpecificationValues?.find(spec => 
       spec.Specification?.key === 'body_type'
-    )?.name || item.category || 'SUV';
+    )?.name || item.bodyType || 'SUV';
     
     const fuelType = item.SpecificationValues?.find(spec => 
       spec.Specification?.key === 'fuel_type'
@@ -193,7 +201,7 @@ const HotDeals = () => {
     
     const region = item.SpecificationValues?.find(spec => 
       spec.Specification?.key === 'regional_specification'
-    )?.name || item.country || 'China';
+    )?.name || item.location || 'China';
     
     const steeringType = item.SpecificationValues?.find(spec => 
       spec.Specification?.key === 'steering_side'
@@ -201,10 +209,8 @@ const HotDeals = () => {
     
     // Get first image from API response or use fallback
     let imageSource = require('./HotDealsCar.png');
-    let totalImages = 1;
     
     if (item.CarImages && item.CarImages.length > 0) {
-      totalImages = item.CarImages.length;
       const image = item.CarImages[0];
       if (image.FileSystem && image.FileSystem.path) {
         imageSource = { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}` };
@@ -214,7 +220,6 @@ const HotDeals = () => {
         imageSource = { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.thumbnailPath}` };
       }
     } else if (item.images && item.images.length > 0) {
-      totalImages = item.images.length;
       imageSource = typeof item.images[0] === 'string'
         ? { uri: item.images[0] }
         : item.images[0];
@@ -235,51 +240,25 @@ const HotDeals = () => {
 
     // Get price from API response if available or use default
     const price = item.price || item.Price || 750000;
-
+    
     // Get favorite status
     const isFavorite = favorites[item.id] || false;
 
     return (
       <TouchableOpacity 
-        key={item.id.toString()} 
-        style={styles.cardContainer}
+        style={styles.carCard}
         onPress={() => navigateToCarDetail(item)}
-        activeOpacity={0.9}
+        activeOpacity={0.8}
       >
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}>Hot Deal!</Text>
+          <Text style={styles.tagText}>Popular</Text>
         </View>
         
-        <View style={styles.imageContainer}>
-          {typeof imageSource === 'object' && imageSource.uri ? (
-            <CarImage
-              source={imageSource}
-              style={styles.carImage}
-              resizeMode="cover"
-            />
-          ) : (
-            <Image
-              source={imageSource}
-              style={styles.carImage}
-              resizeMode="cover"
-            />
-          )}
-          
-          {/* Pagination dots for image gallery */}
-          {totalImages > 1 && (
-            <View style={styles.paginationContainer}>
-              {Array.from({length: totalImages > 6 ? 6 : totalImages}).map((_, index) => (
-                <View 
-                  key={index} 
-                  style={[
-                    styles.paginationDot, 
-                    { backgroundColor: index === 0 ? COLORS.white : 'rgba(255, 255, 255, 0.5)' }
-                  ]} 
-                />
-              ))}
-            </View>
-          )}
-        </View>
+        <Image
+          source={imageSource}
+          style={styles.carImage}
+          resizeMode="cover"
+        />
         
         <View style={styles.cardContent}>
           <View style={styles.categoryRow}>
@@ -357,63 +336,63 @@ const HotDeals = () => {
   };
 
   const renderLoadingSkeletons = () => {
-    const skeletonItems = Array(2).fill(0).map((_, index) => ({ id: `skeleton-${index}` }));
+    // Create an array of 3 items for the loading skeleton
+    const skeletonItems = Array(3).fill(0).map((_, index) => ({ id: `skeleton-${index}` }));
     
     return (
-      <ScrollView 
-        horizontal 
+      <FlatList
+        data={skeletonItems}
+        horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
-      >
-        {skeletonItems.map((item) => (
-          <View key={item.id} style={[styles.cardContainer, { backgroundColor: '#f8f8f8' }]}>
-            <View style={[styles.carImage, { backgroundColor: '#eeeeee' }]} />
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.carsList}
+        ItemSeparatorComponent={() => <View style={{ width: 15 }} />}
+        renderItem={() => (
+          <View style={[styles.carCard, styles.skeletonCard]}>
+            <View style={[styles.imageContainer, styles.skeletonImage]} />
             <View style={styles.cardContent}>
-              <View style={[styles.skeletonLine, { width: '40%', marginBottom: 10 }]} />
-              <View style={[styles.skeletonLine, { width: '80%', height: 20, marginBottom: 15 }]} />
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
-                <View style={[styles.skeletonLine, { width: '30%', marginRight: 8, marginBottom: 8 }]} />
-                <View style={[styles.skeletonLine, { width: '30%', marginRight: 8, marginBottom: 8 }]} />
-                <View style={[styles.skeletonLine, { width: '30%', marginRight: 8, marginBottom: 8 }]} />
-                <View style={[styles.skeletonLine, { width: '30%', marginRight: 8, marginBottom: 8 }]} />
+              <View style={[styles.skeletonText, { width: '60%', marginBottom: 8 }]} />
+              <View style={[styles.skeletonText, { width: '90%', height: 18, marginBottom: 12 }]} />
+              <View style={[styles.skeletonText, { width: '40%', height: 24, marginBottom: 12 }]} />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={[styles.skeletonText, { width: '30%' }]} />
+                <View style={[styles.skeletonText, { width: '30%' }]} />
+                <View style={[styles.skeletonText, { width: '30%' }]} />
               </View>
-              <View style={[styles.skeletonLine, { width: '40%', marginBottom: 15 }]} />
-              <View style={[styles.skeletonLine, { width: '100%', height: 40, borderRadius: 20 }]} />
             </View>
           </View>
-        ))}
-      </ScrollView>
+        )}
+      />
     );
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Hot Deals</Text>
-        <TouchableOpacity onPress={navigateToAllHotDeals}>
+        <Text style={styles.title}>Most Popular Cars</Text>
+        <TouchableOpacity onPress={navigateToAllPopular}>
           <Text style={styles.viewAllText}>View All</Text>
         </TouchableOpacity>
       </View>
       
-      <Text style={styles.subtitle}>Checkout our exclusive offers</Text>
-      
       {loading ? (
         renderLoadingSkeletons()
       ) : (
-        <ScrollView 
-          horizontal 
+        <FlatList
+          data={popularCars}
+          horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContainer}
-        >
-          {hotDeals.length > 0 ? (
-            hotDeals.map(item => renderHotDealCard(item))
-          ) : (
-            <View style={styles.noDealsContainer}>
-              <MaterialCommunityIcons name="tag-text" size={40} color={COLORS.textLight} />
-              <Text style={styles.noDealsText}>No hot deals available at the moment</Text>
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.carsList}
+          renderItem={renderCarItem}
+          ItemSeparatorComponent={() => <View style={{ width: 15 }} />}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <MaterialCommunityIcons name="car-search" size={50} color={COLORS.textLight} />
+              <Text style={styles.emptyText}>No popular cars found</Text>
             </View>
-          )}
-        </ScrollView>
+          }
+        />
       )}
     </View>
   );
@@ -428,49 +407,52 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: SPACING.lg,
-    marginBottom: SPACING.xs,
+    marginBottom: SPACING.md,
   },
   title: {
     fontSize: FONT_SIZES.xl,
     fontWeight: 'bold',
     color: COLORS.textDark,
   },
-  subtitle: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textMedium,
-    marginBottom: SPACING.md,
-    paddingHorizontal: SPACING.lg,
-  },
   viewAllText: {
     color: COLORS.primary,
     fontSize: FONT_SIZES.md,
     fontWeight: '500',
   },
-  scrollContainer: {
-    paddingLeft: SPACING.lg,
-    paddingRight: SPACING.md,
-    paddingBottom: SPACING.md,
+  carsList: {
+    paddingHorizontal: SPACING.lg,
+    paddingVertical: SPACING.md,
   },
-  cardContainer: {
+  carCard: {
     width: cardWidth,
     backgroundColor: COLORS.white,
     borderRadius: 10,
-    marginRight: SPACING.lg,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    overflow: 'hidden',
-  },
-  imageContainer: {
-    width: '100%',
-    height: 180,
     position: 'relative',
+  },
+  tagBadge: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    backgroundColor: '#1E90FF', // Blue color for Most Popular
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 15,
+    zIndex: 1,
+  },
+  tagText: {
+    color: COLORS.white,
+    fontWeight: 'bold',
+    fontSize: 12,
   },
   carImage: {
     width: '100%',
-    height: '100%',
+    height: 180,
   },
   cardContent: {
     padding: 15,
@@ -495,6 +477,7 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 10,
     lineHeight: 22,
+    minHeight: 44, // Ensure space for 2 lines
   },
   specRow: {
     flexDirection: 'row',
@@ -537,71 +520,32 @@ const styles = StyleSheet.create({
   iconButton: {
     marginLeft: 15,
   },
-  discountBadge: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-    backgroundColor: COLORS.primary,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    borderRadius: BORDER_RADIUS.md,
-    zIndex: 1,
+  // Skeleton styles
+  skeletonCard: {
+    backgroundColor: COLORS.white,
   },
-  discountText: {
-    color: COLORS.white,
-    fontWeight: 'bold',
-    fontSize: FONT_SIZES.sm,
+  skeletonImage: {
+    backgroundColor: '#EEEEEE',
   },
-  skeletonLine: {
-    height: 12,
-    backgroundColor: '#eeeeee',
-    borderRadius: 6,
+  skeletonText: {
+    height: 14,
+    backgroundColor: '#EEEEEE',
+    borderRadius: BORDER_RADIUS.sm,
+    marginBottom: 8,
   },
-  noDealsContainer: {
+  emptyContainer: {
     width: cardWidth,
-    height: 300,
+    height: 280,
+    justifyContent: 'center',
+    alignItems: 'center',
     backgroundColor: COLORS.white,
     borderRadius: BORDER_RADIUS.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.xl,
   },
-  noDealsText: {
+  emptyText: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textMedium,
-    textAlign: 'center',
+    color: COLORS.textLight,
     marginTop: SPACING.md,
-  },
-  tagBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#8A2BE2', // Purple color for Hot Deal
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    zIndex: 1,
-  },
-  tagText: {
-    color: COLORS.white,
-    fontWeight: 'bold',
-    fontSize: 12,
-  },
-  paginationContainer: {
-    position: 'absolute',
-    bottom: 8,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 3,
   },
 });
 
-export default HotDeals; 
+export default MostPopularCars; 

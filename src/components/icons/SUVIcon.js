@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image } from 'react-native';
 
-const HatchbackIcon = ({ width = 40, height = 30 }) => {
+const SUVIcon = ({ width = 40, height = 30 }) => {
   return (
     <Image
       source={require('../../assets/images/hatchbackicon.png')}
@@ -10,4 +10,4 @@ const HatchbackIcon = ({ width = 40, height = 30 }) => {
   );
 };
 
-export default HatchbackIcon; 
+export default SUVIcon; 

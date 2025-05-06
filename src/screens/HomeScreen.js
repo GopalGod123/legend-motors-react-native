@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, ScrollView, SafeAreaView, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../context/AuthContext';
@@ -10,13 +10,18 @@ import {
   PopularBrands,
   HotDeals,
   BodyTypeSearch,
-  NewsBlogs
+  NewsBlogs,
+  MostPopularCars,
+  JustArrived
 } from '../components/home';
+import LoginPromptModal from '../components/LoginPromptModal';
 import { getCarList } from '../services/api';
+import { SPACING } from '../utils/constants';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const { user } = useAuth();
+  const [showLoginPrompt, setShowLoginPrompt] = useState(true);
   
   console.log('User data in HomeScreen:', user);
 
@@ -34,13 +39,22 @@ const HomeScreen = () => {
     fetchCarData();
   }, []);
 
+  const handleLoginPress = () => {
+    setShowLoginPrompt(false);
+    navigation.navigate('Login');
+  };
+
+  const handleSkipLogin = () => {
+    setShowLoginPrompt(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
       
       {/* Header with user info from auth context */}
       <Header 
-        userName={user?.firstName || 'User'} 
+        user={user} 
         onSettingsPress={() => navigation.navigate('Settings')} 
       />
       
@@ -58,6 +72,12 @@ const HomeScreen = () => {
           {/* Hot Deals */}
           <HotDeals />
           
+          {/* Just Arrived */}
+          <JustArrived />
+          
+          {/* Most Popular Cars */}
+          <MostPopularCars />
+          
           {/* Popular Brands */}
           <PopularBrands />
           
@@ -68,6 +88,13 @@ const HomeScreen = () => {
           <NewsBlogs />
         </View>
       </ScrollView>
+
+      {/* Login Prompt Modal */}
+      <LoginPromptModal
+        visible={showLoginPrompt}
+        onClose={handleSkipLogin}
+        onLoginPress={handleLoginPress}
+      />
     </SafeAreaView>
   );
 };

@@ -1739,7 +1739,6 @@ const FilterScreen = ({ route, navigation }) => {
   const handleFilterSelect = (filterId) => {
     setActiveFilter(filterId);
   };
-
   // Handle apply button press - enhance to properly use slug extracted colors
   const handleApply = () => {
     // Construct filters object

@@ -1,39 +1,96 @@
-import React from "react";
-import { View, Text, StyleSheet, Image } from "react-native";
-import {
-  COLORS,
-  SPACING,
-  FONT_SIZES,
-  BORDER_RADIUS,
-} from "../../utils/constants";
+import React, { useState, useEffect, useRef } from "react";
+import { View, StyleSheet, Image, Dimensions, Animated, TouchableOpacity } from "react-native";
+import { SPACING, BORDER_RADIUS, COLORS } from "../../utils/constants";
+
+const { width } = Dimensions.get('window');
+const bannerWidth = width - (SPACING.lg * 2);
 
 const PromotionBanner = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const bannerScrollRef = useRef(null);
+  
+  const banners = [
+    require("../../assets/images/banner1.jpg"),
+    require("../../assets/images/banner2.jpg")
+  ];
+
+  // Auto scroll effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (bannerScrollRef.current) {
+        const newIndex = (currentIndex + 1) % banners.length;
+        bannerScrollRef.current.scrollTo({
+          x: newIndex * bannerWidth,
+          animated: true,
+        });
+        setCurrentIndex(newIndex);
+      }
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, [currentIndex]);
+
+  // Handle scroll events to update the active indicator
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+    { useNativeDriver: false }
+  );
+
+  // Update current index when scrolling ends
+  const handleMomentumScrollEnd = (event) => {
+    const contentOffset = event.nativeEvent.contentOffset.x;
+    const index = Math.round(contentOffset / bannerWidth);
+    setCurrentIndex(index);
+  };
+
+  // Handle manual navigation to a specific banner
+  const scrollToBanner = (index) => {
+    if (bannerScrollRef.current) {
+      bannerScrollRef.current.scrollTo({
+        x: index * bannerWidth,
+        animated: true,
+      });
+      setCurrentIndex(index);
+    }
+  };
+
   return (
     <View style={styles.promotionBanner}>
-      <View style={styles.promotionContent}>
-        <View style={styles.promotionTextContainer}>
-          <Text style={styles.discountText}>20%</Text>
-          <Text style={styles.dealText}>Week Deals!</Text>
-          <Text style={styles.dealDescription}>
-            Get a new car discount,{"\n"}
-            only valid this week
-          </Text>
-        </View>
-
-        <Image
-          source={require("./car_Image.png")}
-          style={{
-            width: 181, // Increase this value to make the image wider // Increase this value to make the image taller
-          }}
-          resizeMode="contain"
-        />
-      </View>
-
+      <Animated.ScrollView
+        ref={bannerScrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={handleScroll}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
+        scrollEventThrottle={16}
+        decelerationRate="fast"
+      >
+        {banners.map((banner, index) => (
+          <View key={index} style={styles.bannerContainer}>
+            <Image
+              source={banner}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
+          </View>
+        ))}
+      </Animated.ScrollView>
+      
       <View style={styles.paginationContainer}>
-        <View style={styles.activeDot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
+        {banners.map((_, index) => (
+          <TouchableOpacity 
+            key={index}
+            onPress={() => scrollToBanner(index)}
+            style={styles.dotContainer}
+          >
+            <View style={[
+              styles.dot,
+              index === currentIndex ? styles.activeDot : null
+            ]} />
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
@@ -41,62 +98,49 @@ const PromotionBanner = () => {
 
 const styles = StyleSheet.create({
   promotionBanner: {
-    backgroundColor: COLORS.white,
-    borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.xl,
     marginBottom: SPACING.xl,
+    marginHorizontal: SPACING.lg,
+    borderRadius: BORDER_RADIUS.lg,
+    overflow: 'hidden',
     elevation: 2,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    height: 181,
   },
-  promotionContent: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+  bannerContainer: {
+    width: bannerWidth,
+    height: 181,
   },
-  promotionTextContainer: {
-    flex: 1,
-  },
-  discountText: {
-    fontSize: FONT_SIZES.xxxl,
-    fontWeight: "bold",
-    color: COLORS.textDark,
-  },
-  dealText: {
-    fontSize: FONT_SIZES.xxl,
-    fontWeight: "600",
-    color: COLORS.textDark,
-    marginBottom: SPACING.xs,
-  },
-  dealDescription: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textMedium,
-    lineHeight: 20,
-  },
-  carImage: {
-    width: 180,
-    height: 100,
+  bannerImage: {
+    width: bannerWidth,
+    height: 181,
+    borderRadius: BORDER_RADIUS.lg,
   },
   paginationContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: SPACING.lg,
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+  },
+  dotContainer: {
+    padding: 5, // Add padding to make touch target larger
   },
   dot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.placeholder,
+    backgroundColor: '#FFFFFF80',
     marginHorizontal: 3,
   },
   activeDot: {
     width: 20,
     height: 8,
     borderRadius: 4,
-    backgroundColor: COLORS.textDark,
-    marginHorizontal: 3,
+    backgroundColor: '#FFFFFF',
   },
 });
 

@@ -2,9 +2,31 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { ImagePlaceholder } from '../common';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
+import { Ionicons } from '@expo/vector-icons';
 
-const Header = ({ userName = 'User', onSettingsPress }) => {
+const Header = ({ user, onSettingsPress }) => {
   const [activeCurrency, setActiveCurrency] = useState('AED');
+
+  // Get firstName from user object or use default
+  const getFirstName = () => {
+    if (!user) return 'User';
+    
+    let name = user.firstName || 'User';
+    
+    // If the firstName looks like an email address, extract just the first part
+    if (name.includes('@')) {
+      // Extract part before @ symbol
+      name = name.split('@')[0];
+    }
+    
+    // If the name contains dots (like "gopal.khandelwal"), take only the first part
+    if (name.includes('.')) {
+      name = name.split('.')[0];
+    }
+    
+    // Capitalize the first letter
+    return name.charAt(0).toUpperCase() + name.slice(1);
+  };
 
   const toggleCurrency = (currency) => {
     setActiveCurrency(currency);
@@ -16,7 +38,7 @@ const Header = ({ userName = 'User', onSettingsPress }) => {
         <ImagePlaceholder style={styles.profileImage} color="#ccd" />
         <View style={styles.greetingSection}>
           <Text style={styles.greetingText}>Good Morning</Text>
-          <Text style={styles.nameText}>{userName}!</Text>
+          <Text style={styles.nameText}>{getFirstName()}!</Text>
         </View>
       </View>
       
@@ -57,14 +79,14 @@ const Header = ({ userName = 'User', onSettingsPress }) => {
         </View>
         
         <TouchableOpacity style={styles.iconButton}>
-          <Text style={styles.bellIcon}>🔔</Text>
+          <Ionicons name="notifications" size={28} color="#5E366D" />
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={styles.iconButton}
           onPress={onSettingsPress}
         >
-          <Text style={styles.settingsIcon}>⚙️</Text>
+          <Ionicons name="heart" size={28} color="#5E366D" />
         </TouchableOpacity>
       </View>
     </View>
@@ -77,6 +99,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.xl,
+    paddingHorizontal: 23,
   },
   profileSection: {
     flexDirection: 'row',
@@ -135,12 +158,6 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     marginLeft: SPACING.md,
-  },
-  bellIcon: {
-    fontSize: FONT_SIZES.xl,
-  },
-  settingsIcon: {
-    fontSize: FONT_SIZES.xl,
   },
 });
 

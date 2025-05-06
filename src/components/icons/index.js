@@ -1,2 +1,9 @@
 export { default as FilterIcon } from './FilterIcon';
-export { default as BrandLogos } from './BrandLogos'; 
+export { default as BrandLogos } from './BrandLogos';
+export { default as ListSearchIcon } from './ListSearchIcon';
+export { default as EyeIcon } from './EyeIcon';
+export { default as BlogIcon } from './BlogIcon';
+export { default as ProfileIcon } from './ProfileIcon';
+export { default as HatchbackIcon } from './HatchbackIcon';
+export { default as SedanIcon } from './SedanIcon';
+export { default as SUVIcon } from './SUVIcon'; 
