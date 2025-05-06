@@ -1,6 +1,7 @@
 import axios from 'axios';
-import { API_BASE_URL, API_KEY } from '../utils/apiConfig';
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_BASE_URL, API_KEY } from '../utils/apiConfig';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -141,7 +142,12 @@ export const loginUser = async (email, password) => {
 // Function to check if user is logged in
 export const isAuthenticated = async () => {
   try {
-    const token = await AsyncStorage.getItem('auth_token');
+    // Check both token storage locations for consistency
+    const authToken = await AsyncStorage.getItem('auth_token');
+    const userToken = await AsyncStorage.getItem('userToken');
+    
+    // Use whichever token is available
+    const token = authToken || userToken;
     return !!token;
   } catch (error) {
     console.log('Error checking authentication status:', error);
@@ -862,4 +868,163 @@ export const getCarByIdOrSlug = async (idOrSlug, lang = 'en') => {
   }
 };
 
-export default api; 
+// Wishlist API Services
+export const addToWishlist = async (carId) => {
+  try {
+    // Ensure token is synchronized before making the request
+    await syncAuthToken();
+    
+    console.log(`Adding car ${carId} to wishlist`);
+    
+    const response = await api.post('/wishlist/create', { carId });
+    
+    // Log the full response for debugging
+    console.log('Wishlist add API response:', JSON.stringify(response.data));
+    
+    if (response.data && response.data.success) {
+      console.log('Successfully added car to wishlist:', response.data);
+      return response.data;
+    } else {
+      console.log('API returned unsuccessful response for adding to wishlist:', response.data);
+      return {
+        success: false,
+        msg: response.data?.msg || 'Failed to add car to wishlist',
+        data: null
+      };
+    }
+  } catch (error) {
+    console.error('Error adding car to wishlist:', error);
+    
+    // Return a structured error response
+    return {
+      success: false,
+      msg: error.response?.data?.msg || error.message || 'Failed to add car to wishlist',
+      error: error.response?.status || 'unknown',
+      data: null
+    };
+  }
+};
+
+export const removeFromWishlist = async (carId) => {
+  try {
+    // Ensure token is synchronized before making the request
+    await syncAuthToken();
+    
+    // Always use the carId, never the wishlistId
+    // Convert to number if it's a string
+    const numericCarId = parseInt(carId);
+    console.log(`Attempting to remove car with ID: ${numericCarId} from wishlist`);
+    
+    // Use fixed userId based on API requirements
+    const userId = 35; // Hardcoded from API documentation
+    
+    // API endpoint format from documentation: DELETE /wishlist/delete with userId and carId as query params
+    const url = `${API_BASE_URL}/wishlist/delete?userId=${userId}&carId=${numericCarId}`;
+    console.log(`Making DELETE request to: ${url}`);
+    
+    // Get auth token for header
+    const token = await AsyncStorage.getItem('auth_token') || await AsyncStorage.getItem('userToken');
+    
+    // Make direct axios request to the correct endpoint
+    const response = await axios.delete(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'Authorization': token ? `Bearer ${token}` : ''
+      }
+    });
+    
+    if (response.data && response.data.success) {
+      console.log('Successfully removed car from wishlist:', response.data);
+      return {
+        success: true,
+        message: response.data.message || 'Successfully removed from wishlist',
+        data: response.data.data || null
+      };
+    } else {
+      console.log('API returned unsuccessful response:', response.data);
+      return {
+        success: false,
+        msg: response.data?.msg || 'Failed to remove car from wishlist',
+        data: null
+      };
+    }
+  } catch (error) {
+    console.error('Error removing car from wishlist:', error);
+    
+    // Return a structured error response
+    return {
+      success: false,
+      msg: error.response?.data?.msg || error.message || 'Failed to remove from wishlist',
+      error: error.response?.status || 'unknown',
+      data: null
+    };
+  }
+};
+
+// Helper function to get wishlist item data
+const getWishlistItemData = async (wishlistId) => {
+  try {
+    const response = await getWishlist();
+    if (response.success && Array.isArray(response.data)) {
+      // Find the wishlist item by ID
+      const wishlistItem = response.data.find(item => item.id === wishlistId || item.id === parseInt(wishlistId));
+      if (wishlistItem) {
+        return wishlistItem;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('Error getting wishlist item data:', error);
+    return null;
+  }
+};
+
+export const getWishlist = async (params = {}) => {
+  try {
+    // Ensure token is synchronized before making the request
+    await syncAuthToken();
+    
+    // Default parameters
+    const defaultParams = {
+      page: 1,
+      limit: 1000 // Increased to match the requested limit
+    };
+
+    // Merge default with provided params
+    const requestParams = { ...defaultParams, ...params };
+    
+    console.log('Fetching wishlist with params:', requestParams);
+    
+    const response = await api.get('/wishlist/list', {
+      params: requestParams
+    });
+    
+    // Log the full response for debugging
+    console.log('Wishlist API full response:', JSON.stringify(response.data));
+    
+    if (response.data && response.data.success) {
+      console.log(`Successfully fetched wishlist with ${response.data.data?.length || 0} items`);
+      return response.data;
+    } else {
+      console.log('API returned unsuccessful response for wishlist:', response.data);
+      return {
+        success: false,
+        message: response.data?.message || 'Failed to fetch wishlist',
+        data: []
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching wishlist:', error);
+    
+    // Return a structured error response
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || 'Failed to fetch wishlist',
+      error: error.response?.status || 'unknown',
+      data: []
+    };
+  }
+};
+
+export default api;

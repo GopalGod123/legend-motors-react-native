@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
+import { CarImage } from '../common';
 
 const MostPopular = () => {
   return (
@@ -11,12 +12,13 @@ const MostPopular = () => {
       </View>
       
       <View style={styles.cardContainer}>
-        <Image
-          source={require("./HotDealsCar.png")}
-          
-          style={styles.carImage}
-          resizeMode="cover"
-        />
+        <View style={styles.imageWrapper}>
+          <CarImage
+            source={require("./HotDealsCar.png")}
+            style={styles.carImage}
+            resizeMode="cover"
+          />
+        </View>
         
         <View style={styles.cardContent}>
           <View style={styles.categoryContainer}>
@@ -102,9 +104,17 @@ const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: 'white',
   },
-  carImage: {
+  imageWrapper: {
     width: '100%',
     height: 200,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: 'hidden',
+  },
+  carImage: {
+    width: '100%',
+    height: '100%',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
   },

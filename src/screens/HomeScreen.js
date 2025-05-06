@@ -48,6 +48,20 @@ const HomeScreen = () => {
     setShowLoginPrompt(false);
   };
 
+  // Handle navigation to settings
+  const navigateToSettings = () => {
+    navigation.navigate('Settings');
+  };
+
+  // Handle navigation to wishlist
+  const navigateToWishlist = () => {
+    if (user) {
+      navigation.navigate('MyWishlistScreen');
+    } else {
+      setShowLoginPrompt(true);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -55,7 +69,8 @@ const HomeScreen = () => {
       {/* Header with user info from auth context */}
       <Header 
         user={user} 
-        onSettingsPress={() => navigation.navigate('Settings')} 
+        onSettingsPress={navigateToSettings}
+        onWishlistPress={navigateToWishlist}
       />
       
       <ScrollView showsVerticalScrollIndicator={false}>

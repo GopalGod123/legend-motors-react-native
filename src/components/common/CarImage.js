@@ -3,7 +3,7 @@ import { Image, View, StyleSheet, ActivityIndicator, Text } from 'react-native';
 import { COLORS } from '../../utils/constants';
 import { getAllPossibleImageUrls } from '../../utils/apiConfig';
 
-const CarImage = ({ source, style, resizeMode = 'cover', showDebug = false }) => {
+const CarImage = ({ source, style, resizeMode = 'cover', showDebug = false, loadingIndicatorSource = null }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [urlIndex, setUrlIndex] = useState(0);
@@ -12,7 +12,7 @@ const CarImage = ({ source, style, resizeMode = 'cover', showDebug = false }) =>
   const [attemptedUrls, setAttemptedUrls] = useState([]);
   
   // Fallback image
-  const fallbackImage = require('../home/car_Image.png');
+  const fallbackImage = loadingIndicatorSource || require('../home/car_Image.png');
   
   // Generate all possible URLs when source changes
   useEffect(() => {
@@ -105,17 +105,17 @@ const CarImage = ({ source, style, resizeMode = 'cover', showDebug = false }) =>
     return (
       <Image 
         source={typeof currentSource === 'number' ? currentSource : fallbackImage}
-        style={style}
+        style={[styles.image, style]}
         resizeMode={resizeMode}
       />
     );
   }
   
   return (
-    <View style={style}>
+    <View style={[styles.container, style]}>
       <Image 
         source={error ? fallbackImage : currentSource}
-        style={[styles.image, { opacity: error ? 0.7 : 1 }]}
+        style={[styles.image, { opacity: 1 }]} // Removed the reduced opacity for error state
         resizeMode={resizeMode}
         onLoadStart={handleLoadStart}
         onLoad={() => setLoading(false)}
@@ -140,15 +140,20 @@ const CarImage = ({ source, style, resizeMode = 'cover', showDebug = false }) =>
 };
 
 const styles = StyleSheet.create({
+  container: {
+    backgroundColor: '#ffffff',
+    overflow: 'hidden',
+  },
   image: {
     width: '100%',
     height: '100%',
+    backgroundColor: '#ffffff',
   },
   loaderContainer: {
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(240, 240, 240, 0.5)',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Reduced opacity for loader background
   },
   debugContainer: {
     position: 'absolute',

@@ -99,8 +99,15 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user is logged in
   const checkAuthStatus = async () => {
-    const authenticated = await isAuthenticated();
-    return authenticated && user != null;
+    try {
+      const authToken = await AsyncStorage.getItem('auth_token');
+      const userToken = await AsyncStorage.getItem('userToken');
+      const token = authToken || userToken;
+      return !!token;
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      return false;
+    }
   };
 
   // Context value

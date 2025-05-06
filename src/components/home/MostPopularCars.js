@@ -22,6 +22,7 @@ import { CarImage } from '../common';
 import { API_BASE_URL, API_KEY } from '../../utils/apiConfig';
 import axios from 'axios';
 import { useAuth } from '../../context/AuthContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 const { width } = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -59,7 +60,7 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
   
   if (item.CarImages && item.CarImages.length > 0) {
     // Collect all image URLs
-    console.log(`Car ${item.id} has ${item.CarImages.length} images`);
+    // console.log(`Car ${item.id} has ${item.CarImages.length} images`);
     
     imageUrls = item.CarImages.map(image => {
       if (image.FileSystem && image.FileSystem.path) {
@@ -72,9 +73,9 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
       return null;
     }).filter(url => url !== null); // Remove any null entries
     
-    console.log(`Found ${imageUrls.length} valid image URLs`);
+    // console.log(`Found ${imageUrls.length} valid image URLs`);
   } else if (item.images && item.images.length > 0) {
-    console.log(`Car ${item.id} has ${item.images.length} images in item.images property`);
+    // console.log(`Car ${item.id} has ${item.images.length} images in item.images property`);
     imageUrls = item.images.map(image => {
       return typeof image === 'string' ? { uri: image } : image;
     });
@@ -90,6 +91,24 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
   // We'll use local component state for this component instance
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const scrollViewRef = useRef(null);
+  
+  // Add auto-sliding functionality
+  useEffect(() => {
+    let interval;
+    
+    if (imageUrls.length > 1) {
+      interval = setInterval(() => {
+        const nextIndex = (currentImageIndex + 1) % imageUrls.length;
+        scrollToImage(nextIndex);
+      }, 2000); // Change image every 2 seconds
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [currentImageIndex, imageUrls.length]);
   
   // Handle image scroll with improved accuracy
   const handleScroll = (event) => {
@@ -158,6 +177,7 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
                   source={image}
                   style={styles.carImage}
                   resizeMode="cover"
+                  loadingIndicatorSource={require('./HotDealsCar.png')}
                 />
               ) : (
                 <Image
@@ -269,9 +289,9 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
 const MostPopularCars = () => {
   const [popularCars, setPopularCars] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [favorites, setFavorites] = useState({});
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { isInWishlist, addItemToWishlist, removeItemFromWishlist } = useWishlist();
 
   useEffect(() => {
     fetchPopularCars();
@@ -285,7 +305,7 @@ const MostPopularCars = () => {
       const response = await axios.get(`${API_BASE_URL}/car/list`, {
         params: {
           page: 1,
-          limit: 5,
+          limit: 1000,
           sortBy: 'createdAt',
           order: 'desc',
           lang: 'en'
@@ -336,23 +356,30 @@ const MostPopularCars = () => {
     });
   };
 
-  const toggleFavorite = (carId) => {
-    setFavorites(prevFavorites => ({
-      ...prevFavorites,
-      [carId]: !prevFavorites[carId]
-    }));
-    
-    // If user is logged in, you could also call an API to save this preference
-    if (user) {
-      // Example API call (commented out)
-      // api.toggleFavorite(carId, !favorites[carId]);
-      console.log(`Toggled favorite for car ${carId} - ${!favorites[carId] ? 'added to' : 'removed from'} favorites`);
-    } else {
+  const toggleFavorite = async (carId) => {
+    if (!user) {
       // Prompt user to login
       navigation.navigate('Login', { 
         returnScreen: 'HomeScreen',
         message: 'Please login to save favorites'
       });
+      return;
+    }
+    
+    try {
+      if (isInWishlist(carId)) {
+        const success = await removeItemFromWishlist(carId);
+        if (success) {
+          console.log(`Removed car ${carId} from wishlist`);
+        }
+      } else {
+        const success = await addItemToWishlist(carId);
+        if (success) {
+          console.log(`Added car ${carId} to wishlist`);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
     }
   };
 
@@ -429,7 +456,7 @@ const MostPopularCars = () => {
               onPress={navigateToCarDetail}
               toggleFavorite={toggleFavorite}
               shareCar={shareCar}
-              isFavorite={favorites[item.id] || false}
+              isFavorite={isInWishlist(item.id)}
             />
           )}
           ItemSeparatorComponent={() => <View style={{ width: 15 }} />}
@@ -502,14 +529,20 @@ const styles = StyleSheet.create({
     height: 180,
     position: 'relative',
     overflow: 'hidden',
+    backgroundColor: '#ffffff', // Ensuring white background
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
   imageSlide: {
     width: cardWidth,
     height: 180,
+    backgroundColor: '#ffffff', // White background
   },
   carImage: {
     width: '100%',
     height: '100%',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
   cardContent: {
     padding: 15,

@@ -7,6 +7,7 @@ import { CarImage } from '../common';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 const { width } = Dimensions.get('window');
 const cardWidth = width * 0.85;
@@ -44,7 +45,7 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
   
   if (item.CarImages && item.CarImages.length > 0) {
     // Collect all image URLs
-    console.log(`Hot Deal car ${item.id} has ${item.CarImages.length} images`);
+    // console.log(`Hot Deal car ${item.id} has ${item.CarImages.length} images`);
     
     imageUrls = item.CarImages.map(image => {
       if (image.FileSystem && image.FileSystem.path) {
@@ -57,9 +58,9 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
       return null;
     }).filter(url => url !== null); // Remove any null entries
     
-    console.log(`Found ${imageUrls.length} valid image URLs for hot deal car ${item.id}`);
+    // console.log(`Found ${imageUrls.length} valid image URLs for hot deal car ${item.id}`);
   } else {
-    console.log(`Hot Deal car ${item.id} has no images, using fallback`);
+    // console.log(`Hot Deal car ${item.id} has no images, using fallback`);
   }
   
   // If no valid images from API, use the fallback
@@ -70,6 +71,24 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
   // Set up state for the current image index - now correctly at the component level
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const scrollViewRef = useRef(null);
+  
+  // Add auto-sliding functionality
+  useEffect(() => {
+    let interval;
+    
+    if (imageUrls.length > 1) {
+      interval = setInterval(() => {
+        const nextIndex = (currentImageIndex + 1) % imageUrls.length;
+        scrollToImage(nextIndex);
+      }, 2000); // Change image every 2 seconds
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [currentImageIndex, imageUrls.length]);
   
   // Handle image scroll with improved accuracy
   const handleScroll = (event) => {
@@ -139,6 +158,7 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
                   source={image}
                   style={styles.carImage}
                   resizeMode="cover"
+                  loadingIndicatorSource={require('./HotDealsCar.png')}
                 />
               ) : (
                 <Image
@@ -250,9 +270,9 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
 const HotDeals = () => {
   const [hotDeals, setHotDeals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [favorites, setFavorites] = useState({});
   const navigation = useNavigation();
   const { user } = useAuth();
+  const { isInWishlist, addItemToWishlist, removeItemFromWishlist } = useWishlist();
 
   useEffect(() => {
     fetchHotDeals();
@@ -305,7 +325,7 @@ const HotDeals = () => {
         });
         
         if (hotDealCars.length > 0) {
-          console.log(`Found ${hotDealCars.length} cars with Hot Deal! tag`);
+          // console.log(`Found ${hotDealCars.length} cars with Hot Deal! tag`);
           // Log first hot deal car for debugging
           console.log('Sample hot deal car:', JSON.stringify(hotDealCars[0]).substring(0, 300) + '...');
           setHotDeals(hotDealCars);
@@ -361,23 +381,30 @@ const HotDeals = () => {
     }
   };
 
-  const toggleFavorite = (carId) => {
-    setFavorites(prevFavorites => ({
-      ...prevFavorites,
-      [carId]: !prevFavorites[carId]
-    }));
-    
-    // If user is logged in, you could also call an API to save this preference
-    if (user) {
-      // Example API call (commented out)
-      // api.toggleFavorite(carId, !favorites[carId]);
-      console.log(`Toggled favorite for car ${carId} - ${!favorites[carId] ? 'added to' : 'removed from'} favorites`);
-    } else {
+  const toggleFavorite = async (carId) => {
+    if (!user) {
       // Prompt user to login
       navigation.navigate('Login', { 
         returnScreen: 'HomeScreen',
         message: 'Please login to save favorites'
       });
+      return;
+    }
+    
+    try {
+      if (isInWishlist(carId)) {
+        const success = await removeItemFromWishlist(carId);
+        if (success) {
+          console.log(`Removed car ${carId} from wishlist`);
+        }
+      } else {
+        const success = await addItemToWishlist(carId);
+        if (success) {
+          console.log(`Added car ${carId} to wishlist`);
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
     }
   };
 
@@ -465,7 +492,7 @@ const HotDeals = () => {
                 onPress={navigateToCarDetail}
                 toggleFavorite={toggleFavorite}
                 shareCar={shareCar}
-                isFavorite={favorites[item.id] || false}
+                isFavorite={isInWishlist(item.id)}
               />
             ))
           ) : (
@@ -525,18 +552,19 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   imageContainer: {
-    width: cardWidth,
-    height: 180,
-    position: 'relative',
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: BORDER_RADIUS.lg,
     overflow: 'hidden',
   },
   imageSlide: {
-    width: cardWidth,
-    height: 180,
+    height: 200,
+    backgroundColor: '#ffffff',
   },
   carImage: {
     width: '100%',
     height: '100%',
+    borderRadius: BORDER_RADIUS.lg,
   },
   cardContent: {
     padding: 15,

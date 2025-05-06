@@ -1,7 +1,9 @@
 import React, { Fragment } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
 import { CarImageCarousel } from '../../components/common';
+import { Ionicons, MaterialCommunityIcons, AntDesign } from '@expo/vector-icons';
+import { useWishlist } from '../../context/WishlistContext';
 
 const CarListItem = ({ 
   car,
@@ -9,10 +11,12 @@ const CarListItem = ({
   onPress, 
   searchQuery = '', 
   filteredBySearch = false,
-  isFavorite = false,
   onToggleFavorite,
   onShare
 }) => {
+  const { isInWishlist } = useWishlist();
+  const isFavorite = isInWishlist(car.id);
+
   // Use either car or item prop (for compatibility)
   const carData = car || item;
   
@@ -106,15 +110,18 @@ const CarListItem = ({
       onPress={handlePress}
       activeOpacity={0.8}
     >
-      <CarImageCarousel
-        images={carImages}
-        style={styles.carImage}
-        height={180}
-        onImagePress={handlePress}
-      />
-      
-      <View style={styles.carTypeContainer}>
-        <Text style={styles.carTypeText}>{bodyType}</Text>
+      <View style={styles.imageContainer}>
+        <CarImageCarousel
+          images={carImages}
+          style={styles.carImage}
+          height={180}
+          onImagePress={handlePress}
+        />
+        {bodyType && (
+          <View style={styles.carTypeContainer}>
+            <Text style={styles.carTypeText}>{bodyType}</Text>
+          </View>
+        )}
       </View>
       
       {carData.stockId && (
@@ -178,6 +185,26 @@ const CarListItem = ({
           {carData.price ? `AED ${carData.price.toLocaleString()}` : 'Price on Request'}
         </Text>
       </View>
+      
+      <View style={styles.bottomRow}>
+        <Text style={styles.priceText}>
+          {carData.price ? `AED ${carData.price.toLocaleString()}` : 'Price on Request'}
+        </Text>
+        
+        <View style={styles.actionButtons}>
+          <TouchableOpacity style={styles.iconButton} onPress={() => onToggleFavorite(carData.id)}>
+            <AntDesign 
+              name={isFavorite ? "heart" : "hearto"} 
+              size={22} 
+              color={isFavorite ? COLORS.error : COLORS.primary} 
+            />
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.iconButton} onPress={() => onShare(carData)}>
+            <Ionicons name="share-social-outline" size={22} color={COLORS.textMedium} />
+          </TouchableOpacity>
+        </View>
+      </View>
     </TouchableOpacity>
   );
 };
@@ -195,9 +222,16 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#FF6B6B',
   },
-  carImage: {
+  imageContainer: {
+    position: 'relative',
     width: '100%',
     height: 180,
+  },
+  carImage: {
+    width: '100%',
+    height: '100%',
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
   },
   carTypeContainer: {
     position: 'absolute',
@@ -293,6 +327,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(237, 135, 33, 0.2)',
     fontWeight: '700',
     color: COLORS.primary,
+  },
+  bottomRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  priceText: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: 'bold',
+    color: COLORS.primary,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+  },
+  iconButton: {
+    marginLeft: SPACING.sm,
+    padding: 4,
   },
 });
 

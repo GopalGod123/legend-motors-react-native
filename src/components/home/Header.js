@@ -4,7 +4,7 @@ import { ImagePlaceholder } from '../common';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
 import { Ionicons } from '@expo/vector-icons';
 
-const Header = ({ user, onSettingsPress }) => {
+const Header = ({ user, onSettingsPress, onWishlistPress }) => {
   const [activeCurrency, setActiveCurrency] = useState('AED');
 
   // Get firstName from user object or use default
@@ -84,7 +84,7 @@ const Header = ({ user, onSettingsPress }) => {
         
         <TouchableOpacity 
           style={styles.iconButton}
-          onPress={onSettingsPress}
+          onPress={onWishlistPress}
         >
           <Ionicons name="heart" size={28} color="#5E366D" />
         </TouchableOpacity>

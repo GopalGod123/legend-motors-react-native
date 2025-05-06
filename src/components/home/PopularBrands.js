@@ -171,6 +171,8 @@ const PopularBrands = () => {
               }}
               style={styles.logo}
               resizeMode="contain"
+              loadingIndicatorSource={null}
+              defaultSource={require('./HotDealsCar.png')}
             />
           ) : placeholder ? (
             <Text style={[styles.brandLogo, { color: placeholder.color }]}>
@@ -281,21 +283,25 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: COLORS.white,
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
-    elevation: 3,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
     padding: 10,
     marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   logo: {
     width: '80%',
     height: '80%',
+    backgroundColor: 'transparent',
+    borderRadius: 0,
   },
   brandInitial: {
     fontSize: FONT_SIZES.xl,

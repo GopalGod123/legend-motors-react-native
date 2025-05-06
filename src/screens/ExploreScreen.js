@@ -16,6 +16,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { COLORS, SPACING } from '../utils/constants';
 import { getCarList, searchCars, searchCarModels } from '../services/api';
 import { extractColorsFromSlug } from '../utils/colorUtils';
+import { useAuth } from '../context/AuthContext';
+import { useWishlist } from '../context/WishlistContext';
 
 // Import our optimized components
 import {
@@ -192,6 +194,9 @@ const ExploreScreen = () => {
   const [showCarIds, setShowCarIds] = useState(false);
   const [carIds, setCarIds] = useState([]);
   const [searchedModels, setSearchedModels] = useState([]);
+
+  const { user } = useAuth();
+  const { isInWishlist, addItemToWishlist, removeItemFromWishlist } = useWishlist();
 
   // Process any route params with filters or specific car ID
   useEffect(() => {
@@ -870,14 +875,31 @@ const ExploreScreen = () => {
     fetchCars(page + 1);
   };
 
-  const toggleFavorite = (carId) => {
-    setFavorites(prev => {
-      if (prev.includes(carId)) {
-        return prev.filter(id => id !== carId);
+  const toggleFavorite = async (carId) => {
+    if (!user) {
+      // Prompt user to login
+      navigation.navigate('Login', { 
+        returnScreen: 'ExploreScreen',
+        message: 'Please login to save favorites'
+      });
+      return;
+    }
+    
+    try {
+      if (isInWishlist(carId)) {
+        const success = await removeItemFromWishlist(carId);
+        if (success) {
+          console.log(`Removed car ${carId} from wishlist`);
+        }
       } else {
-        return [...prev, carId];
+        const success = await addItemToWishlist(carId);
+        if (success) {
+          console.log(`Added car ${carId} to wishlist`);
+        }
       }
-    });
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+    }
   };
 
   const handleShare = async (car) => {
@@ -1479,8 +1501,7 @@ const ExploreScreen = () => {
       <CarListItem 
         car={item} 
         onPress={() => navigation.navigate('CarDetailScreen', { carId: item.id })}
-        isFavorite={favorites.includes(item.id)}
-        onToggleFavorite={() => toggleFavorite(item.id)}
+        onToggleFavorite={toggleFavorite}
         onShare={() => handleShare(item)}
       />
     );
