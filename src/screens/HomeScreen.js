@@ -68,6 +68,9 @@ const HomeScreen = () => {
           
           {/* Promotion Banner */}
           <PromotionBanner />
+
+           {/* Popular Brands */}
+           <PopularBrands />
           
           {/* Hot Deals */}
           <HotDeals />
@@ -78,8 +81,7 @@ const HomeScreen = () => {
           {/* Most Popular Cars */}
           <MostPopularCars />
           
-          {/* Popular Brands */}
-          <PopularBrands />
+         
           
           {/* Body Type Search */}
           <BodyTypeSearch />
