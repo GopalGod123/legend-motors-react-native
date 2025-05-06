@@ -343,8 +343,8 @@ export const fetchBodyTypes = async () => {
       // Direct approach: Get all specification values and filter by specification.id = 6
       const response = await api.get('/specificationvalue/list', {
         params: {
-          limit: 1000,
           page: 1,
+          limit: 10,
           lang: 'en'
         }
       });
@@ -380,7 +380,7 @@ export const fetchBodyTypes = async () => {
       try {
         const response = await api.get('specificationvalue/list/body_type', {
           params: {
-            limit: 1000,
+            limit: 100,
             page: 1,
             sortBy: 'id',
             order: 'ASC'
@@ -538,7 +538,7 @@ export const fetchSeatsData = async () => {
       // Direct approach: Get all specification values and filter by specification.id = 7
       const response = await api.get('/specificationvalue/list', {
         params: {
-          limit: 1000,
+          limit: 100,
           page: 1,
           lang: 'en'
         }
@@ -575,7 +575,7 @@ export const fetchSeatsData = async () => {
       try {
         const response = await api.get('specificationvalue/list/seats', {
           params: {
-            limit: 1000,
+            limit: 100,
             page: 1,
             sortBy: 'id',
             order: 'ASC'
@@ -733,7 +733,7 @@ export const fetchDoorsData = async () => {
       // Direct approach: Get all specification values and filter by specification.id = 8
       const response = await api.get('/specificationvalue/list', {
         params: {
-          limit: 1000,
+          limit: 100,
           page: 1,
           lang: 'en'
         }
@@ -923,7 +923,7 @@ export const fetchFuelTypeData = async () => {
       // Direct approach: Get all specification values and filter by specification.id = 9
       const response = await api.get('/specificationvalue/list', {
         params: {
-          limit: 1000,
+          limit: 10,
           page: 1,
           lang: 'en'
         }
@@ -960,7 +960,7 @@ export const fetchFuelTypeData = async () => {
       try {
         const response = await api.get('specificationvalue/list/fuel_type', {
           params: {
-            limit: 1000,
+            limit: 10,
             page: 1,
             sortBy: 'id',
             order: 'ASC'
@@ -1151,7 +1151,7 @@ export const fetchCylindersData = async () => {
       try {
         const response = await api.get('specificationvalue/list/cylinders', {
           params: {
-            limit: 1000,
+            limit: 100,
             page: 1,
             sortBy: 'id',
             order: 'ASC'

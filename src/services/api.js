@@ -314,7 +314,7 @@ export const searchCarModels = async (searchTerm, page = 1, limit = 50) => {
         'x-api-key': API_KEY
       },
       // Add timeout to prevent hanging requests
-      timeout: 10000
+      timeout: 200
     });
     
     console.log(`Search results for "${searchTerm}":`, 
@@ -375,7 +375,7 @@ export const getUniqueBrands = async (params = {}) => {
     const response = await axios.get('https://api.staging.legendmotorsglobal.com/api/v1/car/list', {
       params: {
         ...params,
-        limit: 1000 // Request more items to get a good variety of brands
+        limit: 200 // Request more items to get a good variety of brands
       },
       headers: {
         'Content-Type': 'application/json',
@@ -743,7 +743,7 @@ export const searchCars = async (searchTerm, page = 1, limit = 50) => {
         'x-api-key': API_KEY
       },
       // Add timeout to prevent hanging requests
-      timeout: 10000
+      timeout: 1000
     });
     
     console.log(`Car search results for "${searchTerm}":`, 
@@ -908,7 +908,8 @@ export const addToWishlist = async (carId) => {
 export const removeFromWishlist = async (carId) => {
   try {
     // Ensure token is synchronized before making the request
-    await syncAuthToken();
+    // NOTE: We don't need to call syncAuthToken() since we're using the interceptor
+    // and also manually adding the token below, which could cause duplicate calls.
     
     // Always use the carId, never the wishlistId
     // Convert to number if it's a string
@@ -918,21 +919,13 @@ export const removeFromWishlist = async (carId) => {
     // Use fixed userId based on API requirements
     const userId = 35; // Hardcoded from API documentation
     
-    // API endpoint format from documentation: DELETE /wishlist/delete with userId and carId as query params
+    // Make sure userId is included in the URL
     const url = `${API_BASE_URL}/wishlist/delete?userId=${userId}&carId=${numericCarId}`;
     console.log(`Making DELETE request to: ${url}`);
     
-    // Get auth token for header
-    const token = await AsyncStorage.getItem('auth_token') || await AsyncStorage.getItem('userToken');
-    
-    // Make direct axios request to the correct endpoint
-    const response = await axios.delete(url, {
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'Authorization': token ? `Bearer ${token}` : ''
-      }
-    });
+    // Use the api instance which already has the interceptor for auth tokens
+    // instead of making a direct axios call. This prevents duplicate token handling.
+    const response = await api.delete(`/wishlist/delete?userId=${userId}&carId=${numericCarId}`);
     
     if (response.data && response.data.success) {
       console.log('Successfully removed car from wishlist:', response.data);
@@ -988,7 +981,7 @@ export const getWishlist = async (params = {}) => {
     // Default parameters
     const defaultParams = {
       page: 1,
-      limit: 1000 // Increased to match the requested limit
+      limit: 10 // Increased to match the requested limit
     };
 
     // Merge default with provided params

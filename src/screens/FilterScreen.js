@@ -1230,7 +1230,7 @@ const FilterScreen = ({ route, navigation }) => {
       // Add a small delay to allow API fetches to complete first
       setTimeout(() => {
         addFallbackValues();
-      }, 1000);
+      }, 100);
     }
   }, [activeFilter]);
 

@@ -305,7 +305,7 @@ const JustArrived = () => {
       const response = await axios.get(`${API_BASE_URL}/car/list`, {
         params: {
           page: 1,
-          limit: 1000,
+          limit: 100,
           sortBy: 'createdAt',
           order: 'desc',
           lang: 'en'

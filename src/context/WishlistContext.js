@@ -12,6 +12,7 @@ export const WishlistContext = createContext();
 export const WishlistProvider = ({ children }) => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [removingItems, setRemovingItems] = useState({}); // Track items being removed
   const { user, isAuthenticated } = useAuth();
 
   // Fetch wishlist items when user logs in
@@ -106,30 +107,41 @@ export const WishlistProvider = ({ children }) => {
         return false;
       }
       
+      // Check if this item is already being removed
+      if (removingItems[idParam]) {
+        console.log(`Item ${idParam} is already being removed, skipping duplicate request`);
+        return false;
+      }
+      
+      // Mark this item as being removed
+      setRemovingItems(prev => ({ ...prev, [idParam]: true }));
+      
       setLoading(true);
       console.log(`WishlistContext: Removing item ${idParam} from wishlist`);
       
-      // Always extract the carId - this is what the API needs
+      // Extract the carId - this is what the API needs
       let carId;
       
-      // If idParam is a wishlistId (item.id), find the corresponding carId
-      if (idParam.toString().includes('-') || parseInt(idParam) >= 1000) {
-        // It's likely a wishlist item ID, find the corresponding car
-        const wishlistItem = wishlistItems.find(item => item.id === idParam || item.id === parseInt(idParam));
-        
-        if (wishlistItem && (wishlistItem.carId || (wishlistItem.car && wishlistItem.car.id))) {
-          // Found the wishlist item, extract the carId
-          carId = wishlistItem.carId || (wishlistItem.car && wishlistItem.car.id);
-          console.log(`Found car ID ${carId} for wishlist item ${idParam}`);
-        } else {
-          console.log(`Could not find car ID for wishlist item ${idParam}, cannot proceed`);
-          setLoading(false);
-          return false;
-        }
+      // If the item object was passed, extract carId
+      if (typeof idParam === 'object' && idParam !== null) {
+        carId = idParam.carId || idParam.id;
       } else {
-        // It's already a carId
-        carId = parseInt(idParam);
-        console.log(`Using provided ID directly as carId: ${carId}`);
+        // It's already a carId or wishlistId - find the corresponding car
+        const foundItem = wishlistItems.find(
+          item => item.id === idParam || 
+                 item.wishlistId === idParam || 
+                 item.carId === idParam
+        );
+        
+        if (foundItem) {
+          // Get the carId from the found item
+          carId = foundItem.carId || foundItem.id;
+          console.log(`Found car ID ${carId} for item ${idParam}`);
+        } else {
+          // Just use the ID directly as carId
+          carId = parseInt(idParam);
+          console.log(`Using provided ID directly as carId: ${carId}`);
+        }
       }
       
       // Call API with carId (API requires carId, not wishlistId)
@@ -141,9 +153,10 @@ export const WishlistProvider = ({ children }) => {
         // Update the local state to remove this item
         setWishlistItems(prevItems => {
           return prevItems.filter(item => {
-            // Filter out this item based on carId
-            const itemCarId = item.carId || (item.car && item.car.id);
-            return itemCarId !== carId;
+            // Filter out this item based on carId or wishlistId
+            return item.carId !== carId && 
+                   item.id !== carId && 
+                   (item.car?.id !== carId);
           });
         });
         
@@ -157,6 +170,12 @@ export const WishlistProvider = ({ children }) => {
       return false;
     } finally {
       setLoading(false);
+      // Clear the removing state for this item
+      setRemovingItems(prev => {
+        const updated = { ...prev };
+        delete updated[idParam];
+        return updated;
+      });
     }
   };
 

@@ -19,7 +19,7 @@ import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
 import { CarImage } from '../components/common';
 
 // Car card component for wishlist items
-const WishlistCarCard = ({ car, onPress, onRemove }) => {
+const WishlistCarCard = ({ car, onPress, onRemove, isRemoving = false }) => {
   // Get wishlist context
   const { isInWishlist, removeItemFromWishlist, addItemToWishlist } = useWishlist();
   
@@ -41,27 +41,21 @@ const WishlistCarCard = ({ car, onPress, onRemove }) => {
   // Function to toggle wishlist status
   const toggleWishlist = async () => {
     try {
+      // Prevent action if item is already being removed
+      if (isRemoving) {
+        console.log(`Item is already being removed, skipping duplicate request`);
+        return;
+      }
+      
       // Always use the car ID for removal, not the wishlist ID
-      // This works with the updated API format which expects carId
+      // The API requires carId as per the documentation
       const carId = car.carId || car.id;
       console.log(`Attempting to remove car ID ${carId} from wishlist (wishlistId: ${car.wishlistId || 'unknown'})`);
       
       // Since we're in the wishlist screen, we just need to remove items
-      const success = await removeItemFromWishlist(carId);
-      if (success) {
-        // Call the parent's onRemove to update the UI
-        onRemove(carId);
-      } else {
+      const success = await onRemove(carId);
+      if (!success) {
         console.error(`Failed to remove car ID ${carId} from wishlist`);
-        
-        // Try with wishlistId as a fallback
-        if (car.wishlistId && car.wishlistId !== carId) {
-          console.log(`Trying fallback: remove using wishlist ID: ${car.wishlistId}`);
-          const fallbackSuccess = await removeItemFromWishlist(car.wishlistId);
-          if (fallbackSuccess) {
-            onRemove(car.wishlistId);
-          }
-        }
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error);
@@ -98,8 +92,11 @@ const WishlistCarCard = ({ car, onPress, onRemove }) => {
             <TouchableOpacity 
               style={styles.heartButton}
               onPress={toggleWishlist}
+              disabled={isRemoving}
             >
-              {inWishlist ? (
+              {isRemoving ? (
+                <ActivityIndicator size="small" color="#FF8C00" />
+              ) : inWishlist ? (
                 <AntDesign name="heart" size={24} color="#FF8C00" />
               ) : (
                 <AntDesign name="hearto" size={24} color="#FF8C00" />
@@ -120,6 +117,7 @@ const MyWishlistScreen = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [removingItems, setRemovingItems] = useState({}); // Track items being removed
   const navigation = useNavigation();
   const { user } = useAuth();
   const { removeItemFromWishlist, fetchWishlistItems: contextFetchWishlist } = useWishlist();
@@ -181,32 +179,38 @@ const MyWishlistScreen = () => {
   // Remove item from wishlist
   const handleRemoveFromWishlist = async (itemId) => {
     try {
-      console.log(`Attempting to remove item ${itemId} from wishlist`);
+      // Check if this item is already being removed
+      if (removingItems[itemId]) {
+        console.log(`Item ${itemId} is already being removed, skipping duplicate request`);
+        return;
+      }
+      
+      console.log(`Attempting to remove car ID ${itemId} from wishlist`);
+      
+      // Mark this item as being removed
+      setRemovingItems(prev => ({ ...prev, [itemId]: true }));
       
       // Show loading indicator 
       setLoading(true);
       
-      // Treat the itemId as a carId for API call
+      // Use carId for API call as required by the API
       const success = await removeItemFromWishlist(itemId);
       
       if (success) {
-        console.log(`Successfully removed item ${itemId} from wishlist`);
+        console.log(`Successfully removed car ID ${itemId} from wishlist`);
         
         // Remove from local state for immediate UI update
-        // Since the itemId could be either a carId or wishlistId, check both
         setWishlistItems(prevItems => {
           return prevItems.filter(item => {
             // Check all possible ID matches
             return (
               item.id !== itemId && 
-              item.wishlistId !== itemId &&
-              item.carId !== itemId && 
-              (item.car?.id !== itemId)
+              item.carId !== itemId
             );
           });
         });
       } else {
-        console.error(`Failed to remove item ${itemId} from wishlist`);
+        console.error(`Failed to remove car ID ${itemId} from wishlist`);
         Alert.alert('Error', 'Failed to remove car from wishlist');
       }
     } catch (error) {
@@ -214,6 +218,12 @@ const MyWishlistScreen = () => {
       Alert.alert('Error', 'Failed to remove car from wishlist. Please try again.');
     } finally {
       setLoading(false);
+      // Clear the removing state for this item
+      setRemovingItems(prev => {
+        const updated = { ...prev };
+        delete updated[itemId];
+        return updated;
+      });
     }
   };
 
@@ -243,6 +253,16 @@ const MyWishlistScreen = () => {
     </View>
   );
 
+  // For the WishlistCarCard, update to use this:
+  const renderWishlistCarCard = ({ item }) => (
+    <WishlistCarCard 
+      car={item} 
+      onPress={navigateToCarDetail}
+      onRemove={handleRemoveFromWishlist}
+      isRemoving={!!removingItems[item.id] || !!removingItems[item.carId]}
+    />
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -263,13 +283,7 @@ const MyWishlistScreen = () => {
       ) : (
         <FlatList
           data={wishlistItems}
-          renderItem={({ item }) => (
-            <WishlistCarCard 
-              car={item} 
-              onPress={navigateToCarDetail}
-              onRemove={handleRemoveFromWishlist}
-            />
-          )}
+          renderItem={renderWishlistCarCard}
           keyExtractor={item => item.id.toString()}
           contentContainerStyle={styles.listContainer}
           ListEmptyComponent={renderEmptyState}
