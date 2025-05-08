@@ -117,4 +117,8 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Add CleverTap dependency
+    implementation 'com.clevertap.android:clevertap-android-sdk:5.1.0'
+    implementation 'com.google.firebase:firebase-messaging:23.4.1'
 }

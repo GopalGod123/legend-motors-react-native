@@ -70,5 +70,14 @@
 	<string>Zocial.ttf</string>
 	<string>Fontisto.ttf</string>
 	</array>
+	<!-- CleverTap Configuration -->
+	<key>CLEVERTAP_ACCOUNT_ID</key>
+	<string>6KK-49W-447Z</string>
+	<key>CLEVERTAP_TOKEN</key>
+	<string>XXXXXX</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>
