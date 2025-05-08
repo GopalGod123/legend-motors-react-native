@@ -1,7 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
-import { CarImage } from '../common';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  MaterialCommunityIcons,
+  Ionicons,
+  AntDesign,
+  FontAwesome,
+} from 'src/utils/icon';
+import {CarImage} from '../common';
 
 const MostPopular = () => {
   return (
@@ -10,63 +15,67 @@ const MostPopular = () => {
         <Text style={styles.title}>Most Popular</Text>
         <Text style={styles.subtitle}>Checkout our exclusive offers...</Text>
       </View>
-      
+
       <View style={styles.cardContainer}>
         <View style={styles.imageWrapper}>
           <CarImage
-            source={require("./HotDealsCar.png")}
+            source={require('./HotDealsCar.png')}
             style={styles.carImage}
             resizeMode="cover"
           />
         </View>
-        
+
         <View style={styles.cardContent}>
           <View style={styles.categoryContainer}>
-            <MaterialCommunityIcons name="car-sports" size={20} color="#FF8C00" />
+            <MaterialCommunityIcons
+              name="car-sports"
+              size={20}
+              color="#FF8C00"
+            />
             <Text style={styles.categoryText}>SUV</Text>
           </View>
-          
+
           <Text style={styles.carTitle}>
             2024 BYD SONG PLUS HONOR{'\n'}
             FLAGSHIP PLUS - BLACK inside BLUE
           </Text>
-          
+
           <View style={styles.detailsContainer}>
             <View style={styles.detailItem}>
               <Ionicons name="infinite" size={16} color="#8A2BE2" />
               <Text style={styles.detailText}>1tr</Text>
             </View>
-            
+
             <View style={styles.detailItem}>
               <Ionicons name="flash" size={16} color="#8A2BE2" />
               <Text style={styles.detailText}>Electric</Text>
             </View>
-            
+
             <View style={styles.detailItem}>
               <AntDesign name="dashboard" size={16} color="#8A2BE2" />
               <Text style={styles.detailText}>Automatic</Text>
             </View>
-            
+
             <View style={styles.detailItem}>
               <FontAwesome name="flag" size={16} color="#8A2BE2" />
               <Text style={styles.detailText}>China</Text>
             </View>
           </View>
-          
+
           <View style={styles.drivingDetailItem}>
             <MaterialCommunityIcons name="steering" size={16} color="#8A2BE2" />
             <Text style={styles.detailText}>Left hand drive</Text>
           </View>
-          
+
           <View style={styles.actionContainer}>
             <TouchableOpacity style={styles.loginButton}>
               <Text style={styles.loginButtonText}>Login to view price</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.favoriteButton}>
               <AntDesign name="hearto" size={24} color="#FF8C00" />
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.shareButton}>
               <Ionicons name="share-social-outline" size={24} color="#777" />
             </TouchableOpacity>
@@ -196,4 +205,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MostPopular; 
+export default MostPopular;

@@ -1,9 +1,16 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+  StyleSheet,
+} from 'react-native';
 import CheckboxItem from './CheckboxItem';
-import { Ionicons } from '@expo/vector-icons';
+import {Ionicons} from 'src/utils/icon';
 
-const FilterContent = ({ 
+const FilterContent = ({
   title,
   data = [],
   loading = false,
@@ -13,121 +20,126 @@ const FilterContent = ({
   onRetry,
   infoText = '',
   itemType = 'default', // 'default', 'color', 'bodyType', 'seats', etc.
-  headerText = ''
+  headerText = '',
 }) => {
   // Generate appropriate icon based on item type
   const getIcon = (item, type) => {
     if (type === 'bodyType') {
       let iconName = 'car-outline';
       if (item.name.toLowerCase().includes('suv')) iconName = 'car-sport';
-      else if (item.name.toLowerCase().includes('van')) iconName = 'car-sport-outline';
-      else if (item.name.toLowerCase().includes('pickup')) iconName = 'cube-outline';
-      
+      else if (item.name.toLowerCase().includes('van'))
+        iconName = 'car-sport-outline';
+      else if (item.name.toLowerCase().includes('pickup'))
+        iconName = 'cube-outline';
+
       return (
-        <Ionicons 
+        <Ionicons
           name={iconName}
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
+          size={20}
+          color="#666666"
+          style={{marginRight: 10}}
         />
       );
     } else if (type === 'steeringSide') {
       return (
-        <Ionicons 
-          name={item.name.toLowerCase().includes('right') ? 'car' : 'car-sport'} 
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
+        <Ionicons
+          name={item.name.toLowerCase().includes('right') ? 'car' : 'car-sport'}
+          size={20}
+          color="#666666"
+          style={{marginRight: 10}}
         />
       );
     } else if (type === 'seats') {
       return (
-        <Ionicons 
-          name="people-outline" 
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
+        <Ionicons
+          name="people-outline"
+          size={20}
+          color="#666666"
+          style={{marginRight: 10}}
         />
       );
     } else if (type === 'doors') {
       return (
-        <Ionicons 
-          name="exit-outline" 
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
+        <Ionicons
+          name="exit-outline"
+          size={20}
+          color="#666666"
+          style={{marginRight: 10}}
         />
       );
     } else if (type === 'fuelType') {
       let iconName = 'flame-outline';
-      if (item.name.toLowerCase().includes('electric')) iconName = 'flash-outline';
-      else if (item.name.toLowerCase().includes('hybrid')) iconName = 'battery-charging-outline';
-      
+      if (item.name.toLowerCase().includes('electric'))
+        iconName = 'flash-outline';
+      else if (item.name.toLowerCase().includes('hybrid'))
+        iconName = 'battery-charging-outline';
+
       return (
-        <Ionicons 
+        <Ionicons
           name={iconName}
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
+          size={20}
+          color="#666666"
+          style={{marginRight: 10}}
         />
       );
     } else if (type === 'cylinders') {
       let iconName = 'hardware-chip-outline';
-      if (item.name.toLowerCase().includes('electric')) iconName = 'flash-outline';
-      
+      if (item.name.toLowerCase().includes('electric'))
+        iconName = 'flash-outline';
+
       return (
-        <Ionicons 
+        <Ionicons
           name={iconName}
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
+          size={20}
+          color="#666666"
+          style={{marginRight: 10}}
         />
       );
     } else if (type === 'wheelSize') {
       return (
-        <Ionicons 
-          name="disc-outline" 
-          size={20} 
-          color="#666666" 
-          style={{ marginRight: 10 }}
+        <Ionicons
+          name="disc-outline"
+          size={20}
+          color="#666666"
+          style={{marginRight: 10}}
         />
       );
     }
-    
+
     return null;
   };
-  
+
   // Generate color indicator for color type
   const getColorIndicator = (item, type) => {
     if (type === 'color' || type === 'interiorColor') {
       const colorMap = {
-        'Black': '#000000',
-        'White': '#FFFFFF',
-        'Grey': '#808080',
-        'Red': '#FF0000',
-        'Blue': '#0000FF',
-        'Green': '#008000',
-        'Yellow': '#FFFF00',
-        'Brown': '#A52A2A',
-        'Beige': '#F5F5DC',
-        'Maroon': '#800000',
-        'Tan': '#D2B48C',
-        'Ivory': '#FFFFF0',
-        'Cream': '#FFFDD0',
-        'Silver': '#C0C0C0',
-        'Gold': '#FFD700',
-        'Orange': '#FFA500',
-        'Purple': '#800080'
+        Black: '#000000',
+        White: '#FFFFFF',
+        Grey: '#808080',
+        Red: '#FF0000',
+        Blue: '#0000FF',
+        Green: '#008000',
+        Yellow: '#FFFF00',
+        Brown: '#A52A2A',
+        Beige: '#F5F5DC',
+        Maroon: '#800000',
+        Tan: '#D2B48C',
+        Ivory: '#FFFFF0',
+        Cream: '#FFFDD0',
+        Silver: '#C0C0C0',
+        Gold: '#FFD700',
+        Orange: '#FFA500',
+        Purple: '#800080',
       };
-      
+
       return colorMap[item.name] || '#CCCCCC';
     }
-    
+
     return null;
   };
-  
+
   // Get custom style based on item type
-  const getCustomStyle = (type) => {
+  const getCustomStyle = type => {
     switch (type) {
       case 'regionalSpec':
         return styles.regionalSpecItem;
@@ -153,9 +165,9 @@ const FilterContent = ({
         return {};
     }
   };
-  
+
   // Render each item based on its type
-  const renderItem = ({ item }) => (
+  const renderItem = ({item}) => (
     <CheckboxItem
       label={item.name || item.year || ''}
       isSelected={selectedItems.includes(item.name || item.year || '')}
@@ -179,33 +191,32 @@ const FilterContent = ({
   return (
     <View style={styles.filterContent}>
       <Text style={styles.filterTitle}>{title}</Text>
-      
+
       {infoText && (
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>{infoText}</Text>
         </View>
       )}
-      
+
       {data.length > 0 ? (
         <FlatList
           data={data}
-          keyExtractor={(item) => String(item.id || item.year || item.name)}
+          keyExtractor={item => String(item.id || item.year || item.name)}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-          ListHeaderComponent={headerText ? (
-            <View style={styles.infoContainer}>
-              <Text style={styles.infoText}>{headerText}</Text>
-            </View>
-          ) : null}
+          ListHeaderComponent={
+            headerText ? (
+              <View style={styles.infoContainer}>
+                <Text style={styles.infoText}>{headerText}</Text>
+              </View>
+            ) : null
+          }
         />
       ) : (
         <View style={styles.emptyContentContainer}>
           <Text style={styles.emptyText}>{emptyMessage}</Text>
           {onRetry && (
-            <TouchableOpacity
-              style={styles.reloadButton}
-              onPress={onRetry}
-            >
+            <TouchableOpacity style={styles.reloadButton} onPress={onRetry}>
               <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
             </TouchableOpacity>
           )}
@@ -299,4 +310,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FilterContent; 
+export default FilterContent;

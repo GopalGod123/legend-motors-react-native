@@ -1,34 +1,38 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { ImagePlaceholder } from '../common';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
-import { Ionicons } from '@expo/vector-icons';
-
-const Header = ({ user, onSettingsPress, onWishlistPress }) => {
+import React, {useState} from 'react';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {ImagePlaceholder} from '../common';
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  BORDER_RADIUS,
+} from '../../utils/constants';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+const Header = ({user, onSettingsPress, onWishlistPress}) => {
   const [activeCurrency, setActiveCurrency] = useState('AED');
 
   // Get firstName from user object or use default
   const getFirstName = () => {
     if (!user) return 'User';
-    
+
     let name = user.firstName || 'User';
-    
+
     // If the firstName looks like an email address, extract just the first part
     if (name.includes('@')) {
       // Extract part before @ symbol
       name = name.split('@')[0];
     }
-    
+
     // If the name contains dots (like "gopal.khandelwal"), take only the first part
     if (name.includes('.')) {
       name = name.split('.')[0];
     }
-    
+
     // Capitalize the first letter
     return name.charAt(0).toUpperCase() + name.slice(1);
   };
 
-  const toggleCurrency = (currency) => {
+  const toggleCurrency = currency => {
     setActiveCurrency(currency);
   };
 
@@ -41,51 +45,48 @@ const Header = ({ user, onSettingsPress, onWishlistPress }) => {
           <Text style={styles.nameText}>{getFirstName()}!</Text>
         </View>
       </View>
-      
+
       <View style={styles.headerControls}>
         <View style={styles.currencyToggle}>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.currencyButton, 
-              activeCurrency === 'AED' && styles.activeCurrencyButton
+              styles.currencyButton,
+              activeCurrency === 'AED' && styles.activeCurrencyButton,
             ]}
-            onPress={() => toggleCurrency('AED')}
-          >
-            <Text 
+            onPress={() => toggleCurrency('AED')}>
+            <Text
               style={[
-                styles.currencyText, 
-                activeCurrency === 'AED' ? styles.activeText : styles.inactiveText
-              ]}
-            >
+                styles.currencyText,
+                activeCurrency === 'AED'
+                  ? styles.activeText
+                  : styles.inactiveText,
+              ]}>
               AED
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[
-              styles.currencyButton, 
-              activeCurrency === 'USD' && styles.activeCurrencyButton
+              styles.currencyButton,
+              activeCurrency === 'USD' && styles.activeCurrencyButton,
             ]}
-            onPress={() => toggleCurrency('USD')}
-          >
-            <Text 
+            onPress={() => toggleCurrency('USD')}>
+            <Text
               style={[
-                styles.currencyText, 
-                activeCurrency === 'USD' ? styles.activeText : styles.inactiveText
-              ]}
-            >
+                styles.currencyText,
+                activeCurrency === 'USD'
+                  ? styles.activeText
+                  : styles.inactiveText,
+              ]}>
               USD
             </Text>
           </TouchableOpacity>
         </View>
-        
+
         <TouchableOpacity style={styles.iconButton}>
           <Ionicons name="notifications" size={28} color="#5E366D" />
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={styles.iconButton}
-          onPress={onWishlistPress}
-        >
+
+        <TouchableOpacity style={styles.iconButton} onPress={onWishlistPress}>
           <Ionicons name="heart" size={28} color="#5E366D" />
         </TouchableOpacity>
       </View>
@@ -161,4 +162,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Header; 
+export default Header;

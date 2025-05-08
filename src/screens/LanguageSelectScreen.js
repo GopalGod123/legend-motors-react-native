@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Image
+  Image,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
 import LogoImage from '../assets/images/LangaugeScreenLogo.png';
 
 const languages = [
-  { id: 'en', name: 'English (US)' },
-  { id: 'zh', name: 'Mandarin' },
-  { id: 'es', name: 'Spanish' },
-  { id: 'ar', name: 'Arabic' },
-  { id: 'ru', name: 'Russian' },
-  { id: 'fr', name: 'French' },
+  {id: 'en', name: 'English (US)'},
+  {id: 'zh', name: 'Mandarin'},
+  {id: 'es', name: 'Spanish'},
+  {id: 'ar', name: 'Arabic'},
+  {id: 'ru', name: 'Russian'},
+  {id: 'fr', name: 'French'},
 ];
 
 const LanguageSelectScreen = () => {
@@ -26,10 +26,11 @@ const LanguageSelectScreen = () => {
 
   const handleNext = () => {
     // Navigate directly to Main screen
-    navigation.replace('Main');
+    console.log('hiii');
+    navigation.navigate('Main');
   };
 
-  const handleLanguageSelect = (langId) => {
+  const handleLanguageSelect = langId => {
     setSelectedLanguage(langId);
     // You could save the selected language here if needed
     // For example: AsyncStorage.setItem('userLanguage', langId);
@@ -44,16 +45,16 @@ const LanguageSelectScreen = () => {
       </TouchableOpacity>
 
       <View style={styles.logoContainer}>
-        <Image 
+        <Image
           source={LogoImage}
-          style={{ width: 250, height: 100, resizeMode: 'contain' }}
+          style={{width: 250, height: 100, resizeMode: 'contain'}}
         />
       </View>
 
       <Text style={styles.title}>Select a Language</Text>
 
       <ScrollView style={styles.languageList}>
-        {languages.map((language) => (
+        {languages.map(language => (
           <TouchableOpacity
             key={language.id}
             style={styles.languageItem}
@@ -150,4 +151,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LanguageSelectScreen; 
+export default LanguageSelectScreen;

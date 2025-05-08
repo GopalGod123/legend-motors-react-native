@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { COLORS } from '../utils/constants';
-import { Ionicons } from '@expo/vector-icons';
-import { 
-  ListSearchIcon, 
-  EyeIcon, 
-  BlogIcon, 
-  ProfileIcon 
+import {View, Text, StyleSheet} from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {COLORS} from '../utils/constants';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {
+  ListSearchIcon,
+  EyeIcon,
+  BlogIcon,
+  ProfileIcon,
 } from '../components/icons';
 
 // Import screens
@@ -20,6 +20,7 @@ import EnquiriesScreen from '../screens/EnquiriesScreen';
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
+  console.log('bottam tab');
   return (
     <Tab.Navigator
       screenOptions={{
@@ -35,7 +36,7 @@ const BottomTabNavigator = () => {
           borderTopColor: '#EEEEEE',
           elevation: 8,
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
+          shadowOffset: {width: 0, height: -2},
           shadowOpacity: 0.1,
           shadowRadius: 3,
         },
@@ -47,54 +48,53 @@ const BottomTabNavigator = () => {
         tabBarItemStyle: {
           padding: 5,
         },
-      }}
-    >
-      <Tab.Screen 
-        name="HomeTab" 
-        component={HomeScreen} 
+      }}>
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeScreen}
         options={{
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({color, size}) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
         }}
       />
-      <Tab.Screen 
-        name="EnquiriesTab" 
-        component={EnquiriesScreen} 
+      <Tab.Screen
+        name="EnquiriesTab"
+        component={EnquiriesScreen}
         options={{
           tabBarLabel: 'Enquiries',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({color, size}) => (
             <ListSearchIcon width={size} height={size} color={color} />
           ),
         }}
       />
-      <Tab.Screen 
-        name="ExploreTab" 
-        component={ExploreScreen} 
+      <Tab.Screen
+        name="ExploreTab"
+        component={ExploreScreen}
         options={{
           tabBarLabel: 'Explore',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({color, size}) => (
             <EyeIcon width={size} height={size} color={color} />
           ),
         }}
       />
-      <Tab.Screen 
-        name="NewsTab" 
-        component={NewsBlogsScreen} 
+      <Tab.Screen
+        name="NewsTab"
+        component={NewsBlogsScreen}
         options={{
           tabBarLabel: 'News/Blogs',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({color, size}) => (
             <BlogIcon width={size} height={size} color={color} />
           ),
         }}
       />
-      <Tab.Screen 
-        name="ProfileTab" 
-        component={ProfileScreen} 
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
         options={{
           tabBarLabel: 'Profile',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({color, size}) => (
             <ProfileIcon width={size} height={size} color={color} />
           ),
         }}
@@ -111,4 +111,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BottomTabNavigator; 
+export default BottomTabNavigator;

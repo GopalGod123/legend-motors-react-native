@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,46 +8,54 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Alert,
-  StatusBar
+  StatusBar,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { Ionicons, AntDesign } from '@expo/vector-icons';
-import { getWishlist, removeFromWishlist } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import { useWishlist } from '../context/WishlistContext';
-import { COLORS, SPACING, FONT_SIZES } from '../utils/constants';
-import { CarImage } from '../components/common';
+import {useNavigation} from '@react-navigation/native';
+import {Ionicons, AntDesign} from 'src/utils/icon';
+import {getWishlist, removeFromWishlist} from '../services/api';
+import {useAuth} from '../context/AuthContext';
+import {useWishlist} from '../context/WishlistContext';
+import {COLORS, SPACING, FONT_SIZES} from '../utils/constants';
+import {CarImage} from '../components/common';
 
 // Car card component for wishlist items
-const WishlistCarCard = ({ car, onPress, onRemove, isRemoving = false }) => {
+const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
   // Extract data from the car object
   const brandName = car.Brand?.name || car.brand || '';
   const modelName = car.CarModel?.name || car.model || '';
   const year = car.Year?.year || car.year || '';
-  const price = car.price || (car.CarPrices && car.CarPrices.length > 0 ? car.CarPrices[0].price : 0);
+  const price =
+    car.price ||
+    (car.CarPrices && car.CarPrices.length > 0 ? car.CarPrices[0].price : 0);
   const category = car.Tags && car.Tags.length > 0 ? car.Tags[0].name : '';
   const additionalInfo = car.additionalInfo || '';
-  
+
   // Determine if car is in wishlist
   const carId = car.carId || car.id;
   const inWishlist = true; // Always true in the wishlist screen
-  
+
   // Debug car data structure
-  console.log(`WishlistCard for car: ${brandName} ${modelName}, carId: ${carId}, id: ${car.id}, wishlistId: ${car.wishlistId || 'N/A'}`);
-  
+  console.log(
+    `WishlistCard for car: ${brandName} ${modelName}, carId: ${carId}, id: ${
+      car.id
+    }, wishlistId: ${car.wishlistId || 'N/A'}`,
+  );
+
   // Function to toggle wishlist status
   const toggleWishlist = async () => {
     try {
       // Prevent action if item is already being removed
       if (isRemoving) {
-        console.log(`Item is already being removed, skipping duplicate request`);
+        console.log(
+          `Item is already being removed, skipping duplicate request`,
+        );
         return;
       }
-      
+
       // Always use the car ID for removal, not the wishlist ID
       const carId = car.carId || car.id;
       console.log(`Card requesting removal of car ID ${carId}`);
-      
+
       // Only use the parent's onRemove function, not the context directly
       onRemove(carId);
     } catch (error) {
@@ -56,9 +64,15 @@ const WishlistCarCard = ({ car, onPress, onRemove, isRemoving = false }) => {
   };
 
   // Get the first image URL if available
-  const imageUrl = car.CarImages && car.CarImages.length > 0 && car.CarImages[0].FileSystem 
-    ? { uri: `https://cdn.legendmotorsglobal.com${car.CarImages[0].FileSystem.thumbnailPath || car.CarImages[0].FileSystem.compressedPath}` }
-    : require('../components/home/HotDealsCar.png');
+  const imageUrl =
+    car.CarImages && car.CarImages.length > 0 && car.CarImages[0].FileSystem
+      ? {
+          uri: `https://cdn.legendmotorsglobal.com${
+            car.CarImages[0].FileSystem.thumbnailPath ||
+            car.CarImages[0].FileSystem.compressedPath
+          }`,
+        }
+      : require('../components/home/HotDealsCar.png');
 
   return (
     <TouchableOpacity style={styles.carCard} onPress={() => onPress(car)}>
@@ -75,18 +89,21 @@ const WishlistCarCard = ({ car, onPress, onRemove, isRemoving = false }) => {
             </View>
           )}
         </View>
-        
+
         <View style={styles.cardContent}>
-          <Text style={styles.carTitle}>{`${year} ${brandName} ${modelName}`.trim()}</Text>
-          {additionalInfo && <Text style={styles.additionalInfo}>{additionalInfo}</Text>}
+          <Text style={styles.carTitle}>
+            {`${year} ${brandName} ${modelName}`.trim()}
+          </Text>
+          {additionalInfo && (
+            <Text style={styles.additionalInfo}>{additionalInfo}</Text>
+          )}
           <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
-          
+
           <View style={styles.actionButtons}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.heartButton}
               onPress={toggleWishlist}
-              disabled={isRemoving}
-            >
+              disabled={isRemoving}>
               {isRemoving ? (
                 <ActivityIndicator size="small" color="#FF8C00" />
               ) : inWishlist ? (
@@ -95,7 +112,7 @@ const WishlistCarCard = ({ car, onPress, onRemove, isRemoving = false }) => {
                 <AntDesign name="hearto" size={24} color="#FF8C00" />
               )}
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.shareButton}>
               <Ionicons name="share-social-outline" size={24} color="#777" />
             </TouchableOpacity>
@@ -112,21 +129,22 @@ const MyWishlistScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [removingItems, setRemovingItems] = useState({}); // Track items being removed
   const navigation = useNavigation();
-  const { user } = useAuth();
-  const { removeItemFromWishlist, fetchWishlistItems: contextFetchWishlist } = useWishlist();
+  const {user} = useAuth();
+  const {removeItemFromWishlist, fetchWishlistItems: contextFetchWishlist} =
+    useWishlist();
 
   // Fetch wishlist data
   const fetchWishlist = async () => {
     try {
       setLoading(true);
       const response = await getWishlist();
-      
+
       // Debug the response structure
       console.log('Wishlist response structure:', JSON.stringify(response));
-      
+
       if (response.success && Array.isArray(response.data)) {
         console.log(`Fetched ${response.data.length} wishlist items`);
-        
+
         // Process wishlist items to ensure they have the right format for rendering
         const processedItems = response.data.map(item => {
           // If the item has a car property, use it as the base and add necessary fields
@@ -136,17 +154,20 @@ const MyWishlistScreen = () => {
               wishlistId: item.id,
               carId: item.carId,
               userId: item.userId,
-              inWishlist: true // Always true since we're in the wishlist screen
+              inWishlist: true, // Always true since we're in the wishlist screen
             };
           }
           // Otherwise, return the item as is with wishlist flag
           return {
             ...item,
-            inWishlist: true
+            inWishlist: true,
           };
         });
-        
-        console.log('Processed wishlist items:', JSON.stringify(processedItems));
+
+        console.log(
+          'Processed wishlist items:',
+          JSON.stringify(processedItems),
+        );
         setWishlistItems(processedItems);
       } else {
         console.log('No wishlist items found or error in response');
@@ -170,36 +191,35 @@ const MyWishlistScreen = () => {
   }, []);
 
   // Remove item from wishlist
-  const handleRemoveFromWishlist = async (itemId) => {
+  const handleRemoveFromWishlist = async itemId => {
     try {
       // Check if this item is already being removed
       if (removingItems[itemId]) {
-        console.log(`Item ${itemId} is already being removed, skipping duplicate request`);
+        console.log(
+          `Item ${itemId} is already being removed, skipping duplicate request`,
+        );
         return;
       }
-      
+
       console.log(`Attempting to remove car ID ${itemId} from wishlist`);
-      
+
       // Mark this item as being removed
-      setRemovingItems(prev => ({ ...prev, [itemId]: true }));
-      
-      // Show loading indicator 
+      setRemovingItems(prev => ({...prev, [itemId]: true}));
+
+      // Show loading indicator
       setLoading(true);
-      
+
       // Use carId for API call as required by the API
       const success = await removeItemFromWishlist(itemId);
-      
+
       if (success) {
         console.log(`Successfully removed car ID ${itemId} from wishlist`);
-        
+
         // Remove from local state for immediate UI update
         setWishlistItems(prevItems => {
           return prevItems.filter(item => {
             // Check all possible ID matches
-            return (
-              item.id !== itemId && 
-              item.carId !== itemId
-            );
+            return item.id !== itemId && item.carId !== itemId;
           });
         });
       } else {
@@ -208,12 +228,15 @@ const MyWishlistScreen = () => {
       }
     } catch (error) {
       console.error('Error removing from wishlist:', error);
-      Alert.alert('Error', 'Failed to remove car from wishlist. Please try again.');
+      Alert.alert(
+        'Error',
+        'Failed to remove car from wishlist. Please try again.',
+      );
     } finally {
       setLoading(false);
       // Clear the removing state for this item
       setRemovingItems(prev => {
-        const updated = { ...prev };
+        const updated = {...prev};
         delete updated[itemId];
         return updated;
       });
@@ -221,8 +244,8 @@ const MyWishlistScreen = () => {
   };
 
   // Navigate to car details
-  const navigateToCarDetail = (car) => {
-    navigation.navigate('CarDetailScreen', { carId: car.id });
+  const navigateToCarDetail = car => {
+    navigation.navigate('CarDetailScreen', {carId: car.id});
   };
 
   // Pull to refresh
@@ -237,19 +260,18 @@ const MyWishlistScreen = () => {
       <Ionicons name="heart-outline" size={80} color={COLORS.textLight} />
       <Text style={styles.emptyText}>Your wishlist is empty</Text>
       <Text style={styles.emptySubtext}>Cars you love will appear here</Text>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.exploreButton}
-        onPress={() => navigation.navigate('Main')}
-      >
+        onPress={() => navigation.navigate('Main')}>
         <Text style={styles.exploreButtonText}>Explore Cars</Text>
       </TouchableOpacity>
     </View>
   );
 
   // For the WishlistCarCard, update to use this:
-  const renderWishlistCarCard = ({ item }) => (
-    <WishlistCarCard 
-      car={item} 
+  const renderWishlistCarCard = ({item}) => (
+    <WishlistCarCard
+      car={item}
       onPress={navigateToCarDetail}
       onRemove={handleRemoveFromWishlist}
       isRemoving={!!removingItems[item.id] || !!removingItems[item.carId]}
@@ -259,20 +281,23 @@ const MyWishlistScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      
+
       <View style={styles.header}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
+          onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} color={COLORS.textDark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>My Wishlist</Text>
         <View style={styles.placeholder} />
       </View>
-      
+
       {loading && !refreshing ? (
-        <ActivityIndicator style={styles.loader} size="large" color={COLORS.primary} />
+        <ActivityIndicator
+          style={styles.loader}
+          size="large"
+          color={COLORS.primary}
+        />
       ) : (
         <FlatList
           data={wishlistItems}
@@ -329,7 +354,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#FFFFFF',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -430,4 +455,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MyWishlistScreen; 
+export default MyWishlistScreen;

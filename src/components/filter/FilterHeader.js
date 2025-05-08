@@ -1,14 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {Ionicons} from 'src/utils/icon';
 
-const FilterHeader = ({ onBack, title = 'Filters' }) => {
+const FilterHeader = ({onBack, title = 'Filters'}) => {
   return (
     <View style={styles.header}>
-      <TouchableOpacity 
-        style={styles.backButton}
-        onPress={onBack}
-      >
+      <TouchableOpacity style={styles.backButton} onPress={onBack}>
         <Ionicons name="arrow-back" size={24} color="#333333" />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>{title}</Text>
@@ -35,4 +32,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FilterHeader; 
+export default FilterHeader;
