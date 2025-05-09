@@ -859,7 +859,7 @@ const ExploreScreen = () => {
             } else if (Array.isArray(response.data.cars)) {
               carData = response.data.cars;
             }
-
+            console.log('=======>', response);
             // Get total count
             if (response.pagination) {
               totalCount = response.pagination.totalItems || carData.length;

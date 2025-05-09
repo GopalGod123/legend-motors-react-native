@@ -1,11 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, SafeAreaView, ScrollView, StatusBar, ActivityIndicator, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Svg, { Path } from 'react-native-svg';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import Svg, {Path} from 'react-native-svg';
 import LogoutModal from '../components/LogoutModal';
-import { getUserProfile, syncAuthToken, logoutUser } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-
+import {getUserProfile, syncAuthToken, logoutUser} from '../services/api';
+import {useAuth} from '../context/AuthContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {languages} from './LanguageSelectScreen';
 // SVG icons as React components
 const UserIcon = () => (
   <Svg width="24" height="25" viewBox="0 0 24 25" fill="none">
@@ -236,8 +248,8 @@ const ProfileScreen = () => {
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
-  const { user, logout } = useAuth();
-
+  const {user, logout} = useAuth();
+  const {selectedLanguage} = useCurrencyLanguage();
   useEffect(() => {
     fetchUserProfile();
   }, []);
@@ -255,17 +267,17 @@ const ProfileScreen = () => {
     try {
       // Ensure token is synchronized
       await syncAuthToken();
-      
+
       // Try to get profile from API
       const response = await getUserProfile();
-      
+
       if (response.success && response.data) {
         console.log('Profile data received:', response.data);
         setProfileData(response.data);
       } else {
         // If API returns success=false but no error
         console.log('API returned unsuccessful response:', response);
-        
+
         // Use data from auth context as fallback
         if (user) {
           setProfileData({
@@ -279,7 +291,7 @@ const ProfileScreen = () => {
       }
     } catch (error) {
       console.error('Failed to fetch profile:', error);
-      
+
       // Use user context data as fallback
       if (user) {
         setProfileData({
@@ -290,24 +302,24 @@ const ProfileScreen = () => {
           // Add other fields with defaults
         });
       }
-      
+
       // If auth error, handle accordingly
       if (error.message && error.message.includes('Authentication error')) {
         Alert.alert(
           'Authentication Error',
           'Your session has expired. Please log in again.',
           [
-            { 
-              text: 'OK', 
+            {
+              text: 'OK',
               onPress: () => {
                 logout();
                 navigation.reset({
                   index: 0,
-                  routes: [{ name: 'Login' }],
+                  routes: [{name: 'Login'}],
                 });
-              }
-            }
-          ]
+              },
+            },
+          ],
         );
       }
     } finally {
@@ -315,33 +327,33 @@ const ProfileScreen = () => {
     }
   };
 
-  const handleNavigate = (screenName) => {
+  const handleNavigate = screenName => {
     navigation.navigate(screenName);
   };
 
   const handleLogout = async () => {
     try {
       setLogoutModalVisible(false);
-      
+
       // Call logout API
       await logoutUser();
-      
+
       // Call context logout
       await logout();
-      
+
       // Navigate to Login screen
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Login' }],
+        routes: [{name: 'Login'}],
       });
     } catch (error) {
       console.error('Logout error:', error);
-      
+
       // Even if there's an error, still try to log out locally
       logout();
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Login' }],
+        routes: [{name: 'Login'}],
       });
     }
   };
@@ -349,10 +361,10 @@ const ProfileScreen = () => {
   // Format user name from profile data
   const getUserName = () => {
     if (!profileData) return 'User';
-    
+
     const firstName = profileData.firstName || '';
     const lastName = profileData.lastName || '';
-    
+
     if (firstName && lastName) {
       return `${firstName} ${lastName}`;
     } else if (firstName) {
@@ -361,7 +373,7 @@ const ProfileScreen = () => {
       // If no name, use first part of email
       return profileData.email.split('@')[0];
     }
-    
+
     return 'User';
   };
 
@@ -369,10 +381,11 @@ const ProfileScreen = () => {
   const getProfileImageUrl = () => {
     if (profileData && profileData.profileImage) {
       const image = profileData.profileImage;
-      
+
       // Try different image paths
-      const imagePath = image.webp || image.original || image.thumbnailPath || image.path;
-      
+      const imagePath =
+        image.webp || image.original || image.thumbnailPath || image.path;
+
       if (imagePath) {
         // If path starts with http, use as is, otherwise prepend a base URL
         if (imagePath.startsWith('http')) {
@@ -382,7 +395,7 @@ const ProfileScreen = () => {
         }
       }
     }
-    
+
     // Default avatar
     return 'https://randomuser.me/api/portraits/men/32.jpg';
   };
@@ -390,12 +403,12 @@ const ProfileScreen = () => {
   // Get user phone with formatting
   const getUserPhone = () => {
     if (!profileData || !profileData.phone) return '';
-    
+
     // Add country code if available
     if (profileData.countryCode) {
       return `+${profileData.countryCode} ${profileData.phone}`;
     }
-    
+
     return profileData.phone;
   };
 
@@ -414,7 +427,9 @@ const ProfileScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Profile & settings</Text>
         </View>
@@ -430,7 +445,7 @@ const ProfileScreen = () => {
           <View style={styles.profileInfoContainer}>
             <View style={styles.avatarContainer}>
               <Image
-                source={{ uri: getProfileImageUrl() }}
+                source={{uri: getProfileImageUrl()}}
                 style={styles.avatar}
               />
               <View style={styles.badgeContainer}>
@@ -442,10 +457,9 @@ const ProfileScreen = () => {
             <Text style={styles.userPhone}>{getUserPhone()}</Text>
 
             <View style={styles.menuContainer}>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigate('EditProfileScreen')}
-              >
+                onPress={() => handleNavigate('EditProfileScreen')}>
                 <View style={styles.menuIconContainer}>
                   <UserIcon />
                 </View>
@@ -477,16 +491,17 @@ const ProfileScreen = () => {
                 <ChevronIcon />
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigate('LanguageScreen')}
-              >
+                onPress={() => handleNavigate('LanguageScreen')}>
                 <View style={styles.menuIconContainer}>
                   <GlobeIcon />
                 </View>
                 <Text style={styles.menuText}>Language</Text>
                 <View style={styles.rightContainer}>
-                  <Text style={styles.languageValue}>English (US)</Text>
+                  <Text style={styles.languageValue}>
+                    {languages.find(lang => lang.id == selectedLanguage)?.name}
+                  </Text>
                   <ChevronIcon />
                 </View>
               </TouchableOpacity>
@@ -499,10 +514,9 @@ const ProfileScreen = () => {
                 <ChevronIcon />
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.menuItem}
-                onPress={() => handleNavigate('HelpCenterScreen')}
-              >
+                onPress={() => handleNavigate('HelpCenterScreen')}>
                 <View style={styles.menuIconContainer}>
                   <HelpIcon />
                 </View>
@@ -510,10 +524,9 @@ const ProfileScreen = () => {
                 <ChevronIcon />
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.logoutItem}
-                onPress={() => setLogoutModalVisible(true)}
-              >
+                onPress={() => setLogoutModalVisible(true)}>
                 <View style={styles.logoutIconContainer}>
                   <LogoutIcon />
                 </View>
@@ -524,7 +537,7 @@ const ProfileScreen = () => {
         </View>
       </ScrollView>
 
-      <LogoutModal 
+      <LogoutModal
         visible={logoutModalVisible}
         onCancel={() => setLogoutModalVisible(false)}
         onLogout={handleLogout}
@@ -612,7 +625,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 2,
     borderBottomWidth: 2,
     borderColor: 'white',
-    transform: [{ rotate: '-45deg' }],
+    transform: [{rotate: '-45deg'}],
   },
   userName: {
     fontSize: 18,
@@ -682,4 +695,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen; 
+export default ProfileScreen;

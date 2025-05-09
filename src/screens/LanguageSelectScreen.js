@@ -10,8 +10,9 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
 import LogoImage from '../assets/images/LangaugeScreenLogo.png';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
-const languages = [
+export const languages = [
   {id: 'en', name: 'English (US)'},
   {id: 'zh', name: 'Mandarin'},
   {id: 'es', name: 'Spanish'},
@@ -23,9 +24,10 @@ const languages = [
 const LanguageSelectScreen = () => {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const navigation = useNavigation();
-
+  const context = useCurrencyLanguage();
   const handleNext = () => {
     // Navigate directly to Main screen
+    context.setSelectedLanguage(selectedLanguage);
     navigation.reset({
       index: 0,
       routes: [{name: 'Main'}],
