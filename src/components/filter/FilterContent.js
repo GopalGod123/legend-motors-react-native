@@ -170,7 +170,11 @@ const FilterContent = ({
   const renderItem = ({item}) => (
     <CheckboxItem
       label={item.name || item.year || ''}
-      isSelected={selectedItems.includes(item.name || item.year || '')}
+      isSelected={
+        ['brands', 'models', 'trims', 'years'].includes(itemType)
+          ? selectedItems.includes(item.name || item.year || '')
+          : selectedItems.includes(item.id || item.name || item.year || '')
+      }
       onSelect={() => onSelectItem(item)}
       icon={getIcon(item, itemType)}
       colorIndicator={getColorIndicator(item, itemType)}

@@ -68,6 +68,10 @@ const HomeScreen = () => {
     }
   };
 
+  const handleSearchBarFilterApply = filters => {
+    navigation.navigate('ExploreTab', {filters});
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -82,7 +86,7 @@ const HomeScreen = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.content}>
             {/* Search Bar */}
-            <SearchBar />
+            <SearchBar onApplyFilters={handleSearchBarFilterApply} />
 
             {/* Category Filter */}
             <CategoryFilter />

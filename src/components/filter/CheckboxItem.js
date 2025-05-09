@@ -39,7 +39,7 @@ const CheckboxItem = ({
         {label}
       </Text>
 
-      {status && <Text style={styles.itemStatus}>{status}</Text>}
+      {/* {status && <Text style={styles.itemStatus}>{status}</Text>} */}
     </TouchableOpacity>
   );
 };

@@ -26,8 +26,10 @@ const LanguageSelectScreen = () => {
 
   const handleNext = () => {
     // Navigate directly to Main screen
-    console.log('hiii');
-    navigation.navigate('Main');
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'Main'}],
+    });
   };
 
   const handleLanguageSelect = langId => {

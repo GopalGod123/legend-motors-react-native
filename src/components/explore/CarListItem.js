@@ -197,11 +197,11 @@ const CarListItem = ({
         )}
       </View>
 
-      {carData.stockId && (
+      {/* {carData.stockId && (
         <View style={styles.stockIdContainer}>
           <Text style={styles.stockIdText}>{carData.stockId}</Text>
         </View>
-      )}
+      )} */}
 
       {isMockCar && (
         <View
