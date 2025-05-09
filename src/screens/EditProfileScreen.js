@@ -1,27 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  TouchableOpacity, 
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
   SafeAreaView,
   StatusBar,
   ScrollView,
   ActivityIndicator,
-  Alert
+  Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Svg, { Path } from 'react-native-svg';
-import { getUserProfile, updateUserProfile, syncAuthToken } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import {useNavigation} from '@react-navigation/native';
+import Svg, {Path} from 'react-native-svg';
+import {
+  getUserProfile,
+  updateUserProfile,
+  syncAuthToken,
+} from '../services/api';
+import {useAuth} from '../context/AuthContext';
+import {useTheme} from 'src/context/ThemeContext';
 
 // Back Arrow Icon
-const BackIcon = () => (
+const BackIcon = ({color}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M15 18L9 12L15 6"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -30,25 +35,25 @@ const BackIcon = () => (
 );
 
 // Calendar Icon
-const CalendarIcon = () => (
+const CalendarIcon = ({color}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M8 2V5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M16 2V5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M3.5 9.09H20.5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -57,7 +62,7 @@ const CalendarIcon = () => (
       fillRule="evenodd"
       clipRule="evenodd"
       d="M19 4.5H5C4.17157 4.5 3.5 5.17157 3.5 6V19C3.5 19.8284 4.17157 20.5 5 20.5H19C19.8284 20.5 20.5 19.8284 20.5 19V6C20.5 5.17157 19.8284 4.5 19 4.5Z"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -66,7 +71,7 @@ const CalendarIcon = () => (
 );
 
 // Email Icon
-const EmailIcon = () => (
+const EmailIcon = ({color}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M17 21H7C4 21 2 19.5 2 16V8C2 4.5 4 3 7 3H17C20 3 22 4.5 22 8V16C22 19.5 20 21 17 21Z"
@@ -86,11 +91,11 @@ const EmailIcon = () => (
 );
 
 // Dropdown Icon
-const DropdownIcon = () => (
+const DropdownIcon = ({color}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M6 9L12 15L18 9"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -99,44 +104,61 @@ const DropdownIcon = () => (
 );
 
 // US Flag Icon
-const USFlagIcon = () => (
+const USFlagIcon = ({color}) => (
   <Svg width="24" height="16" viewBox="0 0 24 16">
-    <View style={{ backgroundColor: '#FFFFFF', width: 24, height: 16, borderRadius: 2 }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', width: 12, height: 8, backgroundColor: '#002868' }}>
+    <View
+      style={{
+        backgroundColor: '#FFFFFF',
+        width: 24,
+        height: 16,
+        borderRadius: 2,
+      }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          width: 12,
+          height: 8,
+          backgroundColor: '#002868',
+        }}>
         {/* Small white stars */}
-        {Array(9).fill(0).map((_, i) => (
-          <View 
-            key={i} 
-            style={{ 
-              width: 2, 
-              height: 2, 
-              backgroundColor: 'white',
-              marginLeft: i % 3 === 0 ? 1 : 2,
-              marginTop: i < 3 ? 1 : (i < 6 ? 3 : 5)
-            }} 
-          />
-        ))}
+        {Array(9)
+          .fill(0)
+          .map((_, i) => (
+            <View
+              key={i}
+              style={{
+                width: 2,
+                height: 2,
+                backgroundColor: 'white',
+                marginLeft: i % 3 === 0 ? 1 : 2,
+                marginTop: i < 3 ? 1 : i < 6 ? 3 : 5,
+              }}
+            />
+          ))}
       </View>
       {/* Red stripes */}
-      {Array(7).fill(0).map((_, i) => (
-        <View 
-          key={i} 
-          style={{ 
-            position: 'absolute',
-            backgroundColor: '#bf0a30', 
-            height: 16/13, 
-            width: 24,
-            top: i * 16/6.5
-          }} 
-        />
-      ))}
+      {Array(7)
+        .fill(0)
+        .map((_, i) => (
+          <View
+            key={i}
+            style={{
+              position: 'absolute',
+              backgroundColor: '#bf0a30',
+              height: 16 / 13,
+              width: 24,
+              top: (i * 16) / 6.5,
+            }}
+          />
+        ))}
     </View>
   </Svg>
 );
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
-  const { user, logout } = useAuth();
+  const {user, logout} = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -147,9 +169,10 @@ const EditProfileScreen = () => {
     phone: '',
     location: '',
     gender: '',
-    profileImage: null
+    profileImage: null,
   });
   const [updating, setUpdating] = useState(false);
+  const {COLORS1} = useTheme();
 
   useEffect(() => {
     fetchUserProfile();
@@ -160,7 +183,7 @@ const EditProfileScreen = () => {
     try {
       // First try to sync the auth token
       await syncAuthToken();
-      
+
       // If user context has data, pre-populate the form
       if (user) {
         setFormData(prevData => ({
@@ -170,15 +193,17 @@ const EditProfileScreen = () => {
           email: user.email || '',
         }));
       }
-      
+
       // Then try to get the full profile from API
       const response = await getUserProfile();
       if (response.success && response.data) {
         const profile = response.data;
-        
+
         // Format date from API format (YYYY-MM-DD) to display format (MM/DD/YYYY)
-        const dateOfBirth = profile.dateOfBirth ? formatDateForDisplay(profile.dateOfBirth) : '';
-        
+        const dateOfBirth = profile.dateOfBirth
+          ? formatDateForDisplay(profile.dateOfBirth)
+          : '';
+
         setFormData({
           firstName: profile.firstName || '',
           lastName: profile.lastName || '',
@@ -188,28 +213,30 @@ const EditProfileScreen = () => {
           phone: profile.phone || '',
           location: profile.location || '',
           gender: profile.gender || '',
-          profileImage: profile.profileImage ? profile.profileImage.id : null
+          profileImage: profile.profileImage ? profile.profileImage.id : null,
         });
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      
+
       // Handle authentication errors
       if (error.message && error.message.includes('Authentication error')) {
         Alert.alert(
           'Authentication Error',
           'Your session has expired. Please log in again.',
           [
-            { text: 'OK', onPress: () => {
+            {
+              text: 'OK',
+              onPress: () => {
                 // Redirect to login
                 logout();
                 navigation.reset({
                   index: 0,
-                  routes: [{ name: 'Login' }],
+                  routes: [{name: 'Login'}],
                 });
-              }
-            }
-          ]
+              },
+            },
+          ],
         );
       } else {
         Alert.alert('Error', 'Failed to load profile. Please try again.');
@@ -219,7 +246,7 @@ const EditProfileScreen = () => {
     }
   };
 
-  const formatDateForDisplay = (apiDate) => {
+  const formatDateForDisplay = apiDate => {
     // Convert from YYYY-MM-DD to MM/DD/YYYY
     try {
       const [year, month, day] = apiDate.split('-');
@@ -229,7 +256,7 @@ const EditProfileScreen = () => {
     }
   };
 
-  const formatDateForApi = (displayDate) => {
+  const formatDateForApi = displayDate => {
     // Convert from MM/DD/YYYY to YYYY-MM-DD
     try {
       const [month, day, year] = displayDate.split('/');
@@ -242,7 +269,7 @@ const EditProfileScreen = () => {
   const handleChange = (field, value) => {
     setFormData({
       ...formData,
-      [field]: value
+      [field]: value,
     });
   };
 
@@ -269,45 +296,47 @@ const EditProfileScreen = () => {
     try {
       // Ensure token is synchronized before updating
       await syncAuthToken();
-      
+
       // Prepare data for API
       const updateData = {
         ...formData,
-        dateOfBirth: formatDateForApi(formData.dateOfBirth)
+        dateOfBirth: formatDateForApi(formData.dateOfBirth),
       };
 
       // Remove null values to prevent API errors
-      Object.keys(updateData).forEach(key => 
-        updateData[key] === null && delete updateData[key]
+      Object.keys(updateData).forEach(
+        key => updateData[key] === null && delete updateData[key],
       );
 
       const response = await updateUserProfile(updateData);
       if (response.success) {
         Alert.alert('Success', 'Profile updated successfully', [
-          { text: 'OK', onPress: () => navigation.goBack() }
+          {text: 'OK', onPress: () => navigation.goBack()},
         ]);
       } else {
         Alert.alert('Error', response.message || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      
+
       // Handle authentication errors
       if (error.message && error.message.includes('Authentication error')) {
         Alert.alert(
           'Authentication Error',
           'Your session has expired. Please log in again.',
           [
-            { text: 'OK', onPress: () => {
+            {
+              text: 'OK',
+              onPress: () => {
                 // Redirect to login
                 logout();
                 navigation.reset({
                   index: 0,
-                  routes: [{ name: 'Login' }],
+                  routes: [{name: 'Login'}],
                 });
-              }
-            }
-          ]
+              },
+            },
+          ],
         );
       } else {
         Alert.alert('Error', 'An error occurred while updating your profile');
@@ -329,47 +358,72 @@ const EditProfileScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: COLORS1.background}]}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity
+          style={[styles.backButton, {backgroundColor: COLORS1.textDark}]}
+          onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Profile</Text>
+        <Text style={[styles.headerTitle, {color: COLORS1.textDark}]}>
+          Edit Profile
+        </Text>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.formContainer}>
           {/* First Name */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  color: COLORS1.textDark,
+                  backgroundColor: COLORS1.background,
+                },
+              ]}
               placeholder="First Name"
               value={formData.firstName}
-              onChangeText={(text) => handleChange('firstName', text)}
+              onChangeText={text => handleChange('firstName', text)}
             />
           </View>
 
           {/* Last Name */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  color: COLORS1.textDark,
+                  backgroundColor: COLORS1.background,
+                },
+              ]}
               placeholder="Last Name"
               value={formData.lastName}
-              onChangeText={(text) => handleChange('lastName', text)}
+              onChangeText={text => handleChange('lastName', text)}
             />
           </View>
 
           {/* Date of Birth */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  color: COLORS1.textDark,
+                  backgroundColor: COLORS1.background,
+                },
+              ]}
               placeholder="Date of Birth (MM/DD/YYYY)"
               value={formData.dateOfBirth}
-              onChangeText={(text) => handleChange('dateOfBirth', text)}
+              onChangeText={text => handleChange('dateOfBirth', text)}
             />
             <View style={styles.inputIcon}>
               <CalendarIcon />
@@ -377,12 +431,19 @@ const EditProfileScreen = () => {
           </View>
 
           {/* Email */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  color: COLORS1.textDark,
+                  backgroundColor: COLORS1.background,
+                },
+              ]}
               placeholder="Email"
               value={formData.email}
-              onChangeText={(text) => handleChange('email', text)}
+              onChangeText={text => handleChange('email', text)}
               keyboardType="email-address"
             />
             <View style={styles.inputIcon}>
@@ -391,32 +452,56 @@ const EditProfileScreen = () => {
           </View>
 
           {/* Location */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
             <TextInput
-              style={styles.input}
+              style={[
+                styles.input,
+                {
+                  color: COLORS1.textDark,
+                  backgroundColor: COLORS1.background,
+                },
+              ]}
               placeholder="Location"
               value={formData.location}
-              onChangeText={(text) => handleChange('location', text)}
+              onChangeText={text => handleChange('location', text)}
             />
           </View>
 
           {/* Phone Number */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
             <View style={styles.flagContainer}>
               <USFlagIcon />
             </View>
             <TextInput
-              style={[styles.input, styles.phoneInput]}
+              style={[
+                styles.input,
+                styles.phoneInput,
+                {
+                  color: COLORS1.textDark,
+                  backgroundColor: COLORS1.background,
+                },
+              ]}
               placeholder="Phone Number"
               value={formData.phone}
-              onChangeText={(text) => handleChange('phone', text)}
+              onChangeText={text => handleChange('phone', text)}
               keyboardType="phone-pad"
             />
           </View>
 
           {/* Gender */}
-          <TouchableOpacity style={styles.inputContainer}>
-            <Text style={[styles.input, styles.dropdownInput]}>
+          <TouchableOpacity
+            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
+            <Text
+              style={[
+                styles.input,
+                styles.dropdownInput,
+                {
+                  color: COLORS1.textDark,
+                  backgroundColor: COLORS1.background,
+                },
+              ]}>
               {formData.gender || 'Select Gender'}
             </Text>
             <View style={styles.inputIcon}>
@@ -425,15 +510,22 @@ const EditProfileScreen = () => {
           </TouchableOpacity>
 
           {/* Update Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.updateButton, updating && styles.disabledButton]}
             onPress={handleUpdate}
-            disabled={updating}
-          >
+            disabled={updating}>
             {updating ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <Text style={styles.updateButtonText}>Update</Text>
+              <Text
+                style={[
+                  styles.updateButtonText,
+                  {
+                    color: COLORS1.white,
+                  },
+                ]}>
+                Update
+              </Text>
             )}
           </TouchableOpacity>
         </View>
@@ -529,4 +621,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditProfileScreen; 
+export default EditProfileScreen;

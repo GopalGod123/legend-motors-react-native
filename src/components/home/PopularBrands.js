@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { API_KEY } from '../../utils/apiConfig';
 import axios from 'axios';
 import { CarImage } from '../common';
+import { useTheme } from 'src/context/ThemeContext';
 
 // Placeholder logo text examples for brands without logos
 const LOGO_PLACEHOLDERS = {
@@ -18,7 +19,8 @@ const PopularBrands = () => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-
+  const {isDark, COLORS1, toggleTheme} = useTheme();
+  
   useEffect(() => {
     fetchBrands();
   }, []);

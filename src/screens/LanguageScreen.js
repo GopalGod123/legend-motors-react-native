@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,10 +7,11 @@ import {
   SafeAreaView,
   StatusBar,
   ScrollView,
-  FlatList
+  FlatList,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import {useNavigation} from '@react-navigation/native';
+import Svg, {Path, Circle} from 'react-native-svg';
+import {useTheme} from 'src/context/ThemeContext';
 
 // Back Arrow Icon
 const BackIcon = () => (
@@ -41,21 +42,22 @@ const RadioUnselected = () => (
 );
 
 const LanguageScreen = () => {
+  const {COLORS1} = useTheme();
   const navigation = useNavigation();
   const [selectedLanguage, setSelectedLanguage] = useState('English (US)');
 
-  const handleSelectLanguage = (language) => {
+  const handleSelectLanguage = language => {
     setSelectedLanguage(language);
     // Here you would also store the selected language in your app's state/storage
   };
 
   const languages = [
-    { id: '1', name: 'English (US)', category: 'Suggested' },
-    { id: '2', name: 'Arabic', category: 'Suggested' },
-    { id: '3', name: 'Mandarin', category: 'Language' },
-    { id: '4', name: 'Spanish', category: 'Language' },
-    { id: '5', name: 'Russian', category: 'Language' },
-    { id: '6', name: 'French', category: 'Language' },
+    {id: '1', name: 'English (US)', category: 'Suggested'},
+    {id: '2', name: 'Arabic', category: 'Suggested'},
+    {id: '3', name: 'Mandarin', category: 'Language'},
+    {id: '4', name: 'Spanish', category: 'Language'},
+    {id: '5', name: 'Russian', category: 'Language'},
+    {id: '6', name: 'French', category: 'Language'},
   ];
 
   // Group languages by category
@@ -70,33 +72,38 @@ const LanguageScreen = () => {
   // Convert to array of sections
   const sections = Object.keys(groupedLanguages).map(category => ({
     title: category,
-    data: groupedLanguages[category]
+    data: groupedLanguages[category],
   }));
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: COLORS1?.background}]}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
-          <BackIcon />
+        <TouchableOpacity
+          style={[styles.backButton, {backgroundColor: COLORS1?.textDark}]}
+          onPress={() => navigation.goBack()}>
+          <BackIcon color={COLORS1?.textDark} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Language</Text>
+        <Text style={[styles.headerTitle, {color: COLORS1.textDark}]}>
+          Language
+        </Text>
       </View>
-      
+
       <View style={styles.content}>
         {sections.map(section => (
           <View key={section.title} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <Text style={[styles.sectionTitle, {color: COLORS1.textDark}]}>
+              {section.title}
+            </Text>
             {section.data.map(language => (
               <TouchableOpacity
                 key={language.id}
                 style={styles.languageItem}
-                onPress={() => handleSelectLanguage(language.name)}
-              >
-                <Text style={styles.languageName}>{language.name}</Text>
+                onPress={() => handleSelectLanguage(language.name)}>
+                <Text style={[styles.languageName, {color: COLORS1.textDark}]}>
+                  {language.name}
+                </Text>
                 {selectedLanguage === language.name ? (
                   <RadioSelected />
                 ) : (
@@ -160,4 +167,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LanguageScreen; 
+export default LanguageScreen;

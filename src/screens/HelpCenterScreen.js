@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,47 +11,50 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Svg, { Path, Circle } from 'react-native-svg';
-import { getFaqCategories } from '../services/api';
+import {useNavigation} from '@react-navigation/native';
+import Svg, {Path, Circle} from 'react-native-svg';
+import {getFaqCategories} from '../services/api';
+import {useTheme} from 'src/context/ThemeContext';
 
 // Utility functions for handling HTML content
-const parseHtmlContent = (html) => {
+const parseHtmlContent = html => {
   if (!html) return '';
-  
+
   // First, remove any script or style tags and their content
-  let parsed = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-                   .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-  
+  let parsed = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+
   // Replace common HTML entities
-  parsed = parsed.replace(/&nbsp;/g, ' ')
-                .replace(/&amp;/g, '&')
-                .replace(/&lt;/g, '<')
-                .replace(/&gt;/g, '>')
-                .replace(/&quot;/g, '"')
-                .replace(/&apos;/g, "'");
-  
+  parsed = parsed
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'");
+
   // Replace <br>, <p>, </p>, <div>, </div> tags with newlines
-  parsed = parsed.replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<\/p>/gi, '\n')
-                .replace(/<\/div>/gi, '\n')
-                .replace(/<p[^>]*>/gi, '')
-                .replace(/<div[^>]*>/gi, '');
-  
+  parsed = parsed
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<p[^>]*>/gi, '')
+    .replace(/<div[^>]*>/gi, '');
+
   // Remove all other HTML tags but keep their content
   parsed = parsed.replace(/<[^>]*>/g, '');
-  
+
   // Clean up excessive whitespace and newlines
-  parsed = parsed.replace(/\n\s*\n/g, '\n')
-                .replace(/^\s+|\s+$/g, '');
-  
+  parsed = parsed.replace(/\n\s*\n/g, '\n').replace(/^\s+|\s+$/g, '');
+
   return parsed;
 };
 
 // Strip all HTML tags for search functionality
-const stripHtmlTags = (html) => {
+const stripHtmlTags = html => {
   if (!html) return '';
   return html.replace(/<\/?[^>]+(>|$)/g, '');
 };
@@ -267,11 +270,12 @@ const InstagramIcon = () => (
 );
 
 const HelpCenterScreen = () => {
+  const {COLORS1} = useTheme();
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('FAQ');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedItem, setExpandedItem] = useState(null);
-  
+
   // Add new states for API data
   const [loading, setLoading] = useState(true);
   const [faqCategories, setFaqCategories] = useState([]);
@@ -295,46 +299,48 @@ const HelpCenterScreen = () => {
     setError(null);
     try {
       const response = await getFaqCategories(language);
-      
+
       if (response.success && response.data) {
         console.log('FAQ data received:', response.data);
-        
+
         // Process categories and set first one as active
         const categories = response.data.map((category, index) => ({
           id: category.id,
           name: category.name,
-          active: index === 0
+          active: index === 0,
         }));
-        
+
         setFaqCategories(categories);
-        
+
         // Set the first category as active if categories exist
         if (categories.length > 0) {
           setActiveCategoryId(categories[0].id);
         }
-        
+
         // Flatten all FAQs for search functionality
         const allFaqs = [];
         response.data.forEach(category => {
           if (category.faqs && category.faqs.length > 0) {
             category.faqs.forEach(faq => {
               allFaqs.push({
-                id: `${category.id}-${faq.id || Math.random().toString(36).substring(7)}`,
+                id: `${category.id}-${
+                  faq.id || Math.random().toString(36).substring(7)
+                }`,
                 categoryId: category.id,
                 question: faq.question,
                 answer: faq.answer,
-                plainTextAnswer: stripHtmlTags(faq.answer) // Add plain text version for search
+                plainTextAnswer: stripHtmlTags(faq.answer), // Add plain text version for search
               });
             });
           }
         });
-        
+
         setFaqs(allFaqs);
         setFilteredFaqs(allFaqs);
       } else {
         console.log('API returned unsuccessful response for FAQs:', response);
         setError('Failed to load FAQs. Please try again later.');
-        
+
         // Set empty data to avoid undefined errors
         setFaqCategories([]);
         setFaqs([]);
@@ -342,8 +348,10 @@ const HelpCenterScreen = () => {
       }
     } catch (error) {
       console.error('Error fetching FAQ data:', error);
-      setError('An error occurred while loading FAQs. Please check your connection and try again.');
-      
+      setError(
+        'An error occurred while loading FAQs. Please check your connection and try again.',
+      );
+
       // Set empty data to avoid undefined errors
       setFaqCategories([]);
       setFaqs([]);
@@ -355,37 +363,39 @@ const HelpCenterScreen = () => {
 
   const filterFaqs = () => {
     let filtered = [...faqs];
-    
+
     // Filter by active category
     if (activeCategoryId) {
       filtered = filtered.filter(faq => faq.categoryId === activeCategoryId);
     }
-    
+
     // Filter by search query using plain text versions
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(faq => 
-        faq.question.toLowerCase().includes(query) || 
-        (faq.plainTextAnswer && faq.plainTextAnswer.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        faq =>
+          faq.question.toLowerCase().includes(query) ||
+          (faq.plainTextAnswer &&
+            faq.plainTextAnswer.toLowerCase().includes(query)),
       );
     }
-    
+
     setFilteredFaqs(filtered);
   };
 
-  const handleCategoryPress = (categoryId) => {
+  const handleCategoryPress = categoryId => {
     setActiveCategoryId(categoryId);
-    
+
     // Update active status in faqCategories
     const updatedCategories = faqCategories.map(category => ({
       ...category,
-      active: category.id === categoryId
+      active: category.id === categoryId,
     }));
-    
+
     setFaqCategories(updatedCategories);
   };
 
-  const toggleExpandItem = (id) => {
+  const toggleExpandItem = id => {
     if (expandedItem === id) {
       setExpandedItem(null);
     } else {
@@ -393,7 +403,7 @@ const HelpCenterScreen = () => {
     }
   };
 
-  const handleSearch = (text) => {
+  const handleSearch = text => {
     setSearchQuery(text);
   };
 
@@ -404,12 +414,12 @@ const HelpCenterScreen = () => {
 
   // Define contact items for Contact Us tab
   const contactItems = [
-    { id: '1', name: 'Customer Service', icon: <HeadphonesIcon /> },
-    { id: '2', name: 'WhatsApp', icon: <WhatsAppIcon /> },
-    { id: '3', name: 'Website', icon: <WebsiteIcon /> },
-    { id: '4', name: 'Facebook', icon: <FacebookIcon /> },
-    { id: '5', name: 'Twitter', icon: <TwitterIcon /> },
-    { id: '6', name: 'Instagram', icon: <InstagramIcon /> },
+    {id: '1', name: 'Customer Service', icon: <HeadphonesIcon />},
+    {id: '2', name: 'WhatsApp', icon: <WhatsAppIcon />},
+    {id: '3', name: 'Website', icon: <WebsiteIcon />},
+    {id: '4', name: 'Facebook', icon: <FacebookIcon />},
+    {id: '5', name: 'Twitter', icon: <TwitterIcon />},
+    {id: '6', name: 'Instagram', icon: <InstagramIcon />},
   ];
 
   const renderFAQTab = () => {
@@ -421,7 +431,7 @@ const HelpCenterScreen = () => {
         </View>
       );
     }
-    
+
     if (error) {
       return (
         <View style={styles.errorContainer}>
@@ -434,29 +444,27 @@ const HelpCenterScreen = () => {
     }
 
     return (
-      <View style={styles.tabContent}>
+      <View style={[styles.tabContent, {backgroundColor: COLORS1.background}]}>
         {/* FAQ Categories */}
         {faqCategories.length > 0 && (
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            style={styles.categoriesContainer}
-          >
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoriesContainer}>
             {faqCategories.map(category => (
               <TouchableOpacity
                 key={category.id}
                 style={[
                   styles.categoryButton,
-                  category.active && styles.activeCategoryButton
+                  category.active && styles.activeCategoryButton,
                 ]}
-                onPress={() => handleCategoryPress(category.id)}
-              >
+                onPress={() => handleCategoryPress(category.id)}>
                 <Text
                   style={[
                     styles.categoryText,
-                    category.active && styles.activeCategoryText
-                  ]}
-                >
+                    category.active && styles.activeCategoryText,
+                    {color: COLORS1.textDark},
+                  ]}>
                   {category.name}
                 </Text>
               </TouchableOpacity>
@@ -482,12 +490,16 @@ const HelpCenterScreen = () => {
           <View style={styles.faqItemsContainer}>
             {filteredFaqs.map(item => (
               <View key={item.id} style={styles.faqItem}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.faqQuestion}
-                  onPress={() => toggleExpandItem(item.id)}
-                >
+                  onPress={() => toggleExpandItem(item.id)}>
                   <Text style={styles.questionText}>{item.question}</Text>
-                  <View style={expandedItem === item.id ? styles.chevronUp : styles.chevronDown}>
+                  <View
+                    style={
+                      expandedItem === item.id
+                        ? styles.chevronUp
+                        : styles.chevronDown
+                    }>
                     <ChevronDownIcon />
                   </View>
                 </TouchableOpacity>
@@ -504,9 +516,9 @@ const HelpCenterScreen = () => {
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-              {searchQuery.trim() 
-                ? "No FAQs found matching your search. Try different keywords." 
-                : "No FAQs available for this category."}
+              {searchQuery.trim()
+                ? 'No FAQs found matching your search. Try different keywords.'
+                : 'No FAQs available for this category.'}
             </Text>
           </View>
         )}
@@ -520,9 +532,7 @@ const HelpCenterScreen = () => {
         <View style={styles.contactItemsContainer}>
           {contactItems.map(item => (
             <TouchableOpacity key={item.id} style={styles.contactItem}>
-              <View style={styles.contactIcon}>
-                {item.icon}
-              </View>
+              <View style={styles.contactIcon}>{item.icon}</View>
               <Text style={styles.contactName}>{item.name}</Text>
             </TouchableOpacity>
           ))}
@@ -532,43 +542,58 @@ const HelpCenterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, {backgroundColor: COLORS1.background}]}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity
+          style={[styles.backButton, {backgroundColor: COLORS1.background}]}
+          onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Help Center</Text>
+        <Text style={[styles.headerTitle, {color: COLORS1?.textDark}]}>
+          Help Center
+        </Text>
         <TouchableOpacity style={styles.infoButton}>
           <InfoCircleIcon />
         </TouchableOpacity>
       </View>
 
       <View style={styles.tabsContainer}>
-        <TouchableOpacity 
-          style={[styles.tabButton, activeTab === 'FAQ' && styles.activeTabButton]}
-          onPress={() => setActiveTab('FAQ')}
-        >
-          <Text 
-            style={[styles.tabText, activeTab === 'FAQ' && styles.activeTabText]}
-          >
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === 'FAQ' && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab('FAQ')}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'FAQ' && styles.activeTabText,
+              ,
+              {color: COLORS1.textDark},
+            ]}>
             FAQ
           </Text>
           {activeTab === 'FAQ' && <View style={styles.activeTabIndicator} />}
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabButton, activeTab === 'Contact' && styles.activeTabButton]}
-          onPress={() => setActiveTab('Contact')}
-        >
-          <Text 
-            style={[styles.tabText, activeTab === 'Contact' && styles.activeTabText]}
-          >
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === 'Contact' && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab('Contact')}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'Contact' && styles.activeTabText,
+              {color: COLORS1.textDark},
+            ]}>
             Contact us
           </Text>
-          {activeTab === 'Contact' && <View style={styles.activeTabIndicator} />}
+          {activeTab === 'Contact' && (
+            <View style={styles.activeTabIndicator} />
+          )}
         </TouchableOpacity>
       </View>
 
@@ -699,7 +724,7 @@ const styles = StyleSheet.create({
     paddingRight: 8,
   },
   chevronUp: {
-    transform: [{ rotate: '180deg' }],
+    transform: [{rotate: '180deg'}],
   },
   chevronDown: {
     // Default orientation, no transformation needed
@@ -804,4 +829,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HelpCenterScreen; 
+export default HelpCenterScreen;

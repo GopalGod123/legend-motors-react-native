@@ -1,12 +1,13 @@
 import React from 'react';
 import { ScrollView, TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/constants';
+import { useTheme } from 'src/context/ThemeContext';
 
 const CategoryFilter = () => {
   const categories = ['Brands', 'Trims', 'Model', 'Year'];
-  
+  const {isDark, COLORS1, toggleTheme} = useTheme();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: COLORS1.background}]}>
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false} 

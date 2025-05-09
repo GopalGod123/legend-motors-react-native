@@ -30,6 +30,7 @@ import {
 
 // Import the SearchBar from components/home
 import SearchBar from '../components/home/SearchBar';
+import { useTheme } from 'src/context/ThemeContext';
 
 // Create color statistics tracker
 const colorStats = {
@@ -276,7 +277,7 @@ const ExploreScreen = () => {
   const [showCarIds, setShowCarIds] = useState(false);
   const [carIds, setCarIds] = useState([]);
   const [searchedModels, setSearchedModels] = useState([]);
-
+  const {isDark, COLORS1 } = useTheme();
   const { user } = useAuth();
   const { isInWishlist, addItemToWishlist, removeItemFromWishlist } = useWishlist();
 
@@ -1347,7 +1348,7 @@ const ExploreScreen = () => {
   // Render car model item
   const renderCarModelItem = ({ item }) => (
     <TouchableOpacity 
-      style={styles.carModelItem}
+    style={[styles.carModelItem, { backgroundColor: COLORS1.filterBackground }]}
       onPress={() => {
         // Navigate to show only cars with this model ID
         navigation.setParams({ carId: undefined });
@@ -1355,14 +1356,14 @@ const ExploreScreen = () => {
         fetchCarsByModelIds([item.id]);
       }}
     >
-      <Text style={styles.carModelName}>{item.name}</Text>
+      <Text style={[styles.carModelName, { color: COLORS1.textDark }]}>{item.name}</Text>
       <View style={styles.carModelDetails}>
         {item.brand && (
-          <Text style={styles.carModelBrand}>
+          <Text style={[styles.carModelBrand, { color: COLORS1.textMedium }]}>
             Brand: {item.brand.name}
           </Text>
         )}
-        <Text style={styles.carModelId}>Model ID: {item.id}</Text>
+        <Text style={[styles.carModelId, { color: COLORS1.textMedium }]}>Model ID: {item.id}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -1420,9 +1421,9 @@ const ExploreScreen = () => {
     if (!loadingMore) return null;
     
     return (
-      <View style={styles.footerLoader}>
+      <View style={[styles.footerLoader, { backgroundColor: COLORS1.background }]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.footerLoaderText}>Loading more cars...</Text>
+        <Text style={[styles.footerLoaderText, { color: COLORS1.textMedium }]}>Loading more cars...</Text>
       </View>
     );
   };
@@ -1630,8 +1631,11 @@ const ExploreScreen = () => {
   }, [page, loadingMore, hasMoreData]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, { backgroundColor: COLORS1.background }]}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={COLORS1.background}
+      />
       
       {/* Header Component */}
       <Header 
@@ -1642,13 +1646,13 @@ const ExploreScreen = () => {
       {/* Debug button for color extraction (hidden in production) */}
       {(typeof __DEV__ !== 'undefined' && __DEV__) && (
         <TouchableOpacity 
-          style={styles.debugButton}
+        style={[styles.debugButton, { backgroundColor: COLORS1.filterBackground }]}
           onPress={() => {
             console.log('🎨 [Color Extraction] Manual trigger of color statistics summary');
             colorStats.printSummary();
           }}
         >
-          <Text style={styles.debugButtonText}>📊 Show Color Stats</Text>
+          <Text style={[styles.debugButtonText, { color: COLORS1.textDark }]}>📊 Show Color Stats</Text>
         </TouchableOpacity>
       )}
       
@@ -1666,10 +1670,10 @@ const ExploreScreen = () => {
       {filteredBySearch && searchedModels.length > 0 && (
         <View style={styles.carModelsContainer}>
           <TouchableOpacity 
-            style={styles.toggleCarModelsButton}
+            style={[styles.toggleCarModelsButton, { backgroundColor: COLORS1.secondary }]}
             onPress={() => setShowCarIds(!showCarIds)}
           >
-            <Text style={styles.toggleCarModelsText}>
+            <Text style={[styles.toggleCarModelsText, { color: COLORS1.white }]}>
               {showCarIds ? 'Hide Matching Models' : `Show ${searchedModels.length} Matching Models`}
             </Text>
           </TouchableOpacity>
@@ -1683,7 +1687,7 @@ const ExploreScreen = () => {
               horizontal={false}
               ListHeaderComponent={
                 <View style={styles.carModelsHeaderContainer}>
-                  <Text style={styles.carModelsHeader}>
+                  <Text style={[styles.carModelsHeader, { color: COLORS1.textDark }]}>
                     Tap on a car model to see all its cars:
                   </Text>
                 </View>

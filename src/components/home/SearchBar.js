@@ -1,24 +1,31 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { FilterIcon } from '../icons';
-import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/constants';
-import { Ionicons } from '@expo/vector-icons';
+import React, {useState, useEffect, useRef} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {FilterIcon} from '../icons';
+import {COLORS, SPACING, BORDER_RADIUS} from '../../utils/constants';
+import {Ionicons} from 'src/utils/icon';
+import { useTheme } from 'src/context/ThemeContext';
 
-const SearchBar = ({ 
-  searchQuery = '', 
-  onSearch, 
-  onClearSearch, 
+const SearchBar = ({
+  searchQuery = '',
+  onSearch,
+  onClearSearch,
   disabled = false,
   onApplyFilters,
-  currentFilters = {}
+  currentFilters = {},
 }) => {
   // Use currentFilters directly instead of copying to state
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-  
+  const {isDark, COLORS1 } = useTheme();
   // Track if this is the first render
   const isFirstRender = useRef(true);
-  
+
   const navigation = useNavigation();
 
   // Update local state when props change
@@ -32,18 +39,18 @@ const SearchBar = ({
     navigation.navigate('FilterScreen', {
       filterType: 'brands',
       onApplyCallback: handleFilterApply,
-      currentFilters: currentFilters // Pass the prop directly
+      currentFilters: currentFilters, // Pass the prop directly
     });
   };
 
-  const handleFilterApply = (filters) => {
+  const handleFilterApply = filters => {
     if (filters && onApplyFilters) {
       // Skip state update and directly call parent callback
       onApplyFilters(filters);
     }
   };
 
-  const handleTextChange = (text) => {
+  const handleTextChange = text => {
     setLocalSearchQuery(text);
     if (onSearch) {
       onSearch(text);
@@ -64,41 +71,60 @@ const SearchBar = ({
 
   return (
     <View style={styles.container}>
-      <View style={[styles.searchSection, disabled && styles.disabledSearch]}>
-        <TouchableOpacity 
-          style={styles.filterButton} 
+      <View style={[styles.searchSection,{
+      backgroundColor: isDark ? COLORS1.backgroundDark : COLORS1.secondary,
+      borderColor: isDark ? COLORS1.borderDark : '#e5e5e5',
+    }, disabled && styles.disabledSearch]}>
+        <TouchableOpacity
+          style={[styles.filterButton, {
+            backgroundColor: isDark ? COLORS1.backgroundDark : COLORS1.secondary,
+            borderRightColor: isDark ? COLORS1.borderDark : '#e5e5e5',
+          },]}
           onPress={handleOpenFilter}
-          disabled={disabled}
-        >
-          <Text style={[styles.filterText, disabled && styles.disabledText]}>Filter</Text>
-          <Text style={[styles.filterIcon, disabled && styles.disabledText]}>▼</Text>
+          disabled={disabled}>
+          <Text style={[styles.filterText, { color: COLORS1.primaryText }, disabled && styles.disabledText]}>
+            Filter
+          </Text>
+          <Text style={[styles.filterIcon, { color: COLORS1.primaryText }, disabled && styles.disabledText]}>
+            ▼
+          </Text>
         </TouchableOpacity>
-        
+
         <View style={styles.searchInputContainer}>
           <View style={styles.searchIconLeft}>
-            <Ionicons name="search" size={20} color={disabled ? "#C0C0C0" : "#5E366D"} />
+            <Ionicons
+              name="search"
+              size={20}
+              color={disabled ? COLORS1.disabledText : COLORS1.primaryText}
+            />
           </View>
-          <TextInput 
-            style={[styles.searchInput, disabled && styles.disabledInput]}
+          <TextInput
+            style={[styles.searchInput, disabled && styles.disabledInput,  { color: COLORS1.textDark }]}
             placeholder="Search cars..."
-            placeholderTextColor={disabled ? "#C0C0C0" : COLORS.inputPlaceholder}
+            placeholderTextColor={disabled ? COLORS1.disabledText : COLORS1.inputPlaceholder}
             value={localSearchQuery}
             onChangeText={handleTextChange}
             editable={!disabled}
           />
           {localSearchQuery.length > 0 && (
-            <TouchableOpacity style={styles.clearButton} onPress={handleClearSearch} disabled={disabled}>
-              <Ionicons name="close-circle" size={18} color={disabled ? "#C0C0C0" : "#666"} />
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={handleClearSearch}
+              disabled={disabled}>
+              <Ionicons
+                name="close-circle"
+                size={18}
+                color={disabled ? COLORS1.disabledText : COLORS1.icon}
+              />
             </TouchableOpacity>
           )}
         </View>
-        
-        <TouchableOpacity 
-          style={styles.filterIconRight} 
+
+        <TouchableOpacity
+          style={styles.filterIconRight}
           onPress={handleOpenFilter}
-          disabled={disabled}
-        >
-          <FilterIcon size={20} color={disabled ? "#C0C0C0" : "#F86E1F"} />
+          disabled={disabled}>
+          <FilterIcon size={20} color={disabled ? COLORS1.disabledText : COLORS1.accent} />
         </TouchableOpacity>
       </View>
     </View>
@@ -180,4 +206,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SearchBar; 
+export default SearchBar;

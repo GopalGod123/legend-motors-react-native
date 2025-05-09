@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
+import { useTheme } from 'src/context/ThemeContext';
 
 const ResultsHeader = ({ 
   totalCars, 
@@ -11,6 +12,8 @@ const ResultsHeader = ({
   hasFilters = false, 
   onClearFilters 
 }) => {
+  const { isDark, COLORS1 } = useTheme();
+
   // Determine the appropriate text to display
   const getResultsText = () => {
     if (isViewingSpecificCar) {
@@ -25,15 +28,26 @@ const ResultsHeader = ({
   };
 
   return (
-    <View style={styles.resultsHeader}>
-      <Text style={styles.resultsText}>{getResultsText()}</Text>
+    <View
+    style={[
+      styles.resultsHeader,
+      {
+        borderBottomColor: isDark ? COLORS1.border : '#F0F0F0',
+        backgroundColor: isDark ? COLORS1.background : '#FFFFFF',
+      },
+    ]}
+  >
+      <Text style={[
+          styles.resultsText,
+          { color: isDark ? COLORS.white : COLORS1.text },
+        ]}>{getResultsText()}</Text>
       
       {!isViewingSpecificCar && (hasFilters || filteredBySearch) && (
         <TouchableOpacity 
           style={styles.clearFiltersButton}
           onPress={onClearFilters}
         >
-          <Text style={styles.clearFiltersText}>Clear All</Text>
+          <Text style={[styles.clearFiltersText,]}>Clear All</Text>
         </TouchableOpacity>
       )}
     </View>

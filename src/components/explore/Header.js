@@ -1,20 +1,22 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES } from '../../utils/constants';
+import { useTheme } from 'src/context/ThemeContext';
 
 const Header = ({ 
   isViewingSpecificCar = false, 
   onBackToAllCars 
 }) => {
+    const {isDark, COLORS1 } = useTheme();
   return (
-    <View style={styles.header}>
-      <Text style={styles.headerTitle}>Explore</Text>
+    <View style={[styles.header, { backgroundColor: COLORS1.background }]}>
+      <Text style={[styles.headerTitle, { color: COLORS1.textDark }]}>Explore</Text>
       {isViewingSpecificCar && (
         <TouchableOpacity 
-          style={styles.backButton}
-          onPress={onBackToAllCars}
+        style={[styles.backButton, { backgroundColor: COLORS1.primary }]}
+        onPress={onBackToAllCars}
         >
-          <Text style={styles.backButtonText}>← Back to All Cars</Text>
+          <Text style={[styles.backButtonText, { color: COLORS1.white }]}>← Back to All Cars</Text>
         </TouchableOpacity>
       )}
     </View>

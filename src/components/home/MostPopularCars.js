@@ -1,133 +1,169 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  FlatList, 
+import React, {useState, useEffect, useRef} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
   Image,
   Dimensions,
   Share,
-  ScrollView
+  ScrollView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { 
-  MaterialCommunityIcons, 
-  Ionicons, 
-  AntDesign, 
-  FontAwesome 
-} from '@expo/vector-icons';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
-import { CarImage } from '../common';
-import { API_BASE_URL, API_KEY } from '../../utils/apiConfig';
+import {useNavigation} from '@react-navigation/native';
+import {
+  MaterialCommunityIcons,
+  Ionicons,
+  AntDesign,
+  FontAwesome,
+} from 'src/utils/icon';
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  BORDER_RADIUS,
+} from '../../utils/constants';
+import {CarImage} from '../common';
+import {API_BASE_URL, API_KEY} from '../../utils/apiConfig';
 import axios from 'axios';
-import { useAuth } from '../../context/AuthContext';
-import { useWishlist } from '../../context/WishlistContext';
+import {useAuth} from '../../context/AuthContext';
+import {useWishlist} from '../../context/WishlistContext';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
 
 // Create a proper React component for car cards
-const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) => {
+const PopularCarCard = ({
+  item,
+  onPress,
+  toggleFavorite,
+  shareCar,
+  isFavorite,
+}) => {
   // Extract data from the API response
   const brandName = item.Brand?.name || item.brand?.name || '';
   const carModel = item.CarModel?.name || item.model || '';
   const year = item.Year?.year || item.year || '';
   const additionalInfo = item.additionalInfo || '';
-  
-  const bodyType = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'body_type'
-  )?.name || item.bodyType || 'SUV';
-  
-  const fuelType = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'fuel_type'
-  )?.name || item.fuelType || 'Electric';
-  
-  const transmission = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'transmission'
-  )?.name || item.transmissionType || 'Automatic';
-  
-  const region = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'regional_specification'
-  )?.name || item.location || 'China';
-  
-  const steeringType = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'steering_side'
-  )?.name || item.steeringType || 'Left hand drive';
-  
-  // Get all car images 
+
+  const bodyType =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'body_type',
+    )?.name ||
+    item.bodyType ||
+    'SUV';
+
+  const fuelType =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'fuel_type',
+    )?.name ||
+    item.fuelType ||
+    'Electric';
+
+  const transmission =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'transmission',
+    )?.name ||
+    item.transmissionType ||
+    'Automatic';
+
+  const region =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'regional_specification',
+    )?.name ||
+    item.location ||
+    'China';
+
+  const steeringType =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'steering_side',
+    )?.name ||
+    item.steeringType ||
+    'Left hand drive';
+
+  // Get all car images
   let imageUrls = [];
-  
+
   if (item.CarImages && item.CarImages.length > 0) {
     // Collect all image URLs
     // console.log(`Car ${item.id} has ${item.CarImages.length} images`);
-    
+
     imageUrls = item.CarImages.map(image => {
       if (image.FileSystem && image.FileSystem.path) {
-        return { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}` };
+        return {
+          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}`,
+        };
       } else if (image.FileSystem && image.FileSystem.compressedPath) {
-        return { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.compressedPath}` };
+        return {
+          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.compressedPath}`,
+        };
       } else if (image.FileSystem && image.FileSystem.thumbnailPath) {
-        return { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.thumbnailPath}` };
+        return {
+          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.thumbnailPath}`,
+        };
       }
       return null;
     }).filter(url => url !== null); // Remove any null entries
-    
+
     // console.log(`Found ${imageUrls.length} valid image URLs`);
   } else if (item.images && item.images.length > 0) {
     // console.log(`Car ${item.id} has ${item.images.length} images in item.images property`);
     imageUrls = item.images.map(image => {
-      return typeof image === 'string' ? { uri: image } : image;
+      return typeof image === 'string' ? {uri: image} : image;
     });
   } else {
     console.log(`Car ${item.id} has no images, using fallback`);
   }
-  
+
   // If no valid images from API, use the fallback
   if (imageUrls.length === 0) {
     imageUrls = [require('./HotDealsCar.png')];
   }
-  
+
   // We'll use local component state for this component instance
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const scrollViewRef = useRef(null);
-  
+
   // Add auto-sliding functionality
   useEffect(() => {
     let interval;
-    
+
     if (imageUrls.length > 1) {
       interval = setInterval(() => {
         const nextIndex = (currentImageIndex + 1) % imageUrls.length;
         scrollToImage(nextIndex);
       }, 2000); // Change image every 2 seconds
     }
-    
+
     return () => {
       if (interval) {
         clearInterval(interval);
       }
     };
   }, [currentImageIndex, imageUrls.length]);
-  
+
   // Handle image scroll with improved accuracy
-  const handleScroll = (event) => {
+  const handleScroll = event => {
     if (!event || !event.nativeEvent) return;
-    
+
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const currentIndex = Math.round(contentOffsetX / cardWidth);
-    
-    if (currentIndex >= 0 && currentIndex < imageUrls.length && currentIndex !== currentImageIndex) {
+
+    if (
+      currentIndex >= 0 &&
+      currentIndex < imageUrls.length &&
+      currentIndex !== currentImageIndex
+    ) {
       setCurrentImageIndex(currentIndex);
     }
   };
-  
+
   // Manual navigation functions for dots
-  const scrollToImage = (index) => {
+  const scrollToImage = index => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
         x: index * cardWidth,
-        animated: true
+        animated: true,
       });
     }
   };
@@ -149,15 +185,14 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
   const price = item.price || item.Price || 750000;
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.carCard}
       onPress={() => onPress(item)}
-      activeOpacity={0.8}
-    >
+      activeOpacity={0.8}>
       <View style={styles.tagBadge}>
         <Text style={styles.tagText}>Popular</Text>
       </View>
-      
+
       <View style={styles.imageContainer}>
         <ScrollView
           ref={scrollViewRef}
@@ -168,10 +203,11 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
           scrollEventThrottle={16}
           decelerationRate="fast"
           bounces={imageUrls.length > 1}
-          contentContainerStyle={{ width: cardWidth * imageUrls.length }}
-        >
+          contentContainerStyle={{width: cardWidth * imageUrls.length}}>
           {imageUrls.map((image, index) => (
-            <View key={`popular-${item.id}-${index}`} style={[styles.imageSlide, { width: cardWidth }]}>
+            <View
+              key={`popular-${item.id}-${index}`}
+              style={[styles.imageSlide, {width: cardWidth}]}>
               {typeof image === 'object' && image.uri ? (
                 <CarImage
                   source={image}
@@ -189,28 +225,32 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
             </View>
           ))}
         </ScrollView>
-        
+
         {/* Pagination dots for image gallery */}
         {imageUrls.length > 1 && (
           <View style={styles.paginationContainer}>
             {imageUrls.map((_, index) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={index}
                 onPress={() => scrollToImage(index)}
-                style={styles.paginationDotContainer}
-              >
+                style={styles.paginationDotContainer}>
                 <View
                   style={[
-                    styles.paginationDot, 
-                    { backgroundColor: index === currentImageIndex ? COLORS.white : 'rgba(255, 255, 255, 0.5)' }
-                  ]} 
+                    styles.paginationDot,
+                    {
+                      backgroundColor:
+                        index === currentImageIndex
+                          ? COLORS.white
+                          : 'rgba(255, 255, 255, 0.5)',
+                    },
+                  ]}
                 />
               </TouchableOpacity>
             ))}
           </View>
         )}
       </View>
-      
+
       <View style={styles.cardContent}>
         <View style={styles.categoryRow}>
           <View style={styles.categoryBadge}>
@@ -218,65 +258,71 @@ const PopularCarCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite })
             <Text style={styles.categoryText}>{bodyType}</Text>
           </View>
         </View>
-        
+
         <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">
           {carTitle}
         </Text>
-        
+
         <View style={styles.specRow}>
           <View style={styles.specItem}>
             <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
             <Text style={styles.specText}>ltr</Text>
           </View>
-          
+
           <View style={styles.specItem}>
             <Ionicons name="flash" size={16} color="#8A2BE2" />
             <Text style={styles.specText}>{fuelType}</Text>
           </View>
-          
+
           <View style={styles.specItem}>
-            <MaterialCommunityIcons name="car-shift-pattern" size={16} color="#8A2BE2" />
+            <MaterialCommunityIcons
+              name="car-shift-pattern"
+              size={16}
+              color="#8A2BE2"
+            />
             <Text style={styles.specText}>{transmission}</Text>
           </View>
-          
+
           <View style={styles.specItem}>
-            <MaterialCommunityIcons name="map-marker" size={16} color="#8A2BE2" />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={16}
+              color="#8A2BE2"
+            />
             <Text style={styles.specText}>{region}</Text>
           </View>
         </View>
-        
+
         <View style={styles.steeringRow}>
           <View style={styles.specItem}>
             <MaterialCommunityIcons name="steering" size={16} color="#8A2BE2" />
             <Text style={styles.specText}>{steeringType}</Text>
           </View>
         </View>
-        
+
         <View style={styles.priceRow}>
           <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
-          
+
           <View style={styles.actionButtons}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.iconButton}
-              onPress={(e) => {
+              onPress={e => {
                 e.stopPropagation();
                 toggleFavorite(item.id);
-              }}
-            >
+              }}>
               {isFavorite ? (
                 <AntDesign name="heart" size={24} color="#FF8C00" />
               ) : (
                 <AntDesign name="hearto" size={24} color="#FF8C00" />
               )}
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.iconButton}
-              onPress={(e) => {
+              onPress={e => {
                 e.stopPropagation();
                 shareCar(item);
-              }}
-            >
+              }}>
               <Ionicons name="share-social-outline" size={24} color="#777" />
             </TouchableOpacity>
           </View>
@@ -290,8 +336,9 @@ const MostPopularCars = () => {
   const [popularCars, setPopularCars] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-  const { user } = useAuth();
-  const { isInWishlist, addItemToWishlist, removeItemFromWishlist } = useWishlist();
+  const {user} = useAuth();
+  const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
+    useWishlist();
 
   useEffect(() => {
     fetchPopularCars();
@@ -300,7 +347,7 @@ const MostPopularCars = () => {
   const fetchPopularCars = async () => {
     try {
       setLoading(true);
-      
+
       // Call the API to get popular cars - using simpler parameters to avoid errors
       const response = await axios.get(`${API_BASE_URL}/car/list`, {
         params: {
@@ -308,17 +355,23 @@ const MostPopularCars = () => {
           limit: 1000,
           sortBy: 'createdAt',
           order: 'desc',
-          lang: 'en'
+          lang: 'en',
           // Removed the featured parameter which might be causing errors
         },
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': API_KEY
-        }
+          'x-api-key': API_KEY,
+        },
       });
-      
-      if (response.data && response.data.success && Array.isArray(response.data.data)) {
-        console.log(`Fetched ${response.data.data.length} cars for popular section`);
+
+      if (
+        response.data &&
+        response.data.success &&
+        Array.isArray(response.data.data)
+      ) {
+        console.log(
+          `Fetched ${response.data.data.length} cars for popular section`,
+        );
         setPopularCars(response.data.data);
       } else {
         console.log('No cars found or response format issue');
@@ -338,7 +391,7 @@ const MostPopularCars = () => {
         // Something happened in setting up the request
         console.error('Error in request setup:', error.message);
       }
-      
+
       // Set empty array when API fails
       setPopularCars([]);
     } finally {
@@ -346,26 +399,26 @@ const MostPopularCars = () => {
     }
   };
 
-  const navigateToCarDetail = (car) => {
-    navigation.navigate('CarDetailScreen', { carId: car.id });
+  const navigateToCarDetail = car => {
+    navigation.navigate('CarDetailScreen', {carId: car.id});
   };
 
   const navigateToAllPopular = () => {
-    navigation.navigate('ExploreScreen', { 
-      filters: { sortBy: 'popularity', order: 'desc' } 
+    navigation.navigate('ExploreScreen', {
+      filters: {sortBy: 'popularity', order: 'desc'},
     });
   };
 
-  const toggleFavorite = async (carId) => {
+  const toggleFavorite = async carId => {
     if (!user) {
       // Prompt user to login
-      navigation.navigate('Login', { 
+      navigation.navigate('Login', {
         returnScreen: 'HomeScreen',
-        message: 'Please login to save favorites'
+        message: 'Please login to save favorites',
       });
       return;
     }
-    
+
     try {
       if (isInWishlist(carId)) {
         const success = await removeItemFromWishlist(carId);
@@ -383,17 +436,20 @@ const MostPopularCars = () => {
     }
   };
 
-  const shareCar = async (car) => {
+  const shareCar = async car => {
     try {
-      const carTitle = car.additionalInfo || 
-        `${car.Year?.year || ''} ${car.Brand?.name || car.brand?.name || ''} ${car.CarModel?.name || ''}`;
-      
+      const carTitle =
+        car.additionalInfo ||
+        `${car.Year?.year || ''} ${car.Brand?.name || car.brand?.name || ''} ${
+          car.CarModel?.name || ''
+        }`;
+
       const shareUrl = `https://legendmotorsglobal.com/cars/${car.id}`;
-      
+
       await Share.share({
         message: `Check out this ${carTitle} on Legend Motors! ${shareUrl}`,
         url: shareUrl,
-        title: 'Share this car'
+        title: 'Share this car',
       });
     } catch (error) {
       console.error('Error sharing car:', error);
@@ -402,27 +458,42 @@ const MostPopularCars = () => {
 
   const renderLoadingSkeletons = () => {
     // Create an array of 3 items for the loading skeleton
-    const skeletonItems = Array(3).fill(0).map((_, index) => ({ id: `skeleton-${index}` }));
-    
+    const skeletonItems = Array(3)
+      .fill(0)
+      .map((_, index) => ({id: `skeleton-${index}`}));
+
     return (
       <FlatList
         data={skeletonItems}
         horizontal
         showsHorizontalScrollIndicator={false}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.carsList}
-        ItemSeparatorComponent={() => <View style={{ width: 15 }} />}
+        ItemSeparatorComponent={() => <View style={{width: 15}} />}
         renderItem={() => (
           <View style={[styles.carCard, styles.skeletonCard]}>
             <View style={[styles.imageContainer, styles.skeletonImage]} />
             <View style={styles.cardContent}>
-              <View style={[styles.skeletonText, { width: '60%', marginBottom: 8 }]} />
-              <View style={[styles.skeletonText, { width: '90%', height: 18, marginBottom: 12 }]} />
-              <View style={[styles.skeletonText, { width: '40%', height: 24, marginBottom: 12 }]} />
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <View style={[styles.skeletonText, { width: '30%' }]} />
-                <View style={[styles.skeletonText, { width: '30%' }]} />
-                <View style={[styles.skeletonText, { width: '30%' }]} />
+              <View
+                style={[styles.skeletonText, {width: '60%', marginBottom: 8}]}
+              />
+              <View
+                style={[
+                  styles.skeletonText,
+                  {width: '90%', height: 18, marginBottom: 12},
+                ]}
+              />
+              <View
+                style={[
+                  styles.skeletonText,
+                  {width: '40%', height: 24, marginBottom: 12},
+                ]}
+              />
+              <View
+                style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                <View style={[styles.skeletonText, {width: '30%'}]} />
+                <View style={[styles.skeletonText, {width: '30%'}]} />
+                <View style={[styles.skeletonText, {width: '30%'}]} />
               </View>
             </View>
           </View>
@@ -439,7 +510,7 @@ const MostPopularCars = () => {
           <Text style={styles.viewAllText}>View All</Text>
         </TouchableOpacity>
       </View>
-      
+
       {loading ? (
         renderLoadingSkeletons()
       ) : (
@@ -447,9 +518,9 @@ const MostPopularCars = () => {
           data={popularCars}
           horizontal
           showsHorizontalScrollIndicator={false}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={item => item.id.toString()}
           contentContainerStyle={styles.carsList}
-          renderItem={({ item }) => (
+          renderItem={({item}) => (
             <PopularCarCard
               key={item.id.toString()}
               item={item}
@@ -459,10 +530,14 @@ const MostPopularCars = () => {
               isFavorite={isInWishlist(item.id)}
             />
           )}
-          ItemSeparatorComponent={() => <View style={{ width: 15 }} />}
+          ItemSeparatorComponent={() => <View style={{width: 15}} />}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <MaterialCommunityIcons name="car-search" size={50} color={COLORS.textLight} />
+              <MaterialCommunityIcons
+                name="car-search"
+                size={50}
+                color={COLORS.textLight}
+              />
               <Text style={styles.emptyText}>No popular cars found</Text>
             </View>
           }
@@ -503,7 +578,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -656,4 +731,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MostPopularCars; 
+export default MostPopularCars;

@@ -1,30 +1,46 @@
 import React from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
+import { useTheme } from 'src/context/ThemeContext';
 
 const FilterTabs = ({ categories, activeFilter, onSelect }) => {
-  const renderFilterItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.filterButton,
-        activeFilter === item.id && styles.activeFilterButton
-      ]}
-      onPress={() => onSelect(item.id)}
-    >
-      <Text 
-        style={[
-          styles.filterButtonText,
-          activeFilter === item.id && styles.activeFilterText
-        ]}
-      >
-        {item.label}
-      </Text>
-    </TouchableOpacity>
-  );
+    const {isDark, COLORS1 } = useTheme();
+
+    const renderFilterItem = ({ item }) => {
+      const isActive = activeFilter === item.id;
+      return (
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            {
+              borderWidth: 1,
+              borderColor: COLORS.primary,
+              backgroundColor: isActive
+                ? COLORS.primary
+                : isDark
+                ? COLORS1.card
+                : '#F0F0F0',
+            },
+          ]}
+          onPress={() => onSelect(item.id)}
+        >
+          <Text
+            style={{
+              color: isActive ? '#FFFFFF' : COLORS.primary,
+              fontWeight: isActive ? '600' : '500',
+              fontSize: FONT_SIZES.sm,
+            }}
+          >
+            {item.label}
+          </Text>
+        </TouchableOpacity>
+      );
+    };
+    
 
   return (
-    <View style={styles.filtersContainer}>
-      <Text style={styles.filtersTitle}>Advanced Filters</Text>
+    <View style={[styles.filtersContainer, { backgroundColor: isDark ? COLORS1.background : '#FFFFFF' }]}>
+      <Text style={[styles.filtersTitle, { color: COLORS1.primaryText }]}>Advanced Filters</Text>
       <FlatList
         horizontal
         data={categories}

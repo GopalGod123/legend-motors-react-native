@@ -1,32 +1,26 @@
 import React from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
+import {Ionicons} from 'src/utils/icon';
 
-const CheckboxItem = ({ 
-  label, 
-  isSelected, 
-  onSelect, 
-  icon = null, 
+const CheckboxItem = ({
+  label,
+  isSelected,
+  onSelect,
+  icon = null,
   colorIndicator = null,
-  status = '', 
-  customStyle = {}
+  status = '',
+  customStyle = {},
 }) => {
   return (
     <TouchableOpacity
       style={[styles.checkboxItem, customStyle]}
-      onPress={onSelect}
-    >
-      <View style={[
-        styles.checkbox,
-        isSelected && styles.checkboxSelected
-      ]}>
-        {isSelected && (
-          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
-        )}
+      onPress={onSelect}>
+      <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+        {isSelected && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
       </View>
-      
+
       {colorIndicator && (
-        <View 
+        <View
           style={{
             width: 20,
             height: 20,
@@ -34,25 +28,18 @@ const CheckboxItem = ({
             backgroundColor: colorIndicator,
             marginRight: 10,
             borderWidth: 1,
-            borderColor: '#DDDDDD'
+            borderColor: '#DDDDDD',
           }}
         />
       )}
-      
+
       {icon}
-      
-      <Text style={[
-        styles.checkboxLabel,
-        isSelected && styles.selectedLabel
-      ]}>
+
+      <Text style={[styles.checkboxLabel, isSelected && styles.selectedLabel]}>
         {label}
       </Text>
-      
-      {status && (
-        <Text style={styles.itemStatus}>
-          {status}
-        </Text>
-      )}
+
+      {status && <Text style={styles.itemStatus}>{status}</Text>}
     </TouchableOpacity>
   );
 };
@@ -93,4 +80,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CheckboxItem; 
+export default CheckboxItem;

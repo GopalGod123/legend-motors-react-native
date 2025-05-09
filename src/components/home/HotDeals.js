@@ -1,113 +1,158 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Dimensions, Share, FlatList } from 'react-native';
-import { MaterialCommunityIcons, Ionicons, AntDesign, FontAwesome } from '@expo/vector-icons';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
-import { API_BASE_URL, API_KEY } from '../../utils/apiConfig';
-import { CarImage } from '../common';
+import React, {useState, useEffect, useRef} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  Share,
+  FlatList,
+} from 'react-native';
+import {
+  MaterialCommunityIcons,
+  Ionicons,
+  AntDesign,
+  FontAwesome,
+} from 'src/utils/icon';
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  BORDER_RADIUS,
+} from '../../utils/constants';
+import {API_BASE_URL, API_KEY} from '../../utils/apiConfig';
+import {CarImage} from '../common';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../../context/AuthContext';
-import { useWishlist } from '../../context/WishlistContext';
+import {useNavigation} from '@react-navigation/native';
+import {useAuth} from '../../context/AuthContext';
+import {useWishlist} from '../../context/WishlistContext';
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 const cardWidth = width * 0.85;
 
 // Single car card component with its own state
-const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) => {
+const HotDealCard = ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
   // Extract data from the API response
   const brandName = item.Brand?.name || item.brand?.name || '';
   const carModel = item.CarModel?.name || item.model || '';
   const year = item.Year?.year || item.year || '';
   const additionalInfo = item.additionalInfo || '';
-  
-  const bodyType = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'body_type'
-  )?.name || item.category || 'SUV';
-  
-  const fuelType = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'fuel_type'
-  )?.name || item.fuelType || 'Electric';
-  
-  const transmission = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'transmission'
-  )?.name || item.transmissionType || 'Automatic';
-  
-  const region = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'regional_specification'
-  )?.name || item.country || 'China';
-  
-  const steeringType = item.SpecificationValues?.find(spec => 
-    spec.Specification?.key === 'steering_side'
-  )?.name || item.steeringType || 'Left hand drive';
-  
-  // Get all car images 
+
+  const bodyType =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'body_type',
+    )?.name ||
+    item.category ||
+    'SUV';
+
+  const fuelType =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'fuel_type',
+    )?.name ||
+    item.fuelType ||
+    'Electric';
+
+  const transmission =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'transmission',
+    )?.name ||
+    item.transmissionType ||
+    'Automatic';
+
+  const region =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'regional_specification',
+    )?.name ||
+    item.country ||
+    'China';
+
+  const steeringType =
+    item.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'steering_side',
+    )?.name ||
+    item.steeringType ||
+    'Left hand drive';
+
+  // Get all car images
   let imageUrls = [];
-  
+
   if (item.CarImages && item.CarImages.length > 0) {
     // Collect all image URLs
     // console.log(`Hot Deal car ${item.id} has ${item.CarImages.length} images`);
-    
+
     imageUrls = item.CarImages.map(image => {
       if (image.FileSystem && image.FileSystem.path) {
-        return { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}` };
+        return {
+          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}`,
+        };
       } else if (image.FileSystem && image.FileSystem.compressedPath) {
-        return { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.compressedPath}` };
+        return {
+          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.compressedPath}`,
+        };
       } else if (image.FileSystem && image.FileSystem.thumbnailPath) {
-        return { uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.thumbnailPath}` };
+        return {
+          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.thumbnailPath}`,
+        };
       }
       return null;
     }).filter(url => url !== null); // Remove any null entries
-    
+
     // console.log(`Found ${imageUrls.length} valid image URLs for hot deal car ${item.id}`);
   } else {
     // console.log(`Hot Deal car ${item.id} has no images, using fallback`);
   }
-  
+
   // If no valid images from API, use the fallback
   if (imageUrls.length === 0) {
     imageUrls = [require('./HotDealsCar.png')];
   }
-  
+
   // Set up state for the current image index - now correctly at the component level
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const scrollViewRef = useRef(null);
-  
+
   // Add auto-sliding functionality
   useEffect(() => {
     let interval;
-    
+
     if (imageUrls.length > 1) {
       interval = setInterval(() => {
         const nextIndex = (currentImageIndex + 1) % imageUrls.length;
         scrollToImage(nextIndex);
       }, 2000); // Change image every 2 seconds
     }
-    
+
     return () => {
       if (interval) {
         clearInterval(interval);
       }
     };
   }, [currentImageIndex, imageUrls.length]);
-  
+
   // Handle image scroll with improved accuracy
-  const handleScroll = (event) => {
+  const handleScroll = event => {
     if (!event || !event.nativeEvent) return;
-    
+
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const currentIndex = Math.round(contentOffsetX / styles.imageSlide.width);
-    
-    if (currentIndex >= 0 && currentIndex < imageUrls.length && currentIndex !== currentImageIndex) {
+
+    if (
+      currentIndex >= 0 &&
+      currentIndex < imageUrls.length &&
+      currentIndex !== currentImageIndex
+    ) {
       setCurrentImageIndex(currentIndex);
     }
   };
-  
+
   // Manual navigation functions for dots
-  const scrollToImage = (index) => {
+  const scrollToImage = index => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
         x: index * styles.imageSlide.width,
-        animated: true
+        animated: true,
       });
     }
   };
@@ -129,16 +174,15 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
   const price = item.price || item.Price || 750000;
 
   return (
-    <TouchableOpacity 
-      key={item.id.toString()} 
+    <TouchableOpacity
+      key={item.id.toString()}
       style={styles.cardContainer}
       onPress={() => onPress(item)}
-      activeOpacity={0.9}
-    >
+      activeOpacity={0.9}>
       <View style={styles.tagBadge}>
         <Text style={styles.tagText}>Hot Deal!</Text>
       </View>
-      
+
       <View style={styles.imageContainer}>
         <ScrollView
           ref={scrollViewRef}
@@ -149,10 +193,11 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
           scrollEventThrottle={16}
           decelerationRate="fast"
           bounces={imageUrls.length > 1}
-          contentContainerStyle={{ width: cardWidth * imageUrls.length }}
-        >
+          contentContainerStyle={{width: cardWidth * imageUrls.length}}>
           {imageUrls.map((image, index) => (
-            <View key={`car-image-${item.id}-${index}`} style={[styles.imageSlide, { width: cardWidth }]}>
+            <View
+              key={`car-image-${item.id}-${index}`}
+              style={[styles.imageSlide, {width: cardWidth}]}>
               {typeof image === 'object' && image.uri ? (
                 <CarImage
                   source={image}
@@ -170,28 +215,32 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
             </View>
           ))}
         </ScrollView>
-        
+
         {/* Pagination dots for image gallery */}
         {imageUrls.length > 1 && (
           <View style={styles.paginationContainer}>
             {imageUrls.map((_, index) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={index}
                 onPress={() => scrollToImage(index)}
-                style={styles.paginationDotContainer}
-              >
+                style={styles.paginationDotContainer}>
                 <View
                   style={[
-                    styles.paginationDot, 
-                    { backgroundColor: index === currentImageIndex ? COLORS.white : 'rgba(255, 255, 255, 0.5)' }
-                  ]} 
+                    styles.paginationDot,
+                    {
+                      backgroundColor:
+                        index === currentImageIndex
+                          ? COLORS.white
+                          : 'rgba(255, 255, 255, 0.5)',
+                    },
+                  ]}
                 />
               </TouchableOpacity>
             ))}
           </View>
         )}
       </View>
-      
+
       <View style={styles.cardContent}>
         <View style={styles.categoryRow}>
           <View style={styles.categoryBadge}>
@@ -199,65 +248,71 @@ const HotDealCard = ({ item, onPress, toggleFavorite, shareCar, isFavorite }) =>
             <Text style={styles.categoryText}>{bodyType}</Text>
           </View>
         </View>
-        
+
         <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">
           {carTitle}
         </Text>
-        
+
         <View style={styles.specRow}>
           <View style={styles.specItem}>
             <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
             <Text style={styles.specText}>ltr</Text>
           </View>
-          
+
           <View style={styles.specItem}>
             <Ionicons name="flash" size={16} color="#8A2BE2" />
             <Text style={styles.specText}>{fuelType}</Text>
           </View>
-          
+
           <View style={styles.specItem}>
-            <MaterialCommunityIcons name="car-shift-pattern" size={16} color="#8A2BE2" />
+            <MaterialCommunityIcons
+              name="car-shift-pattern"
+              size={16}
+              color="#8A2BE2"
+            />
             <Text style={styles.specText}>{transmission}</Text>
           </View>
-          
+
           <View style={styles.specItem}>
-            <MaterialCommunityIcons name="map-marker" size={16} color="#8A2BE2" />
+            <MaterialCommunityIcons
+              name="map-marker"
+              size={16}
+              color="#8A2BE2"
+            />
             <Text style={styles.specText}>{region}</Text>
           </View>
         </View>
-        
+
         <View style={styles.steeringRow}>
           <View style={styles.specItem}>
             <MaterialCommunityIcons name="steering" size={16} color="#8A2BE2" />
             <Text style={styles.specText}>{steeringType}</Text>
           </View>
         </View>
-        
+
         <View style={styles.priceRow}>
           <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
-          
+
           <View style={styles.actionButtons}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.iconButton}
-              onPress={(e) => {
+              onPress={e => {
                 e.stopPropagation();
                 toggleFavorite(item.id);
-              }}
-            >
+              }}>
               {isFavorite ? (
                 <AntDesign name="heart" size={24} color="#FF8C00" />
               ) : (
                 <AntDesign name="hearto" size={24} color="#FF8C00" />
               )}
             </TouchableOpacity>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.iconButton}
-              onPress={(e) => {
+              onPress={e => {
                 e.stopPropagation();
                 shareCar(item);
-              }}
-            >
+              }}>
               <Ionicons name="share-social-outline" size={24} color="#777" />
             </TouchableOpacity>
           </View>
@@ -271,8 +326,9 @@ const HotDeals = () => {
   const [hotDeals, setHotDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-  const { user } = useAuth();
-  const { isInWishlist, addItemToWishlist, removeItemFromWishlist } = useWishlist();
+  const {user} = useAuth();
+  const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
+    useWishlist();
 
   useEffect(() => {
     fetchHotDeals();
@@ -282,31 +338,40 @@ const HotDeals = () => {
     try {
       setLoading(true);
       console.log('Starting to fetch hot deals...');
-      
+
       const response = await axios.get(`${API_BASE_URL}/car/list`, {
         params: {
           page: 1,
           limit: 50, // Increase limit to ensure we get enough cars
           sortBy: 'createdAt',
           order: 'desc',
-          lang: 'en'
+          lang: 'en',
         },
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': API_KEY
-        }
+          'x-api-key': API_KEY,
+        },
       });
-      
-      if (response.data && response.data.success && Array.isArray(response.data.data)) {
-        console.log(`Fetched ${response.data.data.length} cars for hot deals section`);
-        
+
+      if (
+        response.data &&
+        response.data.success &&
+        Array.isArray(response.data.data)
+      ) {
+        console.log(
+          `Fetched ${response.data.data.length} cars for hot deals section`,
+        );
+
         // Log the first car's tags to debug
         if (response.data.data.length > 0) {
           const firstCar = response.data.data[0];
           console.log('First car tags:', firstCar.Tags || 'No Tags property');
-          console.log('First car full data sample:', JSON.stringify(firstCar).substring(0, 300) + '...');
+          console.log(
+            'First car full data sample:',
+            JSON.stringify(firstCar).substring(0, 300) + '...',
+          );
         }
-        
+
         // More flexible tag matching for "Hot Deal!"
         const cars = response.data.data;
         const hotDealCars = cars.filter(car => {
@@ -314,46 +379,56 @@ const HotDeals = () => {
           if (!car.Tags || !Array.isArray(car.Tags)) {
             return false;
           }
-          
+
           // Try different ways to match the "Hot Deal!" tag
-          return car.Tags.some(tag => 
-            tag.name === "Hot Deal!" || 
-            tag.name === "Hot Deal" || 
-            tag.name === "Hot Deals" ||
-            (tag.id && (tag.id === 3 || tag.id === "3"))
+          return car.Tags.some(
+            tag =>
+              tag.name === 'Hot Deal!' ||
+              tag.name === 'Hot Deal' ||
+              tag.name === 'Hot Deals' ||
+              (tag.id && (tag.id === 3 || tag.id === '3')),
           );
         });
-        
+
         if (hotDealCars.length > 0) {
           // console.log(`Found ${hotDealCars.length} cars with Hot Deal! tag`);
           // Log first hot deal car for debugging
-          console.log('Sample hot deal car:', JSON.stringify(hotDealCars[0]).substring(0, 300) + '...');
+          console.log(
+            'Sample hot deal car:',
+            JSON.stringify(hotDealCars[0]).substring(0, 300) + '...',
+          );
           setHotDeals(hotDealCars);
         } else {
-          console.log('No cars with Hot Deal! tag found, trying to check car.tags instead of car.Tags');
-          
+          console.log(
+            'No cars with Hot Deal! tag found, trying to check car.tags instead of car.Tags',
+          );
+
           // Try alternative way to find tags if car.Tags isn't working
           const altHotDealCars = cars.filter(car => {
             if (!car.tags && !car.Tags) return false;
-            
+
             const tagsArray = car.tags || car.Tags;
             if (!Array.isArray(tagsArray)) return false;
-            
-            return tagsArray.some(tag => 
-              (tag.name && (
-                tag.name.toLowerCase().includes('hot deal') || 
-                tag.name.toLowerCase().includes('hot offer')
-              )) || 
-              (tag.id && (tag.id === 3 || tag.id === "3"))
+
+            return tagsArray.some(
+              tag =>
+                (tag.name &&
+                  (tag.name.toLowerCase().includes('hot deal') ||
+                    tag.name.toLowerCase().includes('hot offer'))) ||
+                (tag.id && (tag.id === 3 || tag.id === '3')),
             );
           });
-          
+
           if (altHotDealCars.length > 0) {
-            console.log(`Found ${altHotDealCars.length} cars with alternative tag detection`);
+            console.log(
+              `Found ${altHotDealCars.length} cars with alternative tag detection`,
+            );
             setHotDeals(altHotDealCars);
           } else {
             // Fall back to just returning the first few cars if no hot deals found
-            console.log('No hot deal cars found with any method, using first 3 cars as fallback');
+            console.log(
+              'No hot deal cars found with any method, using first 3 cars as fallback',
+            );
             setHotDeals(cars.slice(0, 3));
           }
         }
@@ -373,7 +448,7 @@ const HotDeals = () => {
       } else {
         console.error('Error in request setup:', error.message);
       }
-      
+
       // Set empty array when API fails
       setHotDeals([]);
     } finally {
@@ -381,16 +456,16 @@ const HotDeals = () => {
     }
   };
 
-  const toggleFavorite = async (carId) => {
+  const toggleFavorite = async carId => {
     if (!user) {
       // Prompt user to login
-      navigation.navigate('Login', { 
+      navigation.navigate('Login', {
         returnScreen: 'HomeScreen',
-        message: 'Please login to save favorites'
+        message: 'Please login to save favorites',
       });
       return;
     }
-    
+
     try {
       if (isInWishlist(carId)) {
         const success = await removeItemFromWishlist(carId);
@@ -408,56 +483,101 @@ const HotDeals = () => {
     }
   };
 
-  const shareCar = async (car) => {
+  const shareCar = async car => {
     try {
-      const carTitle = car.additionalInfo || 
-        `${car.Year?.year || ''} ${car.Brand?.name || car.brand?.name || ''} ${car.CarModel?.name || ''}`;
-      
+      const carTitle =
+        car.additionalInfo ||
+        `${car.Year?.year || ''} ${car.Brand?.name || car.brand?.name || ''} ${
+          car.CarModel?.name || ''
+        }`;
+
       const shareUrl = `https://legendmotorsglobal.com/cars/${car.id}`;
-      
+
       await Share.share({
         message: `Check out this ${carTitle} on Legend Motors! ${shareUrl}`,
         url: shareUrl,
-        title: 'Share this car'
+        title: 'Share this car',
       });
     } catch (error) {
       console.error('Error sharing car:', error);
     }
   };
 
-  const navigateToCarDetail = (car) => {
-    navigation.navigate('CarDetailScreen', { carId: car.id });
+  const navigateToCarDetail = car => {
+    navigation.navigate('CarDetailScreen', {carId: car.id});
   };
 
   const navigateToAllHotDeals = () => {
-    navigation.navigate('ExploreScreen', { 
-      filters: { tagIds: [3] } // Filter for Hot Deal tag
+    navigation.navigate('ExploreScreen', {
+      filters: {tagIds: [3]}, // Filter for Hot Deal tag
     });
   };
 
   const renderLoadingSkeletons = () => {
-    const skeletonItems = Array(2).fill(0).map((_, index) => ({ id: `skeleton-${index}` }));
-    
+    const skeletonItems = Array(2)
+      .fill(0)
+      .map((_, index) => ({id: `skeleton-${index}`}));
+
     return (
-      <ScrollView 
-        horizontal 
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
-      >
-        {skeletonItems.map((item) => (
-          <View key={item.id} style={[styles.cardContainer, { backgroundColor: '#f8f8f8' }]}>
-            <View style={[styles.carImage, { backgroundColor: '#eeeeee' }]} />
+        contentContainerStyle={styles.scrollContainer}>
+        {skeletonItems.map(item => (
+          <View
+            key={item.id}
+            style={[styles.cardContainer, {backgroundColor: '#f8f8f8'}]}>
+            <View style={[styles.carImage, {backgroundColor: '#eeeeee'}]} />
             <View style={styles.cardContent}>
-              <View style={[styles.skeletonLine, { width: '40%', marginBottom: 10 }]} />
-              <View style={[styles.skeletonLine, { width: '80%', height: 20, marginBottom: 15 }]} />
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 }}>
-                <View style={[styles.skeletonLine, { width: '30%', marginRight: 8, marginBottom: 8 }]} />
-                <View style={[styles.skeletonLine, { width: '30%', marginRight: 8, marginBottom: 8 }]} />
-                <View style={[styles.skeletonLine, { width: '30%', marginRight: 8, marginBottom: 8 }]} />
-                <View style={[styles.skeletonLine, { width: '30%', marginRight: 8, marginBottom: 8 }]} />
+              <View
+                style={[styles.skeletonLine, {width: '40%', marginBottom: 10}]}
+              />
+              <View
+                style={[
+                  styles.skeletonLine,
+                  {width: '80%', height: 20, marginBottom: 15},
+                ]}
+              />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  marginBottom: 10,
+                }}>
+                <View
+                  style={[
+                    styles.skeletonLine,
+                    {width: '30%', marginRight: 8, marginBottom: 8},
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.skeletonLine,
+                    {width: '30%', marginRight: 8, marginBottom: 8},
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.skeletonLine,
+                    {width: '30%', marginRight: 8, marginBottom: 8},
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.skeletonLine,
+                    {width: '30%', marginRight: 8, marginBottom: 8},
+                  ]}
+                />
               </View>
-              <View style={[styles.skeletonLine, { width: '40%', marginBottom: 15 }]} />
-              <View style={[styles.skeletonLine, { width: '100%', height: 40, borderRadius: 20 }]} />
+              <View
+                style={[styles.skeletonLine, {width: '40%', marginBottom: 15}]}
+              />
+              <View
+                style={[
+                  styles.skeletonLine,
+                  {width: '100%', height: 40, borderRadius: 20},
+                ]}
+              />
             </View>
           </View>
         ))}
@@ -473,22 +593,21 @@ const HotDeals = () => {
           <Text style={styles.viewAllText}>View All</Text>
         </TouchableOpacity>
       </View>
-      
+
       <Text style={styles.subtitle}>Checkout our exclusive offers</Text>
-      
+
       {loading ? (
         renderLoadingSkeletons()
       ) : (
-        <ScrollView 
-          horizontal 
+        <ScrollView
+          horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContainer}
-        >
+          contentContainerStyle={styles.scrollContainer}>
           {hotDeals.length > 0 ? (
             hotDeals.map(item => (
-              <HotDealCard 
-                key={item.id.toString()} 
-                item={item} 
+              <HotDealCard
+                key={item.id.toString()}
+                item={item}
                 onPress={navigateToCarDetail}
                 toggleFavorite={toggleFavorite}
                 shareCar={shareCar}
@@ -497,8 +616,14 @@ const HotDeals = () => {
             ))
           ) : (
             <View style={styles.noDealsContainer}>
-              <MaterialCommunityIcons name="tag-text" size={40} color={COLORS.textLight} />
-              <Text style={styles.noDealsText}>No hot deals available at the moment</Text>
+              <MaterialCommunityIcons
+                name="tag-text"
+                size={40}
+                color={COLORS.textLight}
+              />
+              <Text style={styles.noDealsText}>
+                No hot deals available at the moment
+              </Text>
             </View>
           )}
         </ScrollView>
@@ -545,7 +670,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginRight: SPACING.lg,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
@@ -701,4 +826,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HotDeals; 
+export default HotDeals;

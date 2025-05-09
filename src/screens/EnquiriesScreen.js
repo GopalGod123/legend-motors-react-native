@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -8,21 +8,23 @@ import {
   ActivityIndicator,
   Image,
   SafeAreaView,
-  StatusBar
+  StatusBar,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { getUserEnquiries } from '../services/api';
-import { useAuth } from '../context/AuthContext';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
-import { Ionicons, MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import {useNavigation} from '@react-navigation/native';
+import {getUserEnquiries} from '../services/api';
+import {useAuth} from '../context/AuthContext';
+import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
+import {Ionicons, MaterialIcons, MaterialCommunityIcons} from 'src/utils/icon';
+import { useTheme } from 'src/context/ThemeContext';
 
 const EnquiriesScreen = () => {
   const navigation = useNavigation();
-  const { user, isAuthenticated } = useAuth();
+  const {user, isAuthenticated} = useAuth();
   const [loading, setLoading] = useState(true);
   const [enquiries, setEnquiries] = useState([]);
   const [error, setError] = useState(null);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
+  const {isDark, COLORS1, toggleTheme} = useTheme();
 
   useEffect(() => {
     checkAuthAndFetchEnquiries();
@@ -33,7 +35,7 @@ const EnquiriesScreen = () => {
     try {
       const authenticated = await isAuthenticated();
       setIsUserAuthenticated(authenticated);
-      
+
       if (authenticated) {
         fetchEnquiries();
       } else {
@@ -50,7 +52,7 @@ const EnquiriesScreen = () => {
   const fetchEnquiries = async () => {
     try {
       const response = await getUserEnquiries();
-      
+
       if (response.success) {
         setEnquiries(response.data || []);
       } else {
@@ -65,16 +67,16 @@ const EnquiriesScreen = () => {
   };
 
   const handleLoginPress = () => {
-    navigation.navigate('Login', { 
-      returnTo: 'EnquiriesTab' // To return back to this screen after login
+    navigation.navigate('Login', {
+      returnTo: 'EnquiriesTab', // To return back to this screen after login
     });
   };
 
-  const handleViewCar = (enquiry) => {
+  const handleViewCar = enquiry => {
     // Navigate to car details screen with the car ID
-    navigation.navigate('ExploreTab', { 
+    navigation.navigate('ExploreTab', {
       screen: 'CarDetailScreen',
-      params: { carId: enquiry.carId }
+      params: {carId: enquiry.carId},
     });
   };
 
@@ -106,8 +108,7 @@ const EnquiriesScreen = () => {
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity
             style={styles.retryButton}
-            onPress={checkAuthAndFetchEnquiries}
-          >
+            onPress={checkAuthAndFetchEnquiries}>
             <Text style={styles.retryButtonText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -118,25 +119,35 @@ const EnquiriesScreen = () => {
   // Not authenticated state - show login prompt
   if (!isUserAuthenticated) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, {backgroundColor: COLORS1.background}]}>
         <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Enquiries</Text>
+          <Text style={[styles.headerTitle, {color: COLORS1.textDark}]}>My Enquiries</Text>
         </View>
         <View style={styles.loginContainer}>
           <View style={styles.clipboardIconContainer}>
-            <MaterialCommunityIcons name="clipboard-text-outline" size={80} color="#F47B20" />
-            <MaterialCommunityIcons name="clipboard-text-outline" size={80} color="#F47B20" style={styles.secondClipboard} />
+            <MaterialCommunityIcons
+              name="clipboard-text-outline"
+              size={80}
+              color="#F47B20"
+            />
+            <MaterialCommunityIcons
+              name="clipboard-text-outline"
+              size={80}
+              color="#F47B20"
+              style={styles.secondClipboard}
+            />
           </View>
-          <Text style={styles.noEnquiriesTitle}>No Enquiries found</Text>
+          <Text style={[styles.noEnquiriesTitle, {color: COLORS1.textDark}]}>No Enquiries found</Text>
           <Text style={styles.loginPromptText}>
             Login/Register to track all your enquiries in one place hassle free.
           </Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.loginButton}
-            onPress={handleLoginPress}
-          >
-            <Text style={styles.loginButtonText}>Login/Register to Enquire</Text>
+            onPress={handleLoginPress}>
+            <Text style={styles.loginButtonText}>
+              Login/Register to Enquire
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -153,17 +164,26 @@ const EnquiriesScreen = () => {
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.clipboardIconContainer}>
-            <MaterialCommunityIcons name="clipboard-text-outline" size={80} color="#F47B20" />
-            <MaterialCommunityIcons name="clipboard-text-outline" size={80} color="#F47B20" style={styles.secondClipboard} />
+            <MaterialCommunityIcons
+              name="clipboard-text-outline"
+              size={80}
+              color="#F47B20"
+            />
+            <MaterialCommunityIcons
+              name="clipboard-text-outline"
+              size={80}
+              color="#F47B20"
+              style={styles.secondClipboard}
+            />
           </View>
           <Text style={styles.noEnquiriesTitle}>No Enquiries yet</Text>
           <Text style={styles.emptyText}>
-            You haven't made any enquiries yet. Start exploring cars and submit enquiries.
+            You haven't made any enquiries yet. Start exploring cars and submit
+            enquiries.
           </Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.exploreButton}
-            onPress={() => navigation.navigate('ExploreTab')}
-          >
+            onPress={() => navigation.navigate('ExploreTab')}>
             <Text style={styles.exploreButtonText}>Explore Cars</Text>
           </TouchableOpacity>
         </View>
@@ -178,16 +198,16 @@ const EnquiriesScreen = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Enquiries</Text>
       </View>
-      
+
       <FlatList
         data={enquiries}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
+        keyExtractor={item => item.id.toString()}
+        renderItem={({item}) => (
           <View style={styles.enquiryCard}>
             <View style={styles.carImageContainer}>
               {item.carImage ? (
                 <Image
-                  source={{ uri: item.carImage }}
+                  source={{uri: item.carImage}}
                   style={styles.carImage}
                   resizeMode="cover"
                 />
@@ -201,11 +221,12 @@ const EnquiriesScreen = () => {
               <Text style={styles.carTitle}>
                 {item.brand} {item.model}
               </Text>
-              <Text style={styles.priceText}>${item.price?.toLocaleString() || 'N/A'}</Text>
+              <Text style={styles.priceText}>
+                ${item.price?.toLocaleString() || 'N/A'}
+              </Text>
               <TouchableOpacity
                 style={styles.viewCarButton}
-                onPress={() => handleViewCar(item)}
-              >
+                onPress={() => handleViewCar(item)}>
                 <Text style={styles.viewCarButtonText}>View Car</Text>
               </TouchableOpacity>
             </View>
@@ -286,7 +307,7 @@ const styles = StyleSheet.create({
     top: 10,
     left: 10,
     opacity: 0.6,
-    transform: [{ rotate: '-10deg' }]
+    transform: [{rotate: '-10deg'}],
   },
   noEnquiriesTitle: {
     fontSize: FONT_SIZES.lg,
@@ -402,4 +423,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EnquiriesScreen; 
+export default EnquiriesScreen;

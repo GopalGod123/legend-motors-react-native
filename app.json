@@ -1,39 +1,4 @@
 {
-  "expo": {
-    "name": "MyFirstApp",
-    "slug": "MyFirstApp",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
-    "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.gopal123321.MyFirstApp",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "package": "com.gopal123321.MyFirstApp"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "301a2c5e-d2e1-4f15-b757-5705e92c7db6"
-      }
-    },
-    "owner": "gopal123321"
-  }
+  "name": "legend_motors",
+  "displayName": "legend_motors"
 }

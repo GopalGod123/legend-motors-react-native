@@ -3,15 +3,18 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AppNavigator from './src/navigation/AppNavigator';
 import { AuthProvider } from './src/context/AuthContext';
 import { WishlistProvider } from './src/context/WishlistContext';
+import { ThemeProvider } from 'src/context/ThemeContext';
 
 const App = () => {
   return (
     <SafeAreaProvider>
-      <AuthProvider>
-        <WishlistProvider>
-          <AppNavigator />
-        </WishlistProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <WishlistProvider>
+            <AppNavigator />
+          </WishlistProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 };

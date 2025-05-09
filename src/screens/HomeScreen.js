@@ -1,9 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, StatusBar } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useAuth } from '../context/AuthContext';
+import React, {useEffect, useState} from 'react';
 import {
-  Header,
+  View,
+  StyleSheet,
+  ScrollView,
+  SafeAreaView,
+  StatusBar,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {useAuth} from '../context/AuthContext';
+import {
   SearchBar,
   CategoryFilter,
   PromotionBanner,
@@ -12,17 +17,19 @@ import {
   BodyTypeSearch,
   NewsBlogs,
   MostPopularCars,
-  JustArrived
+  JustArrived,
 } from '../components/home';
 import LoginPromptModal from '../components/LoginPromptModal';
-import { getCarList } from '../services/api';
-import { SPACING } from '../utils/constants';
+import {getCarList} from '../services/api';
+import {SPACING} from '../utils/constants';
+import Header from 'src/components/home/Header';
+import { useTheme } from 'src/context/ThemeContext';
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const { user } = useAuth();
+  const {user} = useAuth();
   const [showLoginPrompt, setShowLoginPrompt] = useState(true);
-  
+ const {isDark, COLORS1, toggleTheme} = useTheme();
   console.log('User data in HomeScreen:', user);
 
   // Fetch car list data when component mounts
@@ -61,51 +68,48 @@ const HomeScreen = () => {
       setShowLoginPrompt(true);
     }
   };
-
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {backgroundColor: COLORS1.background}]}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      
-      {/* Header with user info from auth context */}
-      <Header 
-        user={user} 
-        onSettingsPress={navigateToSettings}
-        onWishlistPress={navigateToWishlist}
-      />
-      
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.content}>
-          {/* Search Bar */}
-          <SearchBar />
-          
-          {/* Category Filter */}
-          <CategoryFilter />
-          
-          {/* Promotion Banner */}
-          <PromotionBanner />
+      <>
+        {/* Header with user info from auth context */}
+        <Header
+          user={user}
+          onSettingsPress={navigateToSettings}
+          onWishlistPress={navigateToWishlist}
+        />
 
-           {/* Popular Brands */}
-           <PopularBrands />
-          
-          {/* Hot Deals */}
-          <HotDeals />
-          
-          {/* Just Arrived */}
-          <JustArrived />
-          
-          {/* Most Popular Cars */}
-          <MostPopularCars />
-          
-         
-          
-          {/* Body Type Search */}
-          <BodyTypeSearch />
-          
-          {/* News and Blogs */}
-          <NewsBlogs />
-        </View>
-      </ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.content}>
+            {/* Search Bar */}
+            <SearchBar />
 
+            {/* Category Filter */}
+            <CategoryFilter />
+
+            {/* Promotion Banner */}
+            <PromotionBanner />
+
+            {/* Popular Brands */}
+            <PopularBrands />
+
+            {/* Hot Deals */}
+            <HotDeals />
+
+            {/* Just Arrived */}
+            <JustArrived />
+
+            {/* Most Popular Cars */}
+            <MostPopularCars />
+
+            {/* Body Type Search */}
+            <BodyTypeSearch />
+
+            {/* News and Blogs */}
+            <NewsBlogs />
+          </View>
+        </ScrollView>
+      </>
       {/* Login Prompt Modal */}
       <LoginPromptModal
         visible={showLoginPrompt}
@@ -123,7 +127,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingBottom: 70,
-  }
+  },
 });
 
-export default HomeScreen; 
+export default HomeScreen;

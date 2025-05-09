@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
   FlatList,
   ActivityIndicator,
   ScrollView,
@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { getBlogPosts } from "../services/api";
+import { useTheme } from "src/context/ThemeContext";
 
 const { width } = Dimensions.get("window");
 
@@ -25,6 +26,7 @@ const NewsBlogsScreen = () => {
   const [blogsData, setBlogsData] = useState([]);
   const [error, setError] = useState(null);
   const [featuredPost, setFeaturedPost] = useState(null);
+  const { isDark, COLORS1 } = useTheme();
 
   useEffect(() => {
     fetchBlogPosts();
@@ -35,21 +37,13 @@ const NewsBlogsScreen = () => {
     setError(null);
 
     try {
-      // Fetch news
       const newsResponse = await getBlogPosts({ type: "news", limit: 6 });
-      
-      // Fetch blogs (articles)
       const blogsResponse = await getBlogPosts({ type: "articles", limit: 6 });
-      
+
       if (newsResponse.success && blogsResponse.success) {
-        // Process and set news data
         setNewsData(newsResponse.data || []);
-        
-        // Process and set blogs data
         setBlogsData(blogsResponse.data || []);
-        
-        // Set featured post (first news item)
-        if (newsResponse.data && newsResponse.data.length > 0) {
+        if (newsResponse.data?.length > 0) {
           setFeaturedPost(newsResponse.data[0]);
         }
       } else {
@@ -68,98 +62,87 @@ const NewsBlogsScreen = () => {
   };
 
   const handlePostPress = (post) => {
-    // Navigate to post detail screen with the post data
     navigation.navigate("BlogPostDetailScreen", { post });
-    console.log("Post pressed:", post.title);
   };
 
   const renderTabIndicator = () => (
-    <View style={styles.tabsContainer}>
+    <View style={[styles.tabsContainer, { borderBottomColor: COLORS1.placeholder }]}>
       <TouchableOpacity
-        style={[
-          styles.tabButton,
-          activeTab === "News" && styles.activeTabButton,
-        ]}
+        style={styles.tabButton}
         onPress={() => handleTabChange("News")}
       >
-        <Text
-          style={[
-            styles.tabText,
-            activeTab === "News" && styles.activeTabText,
-          ]}
-        >
+        <Text style={[
+          styles.tabText,
+          { color: activeTab === "News" ? COLORS1.secondary : COLORS1.textLight },
+          activeTab === "News" && styles.activeTabText
+        ]}>
           News
         </Text>
-        {activeTab === "News" && <View style={styles.activeTabIndicator} />}
+        {activeTab === "News" && (
+          <View style={[styles.activeTabIndicator, { backgroundColor: COLORS1.secondary }]} />
+        )}
       </TouchableOpacity>
-      
+
       <TouchableOpacity
-        style={[
-          styles.tabButton,
-          activeTab === "Blogs" && styles.activeTabButton,
-        ]}
+        style={styles.tabButton}
         onPress={() => handleTabChange("Blogs")}
       >
-        <Text
-          style={[
-            styles.tabText,
-            activeTab === "Blogs" && styles.activeTabText,
-          ]}
-        >
+        <Text style={[
+          styles.tabText,
+          { color: activeTab === "Blogs" ? COLORS1.secondary : COLORS1.textLight },
+          activeTab === "Blogs" && styles.activeTabText
+        ]}>
           Blogs
         </Text>
-        {activeTab === "Blogs" && <View style={styles.activeTabIndicator} />}
+        {activeTab === "Blogs" && (
+          <View style={[styles.activeTabIndicator, { backgroundColor: COLORS1.secondary }]} />
+        )}
       </TouchableOpacity>
     </View>
   );
 
   const renderNewsItem = ({ item, index }) => {
-    // Construct image URL
-    const imageUrl = item.coverImage 
+    const imageUrl = item.coverImage
       ? { uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}` }
       : require("../components/home/car_Image.png");
-    
+
     return (
-      <TouchableOpacity 
-        style={styles.newsCard}
+      <TouchableOpacity
+        style={[styles.newsCard, { backgroundColor: COLORS1.white }]}
         onPress={() => handlePostPress(item)}
       >
         <View style={styles.newsImageContainer}>
-          <Image
-            source={imageUrl}
-            style={styles.newsImage}
-            resizeMode="cover"
-          />
+          <Image source={imageUrl} style={styles.newsImage} resizeMode="cover" />
           <View style={styles.newsNumberContainer}>
             <Text style={styles.newsNumber}>{index + 1}</Text>
           </View>
-          {item.tags && item.tags.length > 0 && (
-            <View style={styles.tagContainer}>
-              <Text style={styles.tagText}>{item.tags[0].name}</Text>
+          {item.tags?.length > 0 && (
+            <View style={[styles.tagContainer, { backgroundColor: COLORS1.primary }]}>
+              <Text style={[styles.tagText, { color: COLORS1.white }]}>{item.tags[0].name}</Text>
             </View>
           )}
         </View>
         <View style={styles.newsContent}>
-          <Text style={styles.newsTitle} numberOfLines={2}>
+          <Text style={[styles.newsTitle, { color: COLORS1.textDark }]} numberOfLines={2}>
             {item.title}
           </Text>
-          <Text style={styles.newsExcerpt} numberOfLines={1}>
+          <Text style={[styles.newsExcerpt, { color: COLORS1.textMedium }]} numberOfLines={1}>
             {item.excerpt || "Click to read more"}
           </Text>
-          
+
           <View style={styles.newsFooter}>
             <View style={styles.authorInfo}>
-              <View style={styles.authorAvatar}>
-                <Text style={styles.authorInitials}>
+              <View style={[styles.authorAvatar, { backgroundColor: COLORS1.placeholder }]}>
+                <Text style={[styles.authorInitials, { color: COLORS1.textMedium }]}>
                   {item.author ? `${item.author.firstName.charAt(0)}${item.author.lastName.charAt(0)}` : ""}
                 </Text>
               </View>
-              <Text style={styles.authorName}>
+              <Text style={[styles.authorName, { color: COLORS1.textMedium }]}>
                 {item.author ? `${item.author.firstName} ${item.author.lastName}` : "Unknown"}
               </Text>
             </View>
             <View style={styles.timeInfo}>
-              <Text style={styles.timeText}>30 Apr</Text>
+              <Text style={[styles.timeText, { color: COLORS1.primary }]}>30 Apr</Text>
             </View>
           </View>
         </View>
@@ -169,38 +152,32 @@ const NewsBlogsScreen = () => {
 
   const renderFeaturedPost = () => {
     if (!featuredPost) return null;
-    
-    // Construct image URL
-    const imageUrl = featuredPost.coverImage 
+
+    const imageUrl = featuredPost.coverImage
       ? { uri: `https://cdn.legendmotorsglobal.com${featuredPost.coverImage.original}` }
       : require("../components/home/car_Image.png");
-    
+
     return (
       <View style={styles.featuredSection}>
-        <Text style={styles.featuredTitle}>FEATURED</Text>
-        <TouchableOpacity 
-          style={styles.featuredCard}
+        <Text style={[styles.featuredTitle, { color: COLORS1.secondary }]}>FEATURED</Text>
+        <TouchableOpacity
+          style={[styles.featuredCard, { backgroundColor: COLORS1.white }]}
           onPress={() => handlePostPress(featuredPost)}
         >
-          <Image
-            source={imageUrl}
-            style={styles.featuredImage}
-            resizeMode="cover"
-          />
+          <Image source={imageUrl} style={styles.featuredImage} resizeMode="cover" />
           <View style={styles.featuredContent}>
-            <Text style={styles.featuredPostTitle}>{featuredPost.title}</Text>
-            <Text style={styles.featuredPostExcerpt} numberOfLines={2}>
+            <Text style={[styles.featuredPostTitle, { color: COLORS1.textDark }]}>{featuredPost.title}</Text>
+            <Text style={[styles.featuredPostExcerpt, { color: COLORS1.textMedium }]} numberOfLines={2}>
               {featuredPost.excerpt || "Click to read more"}
             </Text>
-            
+
             <View style={styles.featuredFooter}>
-              <Text style={styles.featuredTimeText}>30 Apr</Text>
-              <Text style={styles.featuredReadTime}>2 min read</Text>
+              <Text style={[styles.featuredTimeText, { color: COLORS1.primary }]}>30 Apr</Text>
+              <Text style={[styles.featuredReadTime, { color: COLORS1.textMedium }]}>2 min read</Text>
             </View>
           </View>
-          
-          <TouchableOpacity style={styles.arrowButton}>
-            <Text style={styles.arrowText}>→</Text>
+          <TouchableOpacity style={[styles.arrowButton, { backgroundColor: COLORS1.primary }]}>
+            <Text style={[styles.arrowText, { color: COLORS1.white }]}>→</Text>
           </TouchableOpacity>
         </TouchableOpacity>
       </View>
@@ -211,7 +188,7 @@ const NewsBlogsScreen = () => {
     if (blogsData.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No blog posts available</Text>
+          <Text style={[styles.emptyText, { color: COLORS1.textMedium }]}>No blog posts available</Text>
         </View>
       );
     }
@@ -219,46 +196,38 @@ const NewsBlogsScreen = () => {
     return (
       <View style={styles.blogsContainer}>
         {renderFeaturedPost()}
-        
         <FlatList
-          data={blogsData.slice(1)} // Skip the first item as it's shown as featured
+          data={blogsData.slice(1)}
           renderItem={({ item }) => {
-            // Construct image URL
-            const imageUrl = item.coverImage 
+            const imageUrl = item.coverImage
               ? { uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}` }
               : require("../components/home/car_Image.png");
-            
+
             return (
-              <TouchableOpacity 
-                style={styles.blogCard}
+              <TouchableOpacity
+                style={[styles.blogCard, { backgroundColor: COLORS1.white }]}
                 onPress={() => handlePostPress(item)}
               >
-                <Image
-                  source={imageUrl}
-                  style={styles.blogImage}
-                  resizeMode="cover"
-                />
+                <Image source={imageUrl} style={styles.blogImage} resizeMode="cover" />
                 <View style={styles.blogContent}>
-                  <Text style={styles.blogTitle}>{item.title}</Text>
-                  <Text style={styles.blogExcerpt} numberOfLines={2}>
+                  <Text style={[styles.blogTitle, { color: COLORS1.textDark }]}>{item.title}</Text>
+                  <Text style={[styles.blogExcerpt, { color: COLORS1.textMedium }]} numberOfLines={2}>
                     {item.excerpt || "Click to read more"}
                   </Text>
-                  
                   <View style={styles.blogFooter}>
-                    <Text style={styles.blogTimeText}>30 Apr</Text>
-                    <Text style={styles.blogReadTime}>2 min read</Text>
+                    <Text style={[styles.blogTimeText, { color: COLORS1.primary }]}>30 Apr</Text>
+                    <Text style={[styles.blogReadTime, { color: COLORS1.textMedium }]}>2 min read</Text>
                   </View>
                 </View>
-                
-                <TouchableOpacity style={styles.arrowButton}>
-                  <Text style={styles.arrowText}>→</Text>
+                <TouchableOpacity style={[styles.arrowButton, { backgroundColor: COLORS1.primary }]}>
+                  <Text style={[styles.arrowText, { color: COLORS1.white }]}>→</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
             );
           }}
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
-          scrollEnabled={false} // Disable scrolling as it's inside a ScrollView
+          scrollEnabled={false}
         />
       </View>
     );
@@ -268,7 +237,7 @@ const NewsBlogsScreen = () => {
     if (newsData.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No news available</Text>
+          <Text style={[styles.emptyText, { color: COLORS1.textMedium }]}>No news available</Text>
         </View>
       );
     }
@@ -279,19 +248,22 @@ const NewsBlogsScreen = () => {
         renderItem={renderNewsItem}
         keyExtractor={(item) => item.id.toString()}
         showsVerticalScrollIndicator={false}
-        scrollEnabled={false} // Disable scrolling as it's inside a ScrollView
+        scrollEnabled={false}
       />
     );
   };
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <Text style={styles.sectionTitle}>News & Blogs</Text>
+      <SafeAreaView style={[styles.container, { backgroundColor: COLORS1.white }]}>
+        <StatusBar
+          barStyle={isDark ? "light-content" : "dark-content"}
+          backgroundColor={COLORS1.white}
+        />
+        <Text style={[styles.sectionTitle, { color: COLORS1.textDark }]}>News & Blogs</Text>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={styles.loadingText}>Loading content...</Text>
+          <ActivityIndicator size="large" color={COLORS1.primary} />
+          <Text style={[styles.loadingText, { color: COLORS1.textMedium }]}>Loading content...</Text>
         </View>
       </SafeAreaView>
     );
@@ -299,16 +271,19 @@ const NewsBlogsScreen = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <Text style={styles.sectionTitle}>News & Blogs</Text>
+      <SafeAreaView style={[styles.container, { backgroundColor: COLORS1.white }]}>
+        <StatusBar
+          barStyle={isDark ? "light-content" : "dark-content"}
+          backgroundColor={COLORS1.white}
+        />
+        <Text style={[styles.sectionTitle, { color: COLORS1.textDark }]}>News & Blogs</Text>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity 
-            style={styles.retryButton}
+          <Text style={[styles.errorText, { color: COLORS1.primary }]}>{error}</Text>
+          <TouchableOpacity
+            style={[styles.retryButton, { backgroundColor: COLORS1.primary }]}
             onPress={fetchBlogPosts}
           >
-            <Text style={styles.retryText}>Retry</Text>
+            <Text style={[styles.retryText, { color: COLORS1.white }]}>Retry</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -316,13 +291,16 @@ const NewsBlogsScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Text style={styles.sectionTitle}>News & Blogs</Text>
-      
+    <SafeAreaView style={[styles.container, { backgroundColor: COLORS1.white }]}>
+      <StatusBar
+        barStyle={isDark ? "light-content" : "dark-content"}
+        backgroundColor={COLORS1.white}
+      />
+      <Text style={[styles.sectionTitle, { color: COLORS1.textDark }]}>News & Blogs</Text>
+
       {renderTabIndicator()}
-      
-      <ScrollView 
+
+      <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
       >
