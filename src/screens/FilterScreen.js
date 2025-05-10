@@ -69,7 +69,7 @@ const FilterScreen = ({route, navigation}) => {
     {id: 'models', label: 'Model(s)'},
     {id: 'trims', label: 'Trim(s)'},
     {id: 'years', label: 'Year(s)'},
-    // {id: 'priceRange', label: 'Price Range'},
+    {id: 'priceRange', label: 'Price Range'},
     {id: 'bodyType', label: 'Body Type'},
     {id: 'fuelType', label: 'Fuel Type'},
     {id: 'transmission', label: 'Transmission'},

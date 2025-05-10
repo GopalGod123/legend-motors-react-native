@@ -33,7 +33,6 @@ const FilterTabs = ({categories, activeFilter, onSelect}) => {
 
   return (
     <View style={styles.filtersContainer}>
-      <Text style={styles.filtersTitle}>Advanced Filters</Text>
       <FlatList
         horizontal
         data={categories}
@@ -51,26 +50,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     marginBottom: SPACING.md,
   },
-  filtersTitle: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '500',
-    color: COLORS.textDark,
-    marginBottom: SPACING.xs,
-  },
   filtersList: {
     paddingVertical: SPACING.xs,
+    gap: 8,
   },
   filterButton: {
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.lg,
-    // backgroundColor: '#F0F0F0',
-    borderRadius: 10,
-    marginRight: SPACING.sm,
+    width: 115,
+    height: 38,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    borderRadius: 16,
     borderWidth: 2,
     borderColor: COLORS.primary,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
   },
   activeFilterButton: {
     backgroundColor: COLORS.primary,
@@ -78,7 +73,7 @@ const styles = StyleSheet.create({
   filterButtonText: {
     fontSize: FONT_SIZES.md,
     color: COLORS.primary,
-    fontWeight: 'bold',
+    fontWeight: '500',
   },
   activeFilterText: {
     color: '#FFFFFF',
