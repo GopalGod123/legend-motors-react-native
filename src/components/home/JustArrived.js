@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback, memo} from 'react';
 import {
   View,
   Text,
@@ -8,14 +8,12 @@ import {
   Image,
   Dimensions,
   Share,
-  ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {
   MaterialCommunityIcons,
   Ionicons,
   AntDesign,
-  FontAwesome,
 } from 'src/utils/icon';
 import {
   COLORS,
@@ -32,158 +30,44 @@ import {useWishlist} from '../../context/WishlistContext';
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
 
-// Single car card component with its own state
-const ArrivedCarCard = ({
-  item,
-  onPress,
-  toggleFavorite,
-  shareCar,
-  isFavorite,
-}) => {
-  // Extract data from the API response
-  const brandName = item.Brand?.name || item.brand?.name || '';
-  const carModel = item.CarModel?.name || item.model || '';
-  const year = item.Year?.year || item.year || '';
-  const additionalInfo = item.additionalInfo || '';
+// Memoized card component to prevent unnecessary re-renders
+const ArrivedCarCard = memo(({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
+  // Use pre-computed values whenever possible
+  const bodyType = item.bodyType || 'SUV';
+  const fuelType = item.fuelType || 'Electric';
+  const transmission = item.transmissionType || 'Automatic';
+  const region = item.region || 'China';
+  const steeringType = item.steeringType || 'Left hand drive';
 
-  const bodyType =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'body_type',
-    )?.name ||
-    item.category ||
-    'SUV';
-
-  const fuelType =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'fuel_type',
-    )?.name ||
-    item.fuelType ||
-    'Electric';
-
-  const transmission =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'transmission',
-    )?.name ||
-    item.transmissionType ||
-    'Automatic';
-
-  const region =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'regional_specification',
-    )?.name ||
-    item.country ||
-    'China';
-
-  const steeringType =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'steering_side',
-    )?.name ||
-    item.steeringType ||
-    'Left hand drive';
-
-  // Get all car images
-  let imageUrls = [];
-
+  // Use only one image for faster rendering
+  let imageUrl = null;
+  
   if (item.CarImages && item.CarImages.length > 0) {
-    // Collect all image URLs
-    // console.log(`New Arrival car ${item.id} has ${item.CarImages.length} images`);
-
-    imageUrls = item.CarImages.map(image => {
-      if (image.FileSystem && image.FileSystem.path) {
-        return {
-          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}`,
-        };
-      } else if (image.FileSystem && image.FileSystem.compressedPath) {
-        return {
-          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.compressedPath}`,
-        };
-      } else if (image.FileSystem && image.FileSystem.thumbnailPath) {
-        return {
-          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.thumbnailPath}`,
-        };
+    const firstImage = item.CarImages[0];
+    if (firstImage.FileSystem) {
+      const path = 
+        firstImage.FileSystem.thumbnailPath || 
+        firstImage.FileSystem.compressedPath || 
+        firstImage.FileSystem.path;
+      
+      if (path) {
+        imageUrl = { uri: `https://cdn.legendmotorsglobal.com${path}` };
       }
-      return null;
-    }).filter(url => url !== null); // Remove any null entries
-
-    // console.log(`Found ${imageUrls.length} valid image URLs for new arrival car ${item.id}`);
-  } else if (item.images && item.images.length > 0) {
-    console.log(
-      `New Arrival car ${item.id} has ${item.images.length} images in item.images property`,
-    );
-    imageUrls = item.images.map(image => {
-      return typeof image === 'string' ? {uri: image} : image;
-    });
-  } else {
-    console.log(`New Arrival car ${item.id} has no images, using fallback`);
+    }
   }
 
-  // If no valid images from API, use the fallback
-  if (imageUrls.length === 0) {
-    imageUrls = [require('./HotDealsCar.png')];
+  // If no valid image from API, use the fallback
+  if (!imageUrl) {
+    imageUrl = require('./HotDealsCar.png');
   }
 
-  // Set up state for the current image index - now correctly at the component level
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const scrollViewRef = useRef(null);
+  // Pre-computed car title
+  const carTitle = 
+    item.additionalInfo || 
+    `${item.Year?.year || ''} ${item.Brand?.name || item.brand?.name || ''} ${item.CarModel?.name || ''}`.trim() || 
+    'Car Details';
 
-  // Add auto-sliding functionality
-  useEffect(() => {
-    let interval;
-
-    if (imageUrls.length > 1) {
-      interval = setInterval(() => {
-        const nextIndex = (currentImageIndex + 1) % imageUrls.length;
-        scrollToImage(nextIndex);
-      }, 2000); // Change image every 2 seconds
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [currentImageIndex, imageUrls.length]);
-
-  // Handle image scroll with improved accuracy
-  const handleScroll = event => {
-    if (!event || !event.nativeEvent) return;
-
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const currentIndex = Math.round(contentOffsetX / styles.imageSlide.width);
-
-    if (
-      currentIndex >= 0 &&
-      currentIndex < imageUrls.length &&
-      currentIndex !== currentImageIndex
-    ) {
-      setCurrentImageIndex(currentIndex);
-    }
-  };
-
-  // Manual navigation functions for dots
-  const scrollToImage = index => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({
-        x: index * styles.imageSlide.width,
-        animated: true,
-      });
-    }
-  };
-
-  // Construct the car title
-  let carTitle = '';
-  if (additionalInfo) {
-    carTitle = additionalInfo;
-  } else if (year && brandName && carModel) {
-    carTitle = `${year} ${brandName} ${carModel}`;
-    if (item.Trim?.name) {
-      carTitle += ` ${item.Trim.name}`;
-    }
-  } else {
-    carTitle = item.title || 'Car Details';
-  }
-
-  // Get price from API response if available or use default
+  // Get price from API response
   const price = item.price || item.Price || 750000;
 
   return (
@@ -196,61 +80,12 @@ const ArrivedCarCard = ({
       </View>
 
       <View style={styles.imageContainer}>
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          decelerationRate="fast"
-          bounces={imageUrls.length > 1}
-          contentContainerStyle={{width: cardWidth * imageUrls.length}}>
-          {imageUrls.map((image, index) => (
-            <View
-              key={`arrival-${item.id}-${index}`}
-              style={[styles.imageSlide, {width: cardWidth}]}>
-              {typeof image === 'object' && image.uri ? (
-                <CarImage
-                  source={image}
-                  style={styles.carImage}
-                  resizeMode="cover"
-                  loadingIndicatorSource={require('./HotDealsCar.png')}
-                />
-              ) : (
-                <Image
-                  source={image}
-                  style={styles.carImage}
-                  resizeMode="cover"
-                />
-              )}
-            </View>
-          ))}
-        </ScrollView>
-
-        {/* Pagination dots for image gallery */}
-        {imageUrls.length > 1 && (
-          <View style={styles.paginationContainer}>
-            {imageUrls.map((_, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => scrollToImage(index)}
-                style={styles.paginationDotContainer}>
-                <View
-                  style={[
-                    styles.paginationDot,
-                    {
-                      backgroundColor:
-                        index === currentImageIndex
-                          ? COLORS.white
-                          : 'rgba(255, 255, 255, 0.5)',
-                    },
-                  ]}
-                />
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
+        <CarImage
+          source={imageUrl}
+          style={styles.carImage}
+          resizeMode="cover"
+          loadingIndicatorSource={require('./HotDealsCar.png')}
+        />
       </View>
 
       <View style={styles.cardContent}>
@@ -332,29 +167,84 @@ const ArrivedCarCard = ({
       </View>
     </TouchableOpacity>
   );
-};
+});
+
+// Cache for new arrivals data
+let cachedNewArrivals = null;
+let lastFetchTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const JustArrived = () => {
   const [newArrivals, setNewArrivals] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const {user} = useAuth();
-  const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
-    useWishlist();
+  const {isInWishlist, addItemToWishlist, removeItemFromWishlist} = useWishlist();
+  
+  // Use a ref to avoid making API calls if component unmounts
+  const isMounted = useRef(true);
+
+  // Pre-process car data for better performance
+  const preprocessCarData = useCallback((car) => {
+    // Extract body type
+    const bodyType = car.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'body_type',
+    )?.name || car.category || 'SUV';
+
+    // Extract fuel type
+    const fuelType = car.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'fuel_type',
+    )?.name || car.fuelType || 'Electric';
+
+    // Extract transmission
+    const transmissionType = car.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'transmission',
+    )?.name || car.transmissionType || 'Automatic';
+
+    // Extract region/country
+    const region = car.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'regional_specification',
+    )?.name || car.country || 'China';
+
+    // Extract steering type
+    const steeringType = car.SpecificationValues?.find(
+      spec => spec.Specification?.key === 'steering_side',
+    )?.name || car.steeringType || 'Left hand drive';
+
+    return {
+      ...car,
+      bodyType,
+      fuelType,
+      transmissionType,
+      region,
+      steeringType
+    };
+  }, []);
 
   useEffect(() => {
     fetchNewArrivals();
+    return () => {
+      isMounted.current = false;
+    };
   }, []);
 
   const fetchNewArrivals = async () => {
     try {
       setLoading(true);
 
-      // Call the API to get "Just Arrived!" cars
+      const now = Date.now();
+      // Use cached data if available and not expired
+      if (cachedNewArrivals && now - lastFetchTime < CACHE_DURATION) {
+        setNewArrivals(cachedNewArrivals);
+        setLoading(false);
+        return;
+      }
+
+      // Call the API to get "Just Arrived!" cars with reduced limit
       const response = await axios.get(`${API_BASE_URL}/car/list`, {
         params: {
           page: 1,
-          limit: 100,
+          limit: 5, // Reduced from 100 to just 5 for faster loading
           sortBy: 'createdAt',
           order: 'desc',
           lang: 'en',
@@ -365,17 +255,16 @@ const JustArrived = () => {
         },
       });
 
+      if (!isMounted.current) return;
+
       if (
         response.data &&
         response.data.success &&
         Array.isArray(response.data.data)
       ) {
-        console.log(
-          `Fetched ${response.data.data.length} cars for Just Arrived section`,
-        );
-
-        // Filter for cars with "Just Arrived!" tag (id = 2)
         const cars = response.data.data;
+        
+        // Filter for cars with "Just Arrived!" tag (id = 2)
         const justArrivedCars = cars.filter(
           car =>
             car.Tags &&
@@ -383,43 +272,35 @@ const JustArrived = () => {
             car.Tags.some(tag => tag.name === 'Just Arrived!' || tag.id === 2),
         );
 
+        let processedCars = [];
+        
         if (justArrivedCars.length > 0) {
-          console.log(
-            `Found ${justArrivedCars.length} cars with Just Arrived tag`,
-          );
-          setNewArrivals(justArrivedCars);
+          processedCars = justArrivedCars.map(preprocessCarData);
         } else {
-          console.log(
-            'No cars with Just Arrived tag found, using most recent cars',
-          );
-          setNewArrivals(cars.slice(0, 3)); // Use first 3 most recent cars as fallback
+          // Fallback to most recent cars
+          processedCars = cars.slice(0, 3).map(preprocessCarData);
         }
+        
+        // Update cache
+        cachedNewArrivals = processedCars;
+        lastFetchTime = now;
+        
+        setNewArrivals(processedCars);
       } else {
-        console.log('No cars found or response format issue');
         setNewArrivals([]);
       }
     } catch (error) {
-      // Enhanced error logging
       console.error('Error fetching new arrivals:', error);
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Error in request setup:', error.message);
-      }
-
-      // Use empty array when API fails
       setNewArrivals([]);
     } finally {
-      setLoading(false);
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
   };
 
   const toggleFavorite = async carId => {
     if (!user) {
-      // Prompt user to login
       navigation.navigate('Login', {
         returnScreen: 'HomeScreen',
         message: 'Please login to save favorites',
@@ -429,15 +310,9 @@ const JustArrived = () => {
 
     try {
       if (isInWishlist(carId)) {
-        const success = await removeItemFromWishlist(carId);
-        if (success) {
-          console.log(`Removed car ${carId} from wishlist`);
-        }
+        await removeItemFromWishlist(carId);
       } else {
-        const success = await addItemToWishlist(carId);
-        if (success) {
-          console.log(`Added car ${carId} to wishlist`);
-        }
+        await addItemToWishlist(carId);
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -474,81 +349,45 @@ const JustArrived = () => {
     });
   };
 
-  const renderLoadingSkeletons = () => {
-    // Create an array of 2 items for the loading skeleton
-    const skeletonItems = Array(2)
-      .fill(0)
-      .map((_, index) => ({id: `skeleton-${index}`}));
+  const renderItem = ({ item }) => (
+    <ArrivedCarCard
+      item={item}
+      onPress={navigateToCarDetail}
+      toggleFavorite={toggleFavorite}
+      shareCar={shareCar}
+      isFavorite={isInWishlist(item.id) || false}
+    />
+  );
 
-    return (
-      <FlatList
-        data={skeletonItems}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.carsList}
-        ItemSeparatorComponent={() => <View style={{width: 15}} />}
-        renderItem={() => (
-          <View style={[styles.carCard, styles.skeletonCard]}>
-            <View style={[styles.imageContainer, styles.skeletonImage]} />
-            <View style={styles.cardContent}>
-              <View
-                style={[styles.skeletonText, {width: '40%', marginBottom: 8}]}
-              />
-              <View
-                style={[
-                  styles.skeletonText,
-                  {width: '90%', height: 18, marginBottom: 12},
-                ]}
-              />
-              <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
-                  ]}
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginTop: 8,
-                }}>
-                <View
-                  style={[styles.skeletonText, {width: '30%', height: 14}]}
-                />
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '50%', height: 30, borderRadius: 15},
-                  ]}
-                />
-              </View>
-            </View>
-          </View>
-        )}
+  const renderEmptyComponent = () => (
+    <View style={styles.emptyContainer}>
+      <MaterialCommunityIcons
+        name="car-clock"
+        size={50}
+        color={COLORS.textLight}
       />
-    );
-  };
+      <Text style={styles.emptyText}>No new arrivals found</Text>
+    </View>
+  );
+
+  const renderLoadingItem = ({ item }) => (
+    <View style={[styles.carCard, styles.skeletonCard]}>
+      <View style={[styles.imageContainer, styles.skeletonImage]} />
+      <View style={styles.cardContent}>
+        <View style={[styles.skeletonText, {width: '40%', marginBottom: 8}]} />
+        <View style={[styles.skeletonText, {width: '90%', height: 18, marginBottom: 12}]} />
+        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+          <View style={[styles.skeletonText, {width: '30%', height: 14, marginRight: 8, marginBottom: 8}]} />
+          <View style={[styles.skeletonText, {width: '30%', height: 14, marginRight: 8, marginBottom: 8}]} />
+          <View style={[styles.skeletonText, {width: '30%', height: 14, marginRight: 8, marginBottom: 8}]} />
+        </View>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between', marginTop: 8}}>
+          <View style={[styles.skeletonText, {width: '30%', height: 14}]} />
+          <View style={[styles.skeletonText, {width: '30%', height: 14}]} />
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -564,7 +403,15 @@ const JustArrived = () => {
       </Text>
 
       {loading ? (
-        renderLoadingSkeletons()
+        <FlatList
+          data={[{id: 'skeleton-1'}, {id: 'skeleton-2'}]}
+          renderItem={renderLoadingItem}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.carsList}
+          ItemSeparatorComponent={() => <View style={{width: 15}} />}
+        />
       ) : (
         <FlatList
           data={newArrivals}
@@ -572,27 +419,13 @@ const JustArrived = () => {
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => item.id.toString()}
           contentContainerStyle={styles.carsList}
-          renderItem={({item}) => (
-            <ArrivedCarCard
-              key={item.id.toString()}
-              item={item}
-              onPress={navigateToCarDetail}
-              toggleFavorite={toggleFavorite}
-              shareCar={shareCar}
-              isFavorite={isInWishlist(item.id) || false}
-            />
-          )}
+          renderItem={renderItem}
+          initialNumToRender={2}
+          maxToRenderPerBatch={3}
+          windowSize={3}
+          removeClippedSubviews={true}
           ItemSeparatorComponent={() => <View style={{width: 15}} />}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <MaterialCommunityIcons
-                name="car-clock"
-                size={50}
-                color={COLORS.textLight}
-              />
-              <Text style={styles.emptyText}>No new arrivals found</Text>
-            </View>
-          }
+          ListEmptyComponent={renderEmptyComponent}
         />
       )}
     </View>
@@ -660,36 +493,15 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
+    height: 180,
     backgroundColor: '#ffffff',
     borderRadius: BORDER_RADIUS.lg,
     overflow: 'hidden',
-  },
-  imageSlide: {
-    height: 180,
-    backgroundColor: '#ffffff',
   },
   carImage: {
     width: '100%',
     height: '100%',
     borderRadius: BORDER_RADIUS.lg,
-  },
-  paginationContainer: {
-    position: 'absolute',
-    bottom: 8,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  paginationDotContainer: {
-    padding: 5, // Increase touch target size
-    marginHorizontal: 3,
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
   },
   cardContent: {
     padding: 15,
