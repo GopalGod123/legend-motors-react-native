@@ -6,72 +6,120 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
+  Image,
+  Dimensions,
 } from 'react-native';
 import Svg, { Path, Circle } from 'react-native-svg';
 import { useAuth } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Use SVG for the lock icon to avoid image loading issues
 const LockIcon = () => (
-  <Svg width={80} height={80} viewBox="0 0 80 80" fill="none">
-    <Circle cx={40} cy={40} r={40} fill="#4A235A" />
-    <Path
-      d="M40 32c5.523 0 10-4.477 10-10s-4.477-10-10-10-10 4.477-10 10 4.477 10 10 10z"
-      fill="#F4821F"
-    />
-    <Path
-      d="M48 36H32c-2.21 0-4 1.79-4 4v12c0 2.21 1.79 4 4 4h16c2.21 0 4-1.79 4-4V40c0-2.21-1.79-4-4-4z"
-      fill="#F4821F"
-    />
-  </Svg>
+  <Image
+    source={require('./icons/promptModel.png')}
+    style={{ width: 80, height: 80 }}
+    resizeMode="contain"
+  />
 );
+
+
+const PROMPT_SHOWN_KEY = 'login_prompt_dismissed';
 
 const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
   const { isAuthenticated, user } = useAuth();
   const [shouldShowModal, setShouldShowModal] = useState(false);
+  const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
   
+  // First check AsyncStorage to see if user has previously dismissed the modal
   useEffect(() => {
-    // Only show the modal if the user is not authenticated and the parent wants to show it
+    const checkPromptDismissed = async () => {
+      try {
+        const promptDismissed = await AsyncStorage.getItem(PROMPT_SHOWN_KEY);
+        setHasCheckedStorage(true);
+        
+        if (promptDismissed === 'true') {
+          // User has previously dismissed the modal
+          console.log('User has previously dismissed login prompt');
+          onClose();
+        }
+      } catch (error) {
+        console.error('Error checking prompt dismissed status:', error);
+        setHasCheckedStorage(true);
+      }
+    };
+    
+    if (visible) {
+      checkPromptDismissed();
+    }
+  }, [visible, onClose]);
+  
+  // Then check authentication status
+  useEffect(() => {
+    if (!hasCheckedStorage) return;
+    
     const checkAuthAndSetModal = async () => {
-      const isUserAuthenticated = await isAuthenticated();
-      setShouldShowModal(visible && !isUserAuthenticated);
-      
-      // If user is already logged in, close the modal automatically
-      if (isUserAuthenticated && visible) {
-        console.log('User is already logged in, not showing login prompt');
-        onClose();
+      try {
+        const isUserAuthenticated = await isAuthenticated();
+        setShouldShowModal(visible && !isUserAuthenticated);
+        
+        // If user is already logged in, close the modal automatically
+        if (isUserAuthenticated && visible) {
+          console.log('User is already logged in, not showing login prompt');
+          onClose();
+        }
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+        setShouldShowModal(false);
       }
     };
     
     checkAuthAndSetModal();
-  }, [visible, isAuthenticated, user]);
+  }, [visible, isAuthenticated, user, hasCheckedStorage, onClose]);
   
-  // If user is logged in, don't render the modal at all
+  // If user is logged in or modal shouldn't be shown, don't render it
   if (!shouldShowModal) {
     return null;
   }
+
+  const handleDismiss = async () => {
+    try {
+      // Mark the prompt as dismissed in AsyncStorage
+      await AsyncStorage.setItem(PROMPT_SHOWN_KEY, 'true');
+      console.log('Login prompt marked as dismissed');
+    } catch (error) {
+      console.error('Error saving prompt dismissed status:', error);
+    }
+    
+    // Close the modal
+    onClose();
+  };
 
   return (
     <Modal
       animationType="fade"
       transparent={true}
       visible={shouldShowModal}
-      onRequestClose={onClose}>
-      <Pressable style={styles.overlay} onPress={onClose}>
+      statusBarTranslucent={true}
+      onRequestClose={handleDismiss}>
+      <View style={styles.container}>
+        <Pressable style={styles.overlay} onPress={handleDismiss} />
+        
         <View style={styles.modalContent}>
-          <Pressable onPress={() => {}} style={styles.modalBody}>
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={onClose}
-              hitSlop={10}>
-              <Text style={styles.closeButtonText}>×</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={handleDismiss}
+            hitSlop={{ top: 15, right: 15, bottom: 15, left: 15 }}>
+            <Text style={styles.closeButtonText}>×</Text>
+          </TouchableOpacity>
 
-            <View style={styles.iconContainer}>
+          <View style={styles.modalBody}>
+            <View style={styles.iconRow}>
               <LockIcon />
             </View>
 
-            <Text style={styles.title}>Unlock the full experience!</Text>
+            <Text style={styles.title}>Login page</Text>
             <Text style={styles.description}>
-              Log in or register now to access exclusive features and deals!
+              Log in or register to access exclusive features and deals!
             </Text>
 
             <TouchableOpacity
@@ -79,69 +127,109 @@ const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
               onPress={onLoginPress}>
               <Text style={styles.loginButtonText}>Login / Register</Text>
             </TouchableOpacity>
-          </Pressable>
+          </View>
         </View>
-      </Pressable>
+      </View>
     </Modal>
   );
 };
 
+const { width, height } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
-  overlay: {
+  container: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
+  overlay: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
   modalContent: {
-    width: '85%',
+    position: 'absolute',
+    top: 278,
+    left: 44,
+    width: 340,
+    height: 373,
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
+    borderRadius: 40,
     padding: 24,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   modalBody: {
+    flex: 1,
     alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
   },
   closeButton: {
     position: 'absolute',
-    right: -12,
-    top: -12,
-    width: 24,
-    height: 24,
+    right: 16,
+    top: 16,
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  closeButtonText: {
+    fontSize: 28,
+    color: '#666666',
+    fontWeight: '600',
+  },
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  iconWrapper: {
+    width: 80,
+    height: 80,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  closeButtonText: {
-    fontSize: 24,
-    color: '#666666',
-    fontWeight: '600',
-  },
-  iconContainer: {
-    marginBottom: 20,
+  emailIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#F5F0FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
   },
   title: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: '600',
     color: '#333333',
-    marginBottom: 8,
+    marginBottom: 16,
     textAlign: 'center',
   },
   description: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666666',
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
+    paddingHorizontal: 16,
   },
   loginButton: {
     backgroundColor: '#F4821F',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 24,
-    borderRadius: 8,
-    width: '100%',
+    borderRadius: 12,
+    width: '90%',
+    alignItems: 'center',
   },
   loginButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
   },

@@ -253,7 +253,7 @@ const HotDeals = () => {
       isFavorite={isInWishlist(item.id)}
       tag={
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}>Hot Deal!</Text>
+          <Text style={styles.tagText}></Text>
         </View>
       }
       width={Dimensions.get('window').width * 0.85}
@@ -331,15 +331,11 @@ const HotDeals = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-          <MaterialCommunityIcons
-            name="tag-text"
-            size={24}
-            color={COLORS.primary}
-          />
+         
           <Text style={styles.title}>Hot Deals</Text>
         </View>
         <TouchableOpacity onPress={navigateToAllHotDeals}>
-          <Text style={styles.viewAllText}>View All</Text>
+          <Text style={styles.viewAllText}>See All</Text>
         </TouchableOpacity>
       </View>
 
@@ -514,16 +510,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: SPACING.md,
   },
-  tagBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#8A2BE2', // Purple color for Hot Deal
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    zIndex: 1,
-  },
+  
   tagText: {
     color: COLORS.white,
     fontWeight: 'bold',

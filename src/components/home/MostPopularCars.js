@@ -77,7 +77,7 @@ const PopularCarCard = memo(
         onPress={() => onPress(item)}
         activeOpacity={0.8}>
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}>Popular</Text>
+          <Text style={styles.tagText}></Text>
         </View>
 
         <View style={styles.imageContainer}>
@@ -426,7 +426,7 @@ const MostPopularCars = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Most Popular in UAE</Text>
         <TouchableOpacity onPress={navigateToAllPopular}>
-          <Text style={styles.viewAllText}>View All</Text>
+          <Text style={styles.viewAllText}>See All</Text>
         </TouchableOpacity>
       </View>
 
@@ -497,16 +497,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     position: 'relative',
   },
-  tagBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#1E90FF', // Blue color for Most Popular
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    zIndex: 1,
-  },
+ 
   tagText: {
     color: COLORS.white,
     fontWeight: 'bold',

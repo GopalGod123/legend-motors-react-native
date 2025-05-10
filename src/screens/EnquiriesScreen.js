@@ -124,16 +124,10 @@ const EnquiriesScreen = () => {
         </View>
         <View style={styles.loginContainer}>
           <View style={styles.clipboardIconContainer}>
-            <MaterialCommunityIcons
-              name="clipboard-text-outline"
-              size={80}
-              color="#F47B20"
-            />
-            <MaterialCommunityIcons
-              name="clipboard-text-outline"
-              size={80}
-              color="#F47B20"
-              style={styles.secondClipboard}
+            <Image
+              source={require('../components/icons/NoEnquiery.png')}
+              style={{ width: 80, height: 80 }}
+              resizeMode="contain"
             />
           </View>
           <Text style={styles.noEnquiriesTitle}>No Enquiries found</Text>
@@ -162,16 +156,10 @@ const EnquiriesScreen = () => {
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.clipboardIconContainer}>
-            <MaterialCommunityIcons
-              name="clipboard-text-outline"
-              size={80}
-              color="#F47B20"
-            />
-            <MaterialCommunityIcons
-              name="clipboard-text-outline"
-              size={80}
-              color="#F47B20"
-              style={styles.secondClipboard}
+            <Image
+              source={require('../components/icons/NoEnquiery.png')}
+              style={{ width: 80, height: 80 }}
+              resizeMode="contain"
             />
           </View>
           <Text style={styles.noEnquiriesTitle}>No Enquiries yet</Text>
@@ -205,14 +193,16 @@ const EnquiriesScreen = () => {
             <View style={styles.carImageContainer}>
               {item.carImage ? (
                 <Image
-                  source={{uri: item.carImage}}
+                  source={require('../components/icons/NoEnquiery.png')}
                   style={styles.carImage}
                   resizeMode="cover"
                 />
               ) : (
-                <View style={styles.carImagePlaceholder}>
-                  <Ionicons name="car-sport" size={40} color="#CCCCCC" />
-                </View>
+                <Image
+                source={require('../components/icons/NoEnquiery.png')}
+                style={styles.carImage}
+                resizeMode="cover"
+              />
               )}
             </View>
             <View style={styles.enquiryDetails}>
@@ -293,19 +283,11 @@ const styles = StyleSheet.create({
     padding: SPACING.xl,
   },
   clipboardIconContainer: {
-    position: 'relative',
     width: 120,
     height: 120,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.lg,
-  },
-  secondClipboard: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    opacity: 0.6,
-    transform: [{rotate: '-10deg'}],
   },
   noEnquiriesTitle: {
     fontSize: FONT_SIZES.lg,
