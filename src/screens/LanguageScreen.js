@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -7,11 +7,11 @@ import {
   SafeAreaView,
   StatusBar,
   ScrollView,
-  FlatList
+  FlatList,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Svg, { Path, Circle } from 'react-native-svg';
-
+import {useNavigation} from '@react-navigation/native';
+import Svg, {Path, Circle} from 'react-native-svg';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 // Back Arrow Icon
 const BackIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -42,20 +42,21 @@ const RadioUnselected = () => (
 
 const LanguageScreen = () => {
   const navigation = useNavigation();
-  const [selectedLanguage, setSelectedLanguage] = useState('English (US)');
+  const {selectedLanguage, setSelectedLanguage, t} = useCurrencyLanguage();
+  const [currentLanguage, setCurrentLanguage] = useState(selectedLanguage);
 
-  const handleSelectLanguage = (language) => {
-    setSelectedLanguage(language);
-    // Here you would also store the selected language in your app's state/storage
+  const handleSelectLanguage = language => {
+    setCurrentLanguage(language.id);
+    setSelectedLanguage(language.id);
   };
 
   const languages = [
-    { id: '1', name: 'English (US)', category: 'Suggested' },
-    { id: '2', name: 'Arabic', category: 'Suggested' },
-    { id: '3', name: 'Mandarin', category: 'Language' },
-    { id: '4', name: 'Spanish', category: 'Language' },
-    { id: '5', name: 'Russian', category: 'Language' },
-    { id: '6', name: 'French', category: 'Language' },
+    {id: 'en', name: 'English', category: 'suggested'},
+    {id: 'ar', name: 'Arabic', category: 'suggested'},
+    {id: 'zh', name: 'Mandarin', category: 'languages'},
+    {id: 'es', name: 'Spanish', category: 'languages'},
+    {id: 'ru', name: 'Russian', category: 'languages'},
+    {id: 'fr', name: 'French', category: 'languages'},
   ];
 
   // Group languages by category
@@ -70,22 +71,21 @@ const LanguageScreen = () => {
   // Convert to array of sections
   const sections = Object.keys(groupedLanguages).map(category => ({
     title: category,
-    data: groupedLanguages[category]
+    data: groupedLanguages[category],
   }));
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Language</Text>
+        <Text style={styles.headerTitle}>Select Language</Text>
       </View>
-      
+
       <View style={styles.content}>
         {sections.map(section => (
           <View key={section.title} style={styles.section}>
@@ -94,10 +94,9 @@ const LanguageScreen = () => {
               <TouchableOpacity
                 key={language.id}
                 style={styles.languageItem}
-                onPress={() => handleSelectLanguage(language.name)}
-              >
+                onPress={() => handleSelectLanguage(language)}>
                 <Text style={styles.languageName}>{language.name}</Text>
-                {selectedLanguage === language.name ? (
+                {currentLanguage === language.id ? (
                   <RadioSelected />
                 ) : (
                   <RadioUnselected />
@@ -160,4 +159,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LanguageScreen; 
+export default LanguageScreen;

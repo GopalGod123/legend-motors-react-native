@@ -25,6 +25,7 @@ import LoginPromptModal from '../components/LoginPromptModal';
 import {getCarList} from '../services/api';
 import {SPACING, COLORS} from '../utils/constants';
 import Header from 'src/components/home/Header';
+import {FilterTabs} from 'src/components/explore';
 
 // Memoize components that don't need frequent re-renders
 const MemoizedHeader = memo(Header);
@@ -33,27 +34,29 @@ const MemoizedCategoryFilter = memo(CategoryFilter);
 const MemoizedPromotionBanner = memo(PromotionBanner);
 
 // Create a component for deferred loading
-const DeferredComponent = memo(({component: Component, isVisible, ...props}) => {
-  const [shouldRender, setShouldRender] = useState(isVisible);
+const DeferredComponent = memo(
+  ({component: Component, isVisible, ...props}) => {
+    const [shouldRender, setShouldRender] = useState(isVisible);
 
-  useEffect(() => {
-    if (isVisible && !shouldRender) {
-      // Shorter delay for rendering
-      setTimeout(() => {
-        setShouldRender(true);
-      }, 100);
+    useEffect(() => {
+      if (isVisible && !shouldRender) {
+        // Shorter delay for rendering
+        setTimeout(() => {
+          setShouldRender(true);
+        }, 100);
+      }
+    }, [isVisible, shouldRender]);
+
+    if (!shouldRender) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color="#5E366D" />
+        </View>
+      );
     }
-  }, [isVisible, shouldRender]);
-
-  if (!shouldRender) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color="#5E366D" />
-      </View>
-    );
-  }
-  return <Component {...props} />;
-});
+    return <Component {...props} />;
+  },
+);
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -72,8 +75,41 @@ const HomeScreen = () => {
     newsBlogs: true,
   });
   const scrollViewRef = useRef(null);
-
+  const filterCategories = [
+    {id: 'all', label: 'All'},
+    {id: 'brands', label: 'Brands'},
+    {id: 'models', label: 'Models'},
+    {id: 'trims', label: 'Trims'},
+    {id: 'years', label: 'Years'},
+    {id: 'advanced', label: 'Advanced Filters'},
+  ];
   // Load initial data and track scroll position
+  const handleOpenFilter = useCallback(
+    filterId => {
+      // Navigate to FilterScreen with current filters
+      navigation.navigate('FilterScreen', {
+        filterType: ['all', 'advanced'].includes(filterId)
+          ? 'brands'
+          : filterId,
+        // Use a callback that sets applied filters directly
+        onApplyCallback: newFilters => {
+          // Update filters state
+          navigation.navigate('ExploreTab', {filters: newFilters});
+
+          // The useEffect hook will automatically trigger a fetch with new filters
+        },
+      });
+    },
+    [navigation],
+  );
+  const handleFilterSelect = filterId => {
+    // if (filterId === 'advanced') {
+    // Open the filter screen
+    setTimeout(() => {
+      handleOpenFilter(filterId);
+    }, 100);
+    // }
+  };
   useEffect(() => {
     // Pre-fetch car data only once
     const fetchCarData = async () => {
@@ -95,7 +131,7 @@ const HomeScreen = () => {
     fetchCarData();
   }, [user, showLoginPrompt]);
 
-  const handleScroll = useCallback((event) => {
+  const handleScroll = useCallback(event => {
     // No need to track visibility since all sections are visible by default
   }, []);
 
@@ -122,9 +158,20 @@ const HomeScreen = () => {
     }
   }, [navigation, user]);
 
-  const handleSearchBarFilterApply = useCallback(filters => {
-    navigation.navigate('ExploreTab', {filters});
-  }, [navigation]);
+  const handleSearchBarFilterApply = useCallback(
+    filters => {
+      navigation.navigate('ExploreTab', {filters});
+    },
+    [navigation],
+  );
+
+  const handleSearch = useCallback(
+    searchText => {
+      console.log('Search text:', searchText);
+      navigation.navigate('ExploreTab', {search: searchText});
+    },
+    [navigation],
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -137,19 +184,28 @@ const HomeScreen = () => {
           onWishlistPress={navigateToWishlist}
         />
 
-        <ScrollView 
+        <ScrollView
           ref={scrollViewRef}
           showsVerticalScrollIndicator={false}
           onScroll={handleScroll}
           scrollEventThrottle={16}
-          removeClippedSubviews={false}
-        >
+          removeClippedSubviews={false}>
           <View style={styles.content}>
             {/* Search Bar */}
-            <MemoizedSearchBar onApplyFilters={handleSearchBarFilterApply} />
+            <MemoizedSearchBar
+              onApplyFilters={handleSearchBarFilterApply}
+              onSearch={handleSearch}
+              home={true}
+            />
 
             {/* Category Filter */}
-            <MemoizedCategoryFilter />
+            {/* <MemoizedCategoryFilter /> */}
+            <FilterTabs
+              categories={filterCategories}
+              activeFilter={null}
+              onSelect={handleFilterSelect}
+              home={true}
+            />
 
             {/* Promotion Banner */}
             <MemoizedPromotionBanner />
@@ -196,7 +252,7 @@ const styles = StyleSheet.create({
     height: 100,
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
 });
 
 export default memo(HomeScreen);

@@ -1,0 +1,80 @@
+{
+  "common": {
+    "loading": "جاري التحميل...",
+    "error": "خطأ",
+    "retry": "إعادة المحاولة",
+    "next": "التالي",
+    "back": "رجوع",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "search": "بحث",
+    "filter": "تصفية",
+    "clear": "مسح",
+    "noResults": "لم يتم العثور على نتائج",
+    "tryAgain": "حاول مرة أخرى"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "signup": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "forgotPassword": "نسيت كلمة المرور؟",
+    "dontHaveAccount": "ليس لديك حساب؟",
+    "alreadyHaveAccount": "لديك حساب بالفعل؟"
+  },
+  "explore": {
+    "title": "استكشاف",
+    "allCars": "جميع السيارات",
+    "filters": "التصفية",
+    "brands": "العلامات التجارية",
+    "models": "الموديلات",
+    "trims": "الطرازات",
+    "priceRange": "نطاق السعر",
+    "advancedFilters": "تصفية متقدمة",
+    "loadingMore": "جاري تحميل المزيد من السيارات...",
+    "noCarsFound": "لم يتم العثور على سيارات",
+    "clearFilters": "مسح التصفية",
+    "applyFilters": "تطبيق التصفية",
+    "results": "النتائج",
+    "totalCars": "إجمالي السيارات"
+  },
+  "carDetails": {
+    "specifications": "المواصفات",
+    "features": "المميزات",
+    "description": "الوصف",
+    "contact": "اتصل بنا",
+    "share": "مشاركة",
+    "favorite": "المفضلة",
+    "price": "السعر",
+    "year": "السنة",
+    "mileage": "المسافة المقطوعة",
+    "transmission": "ناقل الحركة",
+    "fuelType": "نوع الوقود",
+    "color": "اللون",
+    "stockId": "رقم المخزون"
+  },
+  "language": {
+    "selectLanguage": "اختر اللغة",
+    "suggested": "مقترح",
+    "languages": "اللغات",
+    "english": "الإنجليزية (الولايات المتحدة)",
+    "arabic": "العربية",
+    "mandarin": "الماندرين",
+    "spanish": "الإسبانية",
+    "russian": "الروسية",
+    "french": "الفرنسية"
+  },
+  "settings": {
+    "title": "الإعدادات",
+    "language": "اللغة",
+    "currency": "العملة",
+    "notifications": "الإشعارات",
+    "about": "حول",
+    "help": "المساعدة",
+    "privacyPolicy": "سياسة الخصوصية",
+    "termsOfService": "شروط الخدمة"
+  }
+}

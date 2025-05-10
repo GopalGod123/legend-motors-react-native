@@ -16,10 +16,19 @@ import {
 } from '../../utils/constants';
 import {CarImage, CarImageCarousel} from '../common';
 import {useNavigation} from '@react-navigation/native';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 const {width} = Dimensions.get('window');
 
 const CarCard = memo(
-  ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
+  ({
+    item,
+    onPress,
+    toggleFavorite,
+    shareCar,
+    isFavorite,
+    tag = null,
+    width = '100%',
+  }) => {
     const navigation = useNavigation();
     // Extract data from the API response
     const brandName = item.Brand?.name || item.brand?.name || '';
@@ -68,15 +77,18 @@ const CarCard = memo(
     const carImages = item.images || [item.image] || [
         require('../../components/home/car_Image.png'),
       ];
-    // Get price from API response
-    const price = item?.CarPrices?.[0]?.price;
+    // Get pricce from API response
+    const {selectedCurrency} = useCurrencyLanguage();
+    const price = item?.CarPrices?.find(
+      crr => crr.currency === selectedCurrency,
+    )?.price;
 
     return (
       <TouchableOpacity
-        style={styles.cardContainer}
+        style={[styles.cardContainer, {width}]}
         onPress={() => onPress(item)}
         activeOpacity={0.9}>
-        <View style={styles.imageContainer}>
+        <View style={[styles.imageContainer, {width}]}>
           {/* {typeof imageUrls[0] === 'object' && imageUrls[0].uri ? (
             <CarImage
               source={imageUrls[0]}
@@ -92,11 +104,12 @@ const CarCard = memo(
             />
           )} */}
           <CarImageCarousel
-            images={carImages}
-            style={styles.carImage}
+            images={tag ? [carImages[0]] : carImages}
+            style={[styles.carImage]}
             height={180}
             onImagePress={() => {}}
           />
+          <View style={{position: 'absolute', top: 10, left: 10}}>{tag}</View>
         </View>
 
         <View style={styles.cardContent}>
@@ -154,7 +167,9 @@ const CarCard = memo(
 
           <View style={styles.priceRow}>
             {price ? (
-              <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
+              <Text style={styles.priceText}>
+                {selectedCurrency} {price.toLocaleString()}
+              </Text>
             ) : (
               <TouchableOpacity
                 style={{

@@ -8,7 +8,7 @@ import {
 } from '../../utils/constants';
 import {AntDesign, Ionicons} from 'src/utils/icon/index';
 
-const FilterTabs = ({categories, activeFilter, onSelect}) => {
+const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
   const renderFilterItem = ({item}) => (
     <TouchableOpacity
       style={[
@@ -33,6 +33,9 @@ const FilterTabs = ({categories, activeFilter, onSelect}) => {
 
   return (
     <View style={styles.filtersContainer}>
+      {home ? null : (
+        <Text style={styles.filtersTitle}>{'Advanced Filters'}</Text>
+      )}
       <FlatList
         horizontal
         data={categories}

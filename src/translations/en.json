@@ -1,0 +1,80 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "retry": "Retry",
+    "next": "Next",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "noResults": "No results found",
+    "tryAgain": "Try Again"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?"
+  },
+  "explore": {
+    "title": "Explore",
+    "allCars": "All Cars",
+    "filters": "Filters",
+    "brands": "Brands",
+    "models": "Models",
+    "trims": "Trims",
+    "priceRange": "Price Range",
+    "advancedFilters": "Advanced Filters",
+    "loadingMore": "Loading more cars...",
+    "noCarsFound": "No cars found",
+    "clearFilters": "Clear Filters",
+    "applyFilters": "Apply Filters",
+    "results": "Results",
+    "totalCars": "Total Cars"
+  },
+  "carDetails": {
+    "specifications": "Specifications",
+    "features": "Features",
+    "description": "Description",
+    "contact": "Contact",
+    "share": "Share",
+    "favorite": "Favorite",
+    "price": "Price",
+    "year": "Year",
+    "mileage": "Mileage",
+    "transmission": "Transmission",
+    "fuelType": "Fuel Type",
+    "color": "Color",
+    "stockId": "Stock ID"
+  },
+  "language": {
+    "selectLanguage": "Select a Language",
+    "suggested": "Suggested",
+    "languages": "Languages",
+    "english": "English (US)",
+    "arabic": "Arabic",
+    "mandarin": "Mandarin",
+    "spanish": "Spanish",
+    "russian": "Russian",
+    "french": "French"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "currency": "Currency",
+    "notifications": "Notifications",
+    "about": "About",
+    "help": "Help",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service"
+  }
+}

@@ -36,6 +36,7 @@ import {
 
 // Import the SearchBar from components/home
 import SearchBar from '../components/home/SearchBar';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 
 // Create color statistics tracker
 const colorStats = {
@@ -344,7 +345,10 @@ const ExploreScreen = () => {
     if (route.params?.filters) {
       setAppliedFilters(route.params.filters);
     }
-  }, [route.params?.filters]);
+    if (route.params?.search) {
+      setSearchQuery(route.params.search);
+    }
+  }, [route.params?.filters, route.params?.search]);
 
   // Define the fetchCars function first without dependencies
   const fetchCars = useCallback(
@@ -511,7 +515,7 @@ const ExploreScreen = () => {
         }
       }
     },
-    [allCars, appliedFilters, filterCarsByApiCriteria, processCar],
+    [allCars, appliedFilters, filterCarsByApiCriteria, processCar, searchQuery],
   );
 
   // Store the function in ref for stable reference
@@ -585,6 +589,7 @@ const ExploreScreen = () => {
     // resetToOriginal();
     functionRef.current.fetchCars(1);
   }, [appliedFilters]);
+  const {selectedLanguage} = useCurrencyLanguage();
 
   // Store the fetchCars function reference to avoid dependency cycles
   useEffect(() => {
@@ -705,7 +710,7 @@ const ExploreScreen = () => {
     // }, 300); // 300ms debounce
 
     // return () => clearTimeout(timeoutId);
-  }, [appliedFilters, processCar]); // Add processCar to dependencies
+  }, [appliedFilters, processCar, selectedLanguage]); // Add processCar to dependencies
 
   // Fetch cars by model IDs
   const fetchCarsByModelIds = async modelIds => {
@@ -1398,7 +1403,7 @@ const ExploreScreen = () => {
 
     // Calculate the next page
     const nextPage = page + 1;
-    console.log(`Loading more data, page ${nextPage}`);
+    console.log(`Loading more data, page ${nextPage}`, searchQuery);
 
     // Use the fetchCars function to load the next page
     setLoadingMore(true);

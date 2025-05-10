@@ -18,6 +18,7 @@ const SearchBar = ({
   disabled = false,
   onApplyFilters,
   currentFilters = {},
+  home = false,
 }) => {
   // Use currentFilters directly instead of copying to state
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
@@ -51,7 +52,8 @@ const SearchBar = ({
 
   const handleTextChange = text => {
     setLocalSearchQuery(text);
-    if (onSearch) {
+    if (onSearch && !home) {
+      console.log('first');
       if (timer) {
         clearTimeout(timer);
       }
@@ -105,6 +107,11 @@ const SearchBar = ({
             value={localSearchQuery}
             onChangeText={handleTextChange}
             editable={!disabled}
+            onSubmitEditing={() => {
+              console.log('Search text:', localSearchQuery);
+              onSearch(localSearchQuery);
+            }}
+            enterKeyHint="search"
           />
           {localSearchQuery.length > 0 && (
             <TouchableOpacity

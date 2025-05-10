@@ -8,9 +8,9 @@ import {
   BORDER_RADIUS,
 } from '../../utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 const Header = ({user, onSettingsPress, onWishlistPress}) => {
-  const [activeCurrency, setActiveCurrency] = useState('AED');
-
+  const {selectedCurrency, setSelectedCurrency} = useCurrencyLanguage();
   // Get firstName from user object or use default
   const getFirstName = () => {
     if (!user) return 'User';
@@ -33,7 +33,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
   };
 
   const toggleCurrency = currency => {
-    setActiveCurrency(currency);
+    setSelectedCurrency(currency);
   };
 
   return (
@@ -51,13 +51,13 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           <TouchableOpacity
             style={[
               styles.currencyButton,
-              activeCurrency === 'AED' && styles.activeCurrencyButton,
+              selectedCurrency === 'AED' && styles.activeCurrencyButton,
             ]}
             onPress={() => toggleCurrency('AED')}>
             <Text
               style={[
                 styles.currencyText,
-                activeCurrency === 'AED'
+                selectedCurrency === 'AED'
                   ? styles.activeText
                   : styles.inactiveText,
               ]}>
@@ -67,13 +67,13 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           <TouchableOpacity
             style={[
               styles.currencyButton,
-              activeCurrency === 'USD' && styles.activeCurrencyButton,
+              selectedCurrency === 'USD' && styles.activeCurrencyButton,
             ]}
             onPress={() => toggleCurrency('USD')}>
             <Text
               style={[
                 styles.currencyText,
-                activeCurrency === 'USD'
+                selectedCurrency === 'USD'
                   ? styles.activeText
                   : styles.inactiveText,
               ]}>
