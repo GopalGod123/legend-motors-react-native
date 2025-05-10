@@ -78,7 +78,7 @@ const ArrivedCarCard = memo(
         onPress={() => onPress(item)}
         activeOpacity={0.8}>
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}>New Arrival</Text>
+          {/* New Arrival tag hidden as requested */}
         </View>
 
         <View style={styles.imageContainer}>
@@ -302,7 +302,7 @@ const JustArrived = () => {
       // Call the API to get "Just Arrived!" cars with reduced limit
       const response = await getCarList({
         page: 1,
-        limit: 10, // Reduced from 100 to just 5 for faster loading
+        limit: 4, // Reduced from 100 to just 5 for faster loading
         status: 'published',
         tags: 2,
       });

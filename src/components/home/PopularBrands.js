@@ -334,7 +334,7 @@ const styles = StyleSheet.create({
   logoContainer: {
     width: 80,
     height: 80,
-    borderRadius: 40,
+    borderRadius: 12,
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
@@ -353,7 +353,7 @@ const styles = StyleSheet.create({
     width: '80%',
     height: '80%',
     backgroundColor: 'transparent',
-    borderRadius: 0,
+    borderRadius: 8,
   },
   brandInitial: {
     fontSize: FONT_SIZES.xl,
@@ -377,6 +377,7 @@ const styles = StyleSheet.create({
   },
   skeletonLogo: {
     backgroundColor: '#f0f0f0',
+    borderRadius: 12,
   },
   skeletonText: {
     width: 60,
