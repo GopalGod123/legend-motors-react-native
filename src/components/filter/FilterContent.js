@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import CheckboxItem from './CheckboxItem';
 import {Ionicons} from 'src/utils/icon';
+import PriceRangeSelector from './PriceRangeSelector';
 
 const FilterContent = ({
   title,
@@ -201,8 +202,9 @@ const FilterContent = ({
           <Text style={styles.infoText}>{infoText}</Text>
         </View>
       )}
-
-      {data.length > 0 ? (
+      {itemType === 'priceRange' ? (
+        <PriceRangeSelector />
+      ) : data.length > 0 ? (
         <FlatList
           data={data}
           keyExtractor={item => String(item.id || item.year || item.name)}
