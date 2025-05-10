@@ -226,7 +226,7 @@ const CarCard = memo(
                   e.stopPropagation();
                   shareCar(item);
                 }}>
-                <Ionicons name="share-social-outline" size={24} color="#777" />
+                <Ionicons name="share-social" size={24} color="#212121" />
               </TouchableOpacity>
             </View>
           </View>
