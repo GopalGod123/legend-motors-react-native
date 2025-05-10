@@ -24,7 +24,7 @@ import {getCarList, searchCars, searchCarModels} from '../services/api';
 import {extractColorsFromSlug} from '../utils/colorUtils';
 import {useAuth} from '../context/AuthContext';
 import {useWishlist} from '../context/WishlistContext';
-
+import CarCard from '../components/explore/CarCard';
 // Import our optimized components
 import {
   Header,
@@ -221,6 +221,24 @@ const processCar = car => {
       ];
     }
 
+    car.bodyType =
+      car?.SpecificationValues?.find(a => a.Specification?.key == 'body_type')
+        ?.name ?? 'SUV';
+    car.fuelType =
+      car?.SpecificationValues?.find(a => a.Specification?.key == 'fuel_type')
+        ?.name ?? 'Electric';
+    car.transmissionType =
+      car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'transmission',
+      )?.name ?? 'Automatic';
+    car.steeringType =
+      car?.SpecificationValues?.find(a => a.Specification?.key == 'steering')
+        ?.name ?? 'Left hand drive';
+    car.region =
+      car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'regional_specification',
+      )?.name ?? 'China';
+
     // Create a normalized car object with consistent property names
     const processedCar = {
       ...car,
@@ -298,8 +316,9 @@ const ExploreScreen = () => {
   const filterCategories = [
     {id: 'all', label: 'All'},
     {id: 'brands', label: 'Brands'},
+    {id: 'models', label: 'Models'},
     {id: 'trims', label: 'Trims'},
-    {id: 'priceRange', label: 'Price Range'},
+    {id: 'years', label: 'Years'},
     {id: 'advanced', label: 'Advanced Filters'},
   ];
 
@@ -330,7 +349,7 @@ const ExploreScreen = () => {
 
   // Define the fetchCars function first without dependencies
   const fetchCars = useCallback(
-    async (newPage = 1) => {
+    async (newPage = 1, search = '') => {
       // Always set loading to true and clear existing cars when starting a new fetch
       if (newPage === 1) setLoading(true);
       else setLoadingMore(true);
@@ -349,14 +368,6 @@ const ExploreScreen = () => {
 
       try {
         // Check if any filters are applied
-        const hasFilters =
-          Object.keys(appliedFilters).length > 0 &&
-          (appliedFilters.brands?.length > 0 ||
-            appliedFilters.models?.length > 0 ||
-            appliedFilters.trims?.length > 0 ||
-            appliedFilters.years?.length > 0 ||
-            (appliedFilters.specifications &&
-              Object.keys(appliedFilters.specifications).length > 0));
 
         // Base API parameters
         const params = {
@@ -364,45 +375,50 @@ const ExploreScreen = () => {
           limit: PAGE_SIZE,
           status: 'published',
         };
+        if (search) {
+          params.search = search?.toLowerCase();
+        }
 
-        // Apply filters to API parameters
-        if (hasFilters) {
-          // Convert brand names to IDs if available
-          if (appliedFilters.brands && appliedFilters.brands.length > 0) {
-            if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
-              params.brandId = appliedFilters.brandIds.join(',');
-            }
-          }
-
-          // Convert model names to IDs if available
-          if (appliedFilters.models && appliedFilters.models.length > 0) {
-            if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
-              params.modelId = appliedFilters.modelIds.join(',');
-            }
-          }
-
-          // Convert trim names to IDs if available
-          if (appliedFilters.trims && appliedFilters.trims.length > 0) {
-            if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
-              params.trimId = appliedFilters.trimIds.join(',');
-            }
-          }
-
-          // Convert year values to IDs if available
-          if (appliedFilters.years && appliedFilters.years.length > 0) {
-            if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
-              params.yearId = appliedFilters.yearIds.join(',');
-            }
-          }
-
-          // Other filters like price range
-          if (appliedFilters.minPrice) {
-            params.minPriceAED = appliedFilters.minPrice;
-          }
-          if (appliedFilters.maxPrice) {
-            params.maxPriceAED = appliedFilters.maxPrice;
+        if (appliedFilters?.brands && appliedFilters?.brands?.length > 0) {
+          if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
+            params.brandId = appliedFilters.brandIds.join(',');
           }
         }
+
+        // Convert model names to IDs if available
+        if (appliedFilters?.models && appliedFilters?.models?.length > 0) {
+          if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
+            params.modelId = appliedFilters.modelIds.join(',');
+          }
+        }
+
+        // Convert trim names to IDs if available
+        if (appliedFilters?.trims && appliedFilters?.trims?.length > 0) {
+          if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
+            params.trimId = appliedFilters.trimIds.join(',');
+          }
+        }
+
+        // Convert year values to IDs if available
+        if (appliedFilters?.years && appliedFilters?.years?.length > 0) {
+          if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
+            params.yearId = appliedFilters.yearIds.join(',');
+          }
+        }
+
+        // Other filters like price range
+        if (appliedFilters?.minPrice) {
+          params.minPriceAED = appliedFilters.minPrice;
+        }
+        if (appliedFilters?.maxPrice) {
+          params.maxPriceAED = appliedFilters.maxPrice;
+        }
+        Object.keys(appliedFilters?.specifications ?? {}).forEach(key => {
+          if (appliedFilters.specifications[key].length > 0) {
+            params[key] = appliedFilters.specifications[key].join(',');
+          }
+        });
+        // }
 
         console.log(`Fetching cars with API params:`, JSON.stringify(params));
 
@@ -460,90 +476,18 @@ const ExploreScreen = () => {
           .filter(car => car) // Filter out undefined or null items
           .map(car => processCar(car))
           .filter(car => car); // Filter out any null results from processCar
-
         // Store all cars
         const newAllCars =
           newPage === 1 ? processedCars : [...allCars, ...processedCars];
 
-        // Apply manual filters for specifications if needed
-        let filteredCarsResult = newAllCars;
-
-        // Apply specifications filtering
-        if (
-          hasFilters &&
-          appliedFilters.specifications &&
-          Object.keys(appliedFilters.specifications).length > 0
-        ) {
-          // Check if we have the enhanced matchSpecifications function
-          if (appliedFilters.matchSpecifications) {
-            filteredCarsResult = processedCars.filter(car =>
-              appliedFilters.matchSpecifications(car),
-            );
-          } else {
-            // Use standard filtering
-            filteredCarsResult = filterCarsByApiCriteria(
-              processedCars,
-              appliedFilters,
-            );
-          }
-
-          // Log more details on why filtering may have failed
-          if (filteredCarsResult.length === 0 && processedCars.length > 0) {
-            console.log(
-              'No cars matched the filters. Sample car data:',
-              JSON.stringify({
-                brand: processedCars[0].brand,
-                Brand: processedCars[0].Brand,
-                model: processedCars[0].model,
-                CarModel: processedCars[0].CarModel,
-                trim: processedCars[0].trim,
-                Trim: processedCars[0].Trim,
-              }),
-            );
-          }
-
-          console.log(
-            `After filtering: ${filteredCarsResult.length} cars match the criteria`,
-          );
-
-          // Update the display cars
-          if (newPage === 1) {
-            setCars(filteredCarsResult);
-            setPage(1);
-          } else {
-            setCars(prev => [...prev, ...filteredCarsResult]);
-            setPage(newPage);
-          }
-
-          // Update the total count to reflect filtered results
-          totalCount = filteredCarsResult.length;
-        } else {
-          // If no filters applied, use all processed cars
-          filteredCarsResult = processedCars;
-
-          // Set car state based on pagination
-          if (newPage === 1) {
-            setCars(filteredCarsResult);
-            setPage(1);
-          } else {
-            setCars(prev => [...prev, ...filteredCarsResult]);
-            setPage(newPage);
-          }
-
-          // Set the actual total count from API response
-          totalCount = newPage === 1 ? processedCars.length : totalCount;
-        }
-
-        // Determine if there might be more data to load
         const hasMore = currentPage < totalPages;
-
         // Batch all the state updates to avoid multiple re-renders
-        setAllCars(newAllCars);
-        setFilteredCars(prev =>
-          newPage === 1 ? filteredCarsResult : [...prev, ...filteredCarsResult],
-        );
+        setCars([...newAllCars]);
+        setAllCars([...newAllCars]);
+        setFilteredCars([...newAllCars]);
         setTotalCars(totalCount);
         setHasMoreData(hasMore);
+        setPage(newPage);
       } catch (error) {
         console.error('Error fetching cars:', error);
         // Use mock data in case of error
@@ -639,151 +583,9 @@ const ExploreScreen = () => {
       }
     };
 
-    resetToOriginal();
+    // resetToOriginal();
+    functionRef.current.fetchCars(1);
   }, [appliedFilters]);
-
-  // Define performAPISearch with ref to resetSearch
-  const performAPISearch = useCallback(async query => {
-    if (!query || query.trim() === '') return;
-
-    setLoading(true);
-    setFilteredBySearch(true);
-    setCarIds([]); // Reset car IDs
-    setSearchedModels([]); // Reset searched models
-
-    try {
-      // Validate search query
-      const trimmedQuery = query.trim();
-      if (trimmedQuery.length < 2) {
-        console.log('Search query too short, minimum 2 characters required');
-        setCars([]);
-        setTotalCars(0);
-        setHasMoreData(false);
-        return;
-      }
-
-      // First search car models to get model IDs
-      console.log(
-        `Searching car models with term: "${trimmedQuery}" using carmodel/list API`,
-      );
-
-      // Try with a more resilient approach - catch errors at each step
-      let modelSearchResults;
-      try {
-        modelSearchResults = await searchCarModels(trimmedQuery);
-      } catch (modelSearchError) {
-        console.error('Error searching car models:', modelSearchError);
-        modelSearchResults = {
-          success: false,
-          data: [],
-          message: 'Error searching car models',
-        };
-      }
-
-      if (
-        modelSearchResults.success &&
-        modelSearchResults.data &&
-        modelSearchResults.data.length > 0
-      ) {
-        // Log the car model information
-        console.log(
-          `Found ${modelSearchResults.data.length} car models matching "${trimmedQuery}"`,
-        );
-
-        // Save the full model info for display
-        setSearchedModels(modelSearchResults.data);
-
-        // Extract model IDs from the search results
-        const modelIds = modelSearchResults.data.map(model => model.id);
-
-        // Store the car model IDs for display
-        setCarIds(modelIds);
-
-        // Fetch cars using these model IDs
-        try {
-          await fetchCarsByModelIds(modelIds);
-        } catch (fetchCarError) {
-          console.error('Error fetching cars by model IDs:', fetchCarError);
-          // Show some results even if car fetching fails
-          setCars([]);
-          setTotalCars(0);
-        }
-      }
-      // If no car models match or error occurred, try direct car search as fallback
-      else {
-        console.log(
-          `No car models match for "${trimmedQuery}", trying direct car search...`,
-        );
-
-        let carSearchResults;
-        try {
-          carSearchResults = await searchCars(trimmedQuery);
-        } catch (carSearchError) {
-          console.error('Error searching cars directly:', carSearchError);
-          carSearchResults = {
-            success: false,
-            data: [],
-            carIds: [],
-            message: 'Error searching cars',
-          };
-        }
-
-        if (
-          carSearchResults.success &&
-          carSearchResults.data &&
-          carSearchResults.data.length > 0
-        ) {
-          console.log(
-            `Found ${carSearchResults.data.length} cars directly matching "${trimmedQuery}"`,
-          );
-
-          // Process car data to ensure consistent format
-          const processedCars = carSearchResults.data.map(car =>
-            processCar(car),
-          );
-          setCars(processedCars);
-          setTotalCars(processedCars.length);
-          setHasMoreData(false); // Disable pagination during search
-
-          // Store the car IDs
-          setCarIds(carSearchResults.carIds || []);
-        } else {
-          // If server search fails completely, try local filtering as last resort
-          console.log(
-            `No results from API search for "${trimmedQuery}", trying local filter`,
-          );
-          if (cars.length > 0) {
-            filterCarsByQuery(trimmedQuery);
-          } else {
-            // If no cars available locally for filtering, show empty results
-            console.log(`No results found for search term "${trimmedQuery}"`);
-            setCars([]);
-            setTotalCars(0);
-            setHasMoreData(false);
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error during API search:', error);
-
-      // Fall back to empty results but with error message
-      setCars([]);
-      setTotalCars(0);
-      setHasMoreData(false);
-
-      // You could also display an error message to the user here
-      Alert.alert(
-        'Search Error',
-        'There was a problem with your search. Please try again later or with a different search term.',
-        [{text: 'OK'}],
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // Store performAPISearch in ref for stable reference
-  functionRef.current.performSearch = performAPISearch;
 
   // Store the fetchCars function reference to avoid dependency cycles
   useEffect(() => {
@@ -791,123 +593,119 @@ const ExploreScreen = () => {
     const processCarData = processCar;
 
     // Skip the first render to avoid initial double-fetch
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
+    // if (isFirstRender.current) {
+    //   isFirstRender.current = false;
+    //   return;
+    // }
 
     // Use a debounce to prevent rapid re-fetching
-    const timeoutId = setTimeout(() => {
-      const fetchCarsWithFilters = async () => {
-        console.log(
-          'Fetching cars with applied filters:',
-          JSON.stringify(appliedFilters),
-        );
+    // const timeoutId = setTimeout(() => {
+    const fetchCarsWithFilters = async () => {
+      console.log(
+        'Fetching cars with applied filters:',
+        JSON.stringify(appliedFilters),
+      );
 
-        setLoading(true);
+      setLoading(true);
 
-        try {
-          // Base API parameters
-          const params = {
-            page: 1,
-            limit: 10,
-            status: 'published',
-          };
-
-          // Apply filters if any
-          if (Object.keys(appliedFilters).length > 0) {
-            // Only apply supported filter parameters to the API call
-            if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
-              params.brandId = appliedFilters.brandIds.join(',');
-            }
-
-            if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
-              params.modelId = appliedFilters.modelIds.join(',');
-            }
-
-            if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
-              params.trimId = appliedFilters.trimIds.join(',');
-            }
-
-            if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
-              params.yearId = appliedFilters.yearIds.join(',');
-            }
-            Object.keys(appliedFilters.specifications).forEach(key => {
-              if (appliedFilters.specifications[key].length > 0) {
-                params[key] = appliedFilters.specifications[key].join(',');
-              }
-            });
-            // Add other API parameters as needed
-          }
-
-          console.log('Fetching cars with params:', JSON.stringify(params));
-          const response = await getCarList(params);
-
-          // Process response data
-          let carData = [];
-          let totalCount = 0;
-
-          // Extract car data from response
-          if (response && response.data) {
-            if (Array.isArray(response.data)) {
-              carData = response.data;
-            } else if (
-              response.data.data &&
-              Array.isArray(response.data.data)
-            ) {
-              carData = response.data.data;
-            } else if (Array.isArray(response.data.cars)) {
-              carData = response.data.cars;
-            }
-
-            // Get total count
-            if (response.pagination) {
-              totalCount = response.pagination.totalItems || carData.length;
-            } else if (response.data && response.data.pagination) {
-              totalCount =
-                response.data.pagination.totalItems || carData.length;
-            } else if (response.data && response.data.total) {
-              totalCount = response.data.total;
-            } else {
-              totalCount = carData.length;
-            }
-          }
-
-          // Process cars using the referenced function
-          const processedCars = carData
-            .filter(car => car)
-            .map(processCarData)
-            .filter(car => car);
-
-          console.log(
-            `Processed ${processedCars.length} cars from API response`,
-          );
-
-          // Batch state updates to prevent multiple renders
-          setCars(processedCars);
-          setFilteredCars(processedCars);
-          setAllCars(processedCars);
-          setTotalCars(totalCount);
-          setPage(1);
-          setHasMoreData(processedCars.length < totalCount);
-        } catch (error) {
-          console.error('Error fetching cars:', error);
-          setCars([]);
-          setFilteredCars([]);
-          setAllCars([]);
-          setTotalCars(0);
-          setHasMoreData(false);
-        } finally {
-          setLoading(false);
-          setLoadingMore(false);
+      try {
+        // Base API parameters
+        const params = {
+          page: 1,
+          limit: 10,
+          status: 'published',
+        };
+        if (searchQuery) {
+          params.search = searchQuery?.toLowerCase();
         }
-      };
+        // Apply filters if any
+        if (Object.keys(appliedFilters).length > 0) {
+          // Only apply supported filter parameters to the API call
+          if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
+            params.brandId = appliedFilters.brandIds.join(',');
+          }
 
-      // Call the function
-      fetchCarsWithFilters();
-    }, 300); // 300ms debounce
+          if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
+            params.modelId = appliedFilters.modelIds.join(',');
+          }
 
-    return () => clearTimeout(timeoutId);
+          if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
+            params.trimId = appliedFilters.trimIds.join(',');
+          }
+
+          if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
+            params.yearId = appliedFilters.yearIds.join(',');
+          }
+          Object.keys(appliedFilters.specifications).forEach(key => {
+            if (appliedFilters.specifications[key].length > 0) {
+              params[key] = appliedFilters.specifications[key].join(',');
+            }
+          });
+          // Add other API parameters as needed
+        }
+
+        console.log('Fetching cars with params:', JSON.stringify(params));
+        const response = await getCarList(params);
+
+        // Process response data
+        let carData = [];
+        let totalCount = 0;
+
+        // Extract car data from response
+        if (response && response.data) {
+          if (Array.isArray(response.data)) {
+            carData = response.data;
+          } else if (response.data.data && Array.isArray(response.data.data)) {
+            carData = response.data.data;
+          } else if (Array.isArray(response.data.cars)) {
+            carData = response.data.cars;
+          }
+
+          // Get total count
+          if (response.pagination) {
+            totalCount = response.pagination.totalItems || carData.length;
+          } else if (response.data && response.data.pagination) {
+            totalCount = response.data.pagination.totalItems || carData.length;
+          } else if (response.data && response.data.total) {
+            totalCount = response.data.total;
+          } else {
+            totalCount = carData.length;
+          }
+        }
+        console.log('carData', carData);
+        // Process cars using the referenced function
+        const processedCars = carData
+          .filter(car => car)
+          .map(processCarData)
+          .filter(car => car);
+
+        console.log(`Processed ${processedCars.length} cars from API response`);
+
+        // Batch state updates to prevent multiple renders
+        setCars(processedCars);
+        setFilteredCars(processedCars);
+        setAllCars(processedCars);
+        setTotalCars(totalCount);
+        setPage(1);
+        setHasMoreData(processedCars.length < totalCount);
+      } catch (error) {
+        console.error('Error fetching cars:', error);
+        setCars([]);
+        setFilteredCars([]);
+        setAllCars([]);
+        setTotalCars(0);
+        setHasMoreData(false);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    };
+
+    // Call the function
+    fetchCarsWithFilters();
+    // }, 300); // 300ms debounce
+
+    // return () => clearTimeout(timeoutId);
   }, [appliedFilters, processCar]); // Add processCar to dependencies
 
   // Fetch cars by model IDs
@@ -974,74 +772,14 @@ const ExploreScreen = () => {
     }
   };
 
-  // Client-side filtering function as a fallback
-  const filterCarsByQuery = useCallback(
-    query => {
-      const cleanQuery = query
-        .toLowerCase()
-        .replace(/[^\w\s]/gi, '')
-        .trim();
-
-      // First filter out any undefined or null cars
-      const validCars = cars.filter(car => car && car.id);
-
-      const filtered = validCars.filter(car => {
-        // Function to safely check if a field contains the search query
-        const fieldContainsQuery = field => {
-          if (!field) return false;
-          const cleanField = field
-            .toString()
-            .toLowerCase()
-            .replace(/[^\w\s]/gi, '');
-          return cleanField.includes(cleanQuery);
-        };
-
-        // Prioritize searching in additionalInfo field
-        if (car.additionalInfo) {
-          const cleanAdditionalInfo = car.additionalInfo.toLowerCase();
-          if (cleanAdditionalInfo.includes(query.toLowerCase())) {
-            console.log(`Match found in additionalInfo: ${car.additionalInfo}`);
-            return true;
-          }
-        }
-
-        // Search in slug as a fallback (both original and cleaned version)
-        if (car.slug) {
-          // Direct match with original query
-          if (car.slug.toLowerCase().includes(query.toLowerCase())) return true;
-
-          // Match with cleaned query
-          const cleanSlug = car.slug.toLowerCase().replace(/[^\w\s]/gi, '');
-          if (cleanSlug.includes(cleanQuery)) return true;
-        }
-
-        // Also search in brand, model, and trim for better UX
-        if (fieldContainsQuery(car.brand)) return true;
-        if (fieldContainsQuery(car.model)) return true;
-        if (fieldContainsQuery(car.trim)) return true;
-        if (fieldContainsQuery(car.stockId)) return true;
-        if (fieldContainsQuery(car.year)) return true;
-
-        // Check in colors and additional info if available
-        if (
-          car.extractedColors &&
-          car.extractedColors.some(color => fieldContainsQuery(color))
-        )
-          return true;
-        if (fieldContainsQuery(car.color)) return true;
-
-        return false;
-      });
-
-      setCars(filtered);
-      setTotalCars(filtered.length);
-      setHasMoreData(false); // Disable pagination during search
-    },
-    [cars],
-  );
-
   const handleSearchChange = useCallback(text => {
-    setSearchQuery(text);
+    if (text) {
+      setSearchQuery(text);
+      functionRef.current.fetchCars(1, text);
+    } else {
+      setSearchQuery('');
+      clearSearch();
+    }
   }, []);
 
   const toggleFavorite = async carId => {
@@ -1225,240 +963,50 @@ const ExploreScreen = () => {
     });
   }, []);
 
-  // Update the function to apply filters to existing cars
-  const applyFiltersToExistingCars = useCallback(
-    (cars, filters) => {
-      console.log(`Applying filters to ${cars.length} existing cars...`);
-
-      if (!cars || cars.length === 0) {
-        setFilteredCars([]);
-        setCars([]);
-        setTotalCars(0);
-        return;
-      }
-
-      let filteredResults = [];
-
-      // Use the enhanced matchSpecifications function if available, otherwise use standard filtering
-      if (filters.matchSpecifications) {
-        // Apply the multi-directional filtering logic
-        filteredResults = cars.filter(car => filters.matchSpecifications(car));
-      } else if (filters.colorFilter && filters.matchExtractedColors) {
-        // Special handling for color filtering based on slug extraction
-        console.log('🎨 Applying color filtering with slug extraction');
-
-        filteredResults = cars.filter(car => {
-          // Skip cars that don't have a slug
-          if (!car.slug) {
-            console.log(`⚠️ Car ${car.id} has no slug, skipping color filter`);
-            return false;
-          }
-
-          // Use the matchExtractedColors function to match colors
-          const colorMatch = filters.matchExtractedColors(car.slug);
-
-          if (colorMatch) {
-            console.log(`✅ Car ${car.id} matches color criteria: ${car.slug}`);
-          } else {
-            console.log(
-              `❌ Car ${car.id} does not match color criteria: ${car.slug}`,
-            );
-          }
-
-          return colorMatch;
-        });
-
-        console.log(
-          `Found ${filteredResults.length} cars matching color criteria out of ${cars.length} total cars`,
-        );
-      } else {
-        // Fallback to standard filtering
-        filteredResults = filterCarsByApiCriteria(cars, filters);
-      }
-
-      console.log(
-        `After filtering: ${filteredResults.length} cars match the criteria`,
-      );
-
-      // Update both filtered and display cars
-      setFilteredCars(filteredResults);
-      setCars(filteredResults);
-      setTotalCars(filteredResults.length);
-    },
-    [filterCarsByApiCriteria],
-  );
-
   // Add a function to handle filter apply from the SearchBar
-  const handleSearchBarFilterApply = useCallback(
-    filters => {
-      console.log(
-        `Applying filters from SearchBar: ${JSON.stringify(filters, null, 2)}`,
-      );
+  const handleSearchBarFilterApply = useCallback(filters => {
+    console.log(
+      `Applying filters from SearchBar: ${JSON.stringify(filters, null, 2)}`,
+    );
 
-      // Preserve search query if we're currently searching
-      if (searchQuery) {
-        filters.searchQuery = searchQuery;
-      }
+    // Preserve search query if we're currently searching
+    if (searchQuery) {
+      filters.search = searchQuery;
+    }
 
-      // Additional validation for specifications
-      if (filters.specifications) {
-        // Check if any specification is not an array and convert it
-        Object.keys(filters.specifications).forEach(key => {
-          if (!Array.isArray(filters.specifications[key])) {
-            filters.specifications[key] = [filters.specifications[key]];
-          }
-        });
-      }
-
-      // For safety, check if we have the enhanced matchSpecifications function
-      if (filters.matchSpecifications) {
-        console.log(
-          'Using enhanced multi-directional filtering with accurate permutation combinations',
-        );
-
-        // Log the number of cars in each hierarchy
-        if (filters.hasBrandFilter) {
-          console.log(
-            `⭐ Filter includes ${
-              filters.brands.length
-            } brands: ${filters.brands.join(', ')}`,
-          );
+    // Additional validation for specifications
+    if (filters.specifications) {
+      // Check if any specification is not an array and convert it
+      Object.keys(filters.specifications).forEach(key => {
+        if (!Array.isArray(filters.specifications[key])) {
+          filters.specifications[key] = [filters.specifications[key]];
         }
+      });
+    }
 
-        if (filters.hasModelFilter) {
-          console.log(
-            `⭐ Filter includes ${
-              filters.models.length
-            } models: ${filters.models.join(', ')}`,
-          );
-        }
-
-        if (filters.hasTrimFilter) {
-          console.log(
-            `⭐ Filter includes ${
-              filters.trims.length
-            } trims: ${filters.trims.join(', ')}`,
-          );
-        }
-
-        // Log specifications info
-        if (filters.specifications) {
-          Object.keys(filters.specifications).forEach(key => {
-            const values = filters.specifications[key];
-            if (values && values.length > 0) {
-              console.log(
-                `⭐ Filter includes ${
-                  values.length
-                } ${key} specifications: ${values.join(', ')}`,
-              );
-            }
-          });
-        }
-      }
-
-      // Save the applied filters to state - this will trigger the useEffect to refetch
-      setAppliedFilters(filters);
-
-      // If we have existing cars loaded, apply filters directly without API call
-      if (allCars && allCars.length > 0) {
-        // Apply filters directly to existing cars
-        const applyFiltersLocally = () => {
-          setLoading(true);
-
-          try {
-            // Use the standard filtering logic
-            let filteredResults = [];
-
-            // Use the enhanced matchSpecifications function if available
-            if (filters.matchSpecifications) {
-              filteredResults = allCars.filter(car =>
-                filters.matchSpecifications(car),
-              );
-            } else if (filters.colorFilter && filters.matchExtractedColors) {
-              // Special handling for color filtering
-              filteredResults = allCars.filter(car => {
-                if (!car.slug) return false;
-                return filters.matchExtractedColors(car.slug);
-              });
-            } else {
-              // Use the standard filtering function
-              filteredResults = allCars.filter(car => {
-                // Basic filter logic (simplified for this example)
-                let matches = true;
-
-                // Filter by brand
-                if (filters.brands && filters.brands.length > 0) {
-                  if (
-                    !car.brand ||
-                    !filters.brands.some(b =>
-                      car.brand.toLowerCase().includes(b.toLowerCase()),
-                    )
-                  ) {
-                    matches = false;
-                  }
-                }
-
-                // Filter by model
-                if (matches && filters.models && filters.models.length > 0) {
-                  if (
-                    !car.model ||
-                    !filters.models.some(m =>
-                      car.model.toLowerCase().includes(m.toLowerCase()),
-                    )
-                  ) {
-                    matches = false;
-                  }
-                }
-
-                // Filter by trim
-                if (matches && filters.trims && filters.trims.length > 0) {
-                  if (
-                    !car.trim ||
-                    !filters.trims.some(t =>
-                      car.trim.toLowerCase().includes(t.toLowerCase()),
-                    )
-                  ) {
-                    matches = false;
-                  }
-                }
-
-                return matches;
-              });
-            }
-
-            // Update state
-            setCars(filteredResults);
-            setFilteredCars(filteredResults);
-            setTotalCars(filteredResults.length);
-          } catch (error) {
-            console.error('Error applying filters locally:', error);
-          } finally {
-            setLoading(false);
-          }
-        };
-
-        applyFiltersLocally();
-      }
-      // Otherwise, the useEffect will handle fetching with the new filters
-    },
-    [searchQuery, allCars],
-  );
+    setAppliedFilters(filters);
+  }, []);
 
   // Add function to handle opening the filter modal
-  const handleOpenFilter = useCallback(() => {
-    // Navigate to FilterScreen with current filters
-    navigation.navigate('FilterScreen', {
-      filterType: 'brands',
-      // Use a callback that sets applied filters directly
-      onApplyCallback: newFilters => {
-        // Update filters state
-        setAppliedFilters(newFilters);
+  const handleOpenFilter = useCallback(
+    filterId => {
+      // Navigate to FilterScreen with current filters
+      navigation.navigate('FilterScreen', {
+        filterType: ['all', 'advanced'].includes(filterId)
+          ? 'brands'
+          : filterId,
+        // Use a callback that sets applied filters directly
+        onApplyCallback: newFilters => {
+          // Update filters state
+          setAppliedFilters(newFilters);
 
-        // The useEffect hook will automatically trigger a fetch with new filters
-      },
-      currentFilters: appliedFilters,
-    });
-  }, [navigation, appliedFilters]);
+          // The useEffect hook will automatically trigger a fetch with new filters
+        },
+        currentFilters: appliedFilters,
+      });
+    },
+    [navigation, appliedFilters],
+  );
 
   // Function to fetch a specific car by ID
   const fetchCarById = async carId => {
@@ -1533,15 +1081,6 @@ const ExploreScreen = () => {
     setShowCarIds(!showCarIds);
   };
 
-  // Render car ID item
-  const renderCarIdItem = ({item}) => (
-    <TouchableOpacity
-      style={styles.carIdItem}
-      onPress={() => fetchCarById(item)}>
-      <Text style={styles.carIdText}>Car ID: {item}</Text>
-    </TouchableOpacity>
-  );
-
   // Render car model item
   const renderCarModelItem = ({item}) => (
     <TouchableOpacity
@@ -1579,6 +1118,7 @@ const ExploreScreen = () => {
   const clearAllFilters = () => {
     setAppliedFilters({});
     setActiveFilter('all');
+    setSearchQuery('');
     functionRef.current.fetchCars(1);
     navigation.setParams({filters: undefined});
   };
@@ -1587,10 +1127,12 @@ const ExploreScreen = () => {
   const handleFilterSelect = filterId => {
     setActiveFilter(filterId);
 
-    if (filterId === 'advanced') {
-      // Open the filter screen
-      handleOpenFilter();
-    }
+    // if (filterId === 'advanced') {
+    // Open the filter screen
+    setTimeout(() => {
+      handleOpenFilter(filterId);
+    }, 100);
+    // }
   };
 
   // Render a car item in the list
@@ -1600,15 +1142,23 @@ const ExploreScreen = () => {
       console.warn('Attempted to render a car without an id');
       return null;
     }
-
     return (
-      <CarListItem
-        car={item}
+      <CarCard
+        item={item}
         onPress={() => navigation.navigate('CarDetailScreen', {carId: item.id})}
-        onToggleFavorite={toggleFavorite}
-        onShare={() => handleShare(item)}
+        toggleFavorite={toggleFavorite}
+        shareCar={() => handleShare(item)}
+        isFavorite={isInWishlist(item.id)}
       />
     );
+    // return (
+    //   <CarListItem
+    //     car={item}
+    //     onPress={() => navigation.navigate('CarDetailScreen', {carId: item.id})}
+    //     onToggleFavorite={toggleFavorite}
+    //     onShare={() => handleShare(item)}
+    //   />
+    // );
   };
 
   // Render footer with loading indicator when loading more data
@@ -1848,7 +1398,7 @@ const ExploreScreen = () => {
 
     // Use the fetchCars function to load the next page
     setLoadingMore(true);
-    functionRef.current.fetchCars(nextPage);
+    functionRef.current.fetchCars(nextPage, searchQuery);
   }, [page, loadingMore, hasMoreData, functionRef]);
 
   return (
@@ -1929,10 +1479,10 @@ const ExploreScreen = () => {
       {/* Results Header Component */}
       <ResultsHeader
         totalCars={totalCars}
-        searchQuery={debouncedSearchQuery}
+        searchQuery={searchQuery}
         isViewingSpecificCar={isViewingSpecificCar}
         carId={route.params?.carId}
-        filteredBySearch={filteredBySearch}
+        filteredBySearch={searchQuery}
         hasFilters={hasFilters()}
         onClearFilters={clearAllFilters}
       />

@@ -1,24 +1,14 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
 
-const FilterFooter = ({ 
-  onReset, 
-  onApply, 
-  selectedCount = 0 
-}) => {
+const FilterFooter = ({onReset, onApply, selectedCount = 0}) => {
   return (
     <View style={styles.footer}>
-      <TouchableOpacity
-        style={styles.resetButton}
-        onPress={onReset}
-      >
+      <TouchableOpacity style={styles.resetButton} onPress={onReset}>
         <Text style={styles.resetButtonText}>Reset</Text>
       </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={styles.applyButton}
-        onPress={onApply}
-      >
+
+      <TouchableOpacity style={styles.applyButton} onPress={onApply}>
         <Text style={styles.applyButtonText}>
           Apply {selectedCount > 0 ? `(${selectedCount})` : ''}
         </Text>
@@ -37,13 +27,21 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 25,
     marginRight: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#CCCCCC',
-    borderRadius: 8,
+    borderRadius: 15,
+    backgroundColor: '#FCE8CD',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+
+    elevation: 11,
   },
   resetButtonText: {
     fontSize: 16,
@@ -51,12 +49,21 @@ const styles = StyleSheet.create({
   },
   applyButton: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 25,
     marginLeft: 8,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#F47B20',
-    borderRadius: 8,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+
+    elevation: 11,
   },
   applyButtonText: {
     fontSize: 16,
@@ -65,4 +72,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FilterFooter; 
+export default FilterFooter;
