@@ -174,7 +174,7 @@ class ErrorBoundary extends React.Component {
 }
 
 // Define the processCar function to normalize car data
-const processCar = car => {
+export const processCar = car => {
   // Handle undefined or null car
   if (!car) return null;
 
