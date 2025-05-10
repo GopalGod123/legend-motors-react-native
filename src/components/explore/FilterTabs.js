@@ -1,30 +1,41 @@
 import React from 'react';
-import { View, FlatList, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
+import {View, FlatList, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  BORDER_RADIUS,
+} from '../../utils/constants';
+import {AntDesign, Ionicons} from 'src/utils/icon/index';
 
-const FilterTabs = ({ categories, activeFilter, onSelect }) => {
-  const renderFilterItem = ({ item }) => (
+const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
+  const renderFilterItem = ({item}) => (
     <TouchableOpacity
       style={[
         styles.filterButton,
-        activeFilter === item.id && styles.activeFilterButton
+        activeFilter === item.id && styles.activeFilterButton,
       ]}
-      onPress={() => onSelect(item.id)}
-    >
-      <Text 
+      onPress={() => onSelect(item.id)}>
+      <Text
         style={[
           styles.filterButtonText,
-          activeFilter === item.id && styles.activeFilterText
-        ]}
-      >
-        {item.label}
+          activeFilter === item.id && styles.activeFilterText,
+        ]}>
+        {item.label}{' '}
       </Text>
+      <AntDesign
+        name={'caretdown'}
+        size={8}
+        color={activeFilter === item.id ? '#ffffff' : COLORS.primary}
+      />
     </TouchableOpacity>
   );
 
   return (
     <View style={styles.filtersContainer}>
-      <Text style={styles.filtersTitle}>Advanced Filters</Text>
+      {home ? null : (
+        <Text style={styles.filtersTitle}>{'Advanced Filters'}</Text>
+      )}
       <FlatList
         horizontal
         data={categories}
@@ -52,23 +63,28 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
   },
   filterButton: {
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.md,
-    backgroundColor: '#F0F0F0',
-    borderRadius: 20,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    // backgroundColor: '#F0F0F0',
+    borderRadius: 10,
     marginRight: SPACING.sm,
+    borderWidth: 2,
+    borderColor: COLORS.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   activeFilterButton: {
     backgroundColor: COLORS.primary,
   },
   filterButtonText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textDark,
+    fontSize: FONT_SIZES.md,
+    color: COLORS.primary,
+    fontWeight: 'bold',
   },
   activeFilterText: {
     color: '#FFFFFF',
-    fontWeight: '500',
   },
 });
 
-export default FilterTabs; 
+export default FilterTabs;

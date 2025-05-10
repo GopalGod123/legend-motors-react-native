@@ -1,19 +1,20 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS, SPACING, FONT_SIZES } from '../../utils/constants';
+import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
+import {COLORS, SPACING, FONT_SIZES} from '../../utils/constants';
+import Logo from '../Logo';
 
-const Header = ({ 
-  isViewingSpecificCar = false, 
-  onBackToAllCars 
-}) => {
+const Header = ({isViewingSpecificCar = false, onBackToAllCars}) => {
   return (
     <View style={styles.header}>
-      <Text style={styles.headerTitle}>Explore</Text>
+      <View style={{flexDirection: 'row'}}>
+        <Image
+          style={styles.logo}
+          source={require('../../assets/images/logo.png')}
+        />
+        <Text style={styles.headerTitle}>Explore</Text>
+      </View>
       {isViewingSpecificCar && (
-        <TouchableOpacity 
-          style={styles.backButton}
-          onPress={onBackToAllCars}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={onBackToAllCars}>
           <Text style={styles.backButtonText}>← Back to All Cars</Text>
         </TouchableOpacity>
       )}
@@ -28,6 +29,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+  },
+  logo: {
+    width: 30,
+    height: 30,
   },
   headerTitle: {
     fontSize: FONT_SIZES.xl,
@@ -47,4 +52,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Header; 
+export default Header;

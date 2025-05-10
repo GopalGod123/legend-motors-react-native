@@ -10,7 +10,7 @@ import {useNavigation} from '@react-navigation/native';
 import {FilterIcon} from '../icons';
 import {COLORS, SPACING, BORDER_RADIUS} from '../../utils/constants';
 import {Ionicons} from 'src/utils/icon';
-
+let timer = null;
 const SearchBar = ({
   searchQuery = '',
   onSearch,
@@ -18,6 +18,7 @@ const SearchBar = ({
   disabled = false,
   onApplyFilters,
   currentFilters = {},
+  home = false,
 }) => {
   // Use currentFilters directly instead of copying to state
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
@@ -27,7 +28,7 @@ const SearchBar = ({
 
   const navigation = useNavigation();
 
-  // Update local state when props change
+  // // Update local state when props change
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
@@ -51,8 +52,14 @@ const SearchBar = ({
 
   const handleTextChange = text => {
     setLocalSearchQuery(text);
-    if (onSearch) {
-      onSearch(text);
+    if (onSearch && !home) {
+      console.log('first');
+      if (timer) {
+        clearTimeout(timer);
+      }
+      timer = setTimeout(() => {
+        onSearch(text);
+      }, 500);
     }
   };
 
@@ -100,6 +107,11 @@ const SearchBar = ({
             value={localSearchQuery}
             onChangeText={handleTextChange}
             editable={!disabled}
+            onSubmitEditing={() => {
+              console.log('Search text:', localSearchQuery);
+              onSearch(localSearchQuery);
+            }}
+            enterKeyHint="search"
           />
           {localSearchQuery.length > 0 && (
             <TouchableOpacity
@@ -128,7 +140,7 @@ const SearchBar = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 23,
+    paddingHorizontal: 10,
     marginBottom: SPACING.xl,
   },
   searchSection: {
@@ -136,7 +148,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.lg,
     backgroundColor: 'white',
     borderWidth: 1,
-    borderColor: '#e5e5e5',
+    borderColor: '#9E86A7',
     height: 55,
     overflow: 'hidden',
     alignItems: 'center',
@@ -146,7 +158,7 @@ const styles = StyleSheet.create({
     borderColor: '#e0e0e0',
   },
   filterButton: {
-    backgroundColor: '#f0e6f5',
+    backgroundColor: '#DFD8E2',
     height: '100%',
     paddingHorizontal: SPACING.md,
     flexDirection: 'row',
@@ -154,7 +166,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     width: '25%',
     borderRightWidth: 1,
-    borderRightColor: '#e5e5e5',
+    borderRightColor: '#9E86A7',
   },
   filterText: {
     color: '#6f4a8e',
@@ -198,6 +210,13 @@ const styles = StyleSheet.create({
   clearButton: {
     padding: SPACING.xs,
     marginRight: SPACING.sm,
+  },
+  resultText: {
+    fontSize: 16,
+    color: COLORS.textDark,
+    marginTop: SPACING.xs,
+    fontWeight: 'bold',
+    marginTop: 10,
   },
 });
 

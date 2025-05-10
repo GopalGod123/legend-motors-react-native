@@ -1,19 +1,19 @@
 import React from 'react';
-import { View, FlatList, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {View, FlatList, TouchableOpacity, Text, StyleSheet} from 'react-native';
 
-const FilterList = ({ filterItems, activeFilter, onSelect }) => {
-  const renderFilterItem = ({ item }) => (
+const FilterList = ({filterItems, activeFilter, onSelect}) => {
+  const renderFilterItem = ({item}) => (
     <TouchableOpacity
       style={[
         styles.filterItem,
         activeFilter === item.id && styles.activeFilterItem,
       ]}
-      onPress={() => onSelect(item.id)}
-    >
-      <Text style={[
-        styles.filterItemText,
-        activeFilter === item.id && styles.activeFilterItemText
-      ]}>
+      onPress={() => onSelect(item.id)}>
+      <Text
+        style={[
+          styles.filterItemText,
+          activeFilter === item.id && styles.activeFilterItemText,
+        ]}>
         {item.label}
       </Text>
     </TouchableOpacity>
@@ -24,7 +24,7 @@ const FilterList = ({ filterItems, activeFilter, onSelect }) => {
       <FlatList
         data={filterItems}
         renderItem={renderFilterItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -34,21 +34,22 @@ const FilterList = ({ filterItems, activeFilter, onSelect }) => {
 const styles = StyleSheet.create({
   filterList: {
     width: '35%',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FCE8CD',
     paddingVertical: 12,
   },
   filterItem: {
     paddingVertical: 14,
     paddingHorizontal: 16,
+    alignItems: 'center',
   },
   activeFilterItem: {
     backgroundColor: '#FFFFFF',
-    borderLeftWidth: 3,
+    // borderLeftWidth: 3,
     borderLeftColor: '#F47B20',
   },
   filterItemText: {
     fontSize: 16,
-    color: '#666666',
+    color: '#000000',
   },
   activeFilterItemText: {
     color: '#F47B20',
@@ -56,4 +57,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FilterList; 
+export default FilterList;

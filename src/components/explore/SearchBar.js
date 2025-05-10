@@ -1,25 +1,58 @@
-import React from 'react';
-import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
+import React, {memo, useCallback, useEffect, useState} from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+} from 'react-native';
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  BORDER_RADIUS,
+} from '../../utils/constants';
 
-const SearchBar = ({ 
-  searchQuery, 
-  onChangeText, 
-  onClearSearch, 
-  disabled = false 
+const SearchBar = ({
+  searchQuery,
+  onChangeText,
+  onClearSearch,
+  disabled = false,
 }) => {
+  const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
+  let timer = null;
+  // Debounce function
+
+  // Handle local state changes
+  const handleSearchChange = text => {
+    setLocalSearchQuery(text);
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      onChangeText(text);
+    }, 1000); // 1000ms delay
+  };
+
+  // Sync with parent component's searchQuery
+  useEffect(() => {
+    setLocalSearchQuery(searchQuery);
+  }, [searchQuery]);
+
   return (
     <View style={styles.searchContainer}>
       <View style={styles.searchInputContainer}>
         <TextInput
           style={styles.searchInput}
           placeholder="Search for cars..."
-          value={searchQuery}
-          onChangeText={onChangeText}
+          value={localSearchQuery}
+          onChangeText={handleSearchChange}
           editable={!disabled}
         />
-        {searchQuery ? (
-          <TouchableOpacity onPress={onClearSearch} style={styles.clearSearchButton}>
+        {localSearchQuery ? (
+          <TouchableOpacity
+            onPress={onClearSearch}
+            style={styles.clearSearchButton}>
             <Text style={styles.clearSearchIcon}>❌</Text>
           </TouchableOpacity>
         ) : (
@@ -62,4 +95,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SearchBar; 
+export default memo(SearchBar);

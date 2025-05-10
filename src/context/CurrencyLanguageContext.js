@@ -7,6 +7,7 @@ const CurrencyLanguageContext = createContext();
 
 export const CurrencyLanguageProvider = ({children}) => {
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [selectedCurrency, setSelectedCurrency] = useState('USD');
 
   // Function to change language
   const changeLanguage = language => {
@@ -34,6 +35,8 @@ export const CurrencyLanguageProvider = ({children}) => {
     selectedLanguage,
     setSelectedLanguage: changeLanguage,
     t: (key, params) => i18n.t(key, params),
+    selectedCurrency,
+    setSelectedCurrency,
   };
 
   return (

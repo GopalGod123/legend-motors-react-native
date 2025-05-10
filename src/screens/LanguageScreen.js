@@ -51,12 +51,12 @@ const LanguageScreen = () => {
   };
 
   const languages = [
-    {id: 'en', name: t('language.english'), category: t('language.suggested')},
-    {id: 'ar', name: t('language.arabic'), category: t('language.suggested')},
-    {id: 'zh', name: t('language.mandarin'), category: t('language.languages')},
-    {id: 'es', name: t('language.spanish'), category: t('language.languages')},
-    {id: 'ru', name: t('language.russian'), category: t('language.languages')},
-    {id: 'fr', name: t('language.french'), category: t('language.languages')},
+    {id: 'en', name: 'English', category: 'suggested'},
+    {id: 'ar', name: 'Arabic', category: 'suggested'},
+    {id: 'zh', name: 'Mandarin', category: 'languages'},
+    {id: 'es', name: 'Spanish', category: 'languages'},
+    {id: 'ru', name: 'Russian', category: 'languages'},
+    {id: 'fr', name: 'French', category: 'languages'},
   ];
 
   // Group languages by category
@@ -83,7 +83,7 @@ const LanguageScreen = () => {
           onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('language.selectLanguage')}</Text>
+        <Text style={styles.headerTitle}>Select Language</Text>
       </View>
 
       <View style={styles.content}>

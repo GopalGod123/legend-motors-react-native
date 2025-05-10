@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback, memo} from 'react';
 import {
   View,
   Text,
@@ -8,15 +8,9 @@ import {
   Image,
   Dimensions,
   Share,
-  ScrollView,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
-import {
-  MaterialCommunityIcons,
-  Ionicons,
-  AntDesign,
-  FontAwesome,
-} from 'src/utils/icon';
+import {MaterialCommunityIcons, Ionicons, AntDesign} from 'src/utils/icon';
 import {
   COLORS,
   SPACING,
@@ -28,311 +22,164 @@ import {API_BASE_URL, API_KEY} from '../../utils/apiConfig';
 import axios from 'axios';
 import {useAuth} from '../../context/AuthContext';
 import {useWishlist} from '../../context/WishlistContext';
+import {getCarList} from 'src/services/api';
+import CarCard from '../explore/CarCard';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
 
-// Single car card component with its own state
-const ArrivedCarCard = ({
-  item,
-  onPress,
-  toggleFavorite,
-  shareCar,
-  isFavorite,
-}) => {
-  // Extract data from the API response
-  const brandName = item.Brand?.name || item.brand?.name || '';
-  const carModel = item.CarModel?.name || item.model || '';
-  const year = item.Year?.year || item.year || '';
-  const additionalInfo = item.additionalInfo || '';
+// Memoized card component to prevent unnecessary re-renders
+const ArrivedCarCard = memo(
+  ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
+    // Use pre-computed values whenever possible
+    const bodyType = item.bodyType || 'SUV';
+    const fuelType = item.fuelType || 'Electric';
+    const transmission = item.transmissionType || 'Automatic';
+    const region = item.region || 'China';
+    const steeringType = item.steeringType || 'Left hand drive';
 
-  const bodyType =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'body_type',
-    )?.name ||
-    item.category ||
-    'SUV';
+    // Use only one image for faster rendering
+    let imageUrl = null;
 
-  const fuelType =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'fuel_type',
-    )?.name ||
-    item.fuelType ||
-    'Electric';
+    if (item.CarImages && item.CarImages.length > 0) {
+      const firstImage = item.CarImages[0];
+      if (firstImage.FileSystem) {
+        const path =
+          firstImage.FileSystem.thumbnailPath ||
+          firstImage.FileSystem.compressedPath ||
+          firstImage.FileSystem.path;
 
-  const transmission =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'transmission',
-    )?.name ||
-    item.transmissionType ||
-    'Automatic';
-
-  const region =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'regional_specification',
-    )?.name ||
-    item.country ||
-    'China';
-
-  const steeringType =
-    item.SpecificationValues?.find(
-      spec => spec.Specification?.key === 'steering_side',
-    )?.name ||
-    item.steeringType ||
-    'Left hand drive';
-
-  // Get all car images
-  let imageUrls = [];
-
-  if (item.CarImages && item.CarImages.length > 0) {
-    // Collect all image URLs
-    // console.log(`New Arrival car ${item.id} has ${item.CarImages.length} images`);
-
-    imageUrls = item.CarImages.map(image => {
-      if (image.FileSystem && image.FileSystem.path) {
-        return {
-          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}`,
-        };
-      } else if (image.FileSystem && image.FileSystem.compressedPath) {
-        return {
-          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.compressedPath}`,
-        };
-      } else if (image.FileSystem && image.FileSystem.thumbnailPath) {
-        return {
-          uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.thumbnailPath}`,
-        };
+        if (path) {
+          imageUrl = {uri: `https://cdn.legendmotorsglobal.com${path}`};
+        }
       }
-      return null;
-    }).filter(url => url !== null); // Remove any null entries
-
-    // console.log(`Found ${imageUrls.length} valid image URLs for new arrival car ${item.id}`);
-  } else if (item.images && item.images.length > 0) {
-    console.log(
-      `New Arrival car ${item.id} has ${item.images.length} images in item.images property`,
-    );
-    imageUrls = item.images.map(image => {
-      return typeof image === 'string' ? {uri: image} : image;
-    });
-  } else {
-    console.log(`New Arrival car ${item.id} has no images, using fallback`);
-  }
-
-  // If no valid images from API, use the fallback
-  if (imageUrls.length === 0) {
-    imageUrls = [require('./HotDealsCar.png')];
-  }
-
-  // Set up state for the current image index - now correctly at the component level
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const scrollViewRef = useRef(null);
-
-  // Add auto-sliding functionality
-  useEffect(() => {
-    let interval;
-
-    if (imageUrls.length > 1) {
-      interval = setInterval(() => {
-        const nextIndex = (currentImageIndex + 1) % imageUrls.length;
-        scrollToImage(nextIndex);
-      }, 2000); // Change image every 2 seconds
     }
 
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [currentImageIndex, imageUrls.length]);
-
-  // Handle image scroll with improved accuracy
-  const handleScroll = event => {
-    if (!event || !event.nativeEvent) return;
-
-    const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const currentIndex = Math.round(contentOffsetX / styles.imageSlide.width);
-
-    if (
-      currentIndex >= 0 &&
-      currentIndex < imageUrls.length &&
-      currentIndex !== currentImageIndex
-    ) {
-      setCurrentImageIndex(currentIndex);
+    // If no valid image from API, use the fallback
+    if (!imageUrl) {
+      imageUrl = require('./HotDealsCar.png');
     }
-  };
 
-  // Manual navigation functions for dots
-  const scrollToImage = index => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({
-        x: index * styles.imageSlide.width,
-        animated: true,
-      });
-    }
-  };
+    // Pre-computed car title
+    const carTitle =
+      item.additionalInfo ||
+      `${item.Year?.year || ''} ${item.Brand?.name || item.brand?.name || ''} ${
+        item.CarModel?.name || ''
+      }`.trim() ||
+      'Car Details';
 
-  // Construct the car title
-  let carTitle = '';
-  if (additionalInfo) {
-    carTitle = additionalInfo;
-  } else if (year && brandName && carModel) {
-    carTitle = `${year} ${brandName} ${carModel}`;
-    if (item.Trim?.name) {
-      carTitle += ` ${item.Trim.name}`;
-    }
-  } else {
-    carTitle = item.title || 'Car Details';
-  }
+    // Get price from API response
+    const price = item.price || item.Price || 750000;
 
-  // Get price from API response if available or use default
-  const price = item.price || item.Price || 750000;
+    return (
+      <TouchableOpacity
+        style={styles.carCard}
+        onPress={() => onPress(item)}
+        activeOpacity={0.8}>
+        <View style={styles.tagBadge}>
+          <Text style={styles.tagText}>New Arrival</Text>
+        </View>
 
-  return (
-    <TouchableOpacity
-      style={styles.carCard}
-      onPress={() => onPress(item)}
-      activeOpacity={0.8}>
-      <View style={styles.tagBadge}>
-        <Text style={styles.tagText}>New Arrival</Text>
-      </View>
+        <View style={styles.imageContainer}>
+          <CarImage
+            source={imageUrl}
+            style={styles.carImage}
+            resizeMode="cover"
+            loadingIndicatorSource={require('./HotDealsCar.png')}
+          />
+        </View>
 
-      <View style={styles.imageContainer}>
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          decelerationRate="fast"
-          bounces={imageUrls.length > 1}
-          contentContainerStyle={{width: cardWidth * imageUrls.length}}>
-          {imageUrls.map((image, index) => (
-            <View
-              key={`arrival-${item.id}-${index}`}
-              style={[styles.imageSlide, {width: cardWidth}]}>
-              {typeof image === 'object' && image.uri ? (
-                <CarImage
-                  source={image}
-                  style={styles.carImage}
-                  resizeMode="cover"
-                  loadingIndicatorSource={require('./HotDealsCar.png')}
-                />
-              ) : (
-                <Image
-                  source={image}
-                  style={styles.carImage}
-                  resizeMode="cover"
-                />
-              )}
+        <View style={styles.cardContent}>
+          <View style={styles.categoryRow}>
+            <View style={styles.categoryBadge}>
+              <MaterialCommunityIcons name="car" size={18} color="#FF8C00" />
+              <Text style={styles.categoryText}>{bodyType}</Text>
             </View>
-          ))}
-        </ScrollView>
+          </View>
 
-        {/* Pagination dots for image gallery */}
-        {imageUrls.length > 1 && (
-          <View style={styles.paginationContainer}>
-            {imageUrls.map((_, index) => (
+          <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">
+            {carTitle}
+          </Text>
+
+          <View style={styles.specRow}>
+            <View style={styles.specItem}>
+              <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
+              <Text style={styles.specText}>ltr</Text>
+            </View>
+
+            <View style={styles.specItem}>
+              <Ionicons name="flash" size={16} color="#8A2BE2" />
+              <Text style={styles.specText}>{fuelType}</Text>
+            </View>
+
+            <View style={styles.specItem}>
+              <MaterialCommunityIcons
+                name="car-shift-pattern"
+                size={16}
+                color="#8A2BE2"
+              />
+              <Text style={styles.specText}>{transmission}</Text>
+            </View>
+
+            <View style={styles.specItem}>
+              <MaterialCommunityIcons
+                name="map-marker"
+                size={16}
+                color="#8A2BE2"
+              />
+              <Text style={styles.specText}>{region}</Text>
+            </View>
+          </View>
+
+          <View style={styles.steeringRow}>
+            <View style={styles.specItem}>
+              <MaterialCommunityIcons
+                name="steering"
+                size={16}
+                color="#8A2BE2"
+              />
+              <Text style={styles.specText}>{steeringType}</Text>
+            </View>
+          </View>
+
+          <View style={styles.priceRow}>
+            <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
+
+            <View style={styles.actionButtons}>
               <TouchableOpacity
-                key={index}
-                onPress={() => scrollToImage(index)}
-                style={styles.paginationDotContainer}>
-                <View
-                  style={[
-                    styles.paginationDot,
-                    {
-                      backgroundColor:
-                        index === currentImageIndex
-                          ? COLORS.white
-                          : 'rgba(255, 255, 255, 0.5)',
-                    },
-                  ]}
-                />
+                style={styles.iconButton}
+                onPress={e => {
+                  e.stopPropagation();
+                  toggleFavorite(item.id);
+                }}>
+                {isFavorite ? (
+                  <AntDesign name="heart" size={24} color="#FF8C00" />
+                ) : (
+                  <AntDesign name="hearto" size={24} color="#FF8C00" />
+                )}
               </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </View>
 
-      <View style={styles.cardContent}>
-        <View style={styles.categoryRow}>
-          <View style={styles.categoryBadge}>
-            <MaterialCommunityIcons name="car" size={18} color="#FF8C00" />
-            <Text style={styles.categoryText}>{bodyType}</Text>
-          </View>
-        </View>
-
-        <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">
-          {carTitle}
-        </Text>
-
-        <View style={styles.specRow}>
-          <View style={styles.specItem}>
-            <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
-            <Text style={styles.specText}>ltr</Text>
-          </View>
-
-          <View style={styles.specItem}>
-            <Ionicons name="flash" size={16} color="#8A2BE2" />
-            <Text style={styles.specText}>{fuelType}</Text>
-          </View>
-
-          <View style={styles.specItem}>
-            <MaterialCommunityIcons
-              name="car-shift-pattern"
-              size={16}
-              color="#8A2BE2"
-            />
-            <Text style={styles.specText}>{transmission}</Text>
-          </View>
-
-          <View style={styles.specItem}>
-            <MaterialCommunityIcons
-              name="map-marker"
-              size={16}
-              color="#8A2BE2"
-            />
-            <Text style={styles.specText}>{region}</Text>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={e => {
+                  e.stopPropagation();
+                  shareCar(item);
+                }}>
+                <Ionicons name="share-social-outline" size={24} color="#777" />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
+      </TouchableOpacity>
+    );
+  },
+);
 
-        <View style={styles.steeringRow}>
-          <View style={styles.specItem}>
-            <MaterialCommunityIcons name="steering" size={16} color="#8A2BE2" />
-            <Text style={styles.specText}>{steeringType}</Text>
-          </View>
-        </View>
-
-        <View style={styles.priceRow}>
-          <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
-
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={e => {
-                e.stopPropagation();
-                toggleFavorite(item.id);
-              }}>
-              {isFavorite ? (
-                <AntDesign name="heart" size={24} color="#FF8C00" />
-              ) : (
-                <AntDesign name="hearto" size={24} color="#FF8C00" />
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={e => {
-                e.stopPropagation();
-                shareCar(item);
-              }}>
-              <Ionicons name="share-social-outline" size={24} color="#777" />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
-};
+// Cache for new arrivals data
+let cachedNewArrivals = null;
+let lastFetchTime = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 const JustArrived = () => {
   const [newArrivals, setNewArrivals] = useState([]);
@@ -342,75 +189,148 @@ const JustArrived = () => {
   const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
     useWishlist();
 
+  // Use a ref to avoid making API calls if component unmounts
+  const isMounted = useRef(true);
+
+  // Pre-process car data for better performance
+  const preprocessCarData = useCallback(car => {
+    // Extract body type
+    // Handle undefined or null car
+    if (!car) return null;
+
+    try {
+      // Process CarImages array if available
+      let processedImages = [];
+
+      // Check if car has the CarImages array (from API)
+      if (
+        car.CarImages &&
+        Array.isArray(car.CarImages) &&
+        car.CarImages.length > 0
+      ) {
+        processedImages = car.CarImages.map(image => {
+          if (image.FileSystem && image.FileSystem.path) {
+            return {
+              uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}`,
+              id: image.id,
+              type: image.type,
+              order: image.order,
+              filename: image.FileSystem.path.split('/').pop(),
+              fullPath: image.FileSystem.path,
+            };
+          }
+          return null;
+        }).filter(img => img !== null);
+      }
+      // Fallback to other image properties if available
+      else if (
+        car.images &&
+        Array.isArray(car.images) &&
+        car.images.length > 0
+      ) {
+        processedImages = car.images.map(image => {
+          return typeof image === 'string' ? {uri: image} : image;
+        });
+      } else if (
+        car.Images &&
+        Array.isArray(car.Images) &&
+        car.Images.length > 0
+      ) {
+        processedImages = car.Images.map(image => {
+          return typeof image === 'string' ? {uri: image} : image;
+        });
+      } else if (car.image) {
+        processedImages = [
+          typeof car.image === 'string' ? {uri: car.image} : car.image,
+        ];
+      }
+
+      car.bodyType =
+        car?.SpecificationValues?.find(a => a.Specification?.key == 'body_type')
+          ?.name ?? 'SUV';
+      car.fuelType =
+        car?.SpecificationValues?.find(a => a.Specification?.key == 'fuel_type')
+          ?.name ?? 'Electric';
+      car.transmissionType =
+        car?.SpecificationValues?.find(
+          a => a.Specification?.key == 'transmission',
+        )?.name ?? 'Automatic';
+      car.steeringType =
+        car?.SpecificationValues?.find(a => a.Specification?.key == 'steering')
+          ?.name ?? 'Left hand drive';
+      car.region =
+        car?.SpecificationValues?.find(
+          a => a.Specification?.key == 'regional_specification',
+        )?.name ?? 'China';
+
+      // Create a normalized car object with consistent property names
+      const processedCar = {
+        ...car,
+        id: car.id || car.carId || car.car_id || null,
+        brand: car.brand || (car.Brand ? car.Brand.name : null) || null,
+        model: car.model || (car.CarModel ? car.CarModel.name : null) || null,
+        trim: car.trim || (car.Trim ? car.Trim.name : null) || null,
+        year: car.year || car.Year || null,
+        price: car.price || car.priceAED || null,
+        images: processedImages, // Use our processed images
+        color: car.color || car.exteriorColor || null,
+        stockId: car.stockId || car.stock_id || null,
+        slug: car.slug || null,
+      };
+
+      // Extract colors from slug if available
+
+      return processedCar;
+    } catch (error) {
+      console.error('Error processing car:', error, car);
+      return null;
+    }
+  }, []);
+  const {selectedLanguage} = useCurrencyLanguage();
+
   useEffect(() => {
     fetchNewArrivals();
-  }, []);
+    return () => {
+      isMounted.current = false;
+    };
+  }, [selectedLanguage]);
 
   const fetchNewArrivals = async () => {
     try {
       setLoading(true);
 
-      // Call the API to get "Just Arrived!" cars
-      const response = await axios.get(`${API_BASE_URL}/car/list`, {
-        params: {
-          page: 1,
-          limit: 100,
-          sortBy: 'createdAt',
-          order: 'desc',
-          lang: 'en',
-        },
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': API_KEY,
-        },
+      // Call the API to get "Just Arrived!" cars with reduced limit
+      const response = await getCarList({
+        page: 1,
+        limit: 10, // Reduced from 100 to just 5 for faster loading
+        status: 'published',
+        tags: 2,
       });
 
       if (
-        response.data &&
-        response.data.success &&
-        Array.isArray(response.data.data)
+        response?.data &&
+        response?.success &&
+        Array.isArray(response?.data)
       ) {
-        console.log(
-          `Fetched ${response.data.data.length} cars for Just Arrived section`,
-        );
+        const cars = [...response?.data];
 
-        // Filter for cars with "Just Arrived!" tag (id = 2)
-        const cars = response.data.data;
-        const justArrivedCars = cars.filter(
-          car =>
-            car.Tags &&
-            Array.isArray(car.Tags) &&
-            car.Tags.some(tag => tag.name === 'Just Arrived!' || tag.id === 2),
-        );
+        let processedCars = [];
 
-        if (justArrivedCars.length > 0) {
-          console.log(
-            `Found ${justArrivedCars.length} cars with Just Arrived tag`,
-          );
-          setNewArrivals(justArrivedCars);
+        if (cars.length > 0) {
+          processedCars = cars.map(preprocessCarData);
         } else {
-          console.log(
-            'No cars with Just Arrived tag found, using most recent cars',
-          );
-          setNewArrivals(cars.slice(0, 3)); // Use first 3 most recent cars as fallback
+          // Fallback to most recent cars
+          processedCars = cars.slice(0, 3).map(preprocessCarData);
         }
+
+        // Update cache
+
+        setNewArrivals([...processedCars]);
       } else {
-        console.log('No cars found or response format issue');
         setNewArrivals([]);
       }
     } catch (error) {
-      // Enhanced error logging
       console.error('Error fetching new arrivals:', error);
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
-      } else if (error.request) {
-        console.error('No response received:', error.request);
-      } else {
-        console.error('Error in request setup:', error.message);
-      }
-
-      // Use empty array when API fails
       setNewArrivals([]);
     } finally {
       setLoading(false);
@@ -419,7 +339,6 @@ const JustArrived = () => {
 
   const toggleFavorite = async carId => {
     if (!user) {
-      // Prompt user to login
       navigation.navigate('Login', {
         returnScreen: 'HomeScreen',
         message: 'Please login to save favorites',
@@ -429,15 +348,9 @@ const JustArrived = () => {
 
     try {
       if (isInWishlist(carId)) {
-        const success = await removeItemFromWishlist(carId);
-        if (success) {
-          console.log(`Removed car ${carId} from wishlist`);
-        }
+        await removeItemFromWishlist(carId);
       } else {
-        const success = await addItemToWishlist(carId);
-        if (success) {
-          console.log(`Added car ${carId} to wishlist`);
-        }
+        await addItemToWishlist(carId);
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -474,81 +387,76 @@ const JustArrived = () => {
     });
   };
 
-  const renderLoadingSkeletons = () => {
-    // Create an array of 2 items for the loading skeleton
-    const skeletonItems = Array(2)
-      .fill(0)
-      .map((_, index) => ({id: `skeleton-${index}`}));
+  const renderItem = ({item}) => (
+    <CarCard
+      item={item}
+      onPress={navigateToCarDetail}
+      toggleFavorite={toggleFavorite}
+      shareCar={shareCar}
+      isFavorite={isInWishlist(item.id) || false}
+      width={Dimensions.get('window').width * 0.85}
+      tag={
+        <View style={styles.tagBadge}>
+          <Text style={styles.tagText}>New Arrival</Text>
+        </View>
+      }
+    />
+  );
 
-    return (
-      <FlatList
-        data={skeletonItems}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.carsList}
-        ItemSeparatorComponent={() => <View style={{width: 15}} />}
-        renderItem={() => (
-          <View style={[styles.carCard, styles.skeletonCard]}>
-            <View style={[styles.imageContainer, styles.skeletonImage]} />
-            <View style={styles.cardContent}>
-              <View
-                style={[styles.skeletonText, {width: '40%', marginBottom: 8}]}
-              />
-              <View
-                style={[
-                  styles.skeletonText,
-                  {width: '90%', height: 18, marginBottom: 12},
-                ]}
-              />
-              <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
-                  ]}
-                />
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
-                  ]}
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginTop: 8,
-                }}>
-                <View
-                  style={[styles.skeletonText, {width: '30%', height: 14}]}
-                />
-                <View
-                  style={[
-                    styles.skeletonText,
-                    {width: '50%', height: 30, borderRadius: 15},
-                  ]}
-                />
-              </View>
-            </View>
-          </View>
-        )}
+  const renderEmptyComponent = () => (
+    <View style={styles.emptyContainer}>
+      <MaterialCommunityIcons
+        name="car-clock"
+        size={50}
+        color={COLORS.textLight}
       />
-    );
-  };
+      <Text style={styles.emptyText}>No new arrivals found</Text>
+    </View>
+  );
+
+  const renderLoadingItem = ({item}) => (
+    <View style={[styles.carCard, styles.skeletonCard]}>
+      <View style={[styles.imageContainer, styles.skeletonImage]} />
+      <View style={styles.cardContent}>
+        <View style={[styles.skeletonText, {width: '40%', marginBottom: 8}]} />
+        <View
+          style={[
+            styles.skeletonText,
+            {width: '90%', height: 18, marginBottom: 12},
+          ]}
+        />
+        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+          <View
+            style={[
+              styles.skeletonText,
+              {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
+            ]}
+          />
+          <View
+            style={[
+              styles.skeletonText,
+              {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
+            ]}
+          />
+          <View
+            style={[
+              styles.skeletonText,
+              {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
+            ]}
+          />
+        </View>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginTop: 8,
+          }}>
+          <View style={[styles.skeletonText, {width: '30%', height: 14}]} />
+          <View style={[styles.skeletonText, {width: '30%', height: 14}]} />
+        </View>
+      </View>
+    </View>
+  );
 
   return (
     <View style={styles.container}>
@@ -564,7 +472,15 @@ const JustArrived = () => {
       </Text>
 
       {loading ? (
-        renderLoadingSkeletons()
+        <FlatList
+          data={[{id: 'skeleton-1'}, {id: 'skeleton-2'}]}
+          renderItem={renderLoadingItem}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.carsList}
+          ItemSeparatorComponent={() => <View style={{width: 15}} />}
+        />
       ) : (
         <FlatList
           data={newArrivals}
@@ -572,27 +488,13 @@ const JustArrived = () => {
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => item.id.toString()}
           contentContainerStyle={styles.carsList}
-          renderItem={({item}) => (
-            <ArrivedCarCard
-              key={item.id.toString()}
-              item={item}
-              onPress={navigateToCarDetail}
-              toggleFavorite={toggleFavorite}
-              shareCar={shareCar}
-              isFavorite={isInWishlist(item.id) || false}
-            />
-          )}
+          renderItem={renderItem}
+          initialNumToRender={2}
+          maxToRenderPerBatch={3}
+          windowSize={3}
+          removeClippedSubviews={true}
           ItemSeparatorComponent={() => <View style={{width: 15}} />}
-          ListEmptyComponent={
-            <View style={styles.emptyContainer}>
-              <MaterialCommunityIcons
-                name="car-clock"
-                size={50}
-                color={COLORS.textLight}
-              />
-              <Text style={styles.emptyText}>No new arrivals found</Text>
-            </View>
-          }
+          ListEmptyComponent={renderEmptyComponent}
         />
       )}
     </View>
@@ -660,36 +562,15 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
+    height: 180,
     backgroundColor: '#ffffff',
     borderRadius: BORDER_RADIUS.lg,
     overflow: 'hidden',
-  },
-  imageSlide: {
-    height: 180,
-    backgroundColor: '#ffffff',
   },
   carImage: {
     width: '100%',
     height: '100%',
     borderRadius: BORDER_RADIUS.lg,
-  },
-  paginationContainer: {
-    position: 'absolute',
-    bottom: 8,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  paginationDotContainer: {
-    padding: 5, // Increase touch target size
-    marginHorizontal: 3,
-  },
-  paginationDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
   },
   cardContent: {
     padding: 15,
