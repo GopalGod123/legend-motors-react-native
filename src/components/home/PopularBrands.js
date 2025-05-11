@@ -225,7 +225,7 @@ const PopularBrands = () => {
   
   const handleBrandPress = useCallback((brand) => {
     // Navigate to filtered cars by brand
-    navigation.navigate('Explore', {
+    navigation.navigate('ExploreTab', {
       filters: {
         brands: [brand.name],
         brandIds: [brand.id],

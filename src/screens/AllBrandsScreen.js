@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,18 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
-import { getUniqueBrands } from '../services/api';
-import { getImageUrl } from '../utils/apiConfig';
+import { useNavigation } from '@react-navigation/native';
+import { API_KEY } from '../utils/apiConfig';
+import axios from 'axios';
+import { CarImage } from '../components/common';
 import Svg, { Path } from 'react-native-svg';
+
+// Placeholder logo text examples for brands without logos
+const LOGO_PLACEHOLDERS = {
+  'BYD': { text: 'BYD', color: '#333333' },
+  'CHANGAN': { text: 'CHANGAN', color: '#0055A5' },
+  'CHERY': { text: 'CHERY', color: '#E60012' },
+};
 
 // Back Arrow Icon
 const BackIcon = () => (
@@ -30,53 +39,97 @@ const BackIcon = () => (
 const AllBrandsScreen = ({ navigation }) => {
   const [brands, setBrands] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [imageErrors, setImageErrors] = useState({});
 
   useEffect(() => {
     fetchAllBrands();
   }, []);
 
+  // Extract logo path helper
+  const extractLogoPath = useCallback((logoData) => {
+    // If it's already a string, use it directly
+    if (typeof logoData === 'string') {
+      return logoData;
+    }
+    
+    // If it's an object with FileSystem structure
+    if (logoData && logoData.FileSystem) {
+      const fileSystem = logoData.FileSystem;
+      return fileSystem.thumbnailPath || fileSystem.compressedPath || fileSystem.path;
+    }
+    
+    // If it's an object with a path property
+    if (logoData && logoData.path) {
+      return logoData.path;
+    }
+    
+    // Last resort, try to get the name and create a standard path
+    if (logoData && logoData.name) {
+      return `/brand-logos/${logoData.name}.png`;
+    }
+    
+    return null;
+  }, []);
+
   const fetchAllBrands = async () => {
     try {
       setLoading(true);
-      // Get a larger limit to ensure we get all brands
-      const response = await getUniqueBrands({ limit: 500 });
-      if (response.success && response.data && response.data.length > 0) {
+      
+      // Use the direct API endpoint to get brand list with logos
+      const response = await axios.get('https://api.staging.legendmotorsglobal.com/api/v1/brand/list', {
+        params: {
+          page: 1,
+          limit: 500,  // Get a larger limit to ensure we get all brands
+          sortBy: 'name',
+          order: 'asc',
+          lang: 'en'
+        },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        }
+      });
+
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+        // Process brand data to ensure we have logo information
+        const processedBrands = response.data.data.map(brand => ({
+          id: brand.id,
+          name: brand.name || '',
+          slug: brand.slug || '',
+          // Normalize logo path to work with the CDN
+          logo: brand.logo ? extractLogoPath(brand.logo) : null
+        }));
+        
         // Sort brands alphabetically
-        const sortedBrands = [...response.data].sort((a, b) => 
-          (a.name || '').localeCompare(b.name || '')
-        );
+        const sortedBrands = [...processedBrands]
+          .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+        console.log(`Found ${sortedBrands.length} unique brands`);
         setBrands(sortedBrands);
       } else {
+        console.log('No brands found, using fallback data');
         // If API returns no data, use fallback data
         setBrands([
-          { id: 1, name: 'BYD', slug: 'byd', logo: null },
-          { id: 2, name: 'CHANGAN', slug: 'changan', logo: null },
-          { id: 3, name: 'CHERY', slug: 'chery', logo: null },
-          { id: 4, name: 'TOYOTA', slug: 'toyota', logo: null },
-          { id: 5, name: 'HONDA', slug: 'honda', logo: null },
-          { id: 6, name: 'MERCEDES', slug: 'mercedes', logo: null },
-          { id: 7, name: 'BMW', slug: 'bmw', logo: null },
-          { id: 8, name: 'AUDI', slug: 'audi', logo: null },
-          { id: 9, name: 'FORD', slug: 'ford', logo: null },
-          { id: 10, name: 'CHEVROLET', slug: 'chevrolet', logo: null },
-          { id: 11, name: 'NISSAN', slug: 'nissan', logo: null },
-          { id: 12, name: 'HYUNDAI', slug: 'hyundai', logo: null },
-          { id: 13, name: 'KIA', slug: 'kia', logo: null },
-          { id: 14, name: 'VOLKSWAGEN', slug: 'volkswagen', logo: null },
-          { id: 15, name: 'VOLVO', slug: 'volvo', logo: null },
+          { id: 1, name: 'BYD', slug: 'byd', logo: 'brand-logos/BYD.png' },
+          { id: 2, name: 'CHANGAN', slug: 'changan', logo: 'brand-logos/CHANGAN.png' },
+          { id: 3, name: 'CHERY', slug: 'chery', logo: 'brand-logos/CHERY.png' },
+          { id: 4, name: 'TOYOTA', slug: 'toyota', logo: 'brand-logos/TOYOTA.png' },
+          { id: 5, name: 'HONDA', slug: 'honda', logo: 'brand-logos/HONDA.png' },
+          { id: 6, name: 'MERCEDES', slug: 'mercedes', logo: 'brand-logos/MERCEDES.png' },
+          { id: 7, name: 'BMW', slug: 'bmw', logo: 'brand-logos/BMW.png' },
+          { id: 8, name: 'AUDI', slug: 'audi', logo: 'brand-logos/AUDI.png' },
+          { id: 9, name: 'FORD', slug: 'ford', logo: 'brand-logos/FORD.png' },
         ]);
       }
     } catch (err) {
       console.error('Error fetching all brands:', err);
       // Use fallback data on error
       setBrands([
-        { id: 1, name: 'BYD', slug: 'byd', logo: null },
-        { id: 2, name: 'CHANGAN', slug: 'changan', logo: null },
-        { id: 3, name: 'CHERY', slug: 'chery', logo: null },
-        { id: 4, name: 'TOYOTA', slug: 'toyota', logo: null },
-        { id: 5, name: 'HONDA', slug: 'honda', logo: null },
-        { id: 6, name: 'MERCEDES', slug: 'mercedes', logo: null },
-        { id: 7, name: 'BMW', slug: 'bmw', logo: null },
+        { id: 1, name: 'BYD', slug: 'byd', logo: 'brand-logos/BYD.png' },
+        { id: 2, name: 'CHANGAN', slug: 'changan', logo: 'brand-logos/CHANGAN.png' },
+        { id: 3, name: 'CHERY', slug: 'chery', logo: 'brand-logos/CHERY.png' },
+        { id: 4, name: 'TOYOTA', slug: 'toyota', logo: 'brand-logos/TOYOTA.png' },
+        { id: 5, name: 'HONDA', slug: 'honda', logo: 'brand-logos/HONDA.png' },
       ]);
     } finally {
       setLoading(false);
@@ -90,13 +143,18 @@ const AllBrandsScreen = ({ navigation }) => {
     // Handle special cases like BMW, BYD
     if (name.length <= 3) return name.toUpperCase();
     
+    // Special case for brands in the image
+    if (LOGO_PLACEHOLDERS[name]) {
+      return LOGO_PLACEHOLDERS[name].text;
+    }
+    
     // General case
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   };
 
   const handleBrandPress = (brand) => {
     // Navigate to ExploreScreen with filtered results by brand
-    navigation.navigate('Explore', {
+    navigation.navigate('ExploreTab', {
       filters: {
         brands: [brand.name],
         brandIds: [brand.id],
@@ -105,20 +163,33 @@ const AllBrandsScreen = ({ navigation }) => {
     });
   };
 
+  // Update the handleImageError function
+  const handleImageError = (brandId) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [brandId]: true
+    }));
+  };
+
   const renderBrandItem = ({ item }) => {
-    const [imageError, setImageError] = useState(false);
+    const hasImageError = imageErrors[item.id];
     
     return (
       <TouchableOpacity
         style={styles.brandItem}
         onPress={() => handleBrandPress(item)}>
         <View style={styles.logoContainer}>
-          {item.logo && !imageError ? (
-            <Image
-              source={{ uri: getImageUrl(item.logo) }}
+          {item.logo && !hasImageError ? (
+            <CarImage
+              source={{
+                uri: `https://cdn.legendmotorsglobal.com/${item.logo}`,
+                filename: item.logo,
+                fullPath: item.logo
+              }}
               style={styles.logo}
               resizeMode="contain"
-              onError={() => setImageError(true)}
+              onError={() => handleImageError(item.id)}
+              loadingIndicatorSource={null}
             />
           ) : (
             <Text style={styles.brandInitial}>{formatBrandName(item.name).charAt(0)}</Text>
@@ -230,8 +301,10 @@ const styles = StyleSheet.create({
     borderColor: '#f0f0f0',
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: '80%',
+    height: '80%',
+    backgroundColor: 'transparent',
+    borderRadius: 8,
   },
   brandInitial: {
     fontSize: FONT_SIZES.xl,

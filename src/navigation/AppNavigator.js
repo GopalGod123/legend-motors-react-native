@@ -17,6 +17,7 @@ import FilterScreen from '../screens/FilterScreen';
 import CarDetailScreen from '../screens/CarDetailScreen';
 import BottomTabNavigator from './BottomTabNavigator';
 import MyWishlistScreen from '../screens/MyWishlistScreen';
+import EnquiryFormScreen from '../screens/EnquiryFormScreen';
 
 // Import new profile screens
 import EditProfileScreen from '../screens/EditProfileScreen';
@@ -49,6 +50,7 @@ const AppNavigator = () => {
         <Stack.Screen name="FilterScreen" component={FilterScreen} />
         <Stack.Screen name="CarDetailScreen" component={CarDetailScreen} />
         <Stack.Screen name="MyWishlistScreen" component={MyWishlistScreen} />
+        <Stack.Screen name="EnquiryFormScreen" component={EnquiryFormScreen} />
         
         {/* Profile Section Screens */}
         <Stack.Screen name="EditProfileScreen" component={EditProfileScreen} />

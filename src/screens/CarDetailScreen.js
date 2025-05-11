@@ -252,10 +252,24 @@ const CarDetailScreen = () => {
   };
 
   const handleInquire = () => {
-    // Here you would implement functionality to inquire about the car
-    console.log('Inquire about car:', car?.id);
-    // For demonstration, show car ID
-    alert(`Inquire about car ID: ${car?.id}`);
+    // Navigate to the enquiry form screen with car details
+    if (!car) {
+      console.error('Cannot navigate to enquiry form: No car data available');
+      return;
+    }
+    
+    console.log('Navigating to enquiry form with car ID:', car.id);
+    
+    // Ensure we're passing a valid carId and image
+    const carImageData = carImages && carImages.length > 0 ? carImages[0] : null;
+    
+    navigation.navigate('EnquiryFormScreen', {
+      carId: car.id, // Ensure this is a valid car ID
+      carTitle: title || `${car.Year?.year || ''} ${car.Brand?.name || ''} ${car.CarModel?.name || ''}`,
+      carImage: carImageData,
+      carPrice: price,
+      currency: selectedCurrency,
+    });
   };
 
   const toggleFavorite = async () => {
