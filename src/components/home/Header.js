@@ -41,7 +41,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
       <View style={styles.profileSection}>
         <ImagePlaceholder style={styles.profileImage} color="#ccd" />
         <View style={styles.greetingSection}>
-          <Text style={styles.greetingText}>Good Morning</Text>
+          <Text style={styles.greetingText}>Hi </Text>
           <Text style={styles.nameText}>{getFirstName()}!</Text>
         </View>
       </View>

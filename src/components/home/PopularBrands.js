@@ -20,6 +20,8 @@ const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes (brands change less frequen
 
 // Memoized brand item component
 const BrandItem = memo(({ item, onPress, placeholder }) => {
+  const [imageError, setImageError] = useState(false);
+  
   // Format brand name (capitalize first letter, rest lowercase)
   const formatBrandName = (name) => {
     if (!name) return '';
@@ -36,31 +38,45 @@ const BrandItem = memo(({ item, onPress, placeholder }) => {
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   };
 
+  const renderBrandLogo = () => {
+    if (!item.logo || imageError) {
+      // Show placeholder text if no logo or image failed to load
+      if (placeholder) {
+        return (
+          <Text style={[styles.brandLogo, { color: placeholder.color }]}>
+            {placeholder.text}
+          </Text>
+        );
+      } else {
+        // Show first letter of brand name if no specific placeholder
+        return <Text style={styles.brandInitial}>{formatBrandName(item.name)[0]}</Text>;
+      }
+    }
+
+    // Try to show image
+    return (
+      <CarImage 
+        source={{
+          uri: `https://cdn.legendmotorsglobal.com/${item.logo}`, 
+          filename: item.logo,
+          fullPath: item.logo
+        }}
+        style={styles.logo}
+        resizeMode="contain"
+        onError={() => setImageError(true)}
+        loadingIndicatorSource={null}
+        defaultSource={require('./HotDealsCar.png')}
+      />
+    );
+  };
+
   return (
     <TouchableOpacity 
       style={styles.brandItem}
       onPress={() => onPress(item)}
     >
       <View style={styles.logoContainer}>
-        {item.logo ? (
-          <CarImage 
-            source={{
-              uri: `https://cdn.legendmotorsglobal.com/${item.logo}`, 
-              filename: item.logo,
-              fullPath: item.logo
-            }}
-            style={styles.logo}
-            resizeMode="contain"
-            loadingIndicatorSource={null}
-            defaultSource={require('./HotDealsCar.png')}
-          />
-        ) : placeholder ? (
-          <Text style={[styles.brandLogo, { color: placeholder.color }]}>
-            {placeholder.text}
-          </Text>
-        ) : (
-          <Text style={styles.brandInitial}>{item.name[0]}</Text>
-        )}
+        {renderBrandLogo()}
       </View>
       <Text style={styles.brandName} numberOfLines={1}>
         {formatBrandName(item.name)}
@@ -106,7 +122,7 @@ const PopularBrands = () => {
     // If it's an object with FileSystem structure
     if (logoData && logoData.FileSystem) {
       const fileSystem = logoData.FileSystem;
-      return fileSystem.path || fileSystem.webpPath || fileSystem.thumbnailPath;
+      return fileSystem.thumbnailPath || fileSystem.compressedPath || fileSystem.path;
     }
     
     // If it's an object with a path property
@@ -116,7 +132,7 @@ const PopularBrands = () => {
     
     // Last resort, try to get the name and create a standard path
     if (logoData && logoData.name) {
-      return `${logoData.name}.png`;
+      return `/brand-logos/${logoData.name}.png`;
     }
     
     return null;
@@ -209,27 +225,17 @@ const PopularBrands = () => {
   
   const handleBrandPress = useCallback((brand) => {
     // Navigate to filtered cars by brand
-    navigation.navigate('FilterScreen', {
-      filterType: 'brands',
-      onApplyCallback: (filters) => {
-        // This callback will be called when filters are applied in FilterScreen
-        navigation.navigate('ExploreScreen', { filters });
-      },
-      // Pre-select this brand
-      currentFilters: {
+    navigation.navigate('Explore', {
+      filters: {
         brands: [brand.name],
-        brandIds: [brand.id]
+        brandIds: [brand.id],
+        specifications: {} // Add empty specifications object to match expected filter structure
       }
     });
   }, [navigation]);
 
   const navigateToAllBrands = useCallback(() => {
-    navigation.navigate('FilterScreen', {
-      filterType: 'brands',
-      onApplyCallback: (filters) => {
-        navigation.navigate('ExploreScreen', { filters });
-      }
-    });
+    navigation.navigate('AllBrands');
   }, [navigation]);
 
   const renderBrandItem = useCallback(({ item }) => {

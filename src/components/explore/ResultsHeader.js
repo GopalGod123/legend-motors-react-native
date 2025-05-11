@@ -19,7 +19,11 @@ const ResultsHeader = ({
   // Determine the appropriate text to display
   const getResultsText = () => {
     if (isViewingSpecificCar) {
-      return `Viewing car details (ID: ${carId || 'unknown'})`;
+      return (
+        <Text style={styles.resultsText}>
+          Viewing car details (ID: {carId || 'unknown'})
+        </Text>
+      );
     } else if (filteredBySearch && searchQuery) {
       return (
         <View style={styles.searchResultsContainer}>
@@ -29,9 +33,17 @@ const ResultsHeader = ({
         </View>
       );
     } else if (hasFilters) {
-      return `Showing ${totalCars} cars`;
+      return (
+        <Text style={styles.resultsText}>
+          Showing {totalCars} cars
+        </Text>
+      );
     } else {
-      return `Total: ${totalCars} cars`;
+      return (
+        <Text style={styles.resultsText}>
+          Total: {totalCars} cars
+        </Text>
+      );
     }
   };
 

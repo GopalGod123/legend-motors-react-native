@@ -7,11 +7,11 @@ import {
   SafeAreaView,
   StatusBar,
   ScrollView,
-  FlatList,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Svg, {Path, Circle} from 'react-native-svg';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+
 // Back Arrow Icon
 const BackIcon = () => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -42,70 +42,81 @@ const RadioUnselected = () => (
 
 const LanguageScreen = () => {
   const navigation = useNavigation();
-  const {selectedLanguage, setSelectedLanguage, t} = useCurrencyLanguage();
-  const [currentLanguage, setCurrentLanguage] = useState(selectedLanguage);
+  const {selectedLanguage, setSelectedLanguage} = useCurrencyLanguage();
+  const [currentLanguage, setCurrentLanguage] = useState(selectedLanguage || 'en');
 
   const handleSelectLanguage = language => {
     setCurrentLanguage(language.id);
     setSelectedLanguage(language.id);
   };
 
-  const languages = [
-    {id: 'en', name: 'English', category: 'suggested'},
-    {id: 'ar', name: 'Arabic', category: 'suggested'},
-    {id: 'zh', name: 'Mandarin', category: 'languages'},
-    {id: 'es', name: 'Spanish', category: 'languages'},
-    {id: 'ru', name: 'Russian', category: 'languages'},
-    {id: 'fr', name: 'French', category: 'languages'},
+  const suggestedLanguages = [
+    {id: 'en', name: 'English (US)'},
+    {id: 'ar', name: 'Arabic'},
   ];
 
-  // Group languages by category
-  const groupedLanguages = languages.reduce((acc, language) => {
-    if (!acc[language.category]) {
-      acc[language.category] = [];
-    }
-    acc[language.category].push(language);
-    return acc;
-  }, {});
-
-  // Convert to array of sections
-  const sections = Object.keys(groupedLanguages).map(category => ({
-    title: category,
-    data: groupedLanguages[category],
-  }));
+  const otherLanguages = [
+    {id: 'zh', name: 'Mandarin'},
+    {id: 'es', name: 'Spanish'},
+    {id: 'ru', name: 'Russian'},
+    {id: 'fr', name: 'French'},
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Select Language</Text>
+        <Text style={styles.headerTitle}>Language</Text>
       </View>
 
-      <View style={styles.content}>
-        {sections.map(section => (
-          <View key={section.title} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
-            {section.data.map(language => (
-              <TouchableOpacity
-                key={language.id}
-                style={styles.languageItem}
-                onPress={() => handleSelectLanguage(language)}>
-                <Text style={styles.languageName}>{language.name}</Text>
-                {currentLanguage === language.id ? (
-                  <RadioSelected />
-                ) : (
-                  <RadioUnselected />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        ))}
-      </View>
+      <ScrollView style={styles.content}>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Suggested</Text>
+          
+          {suggestedLanguages.map(language => (
+            <TouchableOpacity
+              key={language.id}
+              style={styles.languageItem}
+              onPress={() => handleSelectLanguage(language)}>
+              <Text style={[
+                styles.languageName,
+                language.id === 'en' && styles.emphasizedLanguage
+              ]}>
+                {language.name}
+              </Text>
+              {currentLanguage === language.id ? (
+                <RadioSelected />
+              ) : (
+                <RadioUnselected />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Language</Text>
+          
+          {otherLanguages.map(language => (
+            <TouchableOpacity
+              key={language.id}
+              style={styles.languageItem}
+              onPress={() => handleSelectLanguage(language)}>
+              <Text style={styles.languageName}>{language.name}</Text>
+              {currentLanguage === language.id ? (
+                <RadioSelected />
+              ) : (
+                <RadioUnselected />
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -114,48 +125,53 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    width: 380,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 24,
+    paddingTop: 44,
+    paddingBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: '#EEEEEE',
   },
   backButton: {
     padding: 4,
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: 'bold',
     marginLeft: 16,
     color: '#212121',
   },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
   },
   section: {
-    marginVertical: 12,
+    marginTop: 24,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: '600',
     color: '#7A40C6',
-    marginBottom: 8,
+    marginBottom: 16,
   },
   languageItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: '#EEEEEE',
   },
   languageName: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#212121',
+  },
+  emphasizedLanguage: {
+    color: '#F47B20',
   },
 });
 

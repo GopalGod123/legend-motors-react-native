@@ -12,12 +12,21 @@ import {
   FlatList,
   Linking,
   StatusBar,
+  Share,
+  useWindowDimensions,
+  Alert,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {getCarByIdOrSlug} from '../services/api';
 import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
 import {CarImage, CarImageCarousel} from '../components/common';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {AntDesign, Ionicons} from '../utils/icon';
+import {Svg, Mask, G, Path, Rect} from 'react-native-svg';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {useWishlist} from '../context/WishlistContext';
+import RenderHtml from 'react-native-render-html';
+import {useAuth} from '../context/AuthContext';
 import {
   extractColorsFromSlug,
   createColorMatchFunction,
@@ -97,6 +106,15 @@ const CarDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {carId, lang = 'en'} = route.params || {};
+  const {selectedCurrency} = useCurrencyLanguage();
+  const {user, isAuthenticated} = useAuth();
+  const {
+    isInWishlist, 
+    addItemToWishlist, 
+    removeItemFromWishlist,
+    fetchWishlistItems
+  } = useWishlist();
+  const { width } = useWindowDimensions();
 
   const [loading, setLoading] = useState(true);
   const [car, setCar] = useState(null);
@@ -104,6 +122,25 @@ const CarDetailScreen = () => {
   const [activeTab, setActiveTab] = useState('exterior');
   const [extractedColors, setExtractedColors] = useState([]);
   const [extractedInteriorColors, setExtractedInteriorColors] = useState([]);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [processingWishlist, setProcessingWishlist] = useState(false);
+  
+  // Add state for managing accordion open/close state
+  const [expandedAccordions, setExpandedAccordions] = useState({
+    interior_feature: false,
+    exterior_and_controls: false,
+    security: false,
+    comfort_and_convenience: false,
+    infotainment: false,
+  });
+  
+  // Function to toggle accordion state
+  const toggleAccordion = (category) => {
+    setExpandedAccordions(prev => ({
+      ...prev,
+      [category]: !prev[category]
+    }));
+  };
 
   useEffect(() => {
     fetchCarDetails();
@@ -122,6 +159,15 @@ const CarDetailScreen = () => {
       console.log('Extracted interior colors:', interiorColors);
     }
   }, [car]);
+
+  // Effect to update isFavorite status when car data or wishlist changes
+  useEffect(() => {
+    if (car && car.id) {
+      const favoriteStatus = isInWishlist(car.id);
+      console.log(`Car ${car.id} favorite status:`, favoriteStatus);
+      setIsFavorite(favoriteStatus);
+    }
+  }, [car, isInWishlist]);
 
   // Function to handle viewing similar color cars
   const handleViewSimilarColorCars = () => {
@@ -207,10 +253,77 @@ const CarDetailScreen = () => {
 
   const handleInquire = () => {
     // Here you would implement functionality to inquire about the car
-    // For example, navigating to an inquiry form or opening a contact modal
     console.log('Inquire about car:', car?.id);
     // For demonstration, show car ID
     alert(`Inquire about car ID: ${car?.id}`);
+  };
+
+  const toggleFavorite = async () => {
+    try {
+      if (!car) {
+        console.log('Cannot toggle favorite: No car data available');
+        return;
+      }
+      
+      if (!isAuthenticated) {
+        console.log('User not authenticated, redirecting to login');
+        Alert.alert(
+          'Login Required',
+          'Please log in to add cars to your wishlist',
+          [
+            { 
+              text: 'Cancel', 
+              style: 'cancel' 
+            },
+            { 
+              text: 'Login', 
+              onPress: () => navigation.navigate('Login')
+            }
+          ]
+        );
+        return;
+      }
+
+      setProcessingWishlist(true);
+      console.log(`Toggling favorite for car ID: ${car.id}, current status: ${isFavorite}`);
+      
+      let success = false;
+      if (isFavorite) {
+        success = await removeItemFromWishlist(car.id);
+        if (success) {
+          console.log(`Successfully removed car ${car.id} from wishlist`);
+          setIsFavorite(false);
+        }
+      } else {
+        success = await addItemToWishlist(car.id);
+        if (success) {
+          console.log(`Successfully added car ${car.id} to wishlist`);
+          setIsFavorite(true);
+        }
+      }
+
+      if (!success) {
+        console.error('Wishlist operation failed');
+        Alert.alert('Error', 'Failed to update wishlist. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error toggling favorite:', error);
+      Alert.alert('Error', 'An error occurred while updating your wishlist.');
+    } finally {
+      setProcessingWishlist(false);
+    }
+  };
+
+  const handleShare = async () => {
+    if (!car) return;
+    
+    try {
+      await Share.share({
+        message: `Check out this ${car.Year?.year} ${car.Brand?.name} ${car.CarModel?.name}!`,
+      });
+    } catch (error) {
+      console.error('Error sharing:', error);
+    }
   };
 
   const getImagesByType = type => {
@@ -262,6 +375,18 @@ const CarDetailScreen = () => {
     </View>
   );
 
+  // Group features by category
+  const groupFeaturesByCategory = (features) => {
+    return features.reduce((acc, feature) => {
+      const category = feature.Feature?.key || 'other';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(feature);
+      return acc;
+    }, {});
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
@@ -299,11 +424,10 @@ const CarDetailScreen = () => {
   }
 
   // Extract car details
-  const brand = car.Brand?.name || '';
-  const model = car.CarModel?.name || '';
-  const trim = car.Trim?.name || '';
+  const brandName = car.Brand?.name || '';
+  const carModel = car.CarModel?.name || '';
   const year = car.Year?.year || '';
-  const title = `${year} ${brand} ${model} ${trim}`;
+  const title = `${year} ${brandName} ${carModel} ${car.Trim?.name || ''}`;
 
   // Get all features
   const features = car.FeatureValues || [];
@@ -321,6 +445,26 @@ const CarDetailScreen = () => {
     return acc;
   }, {});
 
+  // Extract data for the CarCard style display
+  const additionalInfo = car.additionalInfo || '';
+  const bodyType = car.SpecificationValues?.find(a => a.Specification?.key === 'body_type')?.name || 'SUV';
+  const fuelType = car.SpecificationValues?.find(a => a.Specification?.key === 'fuel_type')?.name || 'Electric';
+  const transmission = car.SpecificationValues?.find(a => a.Specification?.key === 'transmission')?.name || 'Automatic';
+  const region = car.SpecificationValues?.find(a => a.Specification?.key === 'regional_specification')?.name || 'China';
+  const steeringType = car.SpecificationValues?.find(a => a.Specification?.key === 'steering')?.name || 'Left hand drive';
+  
+  // Prepare car title
+  const carTitle = additionalInfo || 
+    (year && brandName && carModel ? 
+      `${year} ${brandName} ${carModel}${car.Trim?.name ? ` ${car.Trim.name}` : ''}` : 
+      'Car Details');
+  
+  // Get car images
+  const carImages = getAllImages();
+  
+  // Get price
+  const price = car?.CarPrices?.find(crr => crr.currency === selectedCurrency)?.price || car.price;
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -331,7 +475,7 @@ const CarDetailScreen = () => {
           <Icon name="arrow-back" size={24} color={COLORS.textDark} />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
-          {title}
+          Car Details
         </Text>
         <View style={styles.headerRightPlaceholder} />
       </View>
@@ -340,194 +484,322 @@ const CarDetailScreen = () => {
         style={styles.scrollContainer}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}>
-        {/* Image Gallery Section */}
-        <View style={styles.galleryContainer}>
-          {/* Exterior/Interior tabs */}
-          <View style={styles.galleryTabs}>
-            <TouchableOpacity
-              style={[
-                styles.galleryTab,
-                activeTab === 'exterior' && styles.activeGalleryTab,
-              ]}
-              onPress={() => {
-                setActiveTab('exterior');
-              }}>
-              <Text
+        
+        {/* Action buttons at the top */}
+        
+        
+        {/* CarCard-style display */}
+        <View style={styles.cardContainer}>
+          <View style={styles.imageContainer}>
+            {/* Tabs for exterior/interior */}
+            <View style={styles.galleryTabs}>
+              <TouchableOpacity
                 style={[
-                  styles.galleryTabText,
-                  activeTab === 'exterior' && styles.activeGalleryTabText,
-                ]}>
-                Exterior
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.galleryTab,
-                activeTab === 'interior' && styles.activeGalleryTab,
-              ]}
-              onPress={() => {
-                setActiveTab('interior');
-              }}>
-              <Text
+                  styles.galleryTab,
+                  activeTab === 'exterior' && styles.activeGalleryTab,
+                ]}
+                onPress={() => setActiveTab('exterior')}>
+                <Text
+                  style={[
+                    styles.galleryTabText,
+                    activeTab === 'exterior' && styles.activeGalleryTabText,
+                  ]}>
+                  Exterior
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
                 style={[
-                  styles.galleryTabText,
-                  activeTab === 'interior' && styles.activeGalleryTabText,
-                ]}>
-                Interior
-              </Text>
-            </TouchableOpacity>
+                  styles.galleryTab,
+                  activeTab === 'interior' && styles.activeGalleryTab,
+                ]}
+                onPress={() => setActiveTab('interior')}>
+                <Text
+                  style={[
+                    styles.galleryTabText,
+                    activeTab === 'interior' && styles.activeGalleryTabText,
+                  ]}>
+                  Interior
+                </Text>
+              </TouchableOpacity>
+            </View>
+            
+            <CarImageCarousel
+              images={carImages}
+              style={styles.carImage}
+              height={240}
+              onImagePress={() => {}}
+            />
           </View>
 
-          {/* Main Image Carousel */}
-          <CarImageCarousel
-            images={getAllImages()}
-            height={300}
-            showIndex={true}
-          />
-        </View>
+          <View style={styles.cardContent}>
+            {/* Top row with condition badge and action buttons */}
+            <View style={styles.topRow}>
+              {/* Left side - badges */}
+              <View style={styles.badgesContainer}>
+                <View style={styles.conditionBadge}>
+                  <Text style={styles.conditionText}>{car.condition || 'New'}</Text>
+                </View>
+                
+                <View style={styles.categoryBadge}>
+                  <Icon name="directions-car" size={18} color="#FF8C00" />
+                  <Text style={styles.categoryText}>{bodyType || 'SUV'}</Text>
+                </View>
+              </View>
+              
+              {/* Right side - action buttons */}
+              <View style={styles.actionButtonsRow}>
+                <TouchableOpacity
+                  style={styles.actionIconButton}
+                  onPress={toggleFavorite}
+                  disabled={processingWishlist}>
+                  {processingWishlist ? (
+                    <ActivityIndicator size="small" color="#FF8C00" />
+                  ) : isFavorite ? (
+                    <AntDesign name="heart" size={24} color="#FF8C00" />
+                  ) : (
+                    <AntDesign name="hearto" size={24} color="#FF8C00" />
+                  )}
+                </TouchableOpacity>
 
-        {/* Car Title and Stock ID */}
-        <View style={styles.titleContainer}>
-          <Text style={styles.carTitle}>{title}</Text>
-          {car.stockId && (
-            <Text style={styles.stockIdText}>Stock ID: {car.stockId}</Text>
-          )}
+                <TouchableOpacity
+                  style={styles.actionIconButton}
+                  onPress={() => {
+                    // Handle download functionality
+                    if (car.brochureFile?.path) {
+                      alert('Downloading brochure...');
+                      // Implement actual download logic here
+                    } else {
+                      alert('No brochure available for download');
+                    }
+                  }}>
+                  <Ionicons name="download-outline" size={24} color="#212121" />
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={styles.actionIconButton}
+                  onPress={handleShare}>
+                  <Ionicons name="share-social" size={24} color="#212121" />
+                </TouchableOpacity>
+              </View>
+            </View>
 
-          {/* Badges for specifications */}
-          <View style={styles.badgesContainer}>
-            {specifications.map((spec, index) => {
-              // Only show important specs as badges
-              if (
-                [
-                  'Fuel Type',
-                  'Transmission',
-                  'Regional Specification',
-                  'Steering Side',
-                ].includes(spec.Specification?.name)
-              ) {
-                return (
-                  <View key={`badge-${spec.id || index}`} style={styles.badge}>
-                    <Text style={styles.badgeText}>{spec.name}</Text>
-                  </View>
-                );
-              }
-              return null;
-            })}
-          </View>
-
-          {/* Price */}
-          <View style={styles.priceContainer}>
-            <Text style={styles.priceLabel}>Price</Text>
-            <Text style={styles.priceValue}>
-              AED {parseFloat(car.price || 0).toLocaleString()}
+            {/* Car Title */}
+            <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">
+              {carTitle}
             </Text>
+
+            {/* Specs pills in rows, using the design from the image */}
+            <View style={styles.specsContainer}>
+              <View style={styles.specPill}>
+                <Icon name="settings" size={18} color="#5E366D" />
+                <Text style={styles.specPillText}>ltr</Text>
+              </View>
+
+              <View style={styles.specPill}>
+                <Icon name="bolt" size={18} color="#5E366D" />
+                <Text style={styles.specPillText}>Electric</Text>
+              </View>
+
+              <View style={styles.specPill}>
+                <Icon name="sync" size={18} color="#5E366D" />
+                <Text style={styles.specPillText}>Automatic</Text>
+              </View>
+
+              <View style={styles.specPill}>
+                <Icon name="public" size={18} color="#5E366D" />
+                <Text style={styles.specPillText}>China</Text>
+              </View>
+            </View>
+
+            <View style={styles.specsContainer}>
+              <View style={styles.specPill}>
+                <Icon name="drive-eta" size={18} color="#5E366D" />
+                <Text style={styles.specPillText}>Left hand drive</Text>
+              </View>
+            </View>
+
+            {/* Action buttons */}
+            <View style={styles.priceRow}>
+              {price ? (
+                <Text style={styles.priceText}>
+                  {selectedCurrency} {price.toLocaleString()}
+                </Text>
+              ) : (
+                <Text style={styles.priceText}>Price on Request</Text>
+              )}
+            </View>
           </View>
         </View>
 
         {/* Car Overview Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Car Overview</Text>
+          <View style={styles.sectionTitleLine} />
 
-          <View style={styles.overviewGrid}>
-            {/* Basic car information - organized in 2 columns */}
-            <View style={styles.overviewColumn}>
-              {car.Brand && renderSpecification('Brand', car.Brand.name)}
-              {car.CarModel && renderSpecification('Model', car.CarModel.name)}
-              {car.Trim && renderSpecification('Trim', car.Trim.name)}
-              {car.Year && renderSpecification('Year', car.Year.year)}
+          <View style={styles.overviewList}>
+            {/* Condition */}
+            <View style={styles.overviewItem}>
+              <View style={styles.overviewIconContainer}>
+                <Icon name="directions-car" size={20} color="#9E9E9E" />
+              </View>
+              <Text style={styles.overviewLabel}>Condition:</Text>
+              <Text style={styles.overviewValue}>
+                {car.condition || 'New'}
+              </Text>
             </View>
 
-            <View style={styles.overviewColumn}>
-              {/* Extract and display key specifications */}
-              {specifications.map((spec, index) => {
-                // Only show certain specs in overview
-                if (
-                  ['Color', 'Fuel Type', 'Cylinders', 'Transmission'].includes(
-                    spec.Specification?.name,
-                  )
-                ) {
-                  return (
-                    <View
-                      key={`overview-spec-${spec.id || index}`}
-                      style={styles.specItem}>
-                      <Text style={styles.specLabel}>
-                        {spec.Specification.name}:
-                      </Text>
-                      <Text style={styles.specValue}>{spec.name}</Text>
-                    </View>
-                  );
-                }
-                return null;
-              })}
+            {/* Cylinders */}
+            <View style={styles.overviewItem}>
+              <View style={styles.overviewIconContainer}>
+                <Icon name="settings" size={20} color="#9E9E9E" />
+              </View>
+              <Text style={styles.overviewLabel}>Cylinders:</Text>
+              <Text style={styles.overviewValue}>
+                {specifications.find(spec => spec.Specification?.name === 'Cylinders')?.name || 'None - Electric'}
+              </Text>
+            </View>
+
+            {/* Fuel Type */}
+            <View style={styles.overviewItem}>
+              <View style={styles.overviewIconContainer}>
+                <Icon name="local-gas-station" size={20} color="#9E9E9E" />
+              </View>
+              <Text style={styles.overviewLabel}>Fuel Type:</Text>
+              <Text style={styles.overviewValue}>
+                {specifications.find(spec => spec.Specification?.name === 'Fuel Type')?.name || fuelType}
+              </Text>
+            </View>
+
+            {/* Built Year */}
+            <View style={styles.overviewItem}>
+              <View style={styles.overviewIconContainer}>
+                <Icon name="event" size={20} color="#9E9E9E" />
+              </View>
+              <Text style={styles.overviewLabel}>Built Year:</Text>
+              <Text style={styles.overviewValue}>
+                {year}
+              </Text>
+            </View>
+
+            {/* Transmission */}
+            <View style={styles.overviewItem}>
+              <View style={styles.overviewIconContainer}>
+                <Icon name="transform" size={20} color="#9E9E9E" />
+              </View>
+              <Text style={styles.overviewLabel}>Transmission:</Text>
+              <Text style={styles.overviewValue}>
+                {specifications.find(spec => spec.Specification?.name === 'Transmission')?.name || transmission}
+              </Text>
+            </View>
+
+            {/* Color */}
+            <View style={styles.overviewItem}>
+              <View style={styles.overviewIconContainer}>
+                <Icon name="palette" size={20} color="#9E9E9E" />
+              </View>
+              <Text style={styles.overviewLabel}>Color:</Text>
+              <Text style={styles.overviewValue}>
+                {specifications.find(spec => spec.Specification?.name === 'Color')?.name || 'Black'}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Features Section - Redesigned with accordion categories */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Features</Text>
+          <View style={styles.sectionTitleLine} />
+
+          {/* Main features grid - two column layout showing some top features */}
+          <View style={styles.featuresGrid}>
+            {/* Column 1 */}
+            <View style={styles.featuresColumn}>
+              {features.slice(0, Math.min(6, features.length / 2)).map(feature => (
+                <View 
+                  key={`feature-highlight-${feature.id || Math.random().toString()}`}
+                  style={styles.featureItem}>
+                  <Icon name="check-circle" size={20} color="#8BC34A" />
+                  <Text style={styles.featureText}>{feature.name}</Text>
+                </View>
+              ))}
+            </View>
+            
+            {/* Column 2 */}
+            <View style={styles.featuresColumn}>
+              {features.slice(Math.min(6, features.length / 2), Math.min(12, features.length)).map(feature => (
+                <View 
+                  key={`feature-highlight-${feature.id || Math.random().toString()}`}
+                  style={styles.featureItem}>
+                  <Icon name="check-circle" size={20} color="#8BC34A" />
+                  <Text style={styles.featureText}>{feature.name}</Text>
+                </View>
+              ))}
             </View>
           </View>
 
-          {/* Color chips display */}
-          {extractedColors.length > 0 && (
-            <View style={styles.colorSection}>
-              <Text style={styles.colorSectionTitle}>Detected Colors:</Text>
-              <View style={styles.colorChipsContainer}>
-                {extractedColors.map((colorName, index) => {
-                  const bgColor = getColorHex(colorName);
-                  // Calculate if text should be dark or light based on background color
-                  const isDarkColor = isColorDark(bgColor);
-
-                  return (
-                    <View
-                      key={`color-${index}`}
-                      style={[styles.colorChip, {backgroundColor: bgColor}]}>
-                      <Text
-                        style={[
-                          styles.colorChipText,
-                          {color: isDarkColor ? '#FFFFFF' : '#000000'},
-                        ]}>
-                        {colorName}
+          {/* Accordion Sections */}
+          <View style={styles.accordionContainer}>
+            {/* Group features by category and render each category as an accordion */}
+            {Object.entries(groupFeaturesByCategory(features)).map(([category, categoryFeatures]) => {
+              // Get the display name for this category
+              const categoryDisplayName = categoryFeatures[0]?.Feature?.name || category.replace(/_/g, ' ');
+              // Only show if we have features in this category
+              if (categoryFeatures.length === 0) return null;
+              
+              return (
+                <View key={`accordion-${category}`}>
+                  <TouchableOpacity 
+                    style={[
+                      styles.accordionHeader,
+                      expandedAccordions[category] && styles.expandedAccordionHeader
+                    ]}
+                    onPress={() => toggleAccordion(category)}>
+                    <Text style={styles.accordionTitle}>
+                      {categoryDisplayName}
+                    </Text>
+                    <Icon 
+                      name={expandedAccordions[category] ? "remove" : "add"} 
+                      size={24} 
+                      color="#9E9E9E" 
+                    />
+                  </TouchableOpacity>
+                  
+                  {/* Accordion Content */}
+                  {expandedAccordions[category] && (
+                    <View style={styles.accordionContent}>
+                      <Text style={styles.accordionFeatureText}>
+                        {categoryFeatures.map((feature, index) => (
+                          <React.Fragment key={`feature-text-${feature.id}`}>
+                            {feature.name}
+                            {index < categoryFeatures.length - 1 ? ', ' : ''}
+                          </React.Fragment>
+                        ))}
                       </Text>
                     </View>
-                  );
-                })}
-              </View>
-            </View>
-          )}
-        </View>
-
-        {/* Features Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Features</Text>
-
-          {/* Group features by category */}
-          {Object.entries(groupedSpecs).map(([category, specs]) => (
-            <View key={`category-${category}`} style={styles.featureCategory}>
-              <TouchableOpacity
-                style={styles.featureCategoryHeader}
-                onPress={() => {
-                  // If you want to implement collapsible sections
-                  console.log(`Toggle ${category} visibility`);
-                }}>
-                <Text style={styles.featureCategoryTitle}>{category}</Text>
-                <Icon name="add" size={20} color={COLORS.textDark} />
-              </TouchableOpacity>
-            </View>
-          ))}
-
-          {/* Show all features */}
-          <View style={styles.featuresGrid}>
-            {features.map(feature => (
-              <View
-                key={`feature-${feature.id || Math.random().toString()}`}
-                style={styles.featureItem}>
-                <Icon name="check-circle" size={20} color={COLORS.primary} />
-                <Text style={styles.featureText}>{feature.name}</Text>
-              </View>
-            ))}
+                  )}
+                </View>
+              );
+            })}
           </View>
         </View>
 
         {/* Description Section */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Description</Text>
+          <View style={styles.sectionTitleLine} />
           {car.description ? (
-            <Text style={styles.descriptionText}>{car.additionalInfo}</Text>
+            <View style={styles.descriptionContainer}>
+              <RenderHtml
+                contentWidth={width - (SPACING.md * 2)}
+                source={{ html: car.description }}
+                tagsStyles={{
+                  p: styles.descriptionParagraph,
+                  strong: styles.descriptionBold,
+                  li: styles.descriptionListItem,
+                  ul: styles.descriptionList
+                }}
+              />
+            </View>
           ) : (
             <Text style={styles.noDescriptionText}>
               No description available
@@ -535,11 +807,11 @@ const CarDetailScreen = () => {
           )}
         </View>
 
-        {/* ID Information (for debug purposes) */}
+        {/* ID Information (for debug purposes)
         <View style={styles.idInfoContainer}>
           <Text style={styles.idInfoText}>Car ID: {car.id}</Text>
           {car.slug && <Text style={styles.idInfoText}>Slug: {car.slug}</Text>}
-        </View>
+        </View> */}
       </ScrollView>
 
       {/* Bottom Action Bar */}
@@ -593,13 +865,34 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingBottom: 80, // Extra padding for the bottom action bar
   },
-  galleryContainer: {
-    backgroundColor: '#F8F8F8',
+  cardContainer: {
+    width: '100%',
+    backgroundColor: COLORS.white,
+    borderRadius: 10,
+    marginBottom: 20,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  imageContainer: {
+    width: '100%',
+    height: 240,
+    backgroundColor: '#ffffff',
+    borderTopEndRadius: BORDER_RADIUS.lg,
+    borderTopStartRadius: BORDER_RADIUS.lg,
+    overflow: 'hidden',
+    position: 'relative',
   },
   galleryTabs: {
+    position: 'absolute',
     flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   galleryTab: {
     flex: 1,
@@ -608,89 +901,165 @@ const styles = StyleSheet.create({
   },
   activeGalleryTab: {
     borderBottomWidth: 2,
-    borderBottomColor: COLORS.primary,
+    borderBottomColor: '#5E366D',
   },
   galleryTabText: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textLight,
+    color: COLORS.white,
   },
   activeGalleryTabText: {
-    color: COLORS.primary,
+    color: '#5E366D',
     fontWeight: '600',
   },
-  titleContainer: {
-    padding: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+  carImage: {
+    width: '100%',
+    height: '100%',
+    borderTopEndRadius: BORDER_RADIUS.lg,
+    borderTopStartRadius: BORDER_RADIUS.lg,
   },
-  carTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '700',
-    color: COLORS.textDark,
-    marginBottom: SPACING.xs,
+  cardContent: {
+    padding: 15,
   },
-  stockIdText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textLight,
-    marginBottom: SPACING.sm,
+  topRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
   badgesContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  conditionBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: '#FFF2E0',
+    borderRadius: 30,
+  },
+  conditionText: {
+    fontSize: 14,
+    color: '#FF8C00',
+    fontWeight: '500',
+  },
+  categoryBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 30,
+    backgroundColor: '#F5F5F5',
+    gap: 4,
+  },
+  categoryText: {
+    fontSize: 14,
+    color: '#FF8C00',
+    fontWeight: '500',
+  },
+  actionButtonsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  actionIconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.5,
+  },
+  carTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    marginBottom: 16,
+    lineHeight: 22,
+  },
+  specsContainer: {
+    flexDirection: 'row',
     flexWrap: 'wrap',
-    marginVertical: SPACING.sm,
+    gap: 8,
+    marginBottom: 8,
   },
-  badge: {
-    backgroundColor: '#F0F0F0',
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.sm,
-    borderRadius: BORDER_RADIUS.sm,
-    marginRight: SPACING.sm,
-    marginBottom: SPACING.sm,
+  specPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
   },
-  badgeText: {
-    fontSize: FONT_SIZES.xs,
-    color: COLORS.textDark,
+  specPillText: {
+    fontSize: 14,
+    color: '#424242',
   },
-  priceContainer: {
-    marginTop: SPACING.sm,
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 8,
   },
-  priceLabel: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textLight,
-  },
-  priceValue: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '700',
-    color: COLORS.primary,
+  priceText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#5E366D',
   },
   sectionContainer: {
     padding: SPACING.md,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
+    backgroundColor: '#FFFFFF',
   },
   sectionTitle: {
-    fontSize: FONT_SIZES.md,
+    fontSize: FONT_SIZES.lg,
     fontWeight: '600',
     color: COLORS.textDark,
     marginBottom: SPACING.md,
+    position: 'relative',
+    paddingBottom: 10,
   },
-  overviewGrid: {
+  sectionTitleLine: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: 50,
+    height: 3,
+    backgroundColor: '#5E366D',
+    borderRadius: 1.5,
+  },
+  overviewList: {
+    marginTop: SPACING.xs,
+  },
+  overviewItem: {
     flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F8F8F8',
   },
-  overviewColumn: {
+  overviewIconContainer: {
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  overviewLabel: {
+    fontSize: FONT_SIZES.md,
+    color: COLORS.textLight,
     flex: 1,
   },
-  specItem: {
-    marginBottom: SPACING.sm,
-  },
-  specLabel: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textLight,
-  },
-  specValue: {
+  overviewValue: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textDark,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: '#5E366D',
   },
   featureCategory: {
     marginBottom: SPACING.md,
@@ -710,23 +1079,50 @@ const styles = StyleSheet.create({
   },
   featuresGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    marginBottom: SPACING.md,
+  },
+  featuresColumn: {
+    flex: 1,
   },
   featureItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '50%',
-    paddingVertical: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    paddingRight: SPACING.xs,
   },
   featureText: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.textDark,
     marginLeft: SPACING.xs,
+    flex: 1,
+  },
+  descriptionContainer: {
+    marginTop: SPACING.xs,
   },
   descriptionText: {
     fontSize: FONT_SIZES.sm,
     color: COLORS.textDark,
     lineHeight: 20,
+  },
+  descriptionParagraph: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textDark,
+    lineHeight: 22,
+    marginBottom: 10,
+  },
+  descriptionBold: {
+    fontWeight: 'bold',
+  },
+  descriptionList: {
+    marginTop: 5,
+    marginBottom: 5,
+  },
+  descriptionListItem: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textDark,
+    lineHeight: 22,
+    marginBottom: 5,
+    paddingLeft: 5,
   },
   noDescriptionText: {
     fontSize: FONT_SIZES.sm,
@@ -826,37 +1222,38 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
     fontWeight: '500',
   },
-  colorSection: {
+  accordionContainer: {
     marginTop: SPACING.md,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    paddingTop: SPACING.md,
   },
-  colorSectionTitle: {
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '600',
-    color: COLORS.textDark,
-    marginBottom: SPACING.md,
-  },
-  colorChipsContainer: {
+  accordionHeader: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  colorChip: {
-    paddingVertical: SPACING.xs,
-    paddingHorizontal: SPACING.sm,
-    borderRadius: 20,
-    marginRight: SPACING.sm,
-    marginBottom: SPACING.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(0,0,0,0.1)',
-    minWidth: 60,
+    justifyContent: 'space-between',
     alignItems: 'center',
+    paddingVertical: SPACING.md,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
   },
-  colorChipText: {
-    fontSize: FONT_SIZES.xs,
+  expandedAccordionHeader: {
+    borderBottomColor: '#5E366D',
+  },
+  accordionTitle: {
+    fontSize: FONT_SIZES.md,
     fontWeight: '500',
+    color: COLORS.textDark,
     textTransform: 'capitalize',
+  },
+  accordionContent: {
+    paddingVertical: SPACING.sm,
+    backgroundColor: '#FAFAFA',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  accordionFeatureText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.textDark,
+    lineHeight: 22,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.xs,
   },
 });
 
