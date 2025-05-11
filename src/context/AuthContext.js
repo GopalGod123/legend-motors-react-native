@@ -34,43 +34,35 @@ export const AuthProvider = ({ children }) => {
     bootstrapAsync();
   }, []);
 
-  // Login function
+
   const login = async (email, password) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setError(null);
-      
       const response = await loginUser(email, password);
-      
-      // If login successful, save user data and token
-      if (response.success && response.token) {
-        console.log('User data from API:', response.user);
-        
-        // Store user details from the response
-        // If no user object is returned, create a basic one with the email
-        const userData = {
-          ...(response.user || { firstName: email.split('@')[0], email: email }),
-          token: response.token,
-          refreshToken: response.refreshToken
-        };
-        
-        // Save to AsyncStorage
-        await AsyncStorage.setItem('userToken', response.token);
-        await AsyncStorage.setItem('userData', JSON.stringify(userData));
-        
-        // Update state
-        setUser(userData);
-        return { success: true };
-      } else {
-        throw new Error(response.msg || 'No token received from server');
+      if (!response.success || !response.token) {
+        throw new Error(response.msg || 'Authentication failed');
       }
+
+      const userData = {
+        ...(response.user || { email, firstName: email.split('@')[0] }),
+        token: response.token,
+        refreshToken: response.refreshToken,
+      };
+
+      await AsyncStorage.multiSet([
+        ['userToken', response.token],
+        ['userData', JSON.stringify(userData)],
+      ]);
+
+      setUser(userData);
+      return userData;
     } catch (error) {
-      setError(error.message || 'Login failed');
-      return { success: false, error: error.message || 'Login failed' };
+      throw new Error(error.errors[0] || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
+
 
   // Logout function
   const logout = async () => {

@@ -1,0 +1,171 @@
+import { StyleSheet } from 'react-native';
+
+export default ({ THEME_COLORS, isDark }) => StyleSheet.create({
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        backgroundColor: isDark ? 'rgba(255, 255, 255, 0.4)' : 'rgba(0,0,0,0.4)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalContainer: {
+        width: 280,
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 25,
+        alignItems: 'center',
+        elevation: 10,
+    },
+    lockIcon: {
+        width: 100,
+        height: 100,
+        marginBottom: 15,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#000',
+        marginBottom: 5,
+    },
+    message: {
+        fontSize: 14,
+        color: '#555',
+        textAlign: 'center',
+        marginBottom: 20,
+    },
+    button: {
+        backgroundColor: '#C56C14', // same as the orange shade in the image
+        paddingVertical: 10,
+        paddingHorizontal: 35,
+        borderRadius: 10,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '600',
+    },
+    container: {
+        flex: 1,
+        backgroundColor: isDark ? THEME_COLORS.DARK_BACKGROUND : THEME_COLORS.TEXT_LIGHT,
+        paddingHorizontal: 20,
+        paddingTop: 20,
+    },
+    header: {
+        display: 'flex',
+        alignItems: 'center',
+        flexDirection: 'row'
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+    },
+    logo: {
+        width: '50%',
+        alignSelf: 'center',
+        marginVertical: 20,
+    },
+    logoContainer: {
+        alignItems: 'center',
+        marginVertical: 25,
+    },
+    title: {
+        fontSize: 22,
+        fontWeight: '600',
+        textAlign: 'center',
+        marginBottom: 20,
+        // color: THEME_COLORS.TEXT_ACCENT
+        color: isDark ? THEME_COLORS.LIGHT_GRAY : THEME_COLORS.TEXT_ACCENT
+    },
+    subtitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        textAlign: 'start',
+        marginBottom: 20,
+        color: isDark ? THEME_COLORS.LIGHT_GRAY : THEME_COLORS.TEXT_ACCENT
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        height: 50,
+        borderWidth: 1,
+        // borderColor: THEME_COLORS.BORDER_DEFAULT,
+        borderColor: isDark ? THEME_COLORS.ICON_DEFAULT : THEME_COLORS.BORDER_LIGHT,
+        borderRadius: 8,
+        paddingHorizontal: 15,
+        marginBottom: 15,
+    },
+    inputIcon: {
+        marginRight: 10,
+    },
+    input: {
+        flex: 1,
+        fontSize: 16,
+        color: isDark ? THEME_COLORS.TEXT_LIGHT : THEME_COLORS.TEXT_DARK,
+    },
+    primaryButton: {
+        backgroundColor: isDark ? THEME_COLORS.ACCENT_ORANGE : THEME_COLORS.PRIMARY,
+        height: 50,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 15,
+    },
+    primaryButtonText: {
+        // color: THEME_COLORS.TEXT_LIGHT,
+        color: isDark ? THEME_COLORS.TEXT_DARK : THEME_COLORS.TEXT_LIGHT,
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    loginContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginVertical: 20
+    },
+    loginTextRegular: {
+        fontSize: 14,
+        color: '#666',
+    },
+    loginTextLink: {
+        fontSize: 14,
+        color: THEME_COLORS.PRIMARY,
+        fontWeight: '600',
+    },
+    socialButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: 50,
+        borderWidth: 1,
+        // borderColor: THEME_COLORS.BORDER_LIGHT,
+        borderColor: isDark ? THEME_COLORS.ICON_DEFAULT : THEME_COLORS.BORDER_LIGHT,
+        borderRadius: 8,
+        paddingHorizontal: 15,
+        marginVertical: 10,
+    },
+    socialIcon: {
+        marginRight: 10,
+    },
+    socialButtonText: {
+        fontSize: 16,
+        // color: THEME_COLORS.TEXT_DARK,
+        color: isDark ? THEME_COLORS.TEXT_LIGHT : THEME_COLORS.TEXT_DARK,
+    },
+    guestButton: {
+        width: '90%',
+        marginLeft: '5%',
+        marginVertical: 10,
+        height: 50,
+        borderWidth: 1,
+        // borderColor: THEME_COLORS.PRIMARY_LIGHT,
+        borderColor: isDark ? THEME_COLORS.ICON_DEFAULT : THEME_COLORS.PRIMARY_LIGHT,
+        borderRadius: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+        // backgroundColor: THEME_COLORS.BACKGROUND_SECONDARY
+        backgroundColor: isDark ? THEME_COLORS.CHARCOAL : THEME_COLORS.BACKGROUND_SECONDARY
+    },
+    guestButtonText: {
+        fontSize: 16,
+        color: isDark ? THEME_COLORS.ACCENT_ORANGE : THEME_COLORS.PRIMARY,
+        fontWeight: '600',
+    },
+});

@@ -28,12 +28,20 @@ import axios from 'axios';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import {useWishlist} from '../../context/WishlistContext';
+import {useTheme} from 'src/context/ThemeContext';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.85;
 
 // Single car card component with its own state
-const HotDealCard = ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
+const HotDealCard = ({
+  item,
+  onPress,
+  toggleFavorite,
+  shareCar,
+  isFavorite,
+  COLORS1,
+}) => {
   // Extract data from the API response
   const brandName = item.Brand?.name || item.brand?.name || '';
   const carModel = item.CarModel?.name || item.model || '';
@@ -176,7 +184,7 @@ const HotDealCard = ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
   return (
     <TouchableOpacity
       key={item.id.toString()}
-      style={styles.cardContainer}
+      style={[styles.cardContainer, {backgroundColor: COLORS1?.white}]}
       onPress={() => onPress(item)}
       activeOpacity={0.9}>
       <View style={styles.tagBadge}>
@@ -245,48 +253,71 @@ const HotDealCard = ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
         <View style={styles.categoryRow}>
           <View style={styles.categoryBadge}>
             <MaterialCommunityIcons name="car" size={18} color="#FF8C00" />
-            <Text style={styles.categoryText}>{bodyType}</Text>
+            <Text style={[styles.categoryText, {color: COLORS1?.textDark}]}>
+              {bodyType}
+            </Text>
           </View>
         </View>
 
-        <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">
+        <Text
+          style={[styles.carTitle, {color: COLORS1?.textDark}]}
+          numberOfLines={2}
+          ellipsizeMode="tail">
           {carTitle}
         </Text>
 
         <View style={styles.specRow}>
-          <View style={styles.specItem}>
-            <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
-            <Text style={styles.specText}>ltr</Text>
+          <View style={[styles.specItem, {backgroundColor: COLORS1.itrBg}]}>
+            <MaterialCommunityIcons
+              name="engine"
+              size={16}
+              color={COLORS1?.itr}
+            />
+            <Text style={[styles.specText, {color: COLORS1.textDark}]}>
+              ltr
+            </Text>
           </View>
 
-          <View style={styles.specItem}>
-            <Ionicons name="flash" size={16} color="#8A2BE2" />
-            <Text style={styles.specText}>{fuelType}</Text>
+          <View style={[styles.specItem, {backgroundColor: COLORS1.itrBg}]}>
+            <Ionicons name="flash" size={16} color={COLORS1?.itr} />
+            <Text style={[styles.specText, {color: COLORS1.textDark}]}>
+              {fuelType}
+            </Text>
           </View>
 
-          <View style={styles.specItem}>
+          <View style={[styles.specItem, {backgroundColor: COLORS1.itrBg}]}>
             <MaterialCommunityIcons
               name="car-shift-pattern"
               size={16}
-              color="#8A2BE2"
+              color={COLORS1?.itr}
             />
-            <Text style={styles.specText}>{transmission}</Text>
+            <Text style={[styles.specText, {color: COLORS1.textDark}]}>
+              {transmission}
+            </Text>
           </View>
 
-          <View style={styles.specItem}>
+          <View style={[styles.specItem, {backgroundColor: COLORS1.itrBg}]}>
             <MaterialCommunityIcons
               name="map-marker"
               size={16}
-              color="#8A2BE2"
+              color={COLORS1?.itr}
             />
-            <Text style={styles.specText}>{region}</Text>
+            <Text style={[styles.specText, {color: COLORS1.textDark}]}>
+              {region}
+            </Text>
           </View>
         </View>
 
         <View style={styles.steeringRow}>
-          <View style={styles.specItem}>
-            <MaterialCommunityIcons name="steering" size={16} color="#8A2BE2" />
-            <Text style={styles.specText}>{steeringType}</Text>
+          <View style={[styles.specItem, {backgroundColor: COLORS1.itrBg}]}>
+            <MaterialCommunityIcons
+              name="steering"
+              size={16}
+              color={COLORS1?.itr}
+            />
+            <Text style={[styles.specText, {color: COLORS1.textDark}]}>
+              {steeringType}
+            </Text>
           </View>
         </View>
 
@@ -327,6 +358,7 @@ const HotDeals = () => {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const {user} = useAuth();
+  const {COLORS1} = useTheme();
   const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
     useWishlist();
 
@@ -588,13 +620,17 @@ const HotDeals = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Hot Deals</Text>
+        <Text style={[styles.title, {color: COLORS1?.textDark}]}>
+          Hot Deals
+        </Text>
         <TouchableOpacity onPress={navigateToAllHotDeals}>
           <Text style={styles.viewAllText}>View All</Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.subtitle}>Checkout our exclusive offers</Text>
+      <Text style={[styles.subtitle, {color: COLORS1?.textDark}]}>
+        Checkout our exclusive offers
+      </Text>
 
       {loading ? (
         renderLoadingSkeletons()
@@ -611,6 +647,7 @@ const HotDeals = () => {
                 onPress={navigateToCarDetail}
                 toggleFavorite={toggleFavorite}
                 shareCar={shareCar}
+                COLORS1={COLORS1}
                 isFavorite={isInWishlist(item.id)}
               />
             ))

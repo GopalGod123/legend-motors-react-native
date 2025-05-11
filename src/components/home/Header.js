@@ -8,9 +8,10 @@ import {
   BORDER_RADIUS,
 } from '../../utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useTheme} from 'src/context/ThemeContext';
 const Header = ({user, onSettingsPress, onWishlistPress}) => {
   const [activeCurrency, setActiveCurrency] = useState('AED');
-
+  const {COLORS1} = useTheme();
   // Get firstName from user object or use default
   const getFirstName = () => {
     if (!user) return 'User';
@@ -41,8 +42,10 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
       <View style={styles.profileSection}>
         <ImagePlaceholder style={styles.profileImage} color="#ccd" />
         <View style={styles.greetingSection}>
-          <Text style={styles.greetingText}>Good Morning</Text>
-          <Text style={styles.nameText}>{getFirstName()}!</Text>
+          <Text style={[styles.greetingText]}>Good Morning</Text>
+          <Text style={[styles.nameText, {color: COLORS1.textDark}]}>
+            {getFirstName()}!
+          </Text>
         </View>
       </View>
 
@@ -83,11 +86,11 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
         </View>
 
         <TouchableOpacity style={styles.iconButton}>
-          <Ionicons name="notifications" size={28} color="#5E366D" />
+          <Ionicons name="notifications" size={28} color={COLORS1?.notifi} />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.iconButton} onPress={onWishlistPress}>
-          <Ionicons name="heart" size={28} color="#5E366D" />
+          <Ionicons name="heart-outline" size={28} color={COLORS1?.notifi} />
         </TouchableOpacity>
       </View>
     </View>

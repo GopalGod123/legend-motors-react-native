@@ -5,35 +5,35 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
-  Pressable
+  Pressable,
 } from 'react-native';
 
-const LogoutModal = ({ visible, onCancel, onLogout }) => {
+const LogoutModal = ({visible, onCancel, onLogout, COLORS1}) => {
   return (
     <Modal
       animationType="fade"
       transparent={true}
       visible={visible}
-      onRequestClose={onCancel}
-    >
+      onRequestClose={onCancel}>
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
+        <View
+          style={[styles.modalContainer, {backgroundColor: COLORS1?.white}]}>
           <Text style={styles.logoutText}>Logout</Text>
-          <Text style={styles.confirmationText}>Are you sure you want to log out?</Text>
-          
+          <Text style={[styles.confirmationText, {color: COLORS1?.textDark}]}>
+            Are you sure you want to log out?
+          </Text>
+
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.cancelButton}
-              onPress={onCancel}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+              <Text style={[styles.cancelButtonText, {color: COLORS1?.white}]}>
+                Cancel
+              </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.logoutButton}
-              onPress={onLogout}
-            >
-              <Text style={styles.logoutButtonText}>Yes, Logout</Text>
+
+            <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
+              <Text style={[styles.logoutButtonText, {color: COLORS1?.white}]}>
+                Yes, Logout
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   cancelButton: {
     flex: 1,
     height: 50,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FDE7CD',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -112,4 +112,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LogoutModal; 
+export default LogoutModal;

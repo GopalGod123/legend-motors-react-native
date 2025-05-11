@@ -3,15 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import SplashScreen from '../screens/SplashScreen';
-import LanguageSelectScreen from '../screens/LanguageSelectScreen';
-import RegisterScreen from '../screens/RegisterScreen';
-import OTPVerificationScreen from '../screens/OTPVerificationScreen';
-import LoginScreen from '../screens/LoginScreen';
-import FillProfileScreen from '../screens/FillProfileScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import VerifyOTPScreen from '../screens/VerifyOTPScreen';
-import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import AllBrandsScreen from '../screens/AllBrandsScreen';
 import FilterScreen from '../screens/FilterScreen';
 import CarDetailScreen from '../screens/CarDetailScreen';
@@ -20,9 +13,14 @@ import MyWishlistScreen from '../screens/MyWishlistScreen';
 
 // Import new profile screens
 import EditProfileScreen from '../screens/EditProfileScreen';
-import LanguageScreen from '../screens/LanguageScreen';
-import HelpCenterScreen from '../screens/HelpCenterScreen';
+import LanguageScreen from '../screens/LanguageScreen/LanguageScreen';
+import HelpCenterScreen from '../screens/HelpCenterScreen/HelpCenterScreen';
 import BlogPostDetailScreen from '../screens/BlogPostDetailScreen';
+
+import LanguageSelectScreen from 'src/screens/LanguageSelect/LanguageSelectScreen';
+import RegisterScreen from 'src/screens/RegisterScreen/RegisterScreen';
+import LoginScreen from 'src/screens/LoginScreen/LoginScreen';
+import { FillProfileScreen, ForgotPasswordScreen, OTPVerificationScreen, CreateNewPasswordScreen } from 'src/screens/Auth';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,7 +42,7 @@ const AppNavigator = () => {
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
         <Stack.Screen name="VerifyOTP" component={VerifyOTPScreen} />
-        <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
+        <Stack.Screen name="ResetPassword" component={CreateNewPasswordScreen} />
         <Stack.Screen name="AllBrands" component={AllBrandsScreen} />
         <Stack.Screen name="FilterScreen" component={FilterScreen} />
         <Stack.Screen name="CarDetailScreen" component={CarDetailScreen} />

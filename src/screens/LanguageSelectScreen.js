@@ -25,15 +25,12 @@ const LanguageSelectScreen = () => {
   const navigation = useNavigation();
 
   const handleNext = () => {
-    // Navigate directly to Main screen
     console.log('hiii');
     navigation.navigate('Main');
   };
 
   const handleLanguageSelect = langId => {
     setSelectedLanguage(langId);
-    // You could save the selected language here if needed
-    // For example: AsyncStorage.setItem('userLanguage', langId);
   };
 
   return (

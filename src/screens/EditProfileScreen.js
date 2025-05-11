@@ -17,9 +17,12 @@ import {
   getUserProfile,
   updateUserProfile,
   syncAuthToken,
+  fetchCountries,
 } from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useTheme} from 'src/context/ThemeContext';
+import CountryCodeModal from './Home/CountryCodeModel';
+
 
 // Back Arrow Icon
 const BackIcon = ({color}) => (
@@ -46,14 +49,14 @@ const CalendarIcon = ({color}) => (
     />
     <Path
       d="M16 2V5"
-      stroke={color}
+      stroke="#fff"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M3.5 9.09H20.5"
-      stroke={color}
+      stroke="#fff"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -62,7 +65,7 @@ const CalendarIcon = ({color}) => (
       fillRule="evenodd"
       clipRule="evenodd"
       d="M19 4.5H5C4.17157 4.5 3.5 5.17157 3.5 6V19C3.5 19.8284 4.17157 20.5 5 20.5H19C19.8284 20.5 20.5 19.8284 20.5 19V6C20.5 5.17157 19.8284 4.5 19 4.5Z"
-      stroke={color}
+      stroke="#fff"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -75,14 +78,14 @@ const EmailIcon = ({color}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M17 21H7C4 21 2 19.5 2 16V8C2 4.5 4 3 7 3H17C20 3 22 4.5 22 8V16C22 19.5 20 21 17 21Z"
-      stroke="#7A40C6"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M18.5 8.5L13.5736 12.4222C12.6941 13.1255 11.4577 13.1255 10.5781 12.4222L5.5 8.5"
-      stroke="#7A40C6"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -155,6 +158,17 @@ const USFlagIcon = ({color}) => (
     </View>
   </Svg>
 );
+const ChevronDownIcon = ({color}) => (
+  <Svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+    <Path
+      d="M4 6L8 10L12 6"
+      stroke={color}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
@@ -174,9 +188,24 @@ const EditProfileScreen = () => {
   const [updating, setUpdating] = useState(false);
   const {COLORS1} = useTheme();
 
+  const [countryModalVisible, setCountryModalVisible] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(null);
+
   useEffect(() => {
     fetchUserProfile();
   }, []);
+
+  
+    const handleSelectCountry = (country) => {
+    setSelectedCountry(country);
+    setFormData(prev => ({
+      ...prev,
+      countryCode: country.code,
+      // If you have a countryId field in your API
+      countryId: country.id,
+    }));
+  };
+
 
   const fetchUserProfile = async () => {
     setLoading(true);
@@ -348,10 +377,13 @@ const EditProfileScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[styles.container, {backgroundColor: COLORS1?.background}]}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={styles.loadingText}>Loading profile...</Text>
+          <Text style={[styles.loadingText, {color: COLORS1?.textDark}]}>
+            Loading profile...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -363,9 +395,9 @@ const EditProfileScreen = () => {
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <TouchableOpacity
-          style={[styles.backButton, {backgroundColor: COLORS1.textDark}]}
+          style={[styles.backButton]}
           onPress={() => navigation.goBack()}>
-          <BackIcon />
+          <BackIcon color={COLORS1?.backArrow} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: COLORS1.textDark}]}>
           Edit Profile
@@ -378,16 +410,22 @@ const EditProfileScreen = () => {
         <View style={styles.formContainer}>
           {/* First Name */}
           <View
-            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: COLORS1.white,
+                backgroundColor: COLORS1.white,
+              },
+            ]}>
             <TextInput
               style={[
                 styles.input,
                 {
                   color: COLORS1.textDark,
-                  backgroundColor: COLORS1.background,
                 },
               ]}
               placeholder="First Name"
+              placeholderTextColor={COLORS1?.textDark}
               value={formData.firstName}
               onChangeText={text => handleChange('firstName', text)}
             />
@@ -395,16 +433,22 @@ const EditProfileScreen = () => {
 
           {/* Last Name */}
           <View
-            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: COLORS1.white,
+                backgroundColor: COLORS1.white,
+              },
+            ]}>
             <TextInput
               style={[
                 styles.input,
                 {
                   color: COLORS1.textDark,
-                  backgroundColor: COLORS1.background,
                 },
               ]}
               placeholder="Last Name"
+              placeholderTextColor={COLORS1?.textDark}
               value={formData.lastName}
               onChangeText={text => handleChange('lastName', text)}
             />
@@ -412,57 +456,75 @@ const EditProfileScreen = () => {
 
           {/* Date of Birth */}
           <View
-            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: COLORS1.white,
+                backgroundColor: COLORS1.white,
+              },
+            ]}>
             <TextInput
               style={[
                 styles.input,
                 {
                   color: COLORS1.textDark,
-                  backgroundColor: COLORS1.background,
                 },
               ]}
               placeholder="Date of Birth (MM/DD/YYYY)"
+              placeholderTextColor={COLORS1?.textDark}
               value={formData.dateOfBirth}
               onChangeText={text => handleChange('dateOfBirth', text)}
             />
             <View style={styles.inputIcon}>
-              <CalendarIcon />
+              <CalendarIcon color={COLORS1?.language} />
             </View>
           </View>
 
           {/* Email */}
           <View
-            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: COLORS1.white,
+                backgroundColor: COLORS1.white,
+              },
+            ]}>
             <TextInput
               style={[
                 styles.input,
                 {
                   color: COLORS1.textDark,
-                  backgroundColor: COLORS1.background,
                 },
               ]}
               placeholder="Email"
+              placeholderTextColor={COLORS1?.textDark}
               value={formData.email}
               onChangeText={text => handleChange('email', text)}
               keyboardType="email-address"
             />
             <View style={styles.inputIcon}>
-              <EmailIcon />
+              <EmailIcon color={COLORS1?.language} />
             </View>
           </View>
 
           {/* Location */}
           <View
-            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: COLORS1.white,
+                backgroundColor: COLORS1.white,
+              },
+            ]}>
             <TextInput
               style={[
                 styles.input,
                 {
                   color: COLORS1.textDark,
-                  backgroundColor: COLORS1.background,
                 },
               ]}
               placeholder="Location"
+              placeholderTextColor={COLORS1?.textDark}
               value={formData.location}
               onChangeText={text => handleChange('location', text)}
             />
@@ -470,17 +532,27 @@ const EditProfileScreen = () => {
 
           {/* Phone Number */}
           <View
-            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
-            <View style={styles.flagContainer}>
-              <USFlagIcon />
-            </View>
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: COLORS1.white,
+                backgroundColor: COLORS1.white,
+              },
+            ]}>
+            <TouchableOpacity
+              style={styles.countryCodeContainer}
+              onPress={() => setCountryModalVisible(true)}>
+              <Text style={styles.countryCodeText}>
+                {selectedCountry ? selectedCountry.dialCode : '+91'}
+              </Text>
+              <ChevronDownIcon color={COLORS1?.cheveronIcon || '#757575'} />
+            </TouchableOpacity>
             <TextInput
               style={[
                 styles.input,
                 styles.phoneInput,
                 {
                   color: COLORS1.textDark,
-                  backgroundColor: COLORS1.background,
                 },
               ]}
               placeholder="Phone Number"
@@ -492,20 +564,25 @@ const EditProfileScreen = () => {
 
           {/* Gender */}
           <TouchableOpacity
-            style={[styles.inputContainer, {borderColor: COLORS1.borderColor}]}>
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: COLORS1.white,
+                backgroundColor: COLORS1.white,
+              },
+            ]}>
             <Text
               style={[
                 styles.input,
                 styles.dropdownInput,
                 {
                   color: COLORS1.textDark,
-                  backgroundColor: COLORS1.background,
                 },
               ]}>
               {formData.gender || 'Select Gender'}
             </Text>
             <View style={styles.inputIcon}>
-              <DropdownIcon />
+              <DropdownIcon color={COLORS1?.cheveronIcon} />
             </View>
           </TouchableOpacity>
 
@@ -529,6 +606,13 @@ const EditProfileScreen = () => {
             )}
           </TouchableOpacity>
         </View>
+        <CountryCodeModal
+        visible={countryModalVisible}
+        onClose={() => setCountryModalVisible(false)}
+        onSelectCountry={handleSelectCountry}
+        selectedCountry={selectedCountry}
+        colors={COLORS1}
+      />
       </ScrollView>
     </SafeAreaView>
   );
@@ -554,8 +638,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    // borderBottomWidth: 1,
+    // borderBottomColor: '#F5F5F5',
   },
   backButton: {
     padding: 4,
@@ -618,6 +702,20 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  countryCodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    height: '100%',
+    minWidth: 90,
+    justifyContent: 'center',
+  },
+  countryCodeText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#000',
+    marginHorizontal: 4,
   },
 });
 

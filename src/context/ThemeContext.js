@@ -1,4 +1,3 @@
-// ThemeContext.js
 import React, {createContext, useState, useEffect, useContext} from 'react';
 import {Appearance} from 'react-native';
 
@@ -8,6 +7,7 @@ import {
   darkColors,
   FONT_SIZES,
   SPACING,
+  THEME_COLORS
 } from 'src/utils/constants';
 
 const ThemeContext = createContext();
@@ -22,15 +22,17 @@ export const ThemeProvider = ({children}) => {
     SPACING,
     FONT_SIZES,
     BORDER_RADIUS,
-    toggleTheme: () => setIsDark(!isDark),
+    THEME_COLORS,
+    toggleTheme: () => setIsDark(prev => !prev),
   };
 
-  useEffect(() => {
-    const sub = Appearance.addChangeListener(({colorScheme}) => {
-      setIsDark(colorScheme === 'dark');
-    });
-    return () => sub.remove();
-  }, []);
+ useEffect(() => {
+  const sub = Appearance.addChangeListener(({colorScheme}) => {
+    setIsDark(colorScheme === 'dark');
+  });
+  return () => sub.remove();
+}, []);
+
 
   return (
     <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>

@@ -7,13 +7,20 @@ import {
   FontAwesome,
 } from 'src/utils/icon';
 import {CarImage} from '../common';
+import {useTheme} from 'src/context/ThemeContext';
+import {color} from 'src/utils/constants';
 
 const MostPopular = () => {
+  const {COLORS1} = useTheme();
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Most Popular</Text>
-        <Text style={styles.subtitle}>Checkout our exclusive offers...</Text>
+        <Text style={[styles.title, {color: COLORS1?.textDark}]}>
+          Most Popular
+        </Text>
+        <Text style={[styles.subtitle, {color: COLORS1?.textDark}]}>
+          Checkout our exclusive offers...
+        </Text>
       </View>
 
       <View style={styles.cardContainer}>
@@ -32,39 +39,59 @@ const MostPopular = () => {
               size={20}
               color="#FF8C00"
             />
-            <Text style={styles.categoryText}>SUV</Text>
+            <Text style={[styles.categoryText, {color: COLORS1?.textDark}]}>
+              SUV
+            </Text>
           </View>
 
-          <Text style={styles.carTitle}>
+          <Text style={[styles.carTitle, {color: COLORS1?.textDark}]}>
             2024 BYD SONG PLUS HONOR{'\n'}
             FLAGSHIP PLUS - BLACK inside BLUE
           </Text>
 
           <View style={styles.detailsContainer}>
-            <View style={styles.detailItem}>
-              <Ionicons name="infinite" size={16} color="#8A2BE2" />
-              <Text style={styles.detailText}>1tr</Text>
+            <View
+              style={[styles.detailItem, {backgroundColor: COLORS1?.white}]}>
+              <Ionicons name="infinite" size={16} color={color?.itr} />
+              <Text style={[styles.detailText, {color: COLORS1?.textDark}]}>
+                1tr
+              </Text>
             </View>
 
-            <View style={styles.detailItem}>
-              <Ionicons name="flash" size={16} color="#8A2BE2" />
-              <Text style={styles.detailText}>Electric</Text>
+            <View
+              style={[styles.detailItem, {backgroundColor: COLORS1?.white}]}>
+              <Ionicons name="flash" size={16} color={color?.itr} />
+              <Text style={[styles.detailText, {color: COLORS1?.textDark}]}>
+                Electric
+              </Text>
             </View>
 
-            <View style={styles.detailItem}>
-              <AntDesign name="dashboard" size={16} color="#8A2BE2" />
-              <Text style={styles.detailText}>Automatic</Text>
+            <View
+              style={[styles.detailItem, {backgroundColor: COLORS1?.white}]}>
+              <AntDesign name="dashboard" size={16} color={color?.itr} />
+              <Text style={[styles.detailText, {color: COLORS1?.textDark}]}>
+                Automatic
+              </Text>
             </View>
 
-            <View style={styles.detailItem}>
-              <FontAwesome name="flag" size={16} color="#8A2BE2" />
-              <Text style={styles.detailText}>China</Text>
+            <View
+              style={[styles.detailItem, {backgroundColor: COLORS1?.white}]}>
+              <FontAwesome name="flag" size={16} color={color?.itr} />
+              <Text style={[styles.detailText, {color: COLORS1?.textDark}]}>
+                China
+              </Text>
             </View>
           </View>
 
           <View style={styles.drivingDetailItem}>
-            <MaterialCommunityIcons name="steering" size={16} color="#8A2BE2" />
-            <Text style={styles.detailText}>Left hand drive</Text>
+            <MaterialCommunityIcons
+              name="steering"
+              size={16}
+              color={color?.itr}
+            />
+            <Text style={[styles.detailText, {color: COLORS1?.textDark}]}>
+              Left hand drive
+            </Text>
           </View>
 
           <View style={styles.actionContainer}>

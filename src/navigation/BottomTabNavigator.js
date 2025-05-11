@@ -13,8 +13,8 @@ import {
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
 import ExploreScreen from '../screens/ExploreScreen';
-import ProfileScreen from '../screens/ProfileScreen';
-import NewsBlogsScreen from '../screens/NewsBlogsScreen';
+import ProfileScreen from '../screens/ProfileSectiom/ProfileScreen';
+import NewsBlogsScreen from '../screens/NewsBLogsScreen/NewsBlogsScreen';
 import EnquiriesScreen from '../screens/EnquiriesScreen';
 import {useTheme} from 'src/context/ThemeContext';
 
@@ -30,12 +30,12 @@ const BottomTabNavigator = () => {
         tabBarActiveTintColor: '#F47B20',
         tabBarInactiveTintColor: '#8E8E8E',
         tabBarStyle: {
-          backgroundColor: COLORS1?.background,
-          height: 70,
-          paddingBottom: 10,
+          backgroundColor: COLORS1?.white,
+          height: 80,
+          paddingBottom: 25,
           paddingTop: 10,
           borderTopWidth: 1,
-          borderTopColor: '#EEEEEE',
+          borderTopColor: COLORS1?.white,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: {width: 0, height: -2},

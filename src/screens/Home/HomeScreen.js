@@ -27,15 +27,15 @@ const HomeScreen = () => {
         contentContainerStyle={styles.scrollContent}
       >
         <Header />
-        {/* <SearchBar /> */}
+        <SearchBar />
         <CategoryFilter />
         <PromotionBanner />
         <PopularBrands />
         <HotDeals />
         <BodyTypeSearch />
-        <NewsBlogs />
         <MostPopular />
         <JustArrived />
+        <NewsBlogs />
       </ScrollView>
       <Footer />
     </View>

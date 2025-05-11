@@ -12,13 +12,15 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import Svg, {Path, Circle} from 'react-native-svg';
 import {useTheme} from 'src/context/ThemeContext';
+import {styles} from './languageScreenStyle';
+import {color} from 'src/utils/constants';
 
 // Back Arrow Icon
-const BackIcon = () => (
+const BackIcon = ({color}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M15 18L9 12L15 6"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -81,9 +83,9 @@ const LanguageScreen = () => {
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <TouchableOpacity
-          style={[styles.backButton, {backgroundColor: COLORS1?.textDark}]}
+          style={[styles.backButton]}
           onPress={() => navigation.goBack()}>
-          <BackIcon color={COLORS1?.textDark} />
+          <BackIcon color={COLORS1?.backArrow} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: COLORS1.textDark}]}>
           Language
@@ -93,7 +95,7 @@ const LanguageScreen = () => {
       <View style={styles.content}>
         {sections.map(section => (
           <View key={section.title} style={styles.section}>
-            <Text style={[styles.sectionTitle, {color: COLORS1.textDark}]}>
+            <Text style={[styles.sectionTitle, {color: COLORS1.heading}]}>
               {section.title}
             </Text>
             {section.data.map(language => (
@@ -111,60 +113,19 @@ const LanguageScreen = () => {
                 )}
               </TouchableOpacity>
             ))}
+            {section.title === 'Suggested' && (
+              <View
+                style={[
+                  styles.suggestedSeparator,
+                  {borderBottomColor: COLORS1?.heading},
+                ]}
+              />
+            )}
           </View>
         ))}
       </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
-  },
-  backButton: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginLeft: 16,
-    color: '#212121',
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  section: {
-    marginVertical: 12,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#7A40C6',
-    marginBottom: 8,
-  },
-  languageItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
-  },
-  languageName: {
-    fontSize: 16,
-    color: '#212121',
-  },
-});
 
 export default LanguageScreen;

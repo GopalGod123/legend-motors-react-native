@@ -1,20 +1,30 @@
 import React from 'react';
-import { ScrollView, TouchableOpacity, Text, StyleSheet, View } from 'react-native';
-import { COLORS, SPACING, BORDER_RADIUS } from '../../utils/constants';
-import { useTheme } from 'src/context/ThemeContext';
+import {
+  ScrollView,
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  View,
+} from 'react-native';
+import {COLORS, SPACING, BORDER_RADIUS} from '../../utils/constants';
+import {useTheme} from 'src/context/ThemeContext';
 
 const CategoryFilter = () => {
   const categories = ['Brands', 'Trims', 'Model', 'Year'];
   const {isDark, COLORS1, toggleTheme} = useTheme();
   return (
     <View style={[styles.container, {backgroundColor: COLORS1.background}]}>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false} 
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}>
         {categories.map((category, index) => (
-          <TouchableOpacity key={index} style={styles.categoryButton}>
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.categoryButton,
+              {backgroundColor: COLORS1?.background},
+            ]}>
             <Text style={styles.categoryText}>{category}</Text>
             <Text style={styles.dropdownIcon}>▼</Text>
           </TouchableOpacity>
@@ -59,4 +69,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CategoryFilter; 
+export default CategoryFilter;

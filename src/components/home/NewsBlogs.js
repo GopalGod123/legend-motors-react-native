@@ -1,29 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  TouchableOpacity, 
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
   FlatList,
   ActivityIndicator,
   ScrollView,
-  Dimensions
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { getBlogPosts } from "../../services/api";
+  Dimensions,
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {getBlogPosts} from '../../services/api';
+import {useTheme} from 'src/context/ThemeContext';
 
-const { width } = Dimensions.get("window");
+const {width} = Dimensions.get('window');
 
 const NewsBlogs = () => {
   const navigation = useNavigation();
-  const [activeTab, setActiveTab] = useState("News");
+  const [activeTab, setActiveTab] = useState('News');
   const [loading, setLoading] = useState(true);
   const [newsData, setNewsData] = useState([]);
   const [blogsData, setBlogsData] = useState([]);
   const [error, setError] = useState(null);
   const [featuredPost, setFeaturedPost] = useState(null);
-
+  const {COLORS1} = useTheme();
   useEffect(() => {
     fetchBlogPosts();
   }, []);
@@ -34,61 +35,63 @@ const NewsBlogs = () => {
 
     try {
       // Fetch news
-      const newsResponse = await getBlogPosts({ type: "news", limit: 6 });
-      
+      const newsResponse = await getBlogPosts({type: 'news', limit: 6});
+
       // Fetch blogs (articles)
-      const blogsResponse = await getBlogPosts({ type: "articles", limit: 6 });
-      
+      const blogsResponse = await getBlogPosts({type: 'articles', limit: 6});
+
       if (newsResponse.success && blogsResponse.success) {
         // Process and set news data
         setNewsData(newsResponse.data || []);
-        
+
         // Process and set blogs data
         setBlogsData(blogsResponse.data || []);
-        
+
         // Set featured post (first news item)
         if (newsResponse.data && newsResponse.data.length > 0) {
           setFeaturedPost(newsResponse.data[0]);
         }
       } else {
-        setError("Failed to load content. Please try again later.");
+        setError('Failed to load content. Please try again later.');
       }
     } catch (error) {
-      console.error("Error fetching blog posts:", error);
-      setError("Something went wrong. Please check your connection and try again.");
+      console.error('Error fetching blog posts:', error);
+      setError(
+        'Something went wrong. Please check your connection and try again.',
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = tab => {
     setActiveTab(tab);
   };
 
-  const handlePostPress = (post) => {
+  const handlePostPress = post => {
     // Navigate to post detail screen with the post data
-    navigation.navigate("BlogPostDetailScreen", { post });
-    console.log("Post pressed:", post.title);
+    navigation.navigate('BlogPostDetailScreen', {post});
+    console.log('Post pressed:', post.title);
   };
 
   const renderTabIndicator = () => (
     <View style={styles.tabsContainer}>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={[
           styles.tabButton,
           activeTab === "News" && styles.activeTabButton,
         ]}
         onPress={() => handleTabChange("News")}
-      >
-        <Text
+      > */}
+      {/* <Text
           style={[
             styles.tabText,
             activeTab === "News" && styles.activeTabText,
           ]}
         >
           News
-        </Text>
-        {activeTab === "News" && <View style={styles.activeTabIndicator} />}
+        </Text> */}
+      {/* {activeTab === "News" && <View style={styles.activeTabIndicator} />}
       </TouchableOpacity>
       
       <TouchableOpacity
@@ -107,21 +110,20 @@ const NewsBlogs = () => {
           Blogs
         </Text>
         {activeTab === "Blogs" && <View style={styles.activeTabIndicator} />}
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 
-  const renderNewsItem = ({ item, index }) => {
+  const renderNewsItem = ({item, index}) => {
     // Construct image URL
-    const imageUrl = item.coverImage 
-      ? { uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}` }
-      : require("./car_Image.png");
-    
+    const imageUrl = item.coverImage
+      ? {uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}`}
+      : require('./car_Image.png');
+
     return (
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.newsCard}
-        onPress={() => handlePostPress(item)}
-      >
+        onPress={() => handlePostPress(item)}>
         <View style={styles.newsImageContainer}>
           <Image
             source={imageUrl}
@@ -142,18 +144,24 @@ const NewsBlogs = () => {
             {item.title}
           </Text>
           <Text style={styles.newsExcerpt} numberOfLines={1}>
-            {item.excerpt || "Click to read more"}
+            {item.excerpt || 'Click to read more'}
           </Text>
-          
+
           <View style={styles.newsFooter}>
             <View style={styles.authorInfo}>
               <View style={styles.authorAvatar}>
                 <Text style={styles.authorInitials}>
-                  {item.author ? `${item.author.firstName.charAt(0)}${item.author.lastName.charAt(0)}` : ""}
+                  {item.author
+                    ? `${item.author.firstName.charAt(
+                        0,
+                      )}${item.author.lastName.charAt(0)}`
+                    : ''}
                 </Text>
               </View>
               <Text style={styles.authorName}>
-                {item.author ? `${item.author.firstName} ${item.author.lastName}` : "Unknown"}
+                {item.author
+                  ? `${item.author.firstName} ${item.author.lastName}`
+                  : 'Unknown'}
               </Text>
             </View>
             <View style={styles.timeInfo}>
@@ -167,38 +175,53 @@ const NewsBlogs = () => {
 
   const renderFeaturedPost = () => {
     if (!featuredPost) return null;
-    
+
     // Construct image URL
-    const imageUrl = featuredPost.coverImage 
-      ? { uri: `https://cdn.legendmotorsglobal.com${featuredPost.coverImage.original}` }
-      : require("./car_Image.png");
-    
+    const imageUrl = featuredPost.coverImage
+      ? {
+          uri: `https://cdn.legendmotorsglobal.com${featuredPost.coverImage.original}`,
+        }
+      : require('./car_Image.png');
+
     return (
       <View style={styles.featuredSection}>
-        <Text style={styles.featuredTitle}>FEATURED</Text>
-        <TouchableOpacity 
-          style={styles.featuredCard}
-          onPress={() => handlePostPress(featuredPost)}
-        >
+        {/* <Text style={styles.featuredTitle}>FEATURED</Text> */}
+        <TouchableOpacity
+          style={[styles.featuredCard, {backgroundColor: COLORS1?.white}]}
+          onPress={() => handlePostPress(featuredPost)}>
           <Image
             source={imageUrl}
             style={styles.featuredImage}
             resizeMode="cover"
           />
           <View style={styles.featuredContent}>
-            <Text style={styles.featuredPostTitle}>{featuredPost.title}</Text>
-            <Text style={styles.featuredPostExcerpt} numberOfLines={2}>
-              {featuredPost.excerpt || "Click to read more"}
+            <Text
+              style={[styles.featuredPostTitle, {color: COLORS1?.textDark}]}>
+              {featuredPost.title}
             </Text>
-            
+            <Text
+              style={[styles.featuredPostExcerpt, {color: COLORS1?.textDark}]}
+              numberOfLines={2}>
+              {featuredPost.excerpt || 'Click to read more'}
+            </Text>
+
             <View style={styles.featuredFooter}>
-              <Text style={styles.featuredTimeText}>30 Apr</Text>
-              <Text style={styles.featuredReadTime}>2 min read</Text>
+              <Text
+                style={[styles.featuredTimeText, {color: COLORS1?.textDark}]}>
+                30 Apr
+              </Text>
+              <Text
+                style={[styles.featuredReadTime, {color: COLORS1?.textDark}]}>
+                2 min read
+              </Text>
             </View>
           </View>
-          
-          <TouchableOpacity style={styles.arrowButton}>
-            <Text style={styles.arrowText}>→</Text>
+
+          <TouchableOpacity
+            style={[styles.arrowButton, {backgroundColor: '#6C3E7F'}]}>
+            <Text style={[styles.arrowText, {color: COLORS1?.textDark}]}>
+              &gt;
+            </Text>
           </TouchableOpacity>
         </TouchableOpacity>
       </View>
@@ -217,20 +240,21 @@ const NewsBlogs = () => {
     return (
       <View style={styles.blogsContainer}>
         {renderFeaturedPost()}
-        
+
         <FlatList
           data={blogsData.slice(1)} // Skip the first item as it's shown as featured
-          renderItem={({ item }) => {
+          renderItem={({item}) => {
             // Construct image URL
-            const imageUrl = item.coverImage 
-              ? { uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}` }
-              : require("./car_Image.png");
-            
+            const imageUrl = item.coverImage
+              ? {
+                  uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}`,
+                }
+              : require('./car_Image.png');
+
             return (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.blogCard}
-                onPress={() => handlePostPress(item)}
-              >
+                onPress={() => handlePostPress(item)}>
                 <Image
                   source={imageUrl}
                   style={styles.blogImage}
@@ -239,22 +263,22 @@ const NewsBlogs = () => {
                 <View style={styles.blogContent}>
                   <Text style={styles.blogTitle}>{item.title}</Text>
                   <Text style={styles.blogExcerpt} numberOfLines={2}>
-                    {item.excerpt || "Click to read more"}
+                    {item.excerpt || 'Click to read more'}
                   </Text>
-                  
+
                   <View style={styles.blogFooter}>
                     <Text style={styles.blogTimeText}>30 Apr</Text>
                     <Text style={styles.blogReadTime}>2 min read</Text>
                   </View>
                 </View>
-                
+
                 <TouchableOpacity style={styles.arrowButton}>
                   <Text style={styles.arrowText}>→</Text>
                 </TouchableOpacity>
               </TouchableOpacity>
             );
           }}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={item => item.id.toString()}
           showsVerticalScrollIndicator={false}
           scrollEnabled={false} // Disable scrolling as it's inside a ScrollView
         />
@@ -275,7 +299,7 @@ const NewsBlogs = () => {
       <FlatList
         data={newsData}
         renderItem={renderNewsItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={item => item.id.toString()}
         showsVerticalScrollIndicator={false}
         scrollEnabled={false} // Disable scrolling as it's inside a ScrollView
       />
@@ -295,10 +319,7 @@ const NewsBlogs = () => {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity 
-          style={styles.retryButton}
-          onPress={fetchBlogPosts}
-        >
+        <TouchableOpacity style={styles.retryButton} onPress={fetchBlogPosts}>
           <Text style={styles.retryText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -307,15 +328,18 @@ const NewsBlogs = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>News & Blogs</Text>
-      
-      {renderTabIndicator()}
-      
-      <ScrollView 
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
-        {activeTab === "News" ? renderNewsContent() : renderBlogsContent()}
+      <Text
+        style={[
+          styles.sectionTitle,
+          {color: COLORS1?.textDark, textAlign: 'center'},
+        ]}>
+        News & Blogs
+      </Text>
+
+      {/* {renderTabIndicator()} */}
+
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {renderBlogsContent()}
       </ScrollView>
     </View>
   );
@@ -324,98 +348,98 @@ const NewsBlogs = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    // backgroundColor: "#FFFFFF",
     paddingBottom: 20,
   },
   loadingContainer: {
     padding: 40,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loadingText: {
     marginTop: 10,
     fontSize: 14,
-    color: "#666",
+    color: '#666',
   },
   errorContainer: {
     padding: 40,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   errorText: {
     fontSize: 14,
-    color: "#FF3B30",
-    textAlign: "center",
+    color: '#FF3B30',
+    textAlign: 'center',
     marginBottom: 16,
   },
   retryButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: "#F47B20",
+    backgroundColor: '#F47B20',
     borderRadius: 8,
   },
   retryText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    color: "#333",
+    fontWeight: 'bold',
+    color: '#333',
     paddingHorizontal: 16,
     paddingVertical: 10,
   },
   tabsContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: '#E0E0E0',
   },
   tabButton: {
     flex: 1,
     paddingVertical: 12,
-    alignItems: "center",
-    position: "relative",
+    alignItems: 'center',
+    position: 'relative',
   },
   activeTabButton: {
     borderBottomWidth: 0,
   },
   tabText: {
     fontSize: 16,
-    color: "#9E9E9E",
+    color: '#9E9E9E',
   },
   activeTabText: {
-    color: "#7A40C6",
-    fontWeight: "600",
+    color: '#7A40C6',
+    fontWeight: '600',
   },
   activeTabIndicator: {
-    position: "absolute",
+    position: 'absolute',
     bottom: 0,
     left: 24,
     right: 24,
     height: 2,
-    backgroundColor: "#7A40C6",
+    backgroundColor: '#7A40C6',
   },
   content: {
     flex: 1,
   },
   emptyContainer: {
     padding: 40,
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyText: {
     fontSize: 14,
-    color: "#666",
-    textAlign: "center",
+    color: '#666',
+    textAlign: 'center',
   },
   // News tab styles
   newsCard: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginHorizontal: 16,
     marginVertical: 8,
     borderRadius: 12,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -423,93 +447,93 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   newsImageContainer: {
     width: 100,
     height: 100,
-    position: "relative",
+    position: 'relative',
   },
   newsImage: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   newsNumberContainer: {
-    position: "absolute",
+    position: 'absolute',
     left: 0,
     bottom: 0,
     width: 30,
     height: 30,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   newsNumber: {
-    color: "#FFFFFF",
-    fontWeight: "bold",
+    color: '#FFFFFF',
+    fontWeight: 'bold',
     fontSize: 16,
   },
   tagContainer: {
-    position: "absolute",
+    position: 'absolute',
     right: 4,
     top: 4,
-    backgroundColor: "#F47B20",
+    backgroundColor: '#F47B20',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
   },
   tagText: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: 10,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   newsContent: {
     flex: 1,
     padding: 10,
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
   },
   newsTitle: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
+    fontWeight: '600',
+    color: '#333',
     marginBottom: 4,
   },
   newsExcerpt: {
     fontSize: 12,
-    color: "#666",
+    color: '#666',
     marginBottom: 8,
   },
   newsFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   authorInfo: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   authorAvatar: {
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: "#E0E0E0",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#E0E0E0',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 6,
   },
   authorInitials: {
     fontSize: 10,
-    fontWeight: "bold",
-    color: "#666",
+    fontWeight: 'bold',
+    color: '#666',
   },
   authorName: {
     fontSize: 10,
-    color: "#666",
+    color: '#666',
   },
   timeInfo: {},
   timeText: {
     fontSize: 10,
-    color: "#F47B20",
+    color: '#F47B20',
   },
   // Blogs tab styles
   blogsContainer: {
@@ -521,14 +545,14 @@ const styles = StyleSheet.create({
   },
   featuredTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#7A40C6",
+    fontWeight: '600',
+    color: '#7A40C6',
     marginBottom: 8,
   },
   featuredCard: {
     borderRadius: 12,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -536,11 +560,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    overflow: "hidden",
+    overflow: 'hidden',
     marginBottom: 16,
   },
   featuredImage: {
-    width: "100%",
+    width: '100%',
     height: 180,
   },
   featuredContent: {
@@ -548,34 +572,34 @@ const styles = StyleSheet.create({
   },
   featuredPostTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+    fontWeight: '600',
+    color: '#333',
     marginBottom: 8,
   },
   featuredPostExcerpt: {
     fontSize: 14,
-    color: "#666",
+    color: '#666',
     marginBottom: 8,
   },
   featuredFooter: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   featuredTimeText: {
     fontSize: 12,
-    color: "#F47B20",
+    color: '#F47B20',
     marginRight: 16,
   },
   featuredReadTime: {
     fontSize: 12,
-    color: "#666",
+    color: '#666',
   },
   blogCard: {
     marginHorizontal: 16,
     marginBottom: 16,
     borderRadius: 12,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -583,10 +607,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   blogImage: {
-    width: "100%",
+    width: '100%',
     height: 150,
   },
   blogContent: {
@@ -594,43 +618,43 @@ const styles = StyleSheet.create({
   },
   blogTitle: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
+    fontWeight: '600',
+    color: '#333',
     marginBottom: 8,
   },
   blogExcerpt: {
     fontSize: 14,
-    color: "#666",
+    color: '#666',
     marginBottom: 8,
   },
   blogFooter: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   blogTimeText: {
     fontSize: 12,
-    color: "#F47B20",
+    color: '#F47B20',
     marginRight: 16,
   },
   blogReadTime: {
     fontSize: 12,
-    color: "#666",
+    color: '#666',
   },
   arrowButton: {
-    position: "absolute",
+    position: 'absolute',
     right: 16,
     bottom: 16,
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: "#F47B20",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#F47B20',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   arrowText: {
-    color: "#FFFFFF",
+    color: '#FFFFFF',
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
 });
 
