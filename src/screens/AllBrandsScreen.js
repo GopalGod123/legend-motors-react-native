@@ -154,11 +154,14 @@ const AllBrandsScreen = ({ navigation }) => {
 
   const handleBrandPress = (brand) => {
     // Navigate to ExploreScreen with filtered results by brand
-    navigation.navigate('ExploreTab', {
-      filters: {
-        brands: [brand.name],
-        brandIds: [brand.id],
-        specifications: {} // Add empty specifications object to match expected filter structure
+    navigation.navigate('Main', {
+      screen: 'ExploreTab',
+      params: {
+        filters: {
+          brands: [brand.name],
+          brandIds: [brand.id],
+          specifications: {} // Add empty specifications object to match expected filter structure
+        }
       }
     });
   };

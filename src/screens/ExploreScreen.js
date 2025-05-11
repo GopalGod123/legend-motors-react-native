@@ -1509,7 +1509,12 @@ const ExploreScreen = () => {
             maxToRenderPerBatch={5}
             windowSize={21}
             ListFooterComponent={renderFooter}
-            ListEmptyComponent={<EmptyState onClearFilters={clearAllFilters} />}
+            ListEmptyComponent={
+              <EmptyState 
+                onClearFilters={clearAllFilters}
+                brandName={appliedFilters?.brands && appliedFilters.brands.length > 0 ? appliedFilters.brands[0] : null}
+              />
+            }
           />
         </ErrorBoundary>
       )}
