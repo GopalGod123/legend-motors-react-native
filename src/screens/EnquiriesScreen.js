@@ -18,6 +18,7 @@ import {useAuth} from '../context/AuthContext';
 import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
 import {Ionicons} from 'src/utils/icon';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import Logo from 'src/components/Logo';
 
 const {width} = Dimensions.get('window');
 
@@ -124,7 +125,7 @@ const EnquiriesScreen = () => {
         <View style={styles.header}>
           <View style={styles.headerLogoContainer}>
             <LegendMotorsLogo />
-            <Text style={styles.headerTitle}>My Enquiries</Text>
+            <Text style={styles.headerTitle}>My Inquiries</Text>
           </View>
           
           <TouchableOpacity style={styles.searchButton}>
@@ -147,7 +148,7 @@ const EnquiriesScreen = () => {
         <View style={styles.header}>
           <View style={styles.headerLogoContainer}>
             <LegendMotorsLogo />
-            <Text style={styles.headerTitle}>My Enquiries</Text>
+            <Text style={styles.headerTitle}>My Inquiries</Text>
           </View>
           
           <TouchableOpacity style={styles.searchButton}>
@@ -174,7 +175,7 @@ const EnquiriesScreen = () => {
         <View style={styles.header}>
           <View style={styles.headerLogoContainer}>
             <LegendMotorsLogo />
-            <Text style={styles.headerTitle}>My Enquiries</Text>
+            <Text style={styles.headerTitle}>My Inquiries</Text>
           </View>
           
           <TouchableOpacity style={styles.searchButton}>
@@ -213,7 +214,7 @@ const EnquiriesScreen = () => {
         <View style={styles.header}>
           <View style={styles.headerLogoContainer}>
             <LegendMotorsLogo />
-            <Text style={styles.headerTitle}>My Enquiries</Text>
+            <Text style={styles.headerTitle}>My Inquiries</Text>
           </View>
           
           <TouchableOpacity style={styles.searchButton}>
@@ -250,8 +251,18 @@ const EnquiriesScreen = () => {
       <View style={styles.header}>
         {/* Add Legend Motors logo next to title */}
         <View style={styles.headerLogoContainer}>
-          <LegendMotorsLogo />
-          <Text style={styles.headerTitle}>My Enquiries</Text>
+          <Image
+            source={require('../assets/images/logo.png')}
+            style={[styles.logoImage, { width: 30, height: 30 }]}
+            resizeMode="contain"
+          />
+          <Text style={[styles.headerTitle, { 
+            fontFamily: 'Effra Medium',
+            fontWeight: '400',
+            fontSize: 24,
+            lineHeight: 24 * 1.2, // 120% of font size
+            letterSpacing: 0
+          }]}>My Inquiries</Text>
         </View>
         
         {/* Add search icon */}
@@ -302,14 +313,13 @@ const EnquiriesScreen = () => {
               
               <View style={styles.carDetailsContainer}>
                 <Text style={styles.carTitle}>
-                  {processedCar.brand} {processedCar.model}
+                  {car.additionalInfo || `${processedCar.brand} ${processedCar.model} ${processedCar.trim}`}
                 </Text>
                 
                 <View style={styles.priceButtonContainer}>
                   <Text style={styles.priceText}>
-                    {selectedCurrency || '$'} {Number(price).toLocaleString()}
+                    $ {Number(price).toLocaleString()}
                   </Text>
-                  
                   <TouchableOpacity
                     style={styles.viewButton}
                     onPress={() => handleViewCar(item)}>
@@ -334,7 +344,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    padding:24
+    padding:12
   },
   header: {
     flexDirection: 'row',
@@ -403,10 +413,10 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   carTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#000000',
-    marginBottom: 12,
+    marginTop: 10,
   },
   priceButtonContainer: {
     flexDirection: 'row',
@@ -424,6 +434,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,
+    marginLeft: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },

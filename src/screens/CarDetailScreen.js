@@ -562,7 +562,7 @@ const CarDetailScreen = () => {
                   Interior
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={[
                   styles.galleryTab,
                   activeTab === 'highlight' && styles.activeGalleryTab,
@@ -575,7 +575,7 @@ const CarDetailScreen = () => {
                   ]}>
                   Highlight
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             <CarImageCarousel
@@ -913,7 +913,7 @@ const CarDetailScreen = () => {
         <TouchableOpacity
           style={[styles.actionButton, styles.inquireButton]}
           onPress={handleInquire}>
-          <Text style={styles.inquireButtonText}>Enquire Now</Text>
+          <Text style={styles.inquireButtonText}>Inquire Now</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -1104,8 +1104,8 @@ const styles = StyleSheet.create({
     color: '#5E366D',
   },
   sectionContainer: {
-    paddingHorizontal: 20,
-    paddingTop: 12,
+    paddingHorizontal: 10,
+    paddingTop: 3,
     paddingBottom: SPACING.lg,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',

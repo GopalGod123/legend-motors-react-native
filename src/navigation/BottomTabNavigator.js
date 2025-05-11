@@ -68,7 +68,7 @@ const BottomTabNavigator = () => {
         name="EnquiriesTab"
         component={EnquiriesScreen}
         options={{
-          tabBarLabel: 'Enquiries',
+          tabBarLabel: 'Inquiries',
           tabBarIcon: ({color, size}) => (
             <ListSearchIcon width={size} height={size} color={color} />
           ),
