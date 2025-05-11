@@ -11,31 +11,71 @@ const ResultsHeader = ({
   hasFilters = false, 
   onClearFilters 
 }) => {
+  // Format number with commas
+  const formatNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   // Determine the appropriate text to display
   const getResultsText = () => {
     if (isViewingSpecificCar) {
-      return `Viewing car details (ID: ${carId || 'unknown'})`;
-    } else if (filteredBySearch) {
-      return `Found ${totalCars} cars matching "${searchQuery}"`;
+      return (
+        <Text style={styles.resultsText}>
+          Viewing car details (ID: {carId || 'unknown'})
+        </Text>
+      );
+    } else if (filteredBySearch && searchQuery) {
+      return (
+        <View style={styles.searchResultsContainer}>
+          <Text style={styles.resultsText}>Results for "</Text>
+          <Text style={styles.searchQueryText}>{searchQuery}</Text>
+          <Text style={styles.resultsText}>"</Text>
+        </View>
+      );
     } else if (hasFilters) {
-      return `Showing ${totalCars} cars`;
+      return (
+        <Text style={styles.resultsText}>
+          Showing {totalCars} cars
+        </Text>
+      );
     } else {
-      return `Total: ${totalCars} cars`;
+      return (
+        <Text style={styles.resultsText}>
+          Total: {totalCars} cars
+        </Text>
+      );
     }
+  };
+
+  const getCountText = () => {
+    if (filteredBySearch && searchQuery) {
+      return (
+        <Text style={styles.totalCountText}>
+          {formatNumber(totalCars)} founds
+        </Text>
+      );
+    }
+    return null;
   };
 
   return (
     <View style={styles.resultsHeader}>
-      <Text style={styles.resultsText}>{getResultsText()}</Text>
+      <View style={styles.resultTextContainer}>
+        {getResultsText()}
+      </View>
       
-      {!isViewingSpecificCar && (hasFilters || filteredBySearch) && (
-        <TouchableOpacity 
-          style={styles.clearFiltersButton}
-          onPress={onClearFilters}
-        >
-          <Text style={styles.clearFiltersText}>Clear All</Text>
-        </TouchableOpacity>
-      )}
+      <View style={styles.rightContainer}>
+        {getCountText()}
+        
+        {!isViewingSpecificCar && (hasFilters || filteredBySearch) && (
+          <TouchableOpacity 
+            style={styles.clearFiltersButton}
+            onPress={onClearFilters}
+          >
+            <Text style={styles.clearFiltersText}>Clear</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -51,15 +91,40 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F0F0F0',
     marginBottom: SPACING.sm,
   },
+  resultTextContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchResultsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   resultsText: {
-    fontSize: FONT_SIZES.sm,
-    color: COLORS.textLight,
+    fontSize: 18,
+    color: '#000000',
+    fontWeight: '600',
+  },
+  searchQueryText: {
+    fontSize: 18,
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+  rightContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  totalCountText: {
+    fontSize: 16,
+    color: COLORS.primary,
+    fontWeight: '600',
+    marginRight: SPACING.md,
   },
   clearFiltersButton: {
-    padding: SPACING.sm,
+    paddingVertical: SPACING.xs,
+    paddingHorizontal: SPACING.md,
     backgroundColor: '#FF6B6B',
     borderRadius: BORDER_RADIUS.sm,
-    marginLeft: SPACING.md,
   },
   clearFiltersText: {
     fontSize: FONT_SIZES.sm,

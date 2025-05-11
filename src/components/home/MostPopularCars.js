@@ -23,8 +23,6 @@ import axios from 'axios';
 import {useAuth} from '../../context/AuthContext';
 import {useWishlist} from '../../context/WishlistContext';
 import {getCarList} from 'src/services/api';
-import {tags} from 'react-native-svg/lib/typescript/xmlTags';
-import {processCar} from 'src/screens/ExploreScreen';
 import CarCard from '../explore/CarCard';
 
 const {width} = Dimensions.get('window');
@@ -79,7 +77,7 @@ const PopularCarCard = memo(
         onPress={() => onPress(item)}
         activeOpacity={0.8}>
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}>Popular</Text>
+          <Text style={styles.tagText}></Text>
         </View>
 
         <View style={styles.imageContainer}>
@@ -193,56 +191,96 @@ const MostPopularCars = () => {
   // Use a ref to avoid making API calls if component unmounts
   const isMounted = useRef(true);
 
-  // Pre-process car data for better performance
-  const preprocessCarData = useCallback(car => {
-    // Extract body type
-    const bodyType =
-      car.SpecificationValues?.find(
-        spec => spec.Specification?.key === 'body_type',
-      )?.name ||
-      car.category ||
-      'SUV';
+  // Define processCar function locally to avoid import issues
+  const processCar = useCallback(car => {
+    // Handle undefined or null car
+    if (!car) return null;
 
-    // Extract fuel type
-    const fuelType =
-      car.SpecificationValues?.find(
-        spec => spec.Specification?.key === 'fuel_type',
-      )?.name ||
-      car.fuelType ||
-      'Electric';
+    try {
+      // Process CarImages array if available
+      let processedImages = [];
 
-    // Extract transmission
-    const transmissionType =
-      car.SpecificationValues?.find(
-        spec => spec.Specification?.key === 'transmission',
-      )?.name ||
-      car.transmissionType ||
-      'Automatic';
+      // Check if car has the CarImages array (from API)
+      if (
+        car.CarImages &&
+        Array.isArray(car.CarImages) &&
+        car.CarImages.length > 0
+      ) {
+        processedImages = car.CarImages.map(image => {
+          if (image.FileSystem && image.FileSystem.path) {
+            return {
+              uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}`,
+              id: image.id,
+              type: image.type,
+              order: image.order,
+              filename: image.FileSystem.path.split('/').pop(),
+              fullPath: image.FileSystem.path,
+            };
+          }
+          return null;
+        }).filter(img => img !== null);
+      }
+      // Fallback to other image properties if available
+      else if (
+        car.images &&
+        Array.isArray(car.images) &&
+        car.images.length > 0
+      ) {
+        processedImages = car.images.map(image => {
+          return typeof image === 'string' ? {uri: image} : image;
+        });
+      } else if (
+        car.Images &&
+        Array.isArray(car.Images) &&
+        car.Images.length > 0
+      ) {
+        processedImages = car.Images.map(image => {
+          return typeof image === 'string' ? {uri: image} : image;
+        });
+      } else if (car.image) {
+        processedImages = [
+          typeof car.image === 'string' ? {uri: car.image} : car.image,
+        ];
+      }
 
-    // Extract region/country
-    const region =
-      car.SpecificationValues?.find(
-        spec => spec.Specification?.key === 'regional_specification',
-      )?.name ||
-      car.country ||
-      'China';
+      car.bodyType =
+        car?.SpecificationValues?.find(a => a.Specification?.key == 'body_type')
+          ?.name ?? 'SUV';
+      car.fuelType =
+        car?.SpecificationValues?.find(a => a.Specification?.key == 'fuel_type')
+          ?.name ?? 'Electric';
+      car.transmissionType =
+        car?.SpecificationValues?.find(
+          a => a.Specification?.key == 'transmission',
+        )?.name ?? 'Automatic';
+      car.steeringType =
+        car?.SpecificationValues?.find(a => a.Specification?.key == 'steering')
+          ?.name ?? 'Left hand drive';
+      car.region =
+        car?.SpecificationValues?.find(
+          a => a.Specification?.key == 'regional_specification',
+        )?.name ?? 'China';
 
-    // Extract steering type
-    const steeringType =
-      car.SpecificationValues?.find(
-        spec => spec.Specification?.key === 'steering_side',
-      )?.name ||
-      car.steeringType ||
-      'Left hand drive';
+      // Create a normalized car object with consistent property names
+      const processedCar = {
+        ...car,
+        id: car.id || car.carId || car.car_id || null,
+        brand: car.brand || (car.Brand ? car.Brand.name : null) || null,
+        model: car.model || (car.CarModel ? car.CarModel.name : null) || null,
+        trim: car.trim || (car.Trim ? car.Trim.name : null) || null,
+        year: car.year || car.Year || null,
+        price: car.price || car.priceAED || null,
+        images: processedImages,
+        color: car.color || car.exteriorColor || null,
+        stockId: car.stockId || car.stock_id || null,
+        slug: car.slug || null,
+      };
 
-    return {
-      ...car,
-      bodyType,
-      fuelType,
-      transmissionType,
-      region,
-      steeringType,
-    };
+      return processedCar;
+    } catch (error) {
+      console.error('Error processing car:', error, car);
+      return null;
+    }
   }, []);
 
   useEffect(() => {
@@ -259,17 +297,14 @@ const MostPopularCars = () => {
       // Call the API with reduced parameters
       const response = await getCarList({
         page: 1,
-        limit: 10,
-        status: 'published', // Reduced from 1000 to just 5 for faster loading
+        limit: 4,
+        status: 'published', 
         tags: 1,
       });
 
       if (response.data && response.success && Array.isArray(response.data)) {
-        // Process the cars data
-        const processedCars = response.data.map(processCar);
-
-        // Update cache
-
+        // Process the cars data using our local processCar function
+        const processedCars = response.data.map(car => processCar(car)).filter(car => car !== null);
         setPopularCars([...processedCars]);
       } else {
         setPopularCars([]);
@@ -389,9 +424,9 @@ const MostPopularCars = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Most Popular Cars</Text>
+        <Text style={styles.title}>Most Popular in UAE</Text>
         <TouchableOpacity onPress={navigateToAllPopular}>
-          <Text style={styles.viewAllText}>View All</Text>
+          <Text style={styles.viewAllText}>See All</Text>
         </TouchableOpacity>
       </View>
 
@@ -462,16 +497,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     position: 'relative',
   },
-  tagBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#1E90FF', // Blue color for Most Popular
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    zIndex: 1,
-  },
+ 
   tagText: {
     color: COLORS.white,
     fontWeight: 'bold',

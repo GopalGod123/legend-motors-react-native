@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useAuth} from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   SearchBar,
   CategoryFilter,
@@ -32,6 +33,9 @@ const MemoizedHeader = memo(Header);
 const MemoizedSearchBar = memo(SearchBar);
 const MemoizedCategoryFilter = memo(CategoryFilter);
 const MemoizedPromotionBanner = memo(PromotionBanner);
+
+// Key for AsyncStorage
+const LOGIN_PROMPT_SHOWN = 'login_prompt_dismissed';
 
 // Create a component for deferred loading
 const DeferredComponent = memo(
@@ -60,8 +64,9 @@ const DeferredComponent = memo(
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const {user} = useAuth();
+  const {user, isAuthenticated} = useAuth();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [checkedPromptStatus, setCheckedPromptStatus] = useState(false);
   const [visibleSections, setVisibleSections] = useState({
     header: true,
     search: true,
@@ -110,6 +115,46 @@ const HomeScreen = () => {
     }, 100);
     // }
   };
+
+  // Check login prompt status once
+  useEffect(() => {
+    const checkLoginPromptStatus = async () => {
+      try {
+        // Check if the user is authenticated
+        const userAuthenticated = await isAuthenticated();
+        
+        if (userAuthenticated) {
+          // If user is logged in, don't show the prompt
+          setShowLoginPrompt(false);
+          setCheckedPromptStatus(true);
+          return;
+        }
+        
+        // Check if prompt has been shown before
+        const promptShown = await AsyncStorage.getItem(LOGIN_PROMPT_SHOWN);
+        
+        if (promptShown === 'true') {
+          // Prompt has been shown before, don't show it again
+          setShowLoginPrompt(false);
+        } else {
+          // Defer login prompt to avoid hindering initial render
+          InteractionManager.runAfterInteractions(() => {
+            setShowLoginPrompt(true);
+          });
+        }
+        
+        setCheckedPromptStatus(true);
+      } catch (error) {
+        console.error('Error checking login prompt status:', error);
+        setCheckedPromptStatus(true);
+      }
+    };
+    
+    if (!checkedPromptStatus) {
+      checkLoginPromptStatus();
+    }
+  }, [isAuthenticated, checkedPromptStatus]);
+
   useEffect(() => {
     // Pre-fetch car data only once
     const fetchCarData = async () => {
@@ -120,16 +165,8 @@ const HomeScreen = () => {
       }
     };
 
-    // Check if user should be prompted to login
-    if (!user && !showLoginPrompt) {
-      // Defer login prompt to avoid hindering initial render
-      InteractionManager.runAfterInteractions(() => {
-        setShowLoginPrompt(true);
-      });
-    }
-
     fetchCarData();
-  }, [user, showLoginPrompt]);
+  }, []);
 
   const handleScroll = useCallback(event => {
     // No need to track visibility since all sections are visible by default
@@ -230,12 +267,14 @@ const HomeScreen = () => {
           </View>
         </ScrollView>
       </>
-      {/* Login Prompt Modal */}
-      <LoginPromptModal
-        visible={showLoginPrompt}
-        onClose={handleSkipLogin}
-        onLoginPress={handleLoginPress}
-      />
+      {/* Login Prompt Modal - only show if checked and should be shown */}
+      {checkedPromptStatus && (
+        <LoginPromptModal
+          visible={showLoginPrompt}
+          onClose={handleSkipLogin}
+          onLoginPress={handleLoginPress}
+        />
+      )}
     </SafeAreaView>
   );
 };

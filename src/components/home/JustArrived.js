@@ -78,7 +78,7 @@ const ArrivedCarCard = memo(
         onPress={() => onPress(item)}
         activeOpacity={0.8}>
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}>New Arrival</Text>
+          {/* New Arrival tag hidden as requested */}
         </View>
 
         <View style={styles.imageContainer}>
@@ -302,7 +302,7 @@ const JustArrived = () => {
       // Call the API to get "Just Arrived!" cars with reduced limit
       const response = await getCarList({
         page: 1,
-        limit: 10, // Reduced from 100 to just 5 for faster loading
+        limit: 4, // Reduced from 100 to just 5 for faster loading
         status: 'published',
         tags: 2,
       });
@@ -397,7 +397,7 @@ const JustArrived = () => {
       width={Dimensions.get('window').width * 0.85}
       tag={
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}>New Arrival</Text>
+          <Text style={styles.tagText}></Text>
         </View>
       }
     />
@@ -463,7 +463,7 @@ const JustArrived = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Just Arrived!</Text>
         <TouchableOpacity onPress={navigateToAllNewArrivals}>
-          <Text style={styles.viewAllText}>View All</Text>
+          <Text style={styles.viewAllText}>See All</Text>
         </TouchableOpacity>
       </View>
 
@@ -545,16 +545,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
   },
-  tagBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#42B72A', // Green color for Just Arrived
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    zIndex: 1,
-  },
+
   tagText: {
     color: COLORS.white,
     fontWeight: 'bold',

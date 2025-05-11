@@ -12,6 +12,20 @@ import {
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import { getUniqueBrands } from '../services/api';
 import { getImageUrl } from '../utils/apiConfig';
+import Svg, { Path } from 'react-native-svg';
+
+// Back Arrow Icon
+const BackIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M15 18L9 12L15 6"
+      stroke="#212121"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
 
 const AllBrandsScreen = ({ navigation }) => {
   const [brands, setBrands] = useState([]);
@@ -81,32 +95,41 @@ const AllBrandsScreen = ({ navigation }) => {
   };
 
   const handleBrandPress = (brand) => {
-    console.log(`Selected brand: ${brand.name}`);
-    // Navigate to brand detail or filtered car list screen
-    // navigation.navigate('BrandDetail', { brand });
+    // Navigate to ExploreScreen with filtered results by brand
+    navigation.navigate('Explore', {
+      filters: {
+        brands: [brand.name],
+        brandIds: [brand.id],
+        specifications: {} // Add empty specifications object to match expected filter structure
+      }
+    });
   };
 
-  const renderBrandItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.brandItem}
-      onPress={() => handleBrandPress(item)}
-    >
-      <View style={styles.logoContainer}>
-        {item.logo ? (
-          <Image
-            source={{ uri: getImageUrl(item.logo) }}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        ) : (
-          <Text style={styles.brandInitial}>{formatBrandName(item.name).charAt(0)}</Text>
-        )}
-      </View>
-      <Text style={styles.brandName} numberOfLines={1}>
-        {formatBrandName(item.name)}
-      </Text>
-    </TouchableOpacity>
-  );
+  const renderBrandItem = ({ item }) => {
+    const [imageError, setImageError] = useState(false);
+    
+    return (
+      <TouchableOpacity
+        style={styles.brandItem}
+        onPress={() => handleBrandPress(item)}>
+        <View style={styles.logoContainer}>
+          {item.logo && !imageError ? (
+            <Image
+              source={{ uri: getImageUrl(item.logo) }}
+              style={styles.logo}
+              resizeMode="contain"
+              onError={() => setImageError(true)}
+            />
+          ) : (
+            <Text style={styles.brandInitial}>{formatBrandName(item.name).charAt(0)}</Text>
+          )}
+        </View>
+        <Text style={styles.brandName} numberOfLines={1}>
+          {formatBrandName(item.name)}
+        </Text>
+      </TouchableOpacity>
+    );
+  };
 
   const renderHeader = () => (
     <View style={styles.header}>
@@ -114,7 +137,7 @@ const AllBrandsScreen = ({ navigation }) => {
         style={styles.backButton}
         onPress={() => navigation.goBack()}
       >
-        <Text style={styles.backButtonText}>←</Text>
+        <BackIcon />
       </TouchableOpacity>
       <Text style={styles.title}>All Brands</Text>
       <View style={styles.placeholder} />
@@ -157,21 +180,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: SPACING.md,
+    paddingHorizontal: 24,
+    paddingTop: 44,
+    paddingBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    borderBottomColor: '#EEEEEE',
   },
   backButton: {
-    padding: SPACING.sm,
-  },
-  backButtonText: {
-    fontSize: 24,
-    color: COLORS.textDark,
+    padding: 4,
   },
   title: {
-    fontSize: FONT_SIZES.xl,
+    fontSize: 24,
     fontWeight: 'bold',
-    color: COLORS.textDark,
+    color: '#212121',
+    flex: 1,
+    textAlign: 'center',
   },
   placeholder: {
     width: 30,
@@ -186,21 +209,25 @@ const styles = StyleSheet.create({
   brandItem: {
     width: '30%',
     alignItems: 'center',
+    marginBottom: 16,
   },
   logoContainer: {
     width: 80,
     height: 80,
-    borderRadius: 40,
-    backgroundColor: '#f0f0f5',
+    borderRadius: 12,
+    backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.xs,
     overflow: 'hidden',
-    elevation: 2,
+    elevation: 4,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    padding: 10,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
   logo: {
     width: 50,

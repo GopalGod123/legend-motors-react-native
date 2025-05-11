@@ -124,16 +124,10 @@ const EnquiriesScreen = () => {
         </View>
         <View style={styles.loginContainer}>
           <View style={styles.clipboardIconContainer}>
-            <MaterialCommunityIcons
-              name="clipboard-text-outline"
-              size={80}
-              color="#F47B20"
-            />
-            <MaterialCommunityIcons
-              name="clipboard-text-outline"
-              size={80}
-              color="#F47B20"
-              style={styles.secondClipboard}
+            <Image
+              source={require('../components/icons/NoEnquiery.png')}
+              style={styles.noEnquiryImage}
+              resizeMode="contain"
             />
           </View>
           <Text style={styles.noEnquiriesTitle}>No Enquiries found</Text>
@@ -162,16 +156,10 @@ const EnquiriesScreen = () => {
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.clipboardIconContainer}>
-            <MaterialCommunityIcons
-              name="clipboard-text-outline"
-              size={80}
-              color="#F47B20"
-            />
-            <MaterialCommunityIcons
-              name="clipboard-text-outline"
-              size={80}
-              color="#F47B20"
-              style={styles.secondClipboard}
+            <Image
+              source={require('../components/icons/NoEnquiery.png')}
+              style={styles.noEnquiryImage}
+              resizeMode="contain"
             />
           </View>
           <Text style={styles.noEnquiriesTitle}>No Enquiries yet</Text>
@@ -205,14 +193,16 @@ const EnquiriesScreen = () => {
             <View style={styles.carImageContainer}>
               {item.carImage ? (
                 <Image
-                  source={{uri: item.carImage}}
+                  source={require('../components/icons/NoEnquiery.png')}
                   style={styles.carImage}
                   resizeMode="cover"
                 />
               ) : (
-                <View style={styles.carImagePlaceholder}>
-                  <Ionicons name="car-sport" size={40} color="#CCCCCC" />
-                </View>
+                <Image
+                source={require('../components/icons/NoEnquiery.png')}
+                style={styles.carImage}
+                resizeMode="cover"
+              />
               )}
             </View>
             <View style={styles.enquiryDetails}>
@@ -243,15 +233,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   header: {
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
+    paddingHorizontal: 24,
+    paddingTop: 44,
+    paddingBottom: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: FONT_SIZES.xl,
-    fontWeight: '600',
-    color: COLORS.textDark,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#212121',
+    textAlign: 'center',
   },
   loadingContainer: {
     flex: 1,
@@ -293,42 +287,40 @@ const styles = StyleSheet.create({
     padding: SPACING.xl,
   },
   clipboardIconContainer: {
-    position: 'relative',
-    width: 120,
-    height: 120,
+    width: 194,
+    height: 186,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.lg,
   },
-  secondClipboard: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    opacity: 0.6,
-    transform: [{rotate: '-10deg'}],
-  },
   noEnquiriesTitle: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '600',
-    color: COLORS.textDark,
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#212121',
     marginBottom: SPACING.md,
+    textAlign: 'center',
   },
   loginPromptText: {
-    fontSize: FONT_SIZES.md,
+    fontSize: 18,
     color: COLORS.textLight,
     textAlign: 'center',
     marginBottom: SPACING.xl,
+    paddingHorizontal: SPACING.md,
+    lineHeight: 24,
   },
   loginButton: {
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.xl,
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.md,
-    width: '100%',
+    backgroundColor: '#F47B20',
+    borderRadius: 8,
+    width: 380,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loginButtonText: {
     color: '#FFFFFF',
-    fontSize: FONT_SIZES.md,
+    fontSize: 18,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -347,13 +339,18 @@ const styles = StyleSheet.create({
   exploreButton: {
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.xl,
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.md,
+    backgroundColor: '#F47B20',
+    borderRadius: 8,
+    width: 380,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   exploreButtonText: {
     color: '#FFFFFF',
-    fontSize: FONT_SIZES.md,
+    fontSize: 18,
     fontWeight: '600',
+    textAlign: 'center',
   },
   listContent: {
     padding: SPACING.md,
@@ -418,6 +415,10 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: FONT_SIZES.sm,
     fontWeight: '600',
+  },
+  noEnquiryImage: {
+    width: 194,
+    height: 186,
   },
 });
 

@@ -320,7 +320,6 @@ const ExploreScreen = () => {
     {id: 'models', label: 'Models'},
     {id: 'trims', label: 'Trims'},
     {id: 'years', label: 'Years'},
-    {id: 'advanced', label: 'Advanced Filters'},
   ];
 
   // Add state to track when a specific car is being viewed
@@ -1132,12 +1131,17 @@ const ExploreScreen = () => {
   const handleFilterSelect = filterId => {
     setActiveFilter(filterId);
 
-    // if (filterId === 'advanced') {
-    // Open the filter screen
+    // Handle "All" filter specially
+    if (filterId === 'all') {
+      // Clear all filters and fetch all cars
+      clearAllFilters();
+      return;
+    }
+
+    // Open the filter screen for other filter types
     setTimeout(() => {
       handleOpenFilter(filterId);
     }, 100);
-    // }
   };
 
   // Render a car item in the list
@@ -1416,20 +1420,6 @@ const ExploreScreen = () => {
         onBackToAllCars={viewAllCars}
       />
 
-      {/* Debug button for color extraction (hidden in production) */}
-      {typeof __DEV__ !== 'undefined' && __DEV__ && (
-        <TouchableOpacity
-          style={styles.debugButton}
-          onPress={() => {
-            console.log(
-              '🎨 [Color Extraction] Manual trigger of color statistics summary',
-            );
-            colorStats.printSummary();
-          }}>
-          <Text style={styles.debugButtonText}>📊 Show Color Stats</Text>
-        </TouchableOpacity>
-      )}
-
       {/* Replace the old SearchBar component with the imported one */}
       <SearchBar
         searchQuery={searchQuery}
@@ -1472,15 +1462,6 @@ const ExploreScreen = () => {
         </View>
       )}
 
-      {/* Filter Tabs Component - Only show when not viewing a specific car */}
-      {!isViewingSpecificCar && (
-        <FilterTabs
-          categories={filterCategories}
-          activeFilter={activeFilter}
-          onSelect={handleFilterSelect}
-        />
-      )}
-
       {/* Results Header Component */}
       <ResultsHeader
         totalCars={totalCars}
@@ -1491,6 +1472,15 @@ const ExploreScreen = () => {
         hasFilters={hasFilters()}
         onClearFilters={clearAllFilters}
       />
+
+      {/* Filter Tabs Component - Only show when not viewing a specific car */}
+      {!isViewingSpecificCar && (
+        <FilterTabs
+          categories={filterCategories}
+          activeFilter={activeFilter}
+          onSelect={handleFilterSelect}
+        />
+      )}
 
       {/* Main Car List */}
       {loading ? (
@@ -1645,18 +1635,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   errorButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '500',
-  },
-  debugButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: SPACING.sm,
-    paddingHorizontal: SPACING.lg,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-    margin: SPACING.sm,
-  },
-  debugButtonText: {
     color: '#FFFFFF',
     fontWeight: '500',
   },

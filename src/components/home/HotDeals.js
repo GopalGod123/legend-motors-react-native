@@ -155,7 +155,7 @@ const HotDeals = () => {
       setLoading(true);
       const response = await getCarList({
         page: 1,
-        limit: 10, // Reduced from 50 to 10 for faster loading
+        limit: 4, // Reduced from 50 to 10 for faster loading
         status: 'published',
         tags: 3,
       });
@@ -253,7 +253,7 @@ const HotDeals = () => {
       isFavorite={isInWishlist(item.id)}
       tag={
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}>Hot Deal!</Text>
+          <Text style={styles.tagText}></Text>
         </View>
       }
       width={Dimensions.get('window').width * 0.85}
@@ -330,9 +330,12 @@ const HotDeals = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Hot Deals</Text>
+        <View style={styles.titleContainer}>
+         
+          <Text style={styles.title}>Hot Deals</Text>
+        </View>
         <TouchableOpacity onPress={navigateToAllHotDeals}>
-          <Text style={styles.viewAllText}>View All</Text>
+          <Text style={styles.viewAllText}>See All</Text>
         </TouchableOpacity>
       </View>
 
@@ -507,16 +510,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: SPACING.md,
   },
-  tagBadge: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    backgroundColor: '#8A2BE2', // Purple color for Hot Deal
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 15,
-    zIndex: 1,
-  },
+  
   tagText: {
     color: COLORS.white,
     fontWeight: 'bold',
