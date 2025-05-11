@@ -1,102 +1,54 @@
-import React from 'react';
+import React, {useState, useCallback} from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {Gesture, GestureDetector} from 'react-native-gesture-handler';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
+import RangeSlider from 'rn-range-slider';
 
 const SLIDER_HEIGHT = 330;
 const THUMB_SIZE = 24;
 
-const clamp = value => {
-  'worklet';
-  return Math.min(SLIDER_HEIGHT - THUMB_SIZE, Math.max(0, value));
-};
+const RangeSliderComponent = () => {
+  const [lowValue, setLowValue] = useState(20);
+  const [highValue, setHighValue] = useState(76);
 
-const RangeSlider = () => {
-  const top = useSharedValue(0); // Upper thumb
-  const bottom = useSharedValue(SLIDER_HEIGHT - THUMB_SIZE); // Lower thumb
+  const renderThumb = useCallback(() => {
+    return <View style={styles.thumb} />;
+  }, []);
 
-  const topGesture = Gesture.Pan().onUpdate(e => {
-    let newValue = top.value + e.changeY;
-    newValue = Math.min(SLIDER_HEIGHT - THUMB_SIZE, Math.max(0, newValue));
-    if (newValue > bottom.value - THUMB_SIZE) {
-      newValue = bottom.value - THUMB_SIZE;
-    }
-    top.value = newValue;
-  });
+  const renderRail = useCallback(() => {
+    return <View style={styles.rail} />;
+  }, []);
 
-  const bottomGesture = Gesture.Pan().onUpdate(e => {
-    bottom.value = Math.min(
-      SLIDER_HEIGHT - THUMB_SIZE,
-      Math.max(0, bottom.value + e.changeY),
+  const renderRailSelected = useCallback(() => {
+    return <View style={styles.railSelected} />;
+  }, []);
+
+  const renderLabel = useCallback(value => {
+    return (
+      <View style={styles.label}>
+        <Text style={styles.labelText}>${value}K</Text>
+      </View>
     );
-    if (bottom.value < top.value + THUMB_SIZE) {
-      bottom.value = top.value + THUMB_SIZE;
-    }
-  });
+  }, []);
 
-  const valueFromPosition = pos => {
-    const maxVal = 76;
-    const minVal = 20;
-    const range = SLIDER_HEIGHT - THUMB_SIZE;
-    const percent = 1 - pos / range;
-    return Math.round(minVal + percent * (maxVal - minVal));
-  };
-
-  // Animated styles
-  const topThumbStyle = useAnimatedStyle(() => ({
-    top: top.value,
-  }));
-
-  const bottomThumbStyle = useAnimatedStyle(() => ({
-    top: bottom.value,
-  }));
-
-  const topLabelStyle = useAnimatedStyle(() => ({
-    top: top.value + THUMB_SIZE / 2 - 16,
-  }));
-
-  const bottomLabelStyle = useAnimatedStyle(() => ({
-    top: bottom.value + THUMB_SIZE / 2 - 16,
-  }));
-
-  const selectedTrackStyle = useAnimatedStyle(() => ({
-    top: top.value + THUMB_SIZE / 2,
-    height: Math.max(bottom.value - top.value, 4),
-  }));
+  const handleValueChange = useCallback((low, high) => {
+    setLowValue(low);
+    setHighValue(high);
+  }, []);
 
   return (
     <View style={styles.container}>
-      {/* Track background */}
-      <View style={styles.track} />
-
-      {/* Selected range track */}
-      <Animated.View style={[styles.selectedTrack, selectedTrackStyle]} />
-
-      {/* Top Thumb */}
-      <GestureDetector gesture={topGesture}>
-        <Animated.View style={[styles.thumb, topThumbStyle]} />
-      </GestureDetector>
-
-      {/* Bottom Thumb */}
-      <GestureDetector gesture={bottomGesture}>
-        <Animated.View style={[styles.thumb, bottomThumbStyle]} />
-      </GestureDetector>
-
-      {/* Top Label */}
-      <Animated.View style={[styles.label, topLabelStyle]}>
-        <Text style={styles.labelText}>${valueFromPosition(top.value)}K</Text>
-      </Animated.View>
-
-      {/* Bottom Label */}
-      <Animated.View style={[styles.label, bottomLabelStyle]}>
-        <Text style={styles.labelText}>
-          ${valueFromPosition(bottom.value)}K
-        </Text>
-      </Animated.View>
+      <RangeSlider
+        style={styles.slider}
+        min={20}
+        max={76}
+        step={1}
+        floatingLabel
+        vertical
+        renderThumb={renderThumb}
+        renderRail={renderRail}
+        renderRailSelected={renderRailSelected}
+        renderLabel={renderLabel}
+        onValueChanged={handleValueChange}
+      />
     </View>
   );
 };
@@ -108,42 +60,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  track: {
-    position: 'absolute',
-    width: 4,
+  slider: {
     height: SLIDER_HEIGHT,
+    width: 40,
+  },
+  rail: {
+    width: 4,
+    height: '100%',
     backgroundColor: '#ccc',
     borderRadius: 2,
-    left: 12,
-    zIndex: 0,
   },
-  selectedTrack: {
-    position: 'absolute',
+  railSelected: {
     width: 4,
-    left: 12,
     backgroundColor: '#d87c2f',
     borderRadius: 2,
-    zIndex: 1,
   },
   thumb: {
-    position: 'absolute',
     width: 24,
     height: 24,
     borderRadius: 12,
     backgroundColor: '#d87c2f',
-    zIndex: 2, // ensures it's above the track
-    left: 0,
   },
   label: {
-    position: 'absolute',
-    left: 40, // push right of the thumb
     backgroundColor: '#d87c2f',
     borderRadius: 6,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 3,
     minWidth: 50,
   },
   labelText: {
@@ -152,4 +94,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RangeSlider;
+export default RangeSliderComponent;

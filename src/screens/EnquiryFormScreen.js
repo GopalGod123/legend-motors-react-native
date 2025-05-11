@@ -21,6 +21,7 @@ import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import { Ionicons } from '../utils/icon';
 import { submitCarEnquiry } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import Logo from '../components/Logo';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -388,9 +389,7 @@ const EnquiryFormScreen = () => {
           
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>Legend</Text>
-            <View style={styles.logoBox} />
-            <Text style={styles.motorsText}>Motors</Text>
+            <Logo width={286} height={115} />
           </View>
           
           {/* Form Title */}
@@ -398,29 +397,30 @@ const EnquiryFormScreen = () => {
           
           {/* Car Info */}
           <View style={styles.carInfoContainer}>
-            <Text style={styles.carTitle}>{carTitle}</Text>
-            <View style={styles.carImageContainer}>
-              {carImage ? (
-                <Image
-                  source={{ uri: carImage.uri }}
-                  style={styles.carImage}
-                  resizeMode="cover"
-                />
-              ) : (
-                <View style={styles.placeholderImage}>
-                  <Ionicons name="car" size={40} color="#ccc" />
-                </View>
-              )}
+            <View style={styles.carTitleContainer}>
+              <Text style={styles.carTitle}>{carTitle}</Text>
             </View>
-            {carPrice && (
-              <Text style={styles.priceLabel}>
-                Price
+            <View style={styles.carDetailsWrapper}>
+              <View style={styles.priceWrapper}>
+                <Text style={styles.priceLabel}>Price</Text>
                 <Text style={styles.priceValue}>
-                  {' '}
-                  {currency} {carPrice.toLocaleString()}
+                  {currency} {carPrice?.toLocaleString() || '175,000'}
                 </Text>
-              </Text>
-            )}
+              </View>
+              <View style={styles.carImageContainer}>
+                {carImage ? (
+                  <Image
+                    source={{ uri: carImage.uri }}
+                    style={styles.carImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={styles.placeholderImage}>
+                    <Ionicons name="car" size={40} color="#ccc" />
+                  </View>
+                )}
+              </View>
+            </View>
           </View>
           
           {/* Form Fields */}
@@ -469,7 +469,7 @@ const EnquiryFormScreen = () => {
                 activeOpacity={0.7}>
                 <View style={[
                   styles.checkbox,
-                  sameAsProfile && { backgroundColor: '#5E366D' }
+                  sameAsProfile && { backgroundColor: '#5E366D', borderColor: '#5E366D' }
                 ]}>
                   {sameAsProfile && (
                     <Ionicons name="checkmark" size={16} color="#fff" />
@@ -622,21 +622,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   scrollContent: {
-    padding: SPACING.md,
+    padding: 20,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: 16,
   },
   backButton: {
-    padding: SPACING.xs,
+    padding: 8,
   },
   logoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: SPACING.sm,
+    marginVertical: 16,
   },
   logoText: {
     fontSize: 28,
@@ -656,34 +657,63 @@ const styles = StyleSheet.create({
     color: '#5E366D',
   },
   formTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: '#000',
     textAlign: 'center',
-    marginTop: SPACING.md,
-    marginBottom: SPACING.lg,
+    marginTop: 16,
+    marginBottom: 20,
+    textTransform: 'uppercase',
   },
   carInfoContainer: {
-    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    padding: 16,
     marginBottom: SPACING.lg,
   },
+  carTitleContainer: {
+    marginBottom: 16,
+  },
   carTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#212121',
-    marginBottom: SPACING.md,
-    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#5E366D',
+    lineHeight: 24,
+  },
+  carDetailsWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+  },
+  priceWrapper: {
+    flexDirection: 'column',
+    flex: 1,
+    justifyContent: 'center',
+  },
+  priceLabel: {
+    fontSize: 14,
+    color: '#757575',
+    marginBottom: 4,
+  },
+  priceValue: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#5E366D',
   },
   carImageContainer: {
-    width: '100%',
-    height: 120,
-    borderRadius: BORDER_RADIUS.md,
+    width: 165,
+    height: 153,
+    borderRadius: 16,
     overflow: 'hidden',
-    marginBottom: SPACING.sm,
+    marginLeft: 10,
   },
   carImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 16,
   },
   placeholderImage: {
     width: '100%',
@@ -692,96 +722,107 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  priceLabel: {
-    fontSize: 14,
-    color: '#757575',
-  },
-  priceValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#212121',
-  },
   formContainer: {
     width: '100%',
+    marginTop: 10,
   },
   inputContainer: {
-    marginBottom: SPACING.md,
+    marginBottom: 16,
   },
   input: {
-    backgroundColor: '#f5f5f5',
-    borderRadius: BORDER_RADIUS.md,
-    padding: SPACING.md,
-    fontSize: FONT_SIZES.md,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    padding: 16,
+    fontSize: 16,
     borderWidth: 1,
-    borderColor: '#EEEEEE',
+    borderColor: '#E0E0E0',
+    height: 56,
   },
   inputError: {
     borderColor: 'red',
   },
   errorText: {
     color: 'red',
-    fontSize: FONT_SIZES.sm,
+    fontSize: 14,
     marginTop: 4,
     marginLeft: 4,
   },
   emailInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    height: 56,
+    paddingHorizontal: 16,
   },
   inputIcon: {
-    marginRight: SPACING.sm,
+    marginRight: 12,
+    color: '#757575',
   },
   emailInput: {
     flex: 1,
-    fontSize: FONT_SIZES.md,
+    fontSize: 16,
+    color: '#212121',
+    height: '100%',
   },
   phoneInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    height: 56,
   },
   countryCodeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: SPACING.sm,
+    paddingHorizontal: 16,
+    height: '100%',
     borderRightWidth: 1,
-    borderRightColor: '#ddd',
+    borderRightColor: '#E0E0E0',
   },
   countryCodeText: {
-    fontSize: FONT_SIZES.md,
+    fontSize: 16,
     color: '#212121',
-    marginRight: 4,
+    marginRight: 8,
   },
   phoneInput: {
     flex: 1,
-    marginLeft: SPACING.sm,
-    fontSize: FONT_SIZES.md,
+    marginLeft: 16,
+    fontSize: 16,
+    height: '100%',
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: SPACING.md,
+    marginVertical: 20,
   },
   checkbox: {
-    width: 22,
-    height: 22,
+    width: 24,
+    height: 24,
     borderRadius: 4,
     borderWidth: 1,
-    borderColor: '#5E366D',
-    marginRight: SPACING.sm,
+    borderColor: '#F47B20',
+    marginRight: 12,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#FFF',
   },
   checkboxLabel: {
-    fontSize: FONT_SIZES.md,
+    fontSize: 16,
     color: '#212121',
   },
   submitButton: {
     backgroundColor: '#F47B20',
     borderRadius: 8,
-    padding: SPACING.md,
+    padding: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: SPACING.md,
+    marginTop: 24,
+    height: 56,
   },
   submitButtonText: {
     color: '#fff',
