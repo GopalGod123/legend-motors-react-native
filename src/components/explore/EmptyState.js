@@ -2,13 +2,17 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
 
-const EmptyState = ({ onClearFilters }) => {
+const EmptyState = ({ onClearFilters, brandName }) => {
+  const message = brandName 
+    ? `No cars available for ${brandName}.` 
+    : 'No cars match your current filter criteria.';
+  
   return (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyTitle}>No Cars Found</Text>
       <Text style={styles.emptyDescription}>
-        No cars match your current filter criteria. 
-        Try adjusting your filters or clear them to see all available cars.
+        {message}
+        {' '}Try adjusting your filters or clear them to see all available cars.
       </Text>
       <TouchableOpacity 
         style={styles.clearFiltersButtonLarge}

@@ -372,8 +372,8 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
   carImage: {
-    width: '100%',
-    height: '100%',
+    width: 387.84,
+    height: 223.3,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
@@ -393,23 +393,27 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     padding: 15,
+    marginTop:40
   },
   carTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
     marginBottom: 5,
+    marginTop:10
   },
   additionalInfo: {
     fontSize: 14,
     color: '#666',
     marginBottom: 8,
+    marginTop:10
   },
   priceText: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#8A2BE2',
     marginBottom: 10,
+    marginTop:10
   },
   actionButtons: {
     flexDirection: 'row',
