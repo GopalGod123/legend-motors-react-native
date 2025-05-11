@@ -349,6 +349,7 @@ const EnquiryFormScreen = () => {
         <TouchableOpacity
           style={styles.countryCodeContainer}
           onPress={() => setCountryPickerVisible(true)}>
+          <Ionicons name="flag" size={20} color="#5E366D" style={styles.inputIcon} />
           <Text style={styles.countryCodeText}>{countryCode}</Text>
           <Ionicons name="chevron-down" size={16} color="#777" />
         </TouchableOpacity>
@@ -397,15 +398,17 @@ const EnquiryFormScreen = () => {
           
           {/* Car Info */}
           <View style={styles.carInfoContainer}>
-            <View style={styles.carTitleContainer}>
-              <Text style={styles.carTitle}>{carTitle}</Text>
-            </View>
             <View style={styles.carDetailsWrapper}>
-              <View style={styles.priceWrapper}>
-                <Text style={styles.priceLabel}>Price</Text>
-                <Text style={styles.priceValue}>
-                  {currency} {carPrice?.toLocaleString() || '175,000'}
-                </Text>
+              <View style={styles.carInfoLeft}>
+                <View style={styles.carTitleContainer}>
+                  <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">{carTitle}</Text>
+                </View>
+                <View style={styles.priceWrapper}>
+                  <Text style={styles.priceLabel}>Price</Text>
+                  <Text style={styles.priceValue} numberOfLines={1} ellipsizeMode="tail">
+                    {currency} {carPrice?.toLocaleString() || '175,000'}
+                  </Text>
+                </View>
               </View>
               <View style={styles.carImageContainer}>
                 {carImage ? (
@@ -442,7 +445,7 @@ const EnquiryFormScreen = () => {
             {/* Email Input */}
             <View style={styles.inputContainer}>
               <View style={[styles.input, errors.email ? styles.inputError : null, styles.emailInputWrapper]}>
-                <Ionicons name="mail" size={20} color="#777" style={styles.inputIcon} />
+                <Ionicons name="mail" size={20} color="#5E366D" style={styles.inputIcon} />
                 <TextInput
                   style={styles.emailInput}
                   placeholder="Email"
@@ -469,7 +472,7 @@ const EnquiryFormScreen = () => {
                 activeOpacity={0.7}>
                 <View style={[
                   styles.checkbox,
-                  sameAsProfile && { backgroundColor: '#5E366D', borderColor: '#5E366D' }
+                  sameAsProfile && { backgroundColor: '#F47B20', borderColor: '#F47B20' }
                 ]}>
                   {sameAsProfile && (
                     <Ionicons name="checkmark" size={16} color="#fff" />
@@ -670,50 +673,61 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
     borderRadius: 10,
-    padding: 16,
+    padding: 10,
     marginBottom: SPACING.lg,
   },
   carTitleContainer: {
-    marginBottom: 16,
+    marginBottom: 8,
+    width: '100%',
   },
   carTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#5E366D',
-    lineHeight: 24,
+    width: '100%',
+    lineHeight: 22,
+    flexWrap: 'wrap',
+    marginRight: 0,
   },
   carDetailsWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
+  },
+  carInfoLeft: {
+    flex: 1,
+    marginRight: 5,
+    justifyContent: 'flex-start',
+    maxWidth: '65%',
   },
   priceWrapper: {
     flexDirection: 'column',
-    flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    marginTop: 4,
   },
   priceLabel: {
     fontSize: 14,
     color: '#757575',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   priceValue: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#5E366D',
   },
   carImageContainer: {
     width: 165,
     height: 153,
-    borderRadius: 16,
+    borderRadius: 12,
     overflow: 'hidden',
-    marginLeft: 10,
+    marginLeft: 0,
   },
   carImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 16,
+    borderRadius: 12,
+    marginRight: 4,
   },
   placeholderImage: {
     width: '100%',
@@ -724,19 +738,20 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: '100%',
-    marginTop: 10,
+    marginTop: 20,
   },
   inputContainer: {
-    marginBottom: 16,
+    marginBottom: 14,
   },
   input: {
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
-    padding: 16,
+    padding: 14,
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#E0E0E0',
-    height: 56,
+    borderStyle: 'dashed',
+    height: 52,
   },
   inputError: {
     borderColor: 'red',
@@ -754,6 +769,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E0E0E0',
+    borderStyle: 'dashed',
     height: 56,
     paddingHorizontal: 16,
   },
@@ -774,6 +790,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E0E0E0',
+    borderStyle: 'dashed',
     height: 56,
   },
   countryCodeContainer: {
@@ -783,6 +800,7 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRightWidth: 1,
     borderRightColor: '#E0E0E0',
+    borderRightStyle: 'dashed',
   },
   countryCodeText: {
     fontSize: 16,
@@ -798,7 +816,7 @@ const styles = StyleSheet.create({
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 20,
+    marginVertical: 15,
   },
   checkbox: {
     width: 24,

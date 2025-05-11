@@ -235,7 +235,7 @@ const EnquiriesScreen = () => {
           </Text>
           <TouchableOpacity
             style={styles.exploreButton}
-            onPress={() => navigation.navigate('ExploreTab')}>
+            onPress={() => navigation.navigate('ExploreScreen')}>
             <Text style={styles.exploreButtonText}>Explore Cars</Text>
           </TouchableOpacity>
         </View>
@@ -334,6 +334,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    padding:24
   },
   header: {
     flexDirection: 'row',
