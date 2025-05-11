@@ -11,39 +11,69 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import Svg, {Path, Circle} from 'react-native-svg';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 // Back Arrow Icon
-const BackIcon = () => (
-  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M15 18L9 12L15 6"
-      stroke="#212121"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
+const BackIcon = () => {
+  const {theme} = useTheme();
+  return (
+    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M15 18L9 12L15 6"
+        stroke={themeColors[theme].text}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
 
 // Radio Button Selected
-const RadioSelected = () => (
-  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Circle cx="12" cy="12" r="11" stroke="#F47B20" strokeWidth="2" />
-    <Circle cx="12" cy="12" r="6" fill="#F47B20" />
-  </Svg>
-);
+const RadioSelected = () => {
+  const {theme, isDark} = useTheme();
+  return (
+    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <Circle
+        cx="12"
+        cy="12"
+        r="11"
+        stroke={isDark ? '#EF9439' : themeColors[theme].primary}
+        strokeWidth="2"
+      />
+      <Circle
+        cx="12"
+        cy="12"
+        r="6"
+        fill={isDark ? '#EF9439' : themeColors[theme].primary}
+      />
+    </Svg>
+  );
+};
 
 // Radio Button Unselected
-const RadioUnselected = () => (
-  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Circle cx="12" cy="12" r="11" stroke="#DDDDDD" strokeWidth="2" />
-  </Svg>
-);
+const RadioUnselected = () => {
+  const {theme} = useTheme();
+  return (
+    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <Circle
+        cx="12"
+        cy="12"
+        r="11"
+        stroke={themeColors[theme].border}
+        strokeWidth="2"
+      />
+    </Svg>
+  );
+};
 
 const LanguageScreen = () => {
   const navigation = useNavigation();
   const {selectedLanguage, setSelectedLanguage} = useCurrencyLanguage();
-  const [currentLanguage, setCurrentLanguage] = useState(selectedLanguage || 'en');
+  const {theme, isDark} = useTheme();
+  const [currentLanguage, setCurrentLanguage] = useState(
+    selectedLanguage || 'en',
+  );
 
   const handleSelectLanguage = language => {
     setCurrentLanguage(language.id);
@@ -63,31 +93,51 @@ const LanguageScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      
-      <View style={styles.header}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+      ]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+
+      <View
+        style={[styles.header, {borderBottomColor: themeColors[theme].border}]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Language</Text>
+        <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+          Language
+        </Text>
       </View>
 
       <ScrollView style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Suggested</Text>
-          
+          <Text
+            style={[
+              styles.sectionTitle,
+              {color: isDark ? '#EF9439' : themeColors[theme].primary},
+            ]}>
+            Suggested
+          </Text>
+
           {suggestedLanguages.map(language => (
             <TouchableOpacity
               key={language.id}
-              style={styles.languageItem}
+              style={[
+                styles.languageItem,
+                {borderBottomColor: themeColors[theme].border},
+              ]}
               onPress={() => handleSelectLanguage(language)}>
-              <Text style={[
-                styles.languageName,
-                language.id === 'en' && styles.emphasizedLanguage
-              ]}>
+              <Text
+                style={[
+                  styles.languageName,
+                  {color: themeColors[theme].text},
+                  language.id === 'en' && {
+                    color: isDark ? '#EF9439' : themeColors[theme].primary,
+                  },
+                ]}>
                 {language.name}
               </Text>
               {currentLanguage === language.id ? (
@@ -100,14 +150,32 @@ const LanguageScreen = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Language</Text>
-          
+          <Text
+            style={[
+              styles.sectionTitle,
+              {color: isDark ? '#EF9439' : themeColors[theme].primary},
+            ]}>
+            Language
+          </Text>
+
           {otherLanguages.map(language => (
             <TouchableOpacity
               key={language.id}
-              style={styles.languageItem}
+              style={[
+                styles.languageItem,
+                {borderBottomColor: themeColors[theme].border},
+              ]}
               onPress={() => handleSelectLanguage(language)}>
-              <Text style={styles.languageName}>{language.name}</Text>
+              <Text
+                style={[
+                  styles.languageName,
+                  {color: themeColors[theme].text},
+                  currentLanguage === language.id && {
+                    color: isDark ? '#EF9439' : themeColors[theme].primary,
+                  },
+                ]}>
+                {language.name}
+              </Text>
               {currentLanguage === language.id ? (
                 <RadioSelected />
               ) : (
@@ -124,8 +192,6 @@ const LanguageScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    width: 380,
   },
   header: {
     flexDirection: 'row',
@@ -134,7 +200,6 @@ const styles = StyleSheet.create({
     paddingTop: 44,
     paddingBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
   },
   backButton: {
     padding: 4,
@@ -143,7 +208,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 16,
-    color: '#212121',
   },
   content: {
     flex: 1,
@@ -155,7 +219,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#7A40C6',
     marginBottom: 16,
   },
   languageItem: {
@@ -164,14 +227,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
   },
   languageName: {
     fontSize: 18,
-    color: '#212121',
-  },
-  emphasizedLanguage: {
-    color: '#F47B20',
   },
 });
 

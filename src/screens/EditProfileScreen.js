@@ -1,33 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TextInput, 
-  TouchableOpacity, 
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
   SafeAreaView,
   StatusBar,
   ScrollView,
   ActivityIndicator,
-  Alert
+  Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Svg, { Path } from 'react-native-svg';
-import { getUserProfile, updateUserProfile, syncAuthToken } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import {useNavigation} from '@react-navigation/native';
+import Svg, {Path} from 'react-native-svg';
+import {
+  getUserProfile,
+  updateUserProfile,
+  syncAuthToken,
+} from '../services/api';
+import {useAuth} from '../context/AuthContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 // Back Arrow Icon
-const BackIcon = () => (
-  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M15 18L9 12L15 6"
-      stroke="#212121"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
-);
+const BackIcon = () => {
+  const {theme} = useTheme();
+  return (
+    <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M15 18L9 12L15 6"
+        stroke={themeColors[theme].text}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
 
 // Calendar Icon
 const CalendarIcon = () => (
@@ -101,42 +109,60 @@ const DropdownIcon = () => (
 // US Flag Icon
 const USFlagIcon = () => (
   <Svg width="24" height="16" viewBox="0 0 24 16">
-    <View style={{ backgroundColor: '#FFFFFF', width: 24, height: 16, borderRadius: 2 }}>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', width: 12, height: 8, backgroundColor: '#002868' }}>
+    <View
+      style={{
+        backgroundColor: '#FFFFFF',
+        width: 24,
+        height: 16,
+        borderRadius: 2,
+      }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          width: 12,
+          height: 8,
+          backgroundColor: '#002868',
+        }}>
         {/* Small white stars */}
-        {Array(9).fill(0).map((_, i) => (
-          <View 
-            key={i} 
-            style={{ 
-              width: 2, 
-              height: 2, 
-              backgroundColor: 'white',
-              marginLeft: i % 3 === 0 ? 1 : 2,
-              marginTop: i < 3 ? 1 : (i < 6 ? 3 : 5)
-            }} 
-          />
-        ))}
+        {Array(9)
+          .fill(0)
+          .map((_, i) => (
+            <View
+              key={i}
+              style={{
+                width: 2,
+                height: 2,
+                backgroundColor: 'white',
+                marginLeft: i % 3 === 0 ? 1 : 2,
+                marginTop: i < 3 ? 1 : i < 6 ? 3 : 5,
+              }}
+            />
+          ))}
       </View>
       {/* Red stripes */}
-      {Array(7).fill(0).map((_, i) => (
-        <View 
-          key={i} 
-          style={{ 
-            position: 'absolute',
-            backgroundColor: '#bf0a30', 
-            height: 16/13, 
-            width: 24,
-            top: i * 16/6.5
-          }} 
-        />
-      ))}
+      {Array(7)
+        .fill(0)
+        .map((_, i) => (
+          <View
+            key={i}
+            style={{
+              position: 'absolute',
+              backgroundColor: '#bf0a30',
+              height: 16 / 13,
+              width: 24,
+              top: (i * 16) / 6.5,
+            }}
+          />
+        ))}
     </View>
   </Svg>
 );
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
-  const { user, logout } = useAuth();
+  const {user, logout} = useAuth();
+  const {theme, isDark} = useTheme();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -147,7 +173,7 @@ const EditProfileScreen = () => {
     phone: '',
     location: '',
     gender: '',
-    profileImage: null
+    profileImage: null,
   });
   const [updating, setUpdating] = useState(false);
 
@@ -160,7 +186,7 @@ const EditProfileScreen = () => {
     try {
       // First try to sync the auth token
       await syncAuthToken();
-      
+
       // If user context has data, pre-populate the form
       if (user) {
         setFormData(prevData => ({
@@ -170,15 +196,17 @@ const EditProfileScreen = () => {
           email: user.email || '',
         }));
       }
-      
+
       // Then try to get the full profile from API
       const response = await getUserProfile();
       if (response.success && response.data) {
         const profile = response.data;
-        
+
         // Format date from API format (YYYY-MM-DD) to display format (MM/DD/YYYY)
-        const dateOfBirth = profile.dateOfBirth ? formatDateForDisplay(profile.dateOfBirth) : '';
-        
+        const dateOfBirth = profile.dateOfBirth
+          ? formatDateForDisplay(profile.dateOfBirth)
+          : '';
+
         setFormData({
           firstName: profile.firstName || '',
           lastName: profile.lastName || '',
@@ -188,28 +216,30 @@ const EditProfileScreen = () => {
           phone: profile.phone || '',
           location: profile.location || '',
           gender: profile.gender || '',
-          profileImage: profile.profileImage ? profile.profileImage.id : null
+          profileImage: profile.profileImage ? profile.profileImage.id : null,
         });
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      
+
       // Handle authentication errors
       if (error.message && error.message.includes('Authentication error')) {
         Alert.alert(
           'Authentication Error',
           'Your session has expired. Please log in again.',
           [
-            { text: 'OK', onPress: () => {
+            {
+              text: 'OK',
+              onPress: () => {
                 // Redirect to login
                 logout();
                 navigation.reset({
                   index: 0,
-                  routes: [{ name: 'Login' }],
+                  routes: [{name: 'Login'}],
                 });
-              }
-            }
-          ]
+              },
+            },
+          ],
         );
       } else {
         Alert.alert('Error', 'Failed to load profile. Please try again.');
@@ -219,7 +249,7 @@ const EditProfileScreen = () => {
     }
   };
 
-  const formatDateForDisplay = (apiDate) => {
+  const formatDateForDisplay = apiDate => {
     // Convert from YYYY-MM-DD to MM/DD/YYYY
     try {
       const [year, month, day] = apiDate.split('-');
@@ -229,7 +259,7 @@ const EditProfileScreen = () => {
     }
   };
 
-  const formatDateForApi = (displayDate) => {
+  const formatDateForApi = displayDate => {
     // Convert from MM/DD/YYYY to YYYY-MM-DD
     try {
       const [month, day, year] = displayDate.split('/');
@@ -242,7 +272,7 @@ const EditProfileScreen = () => {
   const handleChange = (field, value) => {
     setFormData({
       ...formData,
-      [field]: value
+      [field]: value,
     });
   };
 
@@ -269,45 +299,47 @@ const EditProfileScreen = () => {
     try {
       // Ensure token is synchronized before updating
       await syncAuthToken();
-      
+
       // Prepare data for API
       const updateData = {
         ...formData,
-        dateOfBirth: formatDateForApi(formData.dateOfBirth)
+        dateOfBirth: formatDateForApi(formData.dateOfBirth),
       };
 
       // Remove null values to prevent API errors
-      Object.keys(updateData).forEach(key => 
-        updateData[key] === null && delete updateData[key]
+      Object.keys(updateData).forEach(
+        key => updateData[key] === null && delete updateData[key],
       );
 
       const response = await updateUserProfile(updateData);
       if (response.success) {
         Alert.alert('Success', 'Profile updated successfully', [
-          { text: 'OK', onPress: () => navigation.goBack() }
+          {text: 'OK', onPress: () => navigation.goBack()},
         ]);
       } else {
         Alert.alert('Error', response.message || 'Failed to update profile');
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      
+
       // Handle authentication errors
       if (error.message && error.message.includes('Authentication error')) {
         Alert.alert(
           'Authentication Error',
           'Your session has expired. Please log in again.',
           [
-            { text: 'OK', onPress: () => {
+            {
+              text: 'OK',
+              onPress: () => {
                 // Redirect to login
                 logout();
                 navigation.reset({
                   index: 0,
-                  routes: [{ name: 'Login' }],
+                  routes: [{name: 'Login'}],
                 });
-              }
-            }
-          ]
+              },
+            },
+          ],
         );
       } else {
         Alert.alert('Error', 'An error occurred while updating your profile');
@@ -319,57 +351,95 @@ const EditProfileScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
+        ]}>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={styles.loadingText}>Loading profile...</Text>
+          <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
+            Loading profile...
+          </Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
+      ]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      <View
+        style={[styles.header, {borderBottomColor: themeColors[theme].border}]}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
           <BackIcon />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Profile</Text>
+        <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+          Edit Profile
+        </Text>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.formContainer}>
           {/* First Name */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: themeColors[theme].text}]}
               placeholder="First Name"
+              placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.firstName}
-              onChangeText={(text) => handleChange('firstName', text)}
+              onChangeText={text => handleChange('firstName', text)}
             />
           </View>
 
           {/* Last Name */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: themeColors[theme].text}]}
               placeholder="Last Name"
+              placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.lastName}
-              onChangeText={(text) => handleChange('lastName', text)}
+              onChangeText={text => handleChange('lastName', text)}
             />
           </View>
 
           {/* Date of Birth */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: themeColors[theme].text}]}
               placeholder="Date of Birth (MM/DD/YYYY)"
+              placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.dateOfBirth}
-              onChangeText={(text) => handleChange('dateOfBirth', text)}
+              onChangeText={text => handleChange('dateOfBirth', text)}
             />
             <View style={styles.inputIcon}>
               <CalendarIcon />
@@ -377,12 +447,20 @@ const EditProfileScreen = () => {
           </View>
 
           {/* Email */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: themeColors[theme].text}]}
               placeholder="Email"
+              placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.email}
-              onChangeText={(text) => handleChange('email', text)}
+              onChangeText={text => handleChange('email', text)}
               keyboardType="email-address"
             />
             <View style={styles.inputIcon}>
@@ -391,32 +469,68 @@ const EditProfileScreen = () => {
           </View>
 
           {/* Location */}
-          <View style={styles.inputContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
+              },
+            ]}>
             <TextInput
-              style={styles.input}
+              style={[styles.input, {color: themeColors[theme].text}]}
               placeholder="Location"
+              placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.location}
-              onChangeText={(text) => handleChange('location', text)}
+              onChangeText={text => handleChange('location', text)}
             />
           </View>
 
           {/* Phone Number */}
-          <View style={styles.inputContainer}>
-            <View style={styles.flagContainer}>
+          <View
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
+              },
+            ]}>
+            <View
+              style={[
+                styles.flagContainer,
+                {borderRightColor: themeColors[theme].border},
+              ]}>
               <USFlagIcon />
             </View>
             <TextInput
-              style={[styles.input, styles.phoneInput]}
+              style={[
+                styles.input,
+                styles.phoneInput,
+                {color: themeColors[theme].text},
+              ]}
               placeholder="Phone Number"
+              placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.phone}
-              onChangeText={(text) => handleChange('phone', text)}
+              onChangeText={text => handleChange('phone', text)}
               keyboardType="phone-pad"
             />
           </View>
 
           {/* Gender */}
-          <TouchableOpacity style={styles.inputContainer}>
-            <Text style={[styles.input, styles.dropdownInput]}>
+          <TouchableOpacity
+            style={[
+              styles.inputContainer,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
+              },
+            ]}>
+            <Text
+              style={[
+                styles.input,
+                styles.dropdownInput,
+                {color: themeColors[theme].text},
+              ]}>
               {formData.gender || 'Select Gender'}
             </Text>
             <View style={styles.inputIcon}>
@@ -425,11 +539,10 @@ const EditProfileScreen = () => {
           </TouchableOpacity>
 
           {/* Update Button */}
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.updateButton, updating && styles.disabledButton]}
             onPress={handleUpdate}
-            disabled={updating}
-          >
+            disabled={updating}>
             {updating ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
@@ -445,7 +558,6 @@ const EditProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   loadingContainer: {
     flex: 1,
@@ -455,7 +567,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 16,
-    color: '#212121',
   },
   header: {
     flexDirection: 'row',
@@ -463,7 +574,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
   },
   backButton: {
     padding: 4,
@@ -472,7 +582,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     marginLeft: 16,
-    color: '#212121',
   },
   scrollView: {
     flex: 1,
@@ -484,18 +593,15 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
     borderRadius: 10,
     height: 55,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FAFAFA',
   },
   input: {
     flex: 1,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: '#212121',
     height: '100%',
   },
   dropdownInput: {
@@ -510,6 +616,7 @@ const styles = StyleSheet.create({
   flagContainer: {
     paddingLeft: 16,
     paddingRight: 8,
+    borderRightWidth: 1,
   },
   updateButton: {
     backgroundColor: '#F47B20',
@@ -529,4 +636,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EditProfileScreen; 
+export default EditProfileScreen;
