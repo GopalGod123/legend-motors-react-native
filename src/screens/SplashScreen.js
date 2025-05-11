@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useEffect} from 'react';
+import {View, StyleSheet, Image, SafeAreaView} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
@@ -16,14 +16,16 @@ const SplashScreen = () => {
   }, [navigation]);
 
   return (
-    <View style={styles.container}>
-      <Image 
-        source={require('./logo_Animation.gif')} 
-        style={styles.logo}
-        resizeMode="contain"
-        resizeMethod="resize"
-      />
-    </View>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'transparent'}}>
+      <View style={styles.container}>
+        <Image
+          source={require('./logo_Animation.gif')}
+          style={styles.logo}
+          resizeMode="contain"
+          resizeMethod="resize"
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
@@ -32,7 +34,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    // backgroundColor: '#FFFFFF',
   },
   logo: {
     width: '100%',
@@ -40,4 +42,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SplashScreen; 
+export default SplashScreen;

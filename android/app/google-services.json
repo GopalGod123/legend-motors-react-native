@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "752303824230",
+    "project_id": "legendmotors-dfb3b",
+    "storage_bucket": "legendmotors-dfb3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:752303824230:android:0206692b3e535f9561bca7",
+        "android_client_info": {
+          "package_name": "com.legendmotorsglobal.legendmotorsapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFpjV12TGEIkLPHrDlSw5kIYRVDK-bJk4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

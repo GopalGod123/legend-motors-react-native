@@ -1,4 +1,4 @@
-package com.legend_motors
+package com.legendmotorsglobal.legendmotorsapp
 
 import android.app.Application
 import com.facebook.react.PackageList
@@ -11,6 +11,11 @@ import com.facebook.react.defaults.DefaultReactHost.getDefaultReactHost
 import com.facebook.react.defaults.DefaultReactNativeHost
 import com.facebook.react.soloader.OpenSourceMergedSoMapping
 import com.facebook.soloader.SoLoader
+import com.clevertap.react.CleverTapPackage;
+import com.clevertap.react.CleverTapApplication;
+import com.clevertap.android.sdk.ActivityLifecycleCallback;
+import com.clevertap.android.sdk.CleverTapAPI;
+import com.clevertap.android.sdk.CleverTapAPI.LogLevel;
 
 class MainApplication : Application(), ReactApplication {
 
@@ -20,6 +25,7 @@ class MainApplication : Application(), ReactApplication {
             PackageList(this).packages.apply {
               // Packages that cannot be autolinked yet can be added manually here, for example:
               // add(MyReactNativePackage())
+              add(new CleverTapPackage())
             }
 
         override fun getJSMainModuleName(): String = "index"
@@ -34,6 +40,8 @@ class MainApplication : Application(), ReactApplication {
     get() = getDefaultReactHost(applicationContext, reactNativeHost)
 
   override fun onCreate() {
+    CleverTapAPI.setDebugLevel(LogLevel.VERBOSE);
+ // ActivityLifecycleCallback.register(this); // Required only for v2.2.1 and below
     super.onCreate()
     SoLoader.init(this, OpenSourceMergedSoMapping)
     if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {

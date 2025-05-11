@@ -15,6 +15,10 @@ if linkage != nil
 end
 
 target 'legend_motors' do
+  use_frameworks! :linkage => :static
+   pod 'clevertap-react-native', :path => '../node_modules/clevertap-react-native'
+   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons', :modular_headers => false
+
   config = use_native_modules!
 
   use_react_native!(
@@ -31,5 +35,11 @@ target 'legend_motors' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+        config.build_settings['OTHER_LDFLAGS'] << '-framework CoreLocation'
+      end
+    end
   end
 end
