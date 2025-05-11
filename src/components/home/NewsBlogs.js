@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  TouchableOpacity, 
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
   FlatList,
   ActivityIndicator,
   Dimensions,
   SafeAreaView,
-} from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { getBlogPosts } from "../../services/api";
+} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {getBlogPosts} from '../../services/api';
+import {useTheme} from 'src/context/ThemeContext';
 
-const { width } = Dimensions.get("window");
+const {width} = Dimensions.get('window');
 
 const NewsBlogs = () => {
   const navigation = useNavigation();
@@ -21,6 +22,7 @@ const NewsBlogs = () => {
   const [blogsData, setBlogsData] = useState([]);
   const [error, setError] = useState(null);
   const [featuredPost, setFeaturedPost] = useState(null);
+  const {isDark} = useTheme();
 
   useEffect(() => {
     fetchBlogPosts();
@@ -32,68 +34,86 @@ const NewsBlogs = () => {
 
     try {
       // Only fetch blogs data
-      const blogsResponse = await getBlogPosts({ type: "articles", limit: 6 });
-      
+      const blogsResponse = await getBlogPosts({type: 'articles', limit: 6});
+
       if (blogsResponse.success) {
         // Process and set blogs data
         setBlogsData(blogsResponse.data || []);
-        
+
         // Set featured post (first blog item)
         if (blogsResponse.data && blogsResponse.data.length > 0) {
           setFeaturedPost(blogsResponse.data[0]);
         }
       } else {
-        setError("Failed to load content. Please try again later.");
+        setError('Failed to load content. Please try again later.');
       }
     } catch (error) {
-      console.error("Error fetching blog posts:", error);
-      setError("Something went wrong. Please check your connection and try again.");
+      console.error('Error fetching blog posts:', error);
+      setError(
+        'Something went wrong. Please check your connection and try again.',
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePostPress = (post) => {
+  const handlePostPress = post => {
     // Navigate to post detail screen with the post data
-    navigation.navigate("BlogPostDetailScreen", { post });
-    console.log("Post pressed:", post.title);
+    navigation.navigate('BlogPostDetailScreen', {post});
+    console.log('Post pressed:', post.title);
   };
 
   const renderBlogsContent = () => {
     if (blogsData.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No blog posts available</Text>
+          <Text
+            style={[styles.emptyText, {color: isDark ? '#FFFFFF' : '#666'}]}>
+            No blog posts available
+          </Text>
         </View>
       );
     }
 
     // Use first blog item as featured
     const firstBlog = blogsData[0];
-    
+
     // Construct image URL for featured post
-    const featuredImageUrl = firstBlog.coverImage 
-      ? { uri: `https://cdn.legendmotorsglobal.com${firstBlog.coverImage.original}` }
-      : require("./car_Image.png");
-    
+    const featuredImageUrl = firstBlog.coverImage
+      ? {
+          uri: `https://cdn.legendmotorsglobal.com${firstBlog.coverImage.original}`,
+        }
+      : require('./car_Image.png');
+
     return (
       <View style={styles.blogsContainer}>
         {/* Featured blog post */}
-        <TouchableOpacity 
-          style={styles.featuredCard}
-          onPress={() => handlePostPress(firstBlog)}
-        >
+        <TouchableOpacity
+          style={[
+            styles.featuredCard,
+            {backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF'},
+          ]}
+          onPress={() => handlePostPress(firstBlog)}>
           <Image
             source={featuredImageUrl}
             style={styles.featuredImage}
             resizeMode="cover"
           />
           <View style={styles.featuredContent}>
-            <Text style={styles.featuredPostTitle}>
+            <Text
+              style={[
+                styles.featuredPostTitle,
+                {color: isDark ? '#FFFFFF' : '#333'},
+              ]}>
               {firstBlog.title}
             </Text>
-            <Text style={styles.featuredPostExcerpt} numberOfLines={2}>
-              {firstBlog.excerpt || "Click to read more"}
+            <Text
+              style={[
+                styles.featuredPostExcerpt,
+                {color: isDark ? '#CCCCCC' : '#666'},
+              ]}
+              numberOfLines={2}>
+              {firstBlog.excerpt || 'Click to read more'}
             </Text>
           </View>
         </TouchableOpacity>
@@ -103,10 +123,21 @@ const NewsBlogs = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.loadingContainer}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+        ]}>
+        <View
+          style={[
+            styles.loadingContainer,
+            {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+          ]}>
           <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={styles.loadingText}>Loading content...</Text>
+          <Text
+            style={[styles.loadingText, {color: isDark ? '#FFFFFF' : '#666'}]}>
+            Loading content...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -114,13 +145,18 @@ const NewsBlogs = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.errorContainer}>
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+        ]}>
+        <View
+          style={[
+            styles.errorContainer,
+            {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+          ]}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity 
-            style={styles.retryButton}
-            onPress={fetchBlogPosts}
-          >
+          <TouchableOpacity style={styles.retryButton} onPress={fetchBlogPosts}>
             <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -129,13 +165,33 @@ const NewsBlogs = () => {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.safeArea,
+        {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+      ]}>
+      <View
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+        ]}>
         <View style={styles.titleContainer}>
-          <Text style={styles.normalTitleText}>News/</Text>
-          <Text style={styles.normalTitleText}>Blogs</Text>
+          <Text
+            style={[
+              styles.normalTitleText,
+              {color: isDark ? '#FFFFFF' : '#333'},
+            ]}>
+            News/
+          </Text>
+          <Text
+            style={[
+              styles.normalTitleText,
+              {color: isDark ? '#FFFFFF' : '#333'},
+            ]}>
+            Blogs
+          </Text>
         </View>
-        
+
         {renderBlogsContent()}
       </View>
     </SafeAreaView>
@@ -147,15 +203,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: "#FFFFFF",
   },
   container: {
     width: 380,
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    alignSelf: "center",
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    alignSelf: 'center',
     paddingVertical: 10,
   },
   titleContainer: {
@@ -167,74 +221,66 @@ const styles = StyleSheet.create({
   normalTitleText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
     marginRight: 5,
   },
   highlightedTitleText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
     backgroundColor: '#FDD835',
     paddingHorizontal: 5,
   },
   loadingContainer: {
     width: 380,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFFFF",
-    alignSelf: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
     padding: 20,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 14,
-    color: "#666",
   },
   errorContainer: {
     width: 380,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFFFF",
-    alignSelf: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
     padding: 20,
   },
   errorText: {
     fontSize: 14,
-    color: "#FF3B30",
-    textAlign: "center",
+    color: '#FF3B30',
+    textAlign: 'center',
     marginBottom: 16,
   },
   retryButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: "#F47B20",
+    backgroundColor: '#F47B20',
     borderRadius: 8,
   },
   retryText: {
-    color: "#FFFFFF",
-    fontWeight: "600",
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   emptyContainer: {
     padding: 40,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFFFF",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   emptyText: {
     fontSize: 14,
-    color: "#666",
-    textAlign: "center",
+    textAlign: 'center',
   },
   blogsContainer: {
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   featuredCard: {
     width: 348,
     borderRadius: 8,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -242,11 +288,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-    overflow: "hidden",
-    alignSelf: "center",
+    overflow: 'hidden',
+    alignSelf: 'center',
   },
   featuredImage: {
-    width: "100%",
+    width: '100%',
     height: 256,
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
@@ -256,13 +302,11 @@ const styles = StyleSheet.create({
   },
   featuredPostTitle: {
     fontSize: 16,
-    fontWeight: "700",
-    color: "#333",
+    fontWeight: '700',
     marginBottom: 8,
   },
   featuredPostExcerpt: {
     fontSize: 14,
-    color: "#666",
     marginBottom: 8,
   },
 });

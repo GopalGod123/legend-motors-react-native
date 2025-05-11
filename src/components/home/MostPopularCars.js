@@ -24,6 +24,7 @@ import {useAuth} from '../../context/AuthContext';
 import {useWishlist} from '../../context/WishlistContext';
 import {getCarList} from 'src/services/api';
 import CarCard from '../explore/CarCard';
+import {useTheme} from 'src/context/ThemeContext';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -187,6 +188,7 @@ const MostPopularCars = () => {
   const {user} = useAuth();
   const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
     useWishlist();
+  const {isDark} = useTheme();
 
   // Use a ref to avoid making API calls if component unmounts
   const isMounted = useRef(true);
@@ -298,13 +300,15 @@ const MostPopularCars = () => {
       const response = await getCarList({
         page: 1,
         limit: 4,
-        status: 'published', 
+        status: 'published',
         tags: 1,
       });
 
       if (response.data && response.success && Array.isArray(response.data)) {
         // Process the cars data using our local processCar function
-        const processedCars = response.data.map(car => processCar(car)).filter(car => car !== null);
+        const processedCars = response.data
+          .map(car => processCar(car))
+          .filter(car => car !== null);
         setPopularCars([...processedCars]);
       } else {
         setPopularCars([]);
@@ -424,7 +428,10 @@ const MostPopularCars = () => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Most Popular in UAE</Text>
+        <Text
+          style={[styles.title, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>
+          Most Popular in UAE
+        </Text>
         <TouchableOpacity onPress={navigateToAllPopular}>
           <Text style={styles.viewAllText}>See All</Text>
         </TouchableOpacity>
@@ -474,7 +481,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONT_SIZES.xl,
     fontWeight: 'bold',
-    color: COLORS.textDark,
   },
   viewAllText: {
     color: COLORS.primary,
@@ -497,7 +503,6 @@ const styles = StyleSheet.create({
     elevation: 3,
     position: 'relative',
   },
- 
   tagText: {
     color: COLORS.white,
     fontWeight: 'bold',
