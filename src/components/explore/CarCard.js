@@ -17,6 +17,7 @@ import {
 import {CarImage, CarImageCarousel} from '../common';
 import {useNavigation} from '@react-navigation/native';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {useTheme, themeColors} from 'src/context/ThemeContext';
 import {Svg, Mask, G, Path, Rect} from 'react-native-svg';
 const {width} = Dimensions.get('window');
 
@@ -31,6 +32,7 @@ const CarCard = memo(
     width = '100%',
   }) => {
     const navigation = useNavigation();
+    const {theme, isDark} = useTheme();
     // Extract data from the API response
     const brandName = item.Brand?.name || item.brand?.name || '';
     const carModel = item.CarModel?.name || item.model || '';
@@ -86,7 +88,14 @@ const CarCard = memo(
 
     return (
       <TouchableOpacity
-        style={[styles.cardContainer, {width}]}
+        style={[
+          styles.cardContainer,
+          {
+            width,
+            backgroundColor: isDark ? '#000' : COLORS.white,
+            shadowColor: isDark ? '#000' : '#000',
+          },
+        ]}
         onPress={() => onPress(item)}
         activeOpacity={0.9}>
         <View style={[styles.imageContainer, {width}]}>
@@ -139,68 +148,131 @@ const CarCard = memo(
                   />
                 </G>
               </Svg>
-              <Text style={styles.categoryText}>{bodyType}</Text>
+              <Text
+                style={[
+                  styles.categoryText,
+                  {color: isDark ? '#FF8C00' : '#FF8C00'},
+                ]}>
+                {bodyType}
+              </Text>
             </View>
           </View>
 
-          <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">
+          <Text
+            style={[styles.carTitle, {color: isDark ? '#FFFFFF' : '#000000'}]}
+            numberOfLines={2}
+            ellipsizeMode="tail">
             {carTitle}
           </Text>
 
           {/* First row with 3 icons */}
           <View style={styles.specRow}>
-            <View style={styles.specItem}>
+            <View
+              style={[
+                styles.specItem,
+                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+              ]}>
               <Image
                 source={require('./icon_assets/ltr.png')}
                 style={{width: 16, height: 16}}
                 resizeMode="contain"
               />
-              <Text style={styles.specText}>ltr</Text>
+              <Text
+                style={[
+                  styles.specText,
+                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                ]}>
+                ltr
+              </Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View
+              style={[
+                styles.specItem,
+                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+              ]}>
               <Image
                 source={require('./icon_assets/electric.png')}
                 style={{width: 16, height: 16}}
                 resizeMode="contain"
               />
-              <Text style={styles.specText}>{fuelType}</Text>
+              <Text
+                style={[
+                  styles.specText,
+                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                ]}>
+                {fuelType}
+              </Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View
+              style={[
+                styles.specItem,
+                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+              ]}>
               <Image
                 source={require('./icon_assets/Automatic.png')}
                 style={{width: 16, height: 16}}
                 resizeMode="contain"
               />
-              <Text style={styles.specText}>{transmission}</Text>
+              <Text
+                style={[
+                  styles.specText,
+                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                ]}>
+                {transmission}
+              </Text>
             </View>
           </View>
 
           {/* Second row with 2 icons */}
           <View style={styles.specRow}>
-            <View style={styles.specItem}>
+            <View
+              style={[
+                styles.specItem,
+                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+              ]}>
               <Image
                 source={require('./icon_assets/country.png')}
                 style={{width: 16, height: 16}}
                 resizeMode="contain"
               />
-              <Text style={styles.specText}>{region}</Text>
+              <Text
+                style={[
+                  styles.specText,
+                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                ]}>
+                {region}
+              </Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View
+              style={[
+                styles.specItem,
+                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+              ]}>
               <Image
                 source={require('./icon_assets/Steering.png')}
                 style={{width: 16, height: 16}}
                 resizeMode="contain"
               />
-              <Text style={styles.specText}>{steeringType}</Text>
+              <Text
+                style={[
+                  styles.specText,
+                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                ]}>
+                {steeringType}
+              </Text>
             </View>
           </View>
 
           <View style={styles.priceRow}>
             {price ? (
-              <Text style={styles.priceText}>
+              <Text
+                style={[
+                  styles.priceText,
+                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                ]}>
                 {selectedCurrency} {price.toLocaleString()}
               </Text>
             ) : (
@@ -241,7 +313,11 @@ const CarCard = memo(
                   e.stopPropagation();
                   shareCar(item);
                 }}>
-                <Ionicons name="share-social" size={24} color="#212121" />
+                <Ionicons
+                  name="share-social"
+                  size={24}
+                  color={isDark ? '#FFFFFF' : '#212121'}
+                />
               </TouchableOpacity>
             </View>
           </View>
@@ -307,8 +383,8 @@ const styles = StyleSheet.create({
   carImage: {
     width: '100%',
     height: '100%',
-    borderTopEndRadius: BORDER_RADIUS.lg,
-    borderTopStartRadius: BORDER_RADIUS.lg,
+    // borderTopEndRadius: BORDER_RADIUS.lg,
+    // borderTopStartRadius: BORDER_RADIUS.lg,
   },
   cardContent: {
     padding: 15,

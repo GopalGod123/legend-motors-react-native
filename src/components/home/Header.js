@@ -9,8 +9,12 @@ import {
 } from '../../utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {useTheme} from 'src/context/ThemeContext';
+
 const Header = ({user, onSettingsPress, onWishlistPress}) => {
   const {selectedCurrency, setSelectedCurrency} = useCurrencyLanguage();
+  const {isDark} = useTheme();
+
   // Get firstName from user object or use default
   const getFirstName = () => {
     if (!user) return 'User';
@@ -39,18 +43,38 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
   return (
     <View style={styles.header}>
       <View style={styles.profileSection}>
-        <ImagePlaceholder style={styles.profileImage} color="#ccd" />
+        <ImagePlaceholder
+          style={styles.profileImage}
+          color={isDark ? '#3D3D3D' : '#ccd'}
+        />
         <View style={styles.greetingSection}>
-          <Text style={styles.greetingText}>Hi </Text>
-          <Text style={styles.nameText}>{getFirstName()}!</Text>
+          <Text
+            style={[
+              styles.greetingText,
+              {color: isDark ? '#FFFFFF' : COLORS.textLight},
+            ]}>
+            Hi{' '}
+          </Text>
+          <Text
+            style={[
+              styles.nameText,
+              {color: isDark ? '#FFFFFF' : COLORS.textDark},
+            ]}>
+            {getFirstName()}!
+          </Text>
         </View>
       </View>
 
       <View style={styles.headerControls}>
-        <View style={styles.currencyToggle}>
+        <View
+          style={[
+            styles.currencyToggle,
+            {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+          ]}>
           <TouchableOpacity
             style={[
               styles.currencyButton,
+              {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
               selectedCurrency === 'AED' && styles.activeCurrencyButton,
             ]}
             onPress={() => toggleCurrency('AED')}>
@@ -59,7 +83,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
                 styles.currencyText,
                 selectedCurrency === 'AED'
                   ? styles.activeText
-                  : styles.inactiveText,
+                  : {color: isDark ? '#FFFFFF' : '#5E366D'},
               ]}>
               AED
             </Text>
@@ -67,6 +91,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           <TouchableOpacity
             style={[
               styles.currencyButton,
+              {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
               selectedCurrency === 'USD' && styles.activeCurrencyButton,
             ]}
             onPress={() => toggleCurrency('USD')}>
@@ -75,7 +100,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
                 styles.currencyText,
                 selectedCurrency === 'USD'
                   ? styles.activeText
-                  : styles.inactiveText,
+                  : {color: isDark ? '#FFFFFF' : '#5E366D'},
               ]}>
               USD
             </Text>
@@ -83,11 +108,19 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
         </View>
 
         <TouchableOpacity style={styles.iconButton}>
-          <Ionicons name="notifications" size={28} color="#5E366D" />
+          <Ionicons
+            name="notifications"
+            size={28}
+            color={isDark ? '#FFFFFF' : '#5E366D'}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.iconButton} onPress={onWishlistPress}>
-          <Ionicons name="heart" size={28} color="#5E366D" />
+          <Ionicons
+            name="heart"
+            size={28}
+            color={isDark ? '#FFFFFF' : '#5E366D'}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -116,12 +149,10 @@ const styles = StyleSheet.create({
   },
   greetingText: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textLight,
   },
   nameText: {
     fontSize: FONT_SIZES.xl,
     fontWeight: 'bold',
-    color: COLORS.textDark,
   },
   headerControls: {
     flexDirection: 'row',
@@ -129,7 +160,6 @@ const styles = StyleSheet.create({
   },
   currencyToggle: {
     flexDirection: 'row',
-    backgroundColor: COLORS.white,
     borderRadius: BORDER_RADIUS.xl,
     marginRight: SPACING.md,
     overflow: 'hidden',
@@ -139,7 +169,6 @@ const styles = StyleSheet.create({
   currencyButton: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
-    backgroundColor: COLORS.white,
     minWidth: 45,
     alignItems: 'center',
   },
@@ -153,9 +182,6 @@ const styles = StyleSheet.create({
   },
   activeText: {
     color: COLORS.white,
-  },
-  inactiveText: {
-    color: '#5E366D',
   },
   iconButton: {
     marginLeft: SPACING.md,
