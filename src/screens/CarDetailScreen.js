@@ -15,8 +15,6 @@ import {
   Share,
   useWindowDimensions,
   Alert,
-  Modal,
-  PanResponder,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {getCarByIdOrSlug} from '../services/api';
@@ -138,15 +136,6 @@ const CarDetailScreen = () => {
   const [processingWishlist, setProcessingWishlist] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const carouselRef = useRef(null);
-  const thumbnailsRef = useRef(null);
-  
-  // New state variables for enhanced image browsing
-  const [fullScreenMode, setFullScreenMode] = useState(false);
-  const [fullScreenImageIndex, setFullScreenImageIndex] = useState(0);
-  const [exteriorImages, setExteriorImages] = useState([]);
-  const [interiorImages, setInteriorImages] = useState([]);
-  const [highlightImages, setHighlightImages] = useState([]);
-  const [currentImages, setCurrentImages] = useState([]);
 
   // Add state for managing accordion open/close state
   const [expandedAccordions, setExpandedAccordions] = useState({
@@ -156,52 +145,6 @@ const CarDetailScreen = () => {
     comfort_and_convenience: false,
     infotainment: false,
   });
-
-  // Add refs for the full screen thumbnails
-  const fullScreenThumbnailsRef = useRef(null);
-  
-  // Add state to track swipe gesture
-  const [swipeDirection, setSwipeDirection] = useState(null);
-  
-  // Add state for zoomed image
-  const [imageZoomed, setImageZoomed] = useState(false);
-  const [doubleTapTimer, setDoubleTapTimer] = useState(null);
-  const [thumbnailsLoading, setThumbnailsLoading] = useState(true);
-  
-  // Create pan responder for swipe gestures in full screen mode
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (evt, gestureState) => {
-        // Only track swipes when not zoomed
-        if (!imageZoomed && Math.abs(gestureState.dx) > 20) {
-          setSwipeDirection(gestureState.dx > 0 ? 'right' : 'left');
-        }
-      },
-      onPanResponderRelease: (evt, gestureState) => {
-        // Handle swipe gestures only when not zoomed
-        if (!imageZoomed && Math.abs(gestureState.dx) > 100) {
-          if (swipeDirection === 'left') {
-            navigateFullScreenImage('next');
-          } else if (swipeDirection === 'right') {
-            navigateFullScreenImage('prev');
-          }
-        }
-        setSwipeDirection(null);
-      },
-      onPanResponderGrant: (evt) => {
-        // Handle double tap for zoom
-        const now = Date.now();
-        if (doubleTapTimer && (now - doubleTapTimer) < 300) {
-          // Double tap detected
-          setImageZoomed(!imageZoomed);
-          setDoubleTapTimer(null);
-        } else {
-          setDoubleTapTimer(now);
-        }
-      },
-    })
-  ).current;
 
   // Function to toggle accordion state
   const toggleAccordion = category => {
@@ -237,56 +180,6 @@ const CarDetailScreen = () => {
       setIsFavorite(favoriteStatus);
     }
   }, [car, isInWishlist]);
-
-  // Effect to update the current images when activeTab changes or when car data changes
-  useEffect(() => {
-    if (car && car.CarImages) {
-      const exterior = getImagesByType('exterior');
-      const interior = getImagesByType('interior');
-      const highlight = getImagesByType('highlight') || exterior.slice(0, 2);
-      
-      setExteriorImages(exterior);
-      setInteriorImages(interior);
-      setHighlightImages(highlight);
-      
-      // Set the current images based on the active tab
-      if (activeTab === 'exterior') {
-        setCurrentImages(exterior);
-      } else if (activeTab === 'interior') {
-        setCurrentImages(interior);
-      } else {
-        setCurrentImages(highlight);
-      }
-      
-      // Reset selected image index when changing tabs
-      setSelectedImageIndex(0);
-      if (carouselRef.current) {
-        carouselRef.current.scrollToIndex({ index: 0, animated: false });
-      }
-      
-      // Scroll thumbnails to beginning
-      if (thumbnailsRef.current) {
-        thumbnailsRef.current.scrollToOffset({ offset: 0, animated: true });
-      }
-    }
-  }, [car, activeTab]);
-
-  // Reset zoom when changing images
-  useEffect(() => {
-    setImageZoomed(false);
-  }, [fullScreenImageIndex]);
-  
-  // Set thumbnails loading state when changing tabs
-  useEffect(() => {
-    if (currentImages && currentImages.length > 0) {
-      setThumbnailsLoading(true);
-      // Simulate loading time for thumbnails
-      const timer = setTimeout(() => {
-        setThumbnailsLoading(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [activeTab, currentImages]);
 
   // Function to handle viewing similar color cars
   const handleViewSimilarColorCars = () => {
@@ -380,7 +273,7 @@ const CarDetailScreen = () => {
     console.log('Navigating to enquiry form with car ID:', car.id);
     
     // Ensure we're passing a valid carId and image
-    const carImageData = currentImages && currentImages.length > 0 ? currentImages[0] : null;
+    const carImageData = carImages && carImages.length > 0 ? carImages[0] : null;
     
     navigation.navigate('EnquiryFormScreen', {
       carId: car.id, // Ensure this is a valid car ID
@@ -483,20 +376,15 @@ const CarDetailScreen = () => {
       .filter(img => img !== null);
   };
 
-  // Open full screen image viewer
-  const openFullScreenImage = (index) => {
-    setFullScreenImageIndex(index);
-    setFullScreenMode(true);
-  };
+  const getAllImages = () => {
+    const exteriorImages = getImagesByType('exterior');
+    const interiorImages = getImagesByType('interior');
+    const highlightImages =
+      getImagesByType('highlight') || exteriorImages.slice(0, 2);
 
-  // Close full screen image viewer
-  const closeFullScreenImage = () => {
-    setFullScreenMode(false);
-  };
-
-  // Handle tab change with smooth transitions
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
+    if (activeTab === 'exterior') return exteriorImages;
+    if (activeTab === 'interior') return interiorImages;
+    return highlightImages;
   };
 
   const renderSpecification = (label, value) => {
@@ -529,29 +417,6 @@ const CarDetailScreen = () => {
       acc[category].push(feature);
       return acc;
     }, {});
-  };
-
-  // Update the navigateFullScreenImage function to also scroll the thumbnails
-  const navigateFullScreenImage = (direction) => {
-    let newIndex;
-    
-    if (direction === 'next') {
-      newIndex = (fullScreenImageIndex + 1) % currentImages.length;
-    } else {
-      newIndex = fullScreenImageIndex - 1;
-      if (newIndex < 0) newIndex = currentImages.length - 1;
-    }
-    
-    setFullScreenImageIndex(newIndex);
-    
-    // Scroll the thumbnails to keep the selected one visible
-    if (fullScreenThumbnailsRef.current) {
-      fullScreenThumbnailsRef.current.scrollToIndex({
-        index: newIndex,
-        animated: true,
-        viewPosition: 0.5 // Center the thumbnail
-      });
-    }
   };
 
   if (loading) {
@@ -641,7 +506,7 @@ const CarDetailScreen = () => {
       : 'Car Details');
 
   // Get car images
-  const carImages = currentImages;
+  const carImages = getAllImages();
 
   // Get price
   const price =
@@ -677,7 +542,7 @@ const CarDetailScreen = () => {
                   styles.galleryTab,
                   activeTab === 'exterior' && styles.activeGalleryTab,
                 ]}
-                onPress={() => handleTabChange('exterior')}>
+                onPress={() => setActiveTab('exterior')}>
                 <Text
                   style={[
                     styles.galleryTabText,
@@ -686,16 +551,13 @@ const CarDetailScreen = () => {
                   ]}>
                   Exterior
                 </Text>
-                {exteriorImages.length > 0 && (
-                  <Text style={styles.imageCountBadge}>{exteriorImages.length}</Text>
-                )}
               </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.galleryTab,
                   activeTab === 'interior' && styles.activeGalleryTab,
                 ]}
-                onPress={() => handleTabChange('interior')}>
+                onPress={() => setActiveTab('interior')}>
                 <Text
                   style={[
                     styles.galleryTabText,
@@ -704,86 +566,51 @@ const CarDetailScreen = () => {
                   ]}>
                   Interior
                 </Text>
-                {interiorImages.length > 0 && (
-                  <Text style={styles.imageCountBadge}>{interiorImages.length}</Text>
-                )}
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity 
-              activeOpacity={0.9} 
-              onPress={() => openFullScreenImage(selectedImageIndex)}
-            >
-              <CarImageCarousel
-                images={carImages}
-                style={styles.carImage}
-                height={220}
-                onImagePress={() => openFullScreenImage(selectedImageIndex)}
-                ref={carouselRef}
-                initialIndex={selectedImageIndex}
-                onIndexChange={(index) => setSelectedImageIndex(index)}
-                showIndex={true}
-              />
-            </TouchableOpacity>
+            <CarImageCarousel
+              images={carImages}
+              style={styles.carImage}
+              height={220}
+              onImagePress={() => {}}
+              ref={carouselRef}
+              initialIndex={selectedImageIndex}
+              onIndexChange={(index) => setSelectedImageIndex(index)}
+            />
             
-            {/* Enhanced Thumbnails Gallery */}
+            {/* Thumbnails Gallery */}
             {carImages.length > 1 && (
-              <View style={[styles.thumbnailsContainer, {
-                backgroundColor: isDark ? '#1E1E1E' : '#F5F5F5',
-                borderColor: isDark ? '#444444' : '#DDDDDD',
-              }]}>
-                {thumbnailsLoading ? (
-                  <View style={styles.thumbnailsLoadingContainer}>
-                    <ActivityIndicator size="small" color="#5E366D" />
-                    <Text style={[styles.thumbnailsLoadingText, {color: isDark ? '#FFFFFF' : '#333333'}]}>
-                      Loading {activeTab} images...
-                    </Text>
-                  </View>
-                ) : (
-                  <FlatList
-                    ref={thumbnailsRef}
-                    data={carImages}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    keyExtractor={(item, index) => `thumbnail-${index}`}
-                    contentContainerStyle={styles.thumbnailsContent}
-                    snapToAlignment="center"
-                    decelerationRate="fast"
-                    renderItem={({item, index}) => (
-                      <TouchableOpacity
-                        style={[
-                          styles.thumbnailItem,
-                          selectedImageIndex === index && styles.thumbnailItemSelected,
-                        ]}
-                        onPress={() => {
-                          setSelectedImageIndex(index);
-                          if (carouselRef.current) {
-                            carouselRef.current.scrollToIndex({
-                              index,
-                              animated: true,
-                            });
-                          }
-                        }}>
-                        <CarImage
-                          source={item}
-                          style={styles.thumbnailImage}
-                          resizeMode="cover"
-                        />
-                        {selectedImageIndex === index && (
-                          <View style={styles.thumbnailOverlay} />
-                        )}
-                      </TouchableOpacity>
-                    )}
-                    onScrollToIndexFailed={(info) => {
-                      const wait = new Promise(resolve => setTimeout(resolve, 500));
-                      wait.then(() => {
-                        if (thumbnailsRef.current) {
-                          thumbnailsRef.current.scrollToIndex({ index: info.index, animated: true });
+              <View style={styles.thumbnailsContainer}>
+                <FlatList
+                  data={carImages}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={(item, index) => `thumbnail-${index}`}
+                  contentContainerStyle={styles.thumbnailsContent}
+                  renderItem={({item, index}) => (
+                    <TouchableOpacity
+                      style={[
+                        styles.thumbnailItem,
+                        selectedImageIndex === index && styles.thumbnailItemSelected,
+                      ]}
+                      onPress={() => {
+                        setSelectedImageIndex(index);
+                        if (carouselRef.current) {
+                          carouselRef.current.scrollToIndex({
+                            index,
+                            animated: true,
+                          });
                         }
-                      });
-                    }}
-                  />
-                )}
+                      }}>
+                      <CarImage
+                        source={item}
+                        style={styles.thumbnailImage}
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
+                  )}
+                />
               </View>
             )}
           </View>
@@ -1141,151 +968,6 @@ const CarDetailScreen = () => {
             <Text style={[styles.inquireButtonText, {color: isDark ? '#000000' : '#FFFFFF'}]}>Inquire Now</Text>
           </TouchableOpacity>
       </View>
-
-      {/* Full Screen Image Modal */}
-      <Modal
-        visible={fullScreenMode}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={closeFullScreenImage}
-      >
-        <View 
-          style={styles.fullScreenContainer}
-          {...panResponder.panHandlers}
-        >
-          <TouchableOpacity 
-            style={styles.closeButton}
-            onPress={closeFullScreenImage}
-          >
-            <Icon name="close" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-          
-          {/* Navigation buttons - only show when not zoomed */}
-          {!imageZoomed && (
-            <>
-              <TouchableOpacity 
-                style={[styles.navButton, styles.prevButton]}
-                onPress={() => navigateFullScreenImage('prev')}
-              >
-                <Icon name="chevron-left" size={40} color="#FFFFFF" />
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
-                style={[styles.navButton, styles.nextButton]}
-                onPress={() => navigateFullScreenImage('next')}
-              >
-                <Icon name="chevron-right" size={40} color="#FFFFFF" />
-              </TouchableOpacity>
-            </>
-          )}
-          
-          {/* Zoom indicator */}
-          <View style={styles.zoomIndicator}>
-            <TouchableOpacity onPress={() => setImageZoomed(!imageZoomed)}>
-              <Icon 
-                name={imageZoomed ? "zoom-out" : "zoom-in"} 
-                size={24} 
-                color="#FFFFFF" 
-              />
-            </TouchableOpacity>
-          </View>
-          
-          <CarImageCarousel
-            images={carImages}
-            style={[
-              styles.fullScreenCarousel,
-              imageZoomed && styles.zoomedCarousel
-            ]}
-            height={Dimensions.get('window').height * 0.8}
-            initialIndex={fullScreenImageIndex}
-            showIndex={!imageZoomed}
-          />
-          
-          {/* Full screen thumbnails - only show when not zoomed */}
-          {!imageZoomed && (
-            <View style={styles.fullScreenThumbnailsContainer}>
-              <FlatList
-                ref={fullScreenThumbnailsRef}
-                data={carImages}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={(item, index) => `fs-thumbnail-${index}`}
-                contentContainerStyle={styles.thumbnailsContent}
-                initialScrollIndex={fullScreenImageIndex > 0 ? fullScreenImageIndex : 0}
-                getItemLayout={(_, index) => ({
-                  length: 78, // width + margins
-                  offset: 78 * index,
-                  index,
-                })}
-                onScrollToIndexFailed={(info) => {
-                  const wait = new Promise(resolve => setTimeout(resolve, 500));
-                  wait.then(() => {
-                    if (fullScreenThumbnailsRef.current) {
-                      fullScreenThumbnailsRef.current.scrollToIndex({ index: info.index, animated: true });
-                    }
-                  });
-                }}
-                renderItem={({item, index}) => (
-                  <TouchableOpacity
-                    style={[
-                      styles.fullScreenThumbnailItem,
-                      fullScreenImageIndex === index && styles.fullScreenThumbnailItemSelected,
-                    ]}
-                    onPress={() => {
-                      setFullScreenImageIndex(index);
-                    }}>
-                    <CarImage
-                      source={item}
-                      style={styles.fullScreenThumbnailImage}
-                      resizeMode="cover"
-                    />
-                    {fullScreenImageIndex === index && (
-                      <View style={styles.fullScreenThumbnailOverlay} />
-                    )}
-                  </TouchableOpacity>
-                )}
-              />
-              
-              {/* Thumbnail position indicator */}
-              <View style={styles.thumbnailPositionIndicator}>
-                <Text style={styles.thumbnailPositionText}>
-                  {fullScreenImageIndex + 1} / {carImages.length}
-                </Text>
-              </View>
-            </View>
-          )}
-          
-          {/* Image type indicator - only show when not zoomed */}
-          {!imageZoomed && (
-            <View style={styles.imageTypeIndicator}>
-              <Text style={styles.imageTypeText}>
-                {activeTab === 'exterior' ? 'Exterior View' : 'Interior View'}
-              </Text>
-            </View>
-          )}
-          
-          {/* Double tap instruction - shown briefly on first load */}
-          {!imageZoomed && !swipeDirection && (
-            <View style={styles.doubleTapInstruction}>
-              <Text style={styles.doubleTapText}>Double tap to zoom</Text>
-            </View>
-          )}
-          
-          {/* Swipe instruction overlay - shown briefly */}
-          {swipeDirection && !imageZoomed && (
-            <View style={[
-              styles.swipeIndicator,
-              swipeDirection === 'left' ? styles.swipeLeft : styles.swipeRight
-            ]}>
-              <Icon 
-                name={swipeDirection === 'left' ? 'chevron-left' : 'chevron-right'} 
-                size={40} 
-                color="rgba(255, 255, 255, 0.8)" 
-              />
-            </View>
-          )}
-        </View>
-      </Modal>
     </SafeAreaView>
   );
 };
@@ -1692,215 +1374,34 @@ const styles = StyleSheet.create({
   },
   thumbnailsContainer: {
     width: '100%',
-    padding: 8,
-    backgroundColor: '#F5F5F5',
+    padding: 6,
+    backgroundColor: '#1E1E1E',
     borderWidth: 1,
-    borderColor: '#DDDDDD',
+    borderColor: '#1E90FF',
     marginTop: 0,
     marginBottom: 10,
   },
   thumbnailsContent: {
-    paddingHorizontal: 4,
-    paddingVertical: 4,
+    paddingHorizontal: 2,
+    paddingVertical: 2,
+    justifyContent: 'center',
   },
   thumbnailItem: {
-    width: 80,
-    height: 60,
-    marginHorizontal: 4,
-    borderRadius: 6,
+    width: 90,
+    height: 70,
+    marginHorizontal: 2,
+    borderRadius: 0,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'transparent',
+    borderWidth: 0,
   },
   thumbnailItemSelected: {
     borderWidth: 2,
-    borderColor: '#5E366D',
+    borderColor: '#1E90FF',
   },
   thumbnailImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 4,
-  },
-  thumbnailOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(94, 54, 109, 0.2)',
-    borderRadius: 4,
-  },
-  imageCountBadge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    backgroundColor: '#5E366D',
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: 'bold',
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    textAlign: 'center',
-    lineHeight: 18,
-    overflow: 'hidden',
-  },
-  fullScreenContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.95)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    zIndex: 10,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  fullScreenCarousel: {
-    width: Dimensions.get('window').width,
-  },
-  fullScreenThumbnailsContainer: {
-    position: 'absolute',
-    bottom: 20,
-    left: 0,
-    right: 0,
-    height: 80,
-    paddingVertical: 10,
-  },
-  fullScreenThumbnailItem: {
-    width: 70,
-    height: 60,
-    marginHorizontal: 4,
-    borderRadius: 4,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  fullScreenThumbnailItemSelected: {
-    borderWidth: 2,
-    borderColor: '#FFFFFF',
-  },
-  fullScreenThumbnailImage: {
-    width: '100%',
-    height: '100%',
-  },
-  navButton: {
-    position: 'absolute',
-    top: '50%',
-    marginTop: -30,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-  },
-  prevButton: {
-    left: 10,
-  },
-  nextButton: {
-    right: 10,
-  },
-  imageTypeIndicator: {
-    position: 'absolute',
-    top: 40,
-    left: 20,
-    backgroundColor: 'rgba(94, 54, 109, 0.8)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-  },
-  imageTypeText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  fullScreenThumbnailOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 4,
-  },
-  thumbnailPositionIndicator: {
-    position: 'absolute',
-    right: 10,
-    bottom: -20,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  thumbnailPositionText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  swipeIndicator: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: 60,
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  swipeLeft: {
-    left: 0,
-  },
-  swipeRight: {
-    right: 0,
-  },
-  thumbnailsLoadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  thumbnailsLoadingText: {
-    marginTop: 8,
-    fontSize: 12,
-  },
-  zoomIndicator: {
-    position: 'absolute',
-    top: 40,
-    right: 70,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 10,
-  },
-  zoomedCarousel: {
-    width: Dimensions.get('window').width * 1.5,
-    height: Dimensions.get('window').height * 1.2,
-    transform: [{ scale: 1.5 }],
-  },
-  doubleTapInstruction: {
-    position: 'absolute',
-    bottom: 120,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-    paddingHorizontal: 15,
-    paddingVertical: 8,
-    borderRadius: 20,
-    opacity: 0.8,
-  },
-  doubleTapText: {
-    color: '#FFFFFF',
-    fontSize: 14,
+    borderRadius: 0,
   },
 });
 
