@@ -27,7 +27,7 @@ import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useWishlist} from '../context/WishlistContext';
 import RenderHtml from 'react-native-render-html';
 import {useAuth} from '../context/AuthContext';
-import {useTheme} from '../context/ThemeContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 import {
   extractColorsFromSlug,
   createColorMatchFunction,
@@ -117,6 +117,7 @@ const CarDetailScreen = () => {
   const {selectedCurrency} = useCurrencyLanguage();
   const {user, isAuthenticated} = useAuth();
   const {theme, isDark} = useTheme();
+  const colors = themeColors[theme];
   const {
     isInWishlist,
     addItemToWishlist,
@@ -418,23 +419,23 @@ const CarDetailScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
+      <SafeAreaView style={[styles.loadingContainer, {backgroundColor: colors.background}]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={styles.loadingText}>Loading car details...</Text>
+        <Text style={[styles.loadingText, {color: colors.text}]}>Loading car details...</Text>
       </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
+      <SafeAreaView style={[styles.errorContainer, {backgroundColor: colors.background}]}>
         <Icon name="error-outline" size={50} color={COLORS.error} />
-        <Text style={styles.errorText}>{error}</Text>
+        <Text style={[styles.errorText, {color: colors.text}]}>{error}</Text>
         <TouchableOpacity style={styles.reloadButton} onPress={fetchCarDetails}>
           <Text style={styles.reloadButtonText}>Try Again</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={[styles.backButtonText, {color: colors.primary}]}>Go Back</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -442,11 +443,11 @@ const CarDetailScreen = () => {
 
   if (!car) {
     return (
-      <SafeAreaView style={styles.errorContainer}>
-        <Icon name="no-photography" size={50} color={COLORS.textLight} />
-        <Text style={styles.errorText}>Car not found</Text>
+      <SafeAreaView style={[styles.errorContainer, {backgroundColor: colors.background}]}>
+        <Icon name="no-photography" size={50} color={colors.text} />
+        <Text style={[styles.errorText, {color: colors.text}]}>Car not found</Text>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backButtonText}>Go Back</Text>
+          <Text style={[styles.backButtonText, {color: colors.primary}]}>Go Back</Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -511,31 +512,31 @@ const CarDetailScreen = () => {
     car.price;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[styles.container, {backgroundColor: colors.background}]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={colors.background} />
 
       {/* Header with back button */}
-      <View style={styles.header}>
+      <View style={[styles.header, {backgroundColor: colors.background}]}>
         <TouchableOpacity onPress={goBack} style={styles.backButtonSmall}>
-          <Icon name="arrow-back" size={24} color={COLORS.textDark} />
+          <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
+        <Text style={[styles.headerTitle, {color: colors.text}]} numberOfLines={1}>
           Car Details
         </Text>
         <View style={styles.headerRightPlaceholder} />
       </View>
 
       <ScrollView
-        style={styles.scrollContainer}
+        style={[styles.scrollContainer, {backgroundColor: colors.background}]}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={false}>
         {/* Action buttons at the top */}
 
         {/* CarCard-style display */}
-        <View style={styles.cardContainer}>
+        <View style={[styles.cardContainer, {backgroundColor: colors.card}]}>
           <View style={styles.imageContainer}>
             {/* Tabs for exterior/interior */}
-            <View style={styles.galleryTabs}>
+            <View style={[styles.galleryTabs, {backgroundColor: colors.card, borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
               <TouchableOpacity
                 style={[
                   styles.galleryTab,
@@ -545,6 +546,7 @@ const CarDetailScreen = () => {
                 <Text
                   style={[
                     styles.galleryTabText,
+                    {color: isDark ? '#AAAAAA' : '#757575'},
                     activeTab === 'exterior' && styles.activeGalleryTabText,
                   ]}>
                   Exterior
@@ -559,25 +561,12 @@ const CarDetailScreen = () => {
                 <Text
                   style={[
                     styles.galleryTabText,
+                    {color: isDark ? '#AAAAAA' : '#757575'},
                     activeTab === 'interior' && styles.activeGalleryTabText,
                   ]}>
                   Interior
                 </Text>
               </TouchableOpacity>
-              {/* <TouchableOpacity
-                style={[
-                  styles.galleryTab,
-                  activeTab === 'highlight' && styles.activeGalleryTab,
-                ]}
-                onPress={() => setActiveTab('highlight')}>
-                <Text
-                  style={[
-                    styles.galleryTabText,
-                    activeTab === 'highlight' && styles.activeGalleryTabText,
-                  ]}>
-                  Highlight
-                </Text>
-              </TouchableOpacity> */}
             </View>
 
             <CarImageCarousel
@@ -588,9 +577,9 @@ const CarDetailScreen = () => {
             />
           </View>
 
-          <View style={styles.cardContent}>
+          <View style={[styles.cardContent, {backgroundColor: colors.card}]}>
             <Text
-              style={styles.carTitle}
+              style={[styles.carTitle, {color: colors.text}]}
               numberOfLines={2}
               ellipsizeMode="tail">
               {carTitle}
@@ -605,7 +594,7 @@ const CarDetailScreen = () => {
                   </Text>
                 </View>
 
-                <View style={styles.categoryBadge}>
+                <View style={[styles.categoryBadge, {backgroundColor: isDark ? '#333333' : '#F5F5F5'}]}>
                   <Icon name="directions-car" size={18} color="#FF8C00" />
                   <Text style={styles.categoryText}>{bodyType || 'SUV'}</Text>
                 </View>
@@ -614,7 +603,7 @@ const CarDetailScreen = () => {
               {/* Right side - action buttons */}
               <View style={styles.actionButtonsRow}>
                 <TouchableOpacity
-                  style={styles.actionIconButton}
+                  style={[styles.actionIconButton, {backgroundColor: colors.card}]}
                   onPress={toggleFavorite}
                   disabled={processingWishlist}>
                   {processingWishlist ? (
@@ -627,7 +616,7 @@ const CarDetailScreen = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.actionIconButton}
+                  style={[styles.actionIconButton, {backgroundColor: colors.card}]}
                   onPress={() => {
                     // Handle download functionality
                     if (car.brochureFile?.path) {
@@ -637,77 +626,75 @@ const CarDetailScreen = () => {
                       alert('No brochure available for download');
                     }
                   }}>
-                  <Ionicons name="download-outline" size={24} color="#212121" />
+                  <Ionicons name="download-outline" size={24} color={colors.text} />
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.actionIconButton}
+                  style={[styles.actionIconButton, {backgroundColor: colors.card}]}
                   onPress={handleShare}>
-                  <Ionicons name="share-social" size={24} color="#212121" />
+                  <Ionicons name="share-social" size={24} color={colors.text} />
                 </TouchableOpacity>
               </View>
             </View>
 
-            {/* Car Title */}
-
             {/* Specs pills in rows, using the design from the image */}
             <View style={styles.specsContainer}>
-              <View style={styles.specPill}>
+              <View style={[styles.specPill, {backgroundColor: isDark ? '#333333' : '#E9E5EB'}]}>
                 <Image 
                   source={LtrIcon} 
                   style={[styles.specIcon, isDark && styles.specIconDark]} 
                   resizeMode="contain" 
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={styles.specPillText}>
+                <Text style={[styles.specPillText, {color: colors.text}]}>
                   {specifications.find(spec => spec.Specification?.key === 'drive_type')?.name || 'ltr'}
                 </Text>
               </View>
 
-              <View style={styles.specPill}>
+              <View style={[styles.specPill, {backgroundColor: isDark ? '#333333' : '#E9E5EB'}]}>
                 <Image 
                   source={ElectricIcon} 
                   style={[styles.specIcon, isDark && styles.specIconDark]} 
                   resizeMode="contain" 
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={styles.specPillText}>
+                <Text style={[styles.specPillText, {color: colors.text}]}>
                   {specifications.find(spec => spec.Specification?.key === 'fuel_type')?.name || fuelType}
                 </Text>
               </View>
 
-              <View style={styles.specPill}>
+              <View style={[styles.specPill, {backgroundColor: isDark ? '#333333' : '#E9E5EB'}]}>
                 <Image 
                   source={AutomaticIcon} 
                   style={[styles.specIcon, isDark && styles.specIconDark]} 
                   resizeMode="contain" 
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={styles.specPillText}>
+                <Text style={[styles.specPillText, {color: colors.text}]}>
                   {specifications.find(spec => spec.Specification?.key === 'transmission')?.name || transmission}
                 </Text>
               </View>
 
-              <View style={styles.specPill}>
+              <View style={[styles.specPill, {backgroundColor: isDark ? '#333333' : '#E9E5EB'}]}>
                 <Image 
                   source={CountryIcon} 
                   style={[styles.specIcon, isDark && styles.specIconDark]} 
                   resizeMode="contain" 
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={styles.specPillText}>
+                <Text style={[styles.specPillText, {color: colors.text}]}>
                   {specifications.find(spec => spec.Specification?.key === 'regional_specification')?.name || region}
                 </Text>
               </View>
               
-              <View style={styles.specPill}>
+              <View style={[styles.specPill, {backgroundColor: isDark ? '#333333' : '#E9E5EB'}]}>
                 <Image 
                   source={SteeringIcon} 
                   style={[styles.specIcon, isDark && styles.specIconDark]} 
                   resizeMode="contain" 
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={styles.specPillText}>
+                <Text style={[styles.specPillText, {color: colors.text}]}>
                   {specifications.find(spec => spec.Specification?.key === 'steering')?.name || steeringType}
                 </Text>
               </View>
@@ -727,27 +714,27 @@ const CarDetailScreen = () => {
         </View>
 
         {/* Car Overview Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Car Overview</Text>
+        <View style={[styles.sectionContainer, {backgroundColor: colors.card, borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
+          <Text style={[styles.sectionTitle, {color: colors.text}]}>Car Overview</Text>
           <View style={styles.sectionTitleLine} />
 
-          <View style={styles.overviewList}>
+          <View style={[styles.overviewList, {backgroundColor: colors.card}]}>
             {/* Condition */}
-            <View style={styles.overviewItem}>
+            <View style={[styles.overviewItem, {borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="directions-car" size={22} color="#9E9E9E" />
+                <Icon name="directions-car" size={22} color={isDark ? '#BBBBBB' : '#9E9E9E'} />
               </View>
-              <Text style={styles.overviewLabel}>Condition:</Text>
-              <Text style={styles.overviewValue}>{car.condition || 'New'}</Text>
+              <Text style={[styles.overviewLabel, {color: isDark ? '#BBBBBB' : '#757575'}]}>Condition:</Text>
+              <Text style={[styles.overviewValue, {color: colors.secondary}]}>{car.condition || 'New'}</Text>
             </View>
 
             {/* Cylinders */}
-            <View style={styles.overviewItem}>
+            <View style={[styles.overviewItem, {borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="settings" size={22} color="#9E9E9E" />
+                <Icon name="settings" size={22} color={isDark ? '#BBBBBB' : '#9E9E9E'} />
               </View>
-              <Text style={styles.overviewLabel}>Cylinders:</Text>
-              <Text style={styles.overviewValue}>
+              <Text style={[styles.overviewLabel, {color: isDark ? '#BBBBBB' : '#757575'}]}>Cylinders:</Text>
+              <Text style={[styles.overviewValue, {color: colors.secondary}]}>
                 {specifications.find(
                   spec => spec.Specification?.key === 'cylinders',
                 )?.name || '4 Cylinders'}
@@ -755,12 +742,12 @@ const CarDetailScreen = () => {
             </View>
 
             {/* Fuel Type */}
-            <View style={styles.overviewItem}>
+            <View style={[styles.overviewItem, {borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="local-gas-station" size={22} color="#9E9E9E" />
+                <Icon name="local-gas-station" size={22} color={isDark ? '#BBBBBB' : '#9E9E9E'} />
               </View>
-              <Text style={styles.overviewLabel}>Fuel Type:</Text>
-              <Text style={styles.overviewValue}>
+              <Text style={[styles.overviewLabel, {color: isDark ? '#BBBBBB' : '#757575'}]}>Fuel Type:</Text>
+              <Text style={[styles.overviewValue, {color: colors.secondary}]}>
                 {specifications.find(
                   spec => spec.Specification?.key === 'fuel_type',
                 )?.name || fuelType}
@@ -768,21 +755,21 @@ const CarDetailScreen = () => {
             </View>
 
             {/* Built Year */}
-            <View style={styles.overviewItem}>
+            <View style={[styles.overviewItem, {borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="event" size={22} color="#9E9E9E" />
+                <Icon name="event" size={22} color={isDark ? '#BBBBBB' : '#9E9E9E'} />
               </View>
-              <Text style={styles.overviewLabel}>Built Year:</Text>
-              <Text style={styles.overviewValue}>{year || '2025'}</Text>
+              <Text style={[styles.overviewLabel, {color: isDark ? '#BBBBBB' : '#757575'}]}>Built Year:</Text>
+              <Text style={[styles.overviewValue, {color: colors.secondary}]}>{year || '2025'}</Text>
             </View>
 
             {/* Transmission */}
-            <View style={styles.overviewItem}>
+            <View style={[styles.overviewItem, {borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="transform" size={22} color="#9E9E9E" />
+                <Icon name="transform" size={22} color={isDark ? '#BBBBBB' : '#9E9E9E'} />
               </View>
-              <Text style={styles.overviewLabel}>Transmission:</Text>
-              <Text style={styles.overviewValue}>
+              <Text style={[styles.overviewLabel, {color: isDark ? '#BBBBBB' : '#757575'}]}>Transmission:</Text>
+              <Text style={[styles.overviewValue, {color: colors.secondary}]}>
                 {specifications.find(
                   spec => spec.Specification?.key === 'transmission',
                 )?.name || transmission}
@@ -790,12 +777,12 @@ const CarDetailScreen = () => {
             </View>
 
             {/* Color */}
-            <View style={styles.overviewItem}>
+            <View style={[styles.overviewItem, {borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="palette" size={22} color="#9E9E9E" />
+                <Icon name="palette" size={22} color={isDark ? '#BBBBBB' : '#9E9E9E'} />
               </View>
-              <Text style={styles.overviewLabel}>Color:</Text>
-              <Text style={styles.overviewValue}>
+              <Text style={[styles.overviewLabel, {color: isDark ? '#BBBBBB' : '#757575'}]}>Color:</Text>
+              <Text style={[styles.overviewValue, {color: colors.secondary}]}>
                 {specifications.find(
                   spec => spec.Specification?.key === 'exterior_color',
                 )?.name || 'White'}
@@ -805,8 +792,8 @@ const CarDetailScreen = () => {
         </View>
 
         {/* Features Section - Redesigned with accordion categories */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Features</Text>
+        <View style={[styles.sectionContainer, {backgroundColor: colors.card, borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
+          <Text style={[styles.sectionTitle, {color: colors.text}]}>Features</Text>
           <View style={styles.sectionTitleLine} />
 
           {/* Main features grid - two column layout showing some top features */}
@@ -822,7 +809,7 @@ const CarDetailScreen = () => {
                     }`}
                     style={styles.featureItem}>
                     <Icon name="check-circle" size={20} color="#8BC34A" />
-                    <Text style={styles.featureText}>{feature.name}</Text>
+                    <Text style={[styles.featureText, {color: colors.text}]}>{feature.name}</Text>
                   </View>
                 ))}
             </View>
@@ -841,7 +828,7 @@ const CarDetailScreen = () => {
                     }`}
                     style={styles.featureItem}>
                     <Icon name="check-circle" size={20} color="#8BC34A" />
-                    <Text style={styles.featureText}>{feature.name}</Text>
+                    <Text style={[styles.featureText, {color: colors.text}]}>{feature.name}</Text>
                   </View>
                 ))}
             </View>
@@ -864,24 +851,25 @@ const CarDetailScreen = () => {
                     <TouchableOpacity
                       style={[
                         styles.accordionHeader,
+                        {borderBottomColor: isDark ? '#333333' : '#F0F0F0'},
                         expandedAccordions[category] &&
                           styles.expandedAccordionHeader,
                       ]}
                       onPress={() => toggleAccordion(category)}>
-                      <Text style={styles.accordionTitle}>
+                      <Text style={[styles.accordionTitle, {color: colors.text}]}>
                         {categoryDisplayName}
                       </Text>
                       <Icon
                         name={expandedAccordions[category] ? 'remove' : 'add'}
                         size={24}
-                        color="#9E9E9E"
+                        color={isDark ? '#BBBBBB' : '#9E9E9E'}
                       />
                     </TouchableOpacity>
 
                     {/* Accordion Content */}
                     {expandedAccordions[category] && (
-                      <View style={styles.accordionContent}>
-                        <Text style={styles.accordionFeatureText}>
+                      <View style={[styles.accordionContent, {backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA', borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
+                        <Text style={[styles.accordionFeatureText, {color: colors.text}]}>
                           {categoryFeatures.map((feature, index) => (
                             <React.Fragment key={`feature-text-${feature.id}`}>
                               {feature.name}
@@ -899,8 +887,8 @@ const CarDetailScreen = () => {
         </View>
 
         {/* Description Section */}
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Description</Text>
+        <View style={[styles.sectionContainer, {backgroundColor: colors.card, borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
+          <Text style={[styles.sectionTitle, {color: colors.text}]}>Description</Text>
           <View style={styles.sectionTitleLine} />
           {car.description ? (
             <View style={styles.descriptionContainer}>
@@ -908,31 +896,25 @@ const CarDetailScreen = () => {
                 contentWidth={width - SPACING.md * 2}
                 source={{html: car.description}}
                 tagsStyles={{
-                  p: styles.descriptionParagraph,
+                  p: [styles.descriptionParagraph, {color: colors.text}],
                   strong: styles.descriptionBold,
-                  li: styles.descriptionListItem,
+                  li: [styles.descriptionListItem, {color: colors.text}],
                   ul: styles.descriptionList,
                 }}
               />
             </View>
           ) : (
-            <Text style={styles.noDescriptionText}>
+            <Text style={[styles.noDescriptionText, {color: isDark ? '#888888' : COLORS.textLight}]}>
               No description available
             </Text>
           )}
         </View>
-
-        {/* ID Information (for debug purposes)
-        <View style={styles.idInfoContainer}>
-          <Text style={styles.idInfoText}>Car ID: {car.id}</Text>
-          {car.slug && <Text style={styles.idInfoText}>Slug: {car.slug}</Text>}
-        </View> */}
       </ScrollView>
 
       {/* Bottom Action Bar */}
-      <View style={styles.actionBar}>
+      <View style={[styles.actionBar, {backgroundColor: colors.card, borderTopColor: isDark ? '#333333' : '#F0F0F0'}]}>
         <View style={styles.priceContainer}>
-          <Text style={styles.priceLabel}>Price</Text>
+          <Text style={[styles.priceLabel, {color: isDark ? '#BBBBBB' : COLORS.textLight}]}>Price</Text>
           <Text style={styles.priceLargeText}>
             {selectedCurrency === 'USD' ? '$' : selectedCurrency} {price ? Math.floor(price).toLocaleString() : '175,000'}
           </Text>
@@ -1410,6 +1392,9 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     paddingHorizontal: SPACING.sm,
     paddingVertical: SPACING.xs,
+  },
+  specIconDark: {
+    tintColor: '#FFFFFF',
   },
 });
 
