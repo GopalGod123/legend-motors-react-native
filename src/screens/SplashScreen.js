@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, {useEffect} from 'react';
+import {View, StyleSheet, Image, Dimensions} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
@@ -19,7 +19,7 @@ const SplashScreen = () => {
       <Image
         source={require('./logo_Animation.gif')}
         style={styles.logo}
-        resizeMode="contain"  // Use the built-in Image resizeMode property
+        resizeMode="strech" // Use the built-in Image resizeMode property
       />
     </View>
   );
@@ -30,11 +30,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',  // Background color for the splash screen
+    // backgroundColor: '#FFFFFF', // Background color for the splash screen
   },
   logo: {
-    width: '100%',   // Adjust as needed
-    height: '100%',  // Adjust as needed
+    width: Dimensions.get('window').width, // Adjust as needed
+    height: Dimensions.get('window').height, // Adjust as needed
   },
 });
 
