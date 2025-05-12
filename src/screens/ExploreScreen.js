@@ -37,6 +37,7 @@ import {
 // Import the SearchBar from components/home
 import SearchBar from '../components/home/SearchBar';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 // Create color statistics tracker
 const colorStats = {
@@ -340,6 +341,8 @@ const ExploreScreen = () => {
     performSearch: null,
     resetSearch: null,
   });
+
+  const {isDark, theme} = useTheme();
 
   useEffect(() => {
     if (route.params?.filters) {
@@ -1411,8 +1414,11 @@ const ExploreScreen = () => {
   }, [page, loadingMore, hasMoreData, functionRef]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView style={[
+      styles.container,
+      {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background}
+    ]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={isDark ? '#2D2D2D' : themeColors[theme].background} />
 
       {/* Header Component */}
       <Header
@@ -1526,7 +1532,7 @@ const ExploreScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF', // Default color, will be overridden
   },
   carsList: {
     paddingHorizontal: SPACING.lg,
