@@ -32,6 +32,8 @@ import {
   extractColorsFromSlug,
   createColorMatchFunction,
 } from '../utils/colorUtils';
+import LoginPromptModal from '../components/LoginPromptModal';
+import { useLoginPrompt } from '../hooks/useLoginPrompt';
 
 // Import custom icons
 const LtrIcon = require('../components/explore/icon_assets/ltr.png');
@@ -145,6 +147,14 @@ const CarDetailScreen = () => {
     comfort_and_convenience: false,
     infotainment: false,
   });
+
+  // Add the login prompt hook
+  const {
+    loginModalVisible,
+    hideLoginPrompt,
+    navigateToLogin,
+    checkAuthAndShowPrompt
+  } = useLoginPrompt();
 
   // Function to toggle accordion state
   const toggleAccordion = category => {
@@ -263,11 +273,17 @@ const CarDetailScreen = () => {
     navigation.goBack();
   };
 
-  const handleInquire = () => {
+  const handleInquire = async () => {
     // Navigate to the enquiry form screen with car details
     if (!car) {
       console.error('Cannot navigate to enquiry form: No car data available');
       return;
+    }
+    
+    // Check if user is authenticated first
+    const isAuthorized = await checkAuthAndShowPrompt();
+    if (!isAuthorized) {
+      return; // Stop here if user is not authenticated
     }
     
     console.log('Navigating to enquiry form with car ID:', car.id);
@@ -291,23 +307,10 @@ const CarDetailScreen = () => {
         return;
       }
 
-      if (!isAuthenticated) {
-        console.log('User not authenticated, redirecting to login');
-        Alert.alert(
-          'Login Required',
-          'Please log in to add cars to your wishlist',
-          [
-            {
-              text: 'Cancel',
-              style: 'cancel',
-            },
-            {
-              text: 'Login',
-              onPress: () => navigation.navigate('Login'),
-            },
-          ],
-        );
-        return;
+      // Check if user is authenticated first
+      const isAuthorized = await checkAuthAndShowPrompt();
+      if (!isAuthorized) {
+        return; // Stop here if user is not authenticated
       }
 
       setProcessingWishlist(true);
@@ -315,22 +318,22 @@ const CarDetailScreen = () => {
         `Toggling favorite for car ID: ${car.id}, current status: ${isFavorite}`,
       );
 
-      let success = false;
+      let result;
       if (isFavorite) {
-        success = await removeItemFromWishlist(car.id);
-        if (success) {
+        result = await removeItemFromWishlist(car.id);
+        if (result.success) {
           console.log(`Successfully removed car ${car.id} from wishlist`);
           setIsFavorite(false);
         }
       } else {
-        success = await addItemToWishlist(car.id);
-        if (success) {
+        result = await addItemToWishlist(car.id);
+        if (result.success) {
           console.log(`Successfully added car ${car.id} to wishlist`);
           setIsFavorite(true);
         }
       }
 
-      if (!success) {
+      if (!result.success && !result.requiresAuth) {
         console.error('Wishlist operation failed');
         Alert.alert('Error', 'Failed to update wishlist. Please try again.');
       }
@@ -514,7 +517,7 @@ const CarDetailScreen = () => {
     car.price;
 
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#333333' : colors.background}]}>
+    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#333333" : colors.background} />
 
       {/* Header with back button */}
@@ -968,6 +971,13 @@ const CarDetailScreen = () => {
             <Text style={[styles.inquireButtonText, {color: isDark ? '#000000' : '#FFFFFF'}]}>Inquire Now</Text>
           </TouchableOpacity>
       </View>
+
+      {/* Add the LoginPromptModal */}
+      <LoginPromptModal
+        visible={loginModalVisible}
+        onClose={hideLoginPrompt}
+        onLoginPress={navigateToLogin}
+      />
     </SafeAreaView>
   );
 };
