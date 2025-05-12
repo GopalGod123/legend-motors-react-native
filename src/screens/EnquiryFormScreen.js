@@ -676,7 +676,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
     borderRadius: 10,
-    padding: 12,
+    padding: 16,
     marginBottom: SPACING.lg,
     marginHorizontal: 2,
   },
@@ -701,9 +701,9 @@ const styles = StyleSheet.create({
   },
   carInfoLeft: {
     flex: 1,
-    marginRight: 5,
+    marginRight: 10,
     justifyContent: 'flex-start',
-    maxWidth: '65%',
+    maxWidth: '60%',
   },
   priceWrapper: {
     flexDirection: 'column',
@@ -716,9 +716,10 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   priceValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#5E366D',
+    flexShrink: 1,
   },
   carImageContainer: {
     width: 165,

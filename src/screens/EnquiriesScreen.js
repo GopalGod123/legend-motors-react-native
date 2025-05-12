@@ -242,7 +242,7 @@ const EnquiriesScreen = () => {
           </Text>
           <TouchableOpacity
             style={styles.exploreButton}
-            onPress={() => navigation.navigate('ExploreScreen')}>
+            onPress={() => navigation.navigate('ExploreTab')}>
             <Text style={styles.exploreButtonText}>Explore Cars</Text>
           </TouchableOpacity>
         </View>
