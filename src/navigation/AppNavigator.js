@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { View, Text, Button } from 'react-native';
 
 import SplashScreen from '../screens/SplashScreen';
 import LanguageSelectScreen from '../screens/LanguageSelectScreen';
@@ -25,6 +26,20 @@ import LanguageScreen from '../screens/LanguageScreen';
 import HelpCenterScreen from '../screens/HelpCenterScreen';
 import BlogPostDetailScreen from '../screens/BlogPostDetailScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
+
+// Test screen to help debug navigation
+const TestNavigationScreen = ({ navigation }) => (
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+    <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>Navigation Test</Text>
+    <Button 
+      title="Go to Privacy Policy" 
+      onPress={() => {
+        console.log('TestNavigationScreen: Navigating to PrivacyPolicy');
+        navigation.navigate('PrivacyPolicy');
+      }} 
+    />
+  </View>
+);
 
 const Stack = createNativeStackNavigator();
 
@@ -58,7 +73,14 @@ const AppNavigator = () => {
         <Stack.Screen name="LanguageScreen" component={LanguageScreen} />
         <Stack.Screen name="HelpCenterScreen" component={HelpCenterScreen} />
         <Stack.Screen name="BlogPostDetailScreen" component={BlogPostDetailScreen} />
-        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+        <Stack.Screen name="TestNavigation" component={TestNavigationScreen} options={{ headerShown: true }} />
+        <Stack.Screen 
+          name="PrivacyPolicy" 
+          component={PrivacyPolicyScreen}
+          options={{
+            headerShown: false
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

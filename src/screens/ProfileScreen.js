@@ -443,16 +443,16 @@ const ProfileScreen = () => {
             <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
               Profile
             </Text>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[
                 styles.editIconContainer,
                 {borderColor: themeColors[theme].border},
-              ]}>
-              <Text
+              ]}> */}
+              {/* <Text
                 style={[styles.editIconText, {color: themeColors[theme].text}]}>
                 ···
-              </Text>
-            </TouchableOpacity>
+              </Text> */}
+            {/* </TouchableOpacity> */}
           </View>
 
           <View style={styles.profileInfoContainer}>
@@ -502,7 +502,7 @@ const ProfileScreen = () => {
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
-
+{/* 
               <TouchableOpacity
                 style={[
                   styles.menuItem,
@@ -516,9 +516,9 @@ const ProfileScreen = () => {
                   About Us
                 </Text>
                 <ChevronIcon />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={[
                   styles.menuItem,
                   {borderBottomColor: themeColors[theme].border},
@@ -531,7 +531,7 @@ const ProfileScreen = () => {
                   Security
                 </Text>
                 <ChevronIcon />
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <TouchableOpacity
                 style={[
@@ -547,7 +547,10 @@ const ProfileScreen = () => {
                   Language
                 </Text>
                 <View style={styles.rightContainer}>
-                  <Text style={styles.languageValue}>
+                  <Text style={[
+                    styles.languageValue, 
+                    {color: isDark ? 'white' : '#7A40C6'}
+                  ]}>
                     {languages.find(lang => lang.id == selectedLanguage)?.name}
                   </Text>
                   <ChevronIcon />
@@ -558,7 +561,8 @@ const ProfileScreen = () => {
                 style={[
                   styles.menuItem,
                   {borderBottomColor: themeColors[theme].border},
-                ]}>
+                ]}
+                onPress={() => navigation.navigate('PrivacyPolicy')}>
                 <View style={styles.menuIconContainer}>
                   <DocumentIcon />
                 </View>
