@@ -124,42 +124,40 @@ const NewsBlogsScreen = () => {
         style={styles.newsCard}
         onPress={() => handlePostPress(item)}
       >
-        <View style={styles.newsImageContainer}>
-          <Image
-            source={imageUrl}
-            style={styles.newsImage}
-            resizeMode="cover"
-          />
-          <View style={styles.newsNumberContainer}>
-            <Text style={styles.newsNumber}>{index + 1}</Text>
-          </View>
-          {item.tags && item.tags.length > 0 && (
-            <View style={styles.tagContainer}>
-              <Text style={styles.tagText}>{item.tags[0].name}</Text>
+        <View style={styles.cardInnerContainer}>
+          <View style={styles.cardImageSection}>
+            <Image
+              source={imageUrl}
+              style={styles.cardImage}
+              resizeMode="cover"
+            />
+            <View style={styles.numberOverlay}>
+              <Text style={styles.numberText}>{index + 1}</Text>
             </View>
-          )}
-        </View>
-        <View style={styles.newsContent}>
-          <Text style={styles.newsTitle} numberOfLines={2}>
-            {item.title}
-          </Text>
-          <Text style={styles.newsExcerpt} numberOfLines={1}>
-            {item.excerpt || "Click to read more"}
-          </Text>
+            <View style={styles.readTimeContainer}>
+              <Text style={styles.readTimeText}>2 min read</Text>
+            </View>
+          </View>
           
-          <View style={styles.newsFooter}>
-            <View style={styles.authorInfo}>
-              <View style={styles.authorAvatar}>
-                <Text style={styles.authorInitials}>
-                  {item.author ? `${item.author.firstName.charAt(0)}${item.author.lastName.charAt(0)}` : ""}
+          <View style={styles.cardTextSection}>
+            <Text style={styles.cardTitle} numberOfLines={3}>
+              {item.title}
+            </Text>
+            
+            <View style={styles.cardFooter}>
+              <View style={styles.authorContainer}>
+                <View style={styles.authorAvatar}>
+                  <Text style={styles.authorInitials}>
+                    {item.author ? `${item.author.firstName.charAt(0)}${item.author.lastName.charAt(0)}` : ""}
+                  </Text>
+                </View>
+                <Text style={styles.authorName}>
+                  {item.author ? `${item.author.firstName} ${item.author.lastName}` : "Lorem ipsum"}
                 </Text>
               </View>
-              <Text style={styles.authorName}>
-                {item.author ? `${item.author.firstName} ${item.author.lastName}` : "Unknown"}
-              </Text>
-            </View>
-            <View style={styles.timeInfo}>
-              <Text style={styles.timeText}>30 Apr</Text>
+              <View style={styles.dateContainer}>
+                <Text style={styles.dateText}>30 Mar</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -177,31 +175,48 @@ const NewsBlogsScreen = () => {
     
     return (
       <View style={styles.featuredSection}>
-        <Text style={styles.featuredTitle}>FEATURED</Text>
+       
         <TouchableOpacity 
-          style={styles.featuredCard}
+          style={styles.newsCard} // Using the same card style for consistency
           onPress={() => handlePostPress(featuredPost)}
         >
-          <Image
-            source={imageUrl}
-            style={styles.featuredImage}
-            resizeMode="cover"
-          />
-          <View style={styles.featuredContent}>
-            <Text style={styles.featuredPostTitle}>{featuredPost.title}</Text>
-            <Text style={styles.featuredPostExcerpt} numberOfLines={2}>
-              {featuredPost.excerpt || "Click to read more"}
-            </Text>
+          <View style={styles.cardInnerContainer}>
+            <View style={styles.cardImageSection}>
+              <Image
+                source={imageUrl}
+                style={styles.cardImage}
+                resizeMode="cover"
+              />
+              <View style={styles.numberOverlay}>
+                <Text style={styles.numberText}>1</Text>
+              </View>
+              <View style={styles.readTimeContainer}>
+                <Text style={styles.readTimeText}>2 min read</Text>
+              </View>
+            </View>
             
-            <View style={styles.featuredFooter}>
-              <Text style={styles.featuredTimeText}>30 Apr</Text>
-              <Text style={styles.featuredReadTime}>2 min read</Text>
+            <View style={styles.cardTextSection}>
+              <Text style={styles.cardTitle} numberOfLines={3}>
+                {featuredPost.title}
+              </Text>
+              
+              <View style={styles.cardFooter}>
+                <View style={styles.authorContainer}>
+                  <View style={styles.authorAvatar}>
+                    <Text style={styles.authorInitials}>
+                      {featuredPost.author ? `${featuredPost.author.firstName.charAt(0)}${featuredPost.author.lastName.charAt(0)}` : ""}
+                    </Text>
+                  </View>
+                  <Text style={styles.authorName}>
+                    {featuredPost.author ? `${featuredPost.author.firstName} ${featuredPost.author.lastName}` : "Lorem ipsum"}
+                  </Text>
+                </View>
+                <View style={styles.dateContainer}>
+                  <Text style={styles.dateText}>30 Mar</Text>
+                </View>
+              </View>
             </View>
           </View>
-          
-          <TouchableOpacity style={styles.arrowButton}>
-            <Text style={styles.arrowText}>→</Text>
-          </TouchableOpacity>
         </TouchableOpacity>
       </View>
     );
@@ -222,37 +237,57 @@ const NewsBlogsScreen = () => {
         
         <FlatList
           data={blogsData.slice(1)} // Skip the first item as it's shown as featured
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             // Construct image URL
             const imageUrl = item.coverImage 
               ? { uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}` }
               : require("../components/home/car_Image.png");
             
+            // Adjust index to start from 2 since featured post is 1
+            const displayIndex = index + 2;
+            
             return (
               <TouchableOpacity 
-                style={styles.blogCard}
+                style={styles.newsCard}
                 onPress={() => handlePostPress(item)}
               >
-                <Image
-                  source={imageUrl}
-                  style={styles.blogImage}
-                  resizeMode="cover"
-                />
-                <View style={styles.blogContent}>
-                  <Text style={styles.blogTitle}>{item.title}</Text>
-                  <Text style={styles.blogExcerpt} numberOfLines={2}>
-                    {item.excerpt || "Click to read more"}
-                  </Text>
+                <View style={styles.cardInnerContainer}>
+                  <View style={styles.cardImageSection}>
+                    <Image
+                      source={imageUrl}
+                      style={styles.cardImage}
+                      resizeMode="cover"
+                    />
+                    <View style={styles.numberOverlay}>
+                      <Text style={styles.numberText}>{displayIndex}</Text>
+                    </View>
+                    <View style={styles.readTimeContainer}>
+                      <Text style={styles.readTimeText}>2 min read</Text>
+                    </View>
+                  </View>
                   
-                  <View style={styles.blogFooter}>
-                    <Text style={styles.blogTimeText}>30 Apr</Text>
-                    <Text style={styles.blogReadTime}>2 min read</Text>
+                  <View style={styles.cardTextSection}>
+                    <Text style={styles.cardTitle} numberOfLines={3}>
+                      {item.title}
+                    </Text>
+                    
+                    <View style={styles.cardFooter}>
+                      <View style={styles.authorContainer}>
+                        <View style={styles.authorAvatar}>
+                          <Text style={styles.authorInitials}>
+                            {item.author ? `${item.author.firstName.charAt(0)}${item.author.lastName.charAt(0)}` : ""}
+                          </Text>
+                        </View>
+                        <Text style={styles.authorName}>
+                          {item.author ? `${item.author.firstName} ${item.author.lastName}` : "Lorem ipsum"}
+                        </Text>
+                      </View>
+                      <View style={styles.dateContainer}>
+                        <Text style={styles.dateText}>30 Mar</Text>
+                      </View>
+                    </View>
                   </View>
                 </View>
-                
-                <TouchableOpacity style={styles.arrowButton}>
-                  <Text style={styles.arrowText}>→</Text>
-                </TouchableOpacity>
               </TouchableOpacity>
             );
           }}
@@ -336,6 +371,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
+    padding: 24,
   },
   loadingContainer: {
     flex: 1,
@@ -381,6 +417,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
+    marginBottom: 16,
   },
   tabButton: {
     flex: 1,
@@ -402,13 +439,15 @@ const styles = StyleSheet.create({
   activeTabIndicator: {
     position: "absolute",
     bottom: 0,
-    left: 24,
-    right: 24,
-    height: 2,
-    backgroundColor: "#7A40C6",
+    left: "25%",
+    right: "25%",
+    height: 3,
+    backgroundColor: "#5E366D",
+    borderRadius: 1.5,
   },
   content: {
     flex: 1,
+    
   },
   emptyContainer: {
     padding: 40,
@@ -422,10 +461,9 @@ const styles = StyleSheet.create({
   },
   // News tab styles
   newsCard: {
-    flexDirection: "row",
-    marginHorizontal: 16,
-    marginVertical: 8,
-    borderRadius: 12,
+    marginHorizontal: 2,
+    marginVertical: 10,
+    borderRadius: 8,
     backgroundColor: "#FFFFFF",
     shadowColor: "#000",
     shadowOffset: {
@@ -436,92 +474,103 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+    borderStyle: "solid",
   },
-  newsImageContainer: {
-    width: 100,
-    height: 100,
+  cardInnerContainer: {
+    flexDirection: "row",
+    height: 124, // Fixed height matching Figma design
+  },
+  cardImageSection: {
+    width: 157, // Fixed width matching Figma design
+    height: "100%",
     position: "relative",
   },
-  newsImage: {
+  cardImage: {
     width: "100%",
     height: "100%",
   },
-  newsNumberContainer: {
+  numberOverlay: {
     position: "absolute",
     left: 0,
+    right: 0,
+    top: 0,
     bottom: 0,
-    width: 30,
-    height: 30,
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-    alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-end",
+    alignItems: "flex-end",
+    padding: 10,
   },
-  newsNumber: {
-    color: "#FFFFFF",
+  numberText: {
+    fontSize: 48,
     fontWeight: "bold",
-    fontSize: 16,
+    color: "#FFFFFF",
+    textShadowColor: 'rgba(0, 0, 0, 0.7)',
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
-  tagContainer: {
+  readTimeContainer: {
     position: "absolute",
-    right: 4,
-    top: 4,
-    backgroundColor: "#F47B20",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    left: 8,
+    bottom: 8,
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
     borderRadius: 4,
   },
-  tagText: {
+  readTimeText: {
     color: "#FFFFFF",
-    fontSize: 10,
+    fontSize: 12,
     fontWeight: "500",
   },
-  newsContent: {
+  cardTextSection: {
     flex: 1,
-    padding: 10,
+    padding: 12,
     justifyContent: "space-between",
   },
-  newsTitle: {
-    fontSize: 14,
+  cardTitle: {
+    fontSize: 16,
     fontWeight: "600",
     color: "#333",
-    marginBottom: 4,
-  },
-  newsExcerpt: {
-    fontSize: 12,
-    color: "#666",
+    lineHeight: 22,
     marginBottom: 8,
   },
-  newsFooter: {
+  cardFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  authorInfo: {
+  authorContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   authorAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: "#E0E0E0",
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#CCCCCC",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 6,
+    marginRight: 8,
   },
   authorInitials: {
-    fontSize: 10,
+    fontSize: 14,
     fontWeight: "bold",
-    color: "#666",
+    color: "#FFFFFF",
   },
   authorName: {
-    fontSize: 10,
-    color: "#666",
+    fontSize: 14,
+    color: "#333333",
   },
-  timeInfo: {},
-  timeText: {
-    fontSize: 10,
-    color: "#F47B20",
+  dateContainer: {
+    backgroundColor: "#F8F3E9",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  dateText: {
+    fontSize: 14,
+    color: "#333333",
   },
   // Blogs tab styles
   blogsContainer: {
@@ -534,8 +583,9 @@ const styles = StyleSheet.create({
   featuredTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#7A40C6",
+    color: "#5E366D",
     marginBottom: 8,
+    textTransform: "uppercase",
   },
   featuredCard: {
     borderRadius: 12,
@@ -579,52 +629,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   featuredReadTime: {
-    fontSize: 12,
-    color: "#666",
-  },
-  blogCard: {
-    marginHorizontal: 16,
-    marginBottom: 16,
-    borderRadius: 12,
-    backgroundColor: "#FFFFFF",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    overflow: "hidden",
-  },
-  blogImage: {
-    width: "100%",
-    height: 150,
-  },
-  blogContent: {
-    padding: 16,
-  },
-  blogTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
-  },
-  blogExcerpt: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 8,
-  },
-  blogFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  blogTimeText: {
-    fontSize: 12,
-    color: "#F47B20",
-    marginRight: 16,
-  },
-  blogReadTime: {
     fontSize: 12,
     color: "#666",
   },

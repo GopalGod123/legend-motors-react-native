@@ -27,6 +27,7 @@ import {getCarList} from '../services/api';
 import {SPACING, COLORS} from '../utils/constants';
 import Header from 'src/components/home/Header';
 import {FilterTabs} from 'src/components/explore';
+import {useTheme} from 'src/context/ThemeContext';
 
 // Memoize components that don't need frequent re-renders
 const MemoizedHeader = memo(Header);
@@ -65,6 +66,7 @@ const DeferredComponent = memo(
 const HomeScreen = () => {
   const navigation = useNavigation();
   const {user, isAuthenticated} = useAuth();
+  const {isDark} = useTheme();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [checkedPromptStatus, setCheckedPromptStatus] = useState(false);
   const [visibleSections, setVisibleSections] = useState({
@@ -122,17 +124,17 @@ const HomeScreen = () => {
       try {
         // Check if the user is authenticated
         const userAuthenticated = await isAuthenticated();
-        
+
         if (userAuthenticated) {
           // If user is logged in, don't show the prompt
           setShowLoginPrompt(false);
           setCheckedPromptStatus(true);
           return;
         }
-        
+
         // Check if prompt has been shown before
         const promptShown = await AsyncStorage.getItem(LOGIN_PROMPT_SHOWN);
-        
+
         if (promptShown === 'true') {
           // Prompt has been shown before, don't show it again
           setShowLoginPrompt(false);
@@ -142,14 +144,14 @@ const HomeScreen = () => {
             setShowLoginPrompt(true);
           });
         }
-        
+
         setCheckedPromptStatus(true);
       } catch (error) {
         console.error('Error checking login prompt status:', error);
         setCheckedPromptStatus(true);
       }
     };
-    
+
     if (!checkedPromptStatus) {
       checkLoginPromptStatus();
     }
@@ -211,8 +213,15 @@ const HomeScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5'},
+      ]}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#2D2D2D' : '#FFFFFF'}
+      />
       <>
         {/* Header with user info from auth context */}
         <MemoizedHeader
@@ -227,7 +236,11 @@ const HomeScreen = () => {
           onScroll={handleScroll}
           scrollEventThrottle={16}
           removeClippedSubviews={false}>
-          <View style={styles.content}>
+          <View
+            style={[
+              styles.content,
+              {backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5'},
+            ]}>
             {/* Search Bar */}
             <MemoizedSearchBar
               onApplyFilters={handleSearchBarFilterApply}
@@ -236,7 +249,6 @@ const HomeScreen = () => {
             />
 
             {/* Category Filter */}
-            {/* <MemoizedCategoryFilter /> */}
             <FilterTabs
               categories={filterCategories}
               activeFilter={null}
@@ -282,7 +294,10 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    paddingLeft:12,
+    paddingRight:12,
+    paddingTop:24,
+    paddingBottom:24
   },
   content: {
     paddingBottom: 70,

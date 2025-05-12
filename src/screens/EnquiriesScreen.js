@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,24 +9,50 @@ import {
   Image,
   SafeAreaView,
   StatusBar,
+  RefreshControl,
+  Dimensions,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {getUserEnquiries} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
-import {Ionicons, MaterialIcons, MaterialCommunityIcons} from 'src/utils/icon';
+import {Ionicons} from 'src/utils/icon';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {useTheme} from '../context/ThemeContext';
+import Logo from 'src/components/Logo';
+
+const {width} = Dimensions.get('window');
+
+// Custom Logo component to replace the missing icon
+const LegendMotorsLogo = () => {
+  const {isDark} = useTheme();
+  
+  return (
+    <View style={styles.logoContainer}>
+      <Text style={[styles.logoText, {color: isDark ? '#FFFFFF' : '#212121'}]}>Legend</Text>
+      <View style={styles.logoBox} />
+      <Text style={styles.motorsText}>Motors</Text>
+    </View>
+  );
+};
 
 const EnquiriesScreen = () => {
   const navigation = useNavigation();
   const {user, isAuthenticated} = useAuth();
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [enquiries, setEnquiries] = useState([]);
   const [error, setError] = useState(null);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
+  const {selectedCurrency} = useCurrencyLanguage();
+  const {theme, isDark} = useTheme();
 
-  useEffect(() => {
-    checkAuthAndFetchEnquiries();
-  }, [user]);
+  // Load enquiries when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      checkAuthAndFetchEnquiries();
+    }, [user])
+  );
 
   const checkAuthAndFetchEnquiries = async () => {
     setLoading(true);
@@ -50,9 +76,11 @@ const EnquiriesScreen = () => {
   const fetchEnquiries = async () => {
     try {
       const response = await getUserEnquiries();
+      console.log('Enquiries response:', response);
 
       if (response.success) {
         setEnquiries(response.data || []);
+        setError(null);
       } else {
         setError(response.msg || 'Failed to load enquiries');
       }
@@ -61,7 +89,13 @@ const EnquiriesScreen = () => {
       setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchEnquiries();
   };
 
   const handleLoginPress = () => {
@@ -71,24 +105,42 @@ const EnquiriesScreen = () => {
   };
 
   const handleViewCar = enquiry => {
-    // Navigate to car details screen with the car ID
-    navigation.navigate('ExploreTab', {
-      screen: 'CarDetailScreen',
-      params: {carId: enquiry.carId},
-    });
+    // From the API response, we can see the car info is in the 'car' property
+    const car = enquiry.car || {};
+    
+    // Get the car ID from either the car object or the enquiry itself
+    const carId = car.id || enquiry.carId || enquiry.id || null;
+    
+    if (!carId) {
+      console.error('Cannot navigate to car details: No car ID available');
+      return;
+    }
+    
+    console.log('Navigating to car details with carId:', carId);
+    
+    // Navigate directly to the CarDetailScreen in the root navigator
+    // Not through the nested tab navigation
+    navigation.navigate('CarDetailScreen', { carId });
   };
 
   // Loading state
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Enquiries</Text>
+      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+          <View style={styles.headerLogoContainer}>
+            <LegendMotorsLogo />
+            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
+          </View>
+          
+          <TouchableOpacity style={styles.searchButton}>
+            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+          </TouchableOpacity>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Loading enquiries...</Text>
+          <ActivityIndicator size="large" color="#F47B20" />
+          <Text style={[styles.loadingText, {color: isDark ? '#CCCCCC' : '#757575'}]}>Loading enquiries...</Text>
         </View>
       </SafeAreaView>
     );
@@ -97,13 +149,20 @@ const EnquiriesScreen = () => {
   // Error state
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Enquiries</Text>
+      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+          <View style={styles.headerLogoContainer}>
+            <LegendMotorsLogo />
+            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
+          </View>
+          
+          <TouchableOpacity style={styles.searchButton}>
+            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+          </TouchableOpacity>
         </View>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={[styles.errorText, {color: isDark ? '#FF453A' : '#FF3B30'}]}>{error}</Text>
           <TouchableOpacity
             style={styles.retryButton}
             onPress={checkAuthAndFetchEnquiries}>
@@ -117,10 +176,17 @@ const EnquiriesScreen = () => {
   // Not authenticated state - show login prompt
   if (!isUserAuthenticated) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Enquiries</Text>
+      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+          <View style={styles.headerLogoContainer}>
+            <LegendMotorsLogo />
+            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
+          </View>
+          
+          <TouchableOpacity style={styles.searchButton}>
+            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+          </TouchableOpacity>
         </View>
         <View style={styles.loginContainer}>
           <View style={styles.clipboardIconContainer}>
@@ -130,8 +196,8 @@ const EnquiriesScreen = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.noEnquiriesTitle}>No Enquiries found</Text>
-          <Text style={styles.loginPromptText}>
+          <Text style={[styles.noEnquiriesTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>No Enquiries found</Text>
+          <Text style={[styles.loginPromptText, {color: isDark ? '#CCCCCC' : '#757575'}]}>
             Login/Register to track all your enquiries in one place hassle free.
           </Text>
           <TouchableOpacity
@@ -149,10 +215,17 @@ const EnquiriesScreen = () => {
   // Authenticated but no enquiries
   if (enquiries.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Enquiries</Text>
+      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+          <View style={styles.headerLogoContainer}>
+            <LegendMotorsLogo />
+            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
+          </View>
+          
+          <TouchableOpacity style={styles.searchButton}>
+            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+          </TouchableOpacity>
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.clipboardIconContainer}>
@@ -162,14 +235,14 @@ const EnquiriesScreen = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.noEnquiriesTitle}>No Enquiries yet</Text>
-          <Text style={styles.emptyText}>
+          <Text style={[styles.noEnquiriesTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>No Enquiries yet</Text>
+          <Text style={[styles.emptyText, {color: isDark ? '#CCCCCC' : '#757575'}]}>
             You haven't made any enquiries yet. Start exploring cars and submit
             enquiries.
           </Text>
           <TouchableOpacity
             style={styles.exploreButton}
-            onPress={() => navigation.navigate('ExploreTab')}>
+            onPress={() => navigation.navigate('ExploreScreen')}>
             <Text style={styles.exploreButtonText}>Explore Cars</Text>
           </TouchableOpacity>
         </View>
@@ -177,51 +250,102 @@ const EnquiriesScreen = () => {
     );
   }
 
-  // Render list of enquiries
+  // Render list of enquiries - updated to match the Figma design
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>My Enquiries</Text>
+    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'}]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+      <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+        {/* Add Legend Motors logo next to title */}
+        <View style={styles.headerLogoContainer}>
+          <Image
+            source={require('../assets/images/logo.png')}
+            style={[styles.logoImage, { width: 30, height: 30 }]}
+            resizeMode="contain"
+          />
+          <Text style={[styles.headerTitle, { 
+            fontFamily: 'Effra Medium',
+            fontWeight: '400',
+            fontSize: 24,
+            lineHeight: 24 * 1.2, // 120% of font size
+            letterSpacing: 0,
+            color: isDark ? '#FFFFFF' : '#212121'
+          }]}>My Inquiries</Text>
+        </View>
+        
+        {/* Add search icon */}
+        <TouchableOpacity style={styles.searchButton}>
+          <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+        </TouchableOpacity>
       </View>
 
       <FlatList
         data={enquiries}
-        keyExtractor={item => item.id.toString()}
-        renderItem={({item}) => (
-          <View style={styles.enquiryCard}>
-            <View style={styles.carImageContainer}>
-              {item.carImage ? (
-                <Image
-                  source={require('../components/icons/NoEnquiery.png')}
-                  style={styles.carImage}
-                  resizeMode="cover"
-                />
-              ) : (
-                <Image
-                source={require('../components/icons/NoEnquiery.png')}
-                style={styles.carImage}
-                resizeMode="cover"
-              />
-              )}
+        keyExtractor={item => item.id?.toString() || Math.random().toString()}
+        renderItem={({item}) => {
+          // The API response shows car details are in a nested 'car' object
+          const car = item.car || {};
+          
+          // Process car data to ensure consistent access
+          const processedCar = {
+            id: car.id || item.id || item.carId || null,
+            brand: car.brand || item.brand || 'Brand',
+            model: car.model || item.model || 'Model',
+            trim: car.trim || item.trim || '',
+            image: car.image || null,
+          };
+          
+          // Extract price from the car prices array
+          const prices = car.prices || [];
+          const price = prices.find(
+            p => p.currency === selectedCurrency
+          )?.price || car.price || item.price || 0;
+          
+          return (
+            <View style={[styles.cardContainer, {backgroundColor: isDark ? '#0D0D0D' : 'transparent'}]}>
+              <View style={[styles.carImageContainer, {borderColor: isDark ? '#0D0D0D' : '#E0E0E0', backgroundColor: isDark ? '#0D0D0D' : '#f5f5f5'}]}>
+                {processedCar.image ? (
+                  <Image
+                    source={{ uri: `https://cdn.legendmotorsglobal.com${processedCar.image}` }}
+                    style={styles.carImage}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Image
+                    source={require('../components/icons/NoEnquiery.png')}
+                    style={styles.carImage}
+                    resizeMode="cover"
+                  />
+                )}
+              </View>
+              
+              <View style={styles.carDetailsContainer}>
+                <Text style={[styles.carTitle, {color: isDark ? '#FFFFFF' : '#0D0D0D'}]}>
+                  {car.additionalInfo || `${processedCar.brand} ${processedCar.model} ${processedCar.trim}`}
+                </Text>
+                
+                <View style={styles.priceButtonContainer}>
+                  <Text style={[styles.priceText, {color: isDark ? '#ffffff' : '#0D0D0D'}]}>
+                    {selectedCurrency === 'AED' ? 'AED' : '$'} {Number(price).toLocaleString()}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.viewButton}
+                    onPress={() => handleViewCar(item)}>
+                    <Text style={[styles.viewButtonText, {color:isDark ? '#000' : '#ffff'}]}>View Car</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
-            <View style={styles.enquiryDetails}>
-              <Text style={styles.carTitle}>
-                {item.brand} {item.model}
-              </Text>
-              <Text style={styles.priceText}>
-                ${item.price?.toLocaleString() || 'N/A'}
-              </Text>
-              <TouchableOpacity
-                style={styles.viewCarButton}
-                onPress={() => handleViewCar(item)}>
-                <Text style={styles.viewCarButtonText}>View Car</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
+          );
+        }}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor={isDark ? '#FFFFFF' : '#000000'} 
+          />
+        }
       />
     </SafeAreaView>
   );
@@ -231,21 +355,107 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    padding:24
   },
   header: {
-    paddingHorizontal: 24,
-    paddingTop: 44,
-    paddingBottom: 24,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 2,
+    paddingVertical: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
+  },
+  headerLogoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoText: {
+    fontSize: 18,
+    fontWeight: '300',
+    color: '#212121',
+  },
+  logoBox: {
+    width: 32,
+    height: 32,
+    backgroundColor: '#5E366D',
+    marginHorizontal: 4,
+  },
+  motorsText: {
+    fontSize: 16,
+    fontWeight: '300',
+    color: '#5E366D',
+  },
+  searchButton: {
+    width: 32,
+    height: 32,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  headerTitle: {
-    fontSize: 24,
+  listContent: {
+    paddingVertical: 16,
+  },
+  cardContainer: {
+    backgroundColor: 'transparent',
+    marginBottom: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    paddingTop:20,
+    borderRadius:32
+  },
+  carImageContainer: {
+    width: 104,
+    height: 92,
+    borderRadius: 8,
+    overflow: 'hidden',
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  carImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 24,
+  },
+  carDetailsContainer: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  carTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#000000',
+    marginTop: 10,
+  },
+  priceButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  priceText: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#212121',
-    textAlign: 'center',
+  },
+  viewButton: {
+    backgroundColor: '#F47B20',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    marginRight: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,
@@ -271,14 +481,19 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   retryButton: {
-    padding: SPACING.md,
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.md,
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.xl,
+    backgroundColor: '#F47B20',
+    borderRadius: 8,
+    minWidth: 120,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   retryButtonText: {
     color: '#FFFFFF',
-    fontSize: FONT_SIZES.md,
+    fontSize: 16,
     fontWeight: '600',
+    textAlign: 'center',
   },
   loginContainer: {
     flex: 1,
@@ -301,8 +516,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   loginPromptText: {
-    fontSize: 18,
-    color: COLORS.textLight,
+    fontSize: 16,
+    color: '#757575',
     textAlign: 'center',
     marginBottom: SPACING.xl,
     paddingHorizontal: SPACING.md,
@@ -313,14 +528,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.xl,
     backgroundColor: '#F47B20',
     borderRadius: 8,
-    width: 380,
-    height: 50,
+    width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
+    height: 50,
   },
   loginButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -331,94 +546,38 @@ const styles = StyleSheet.create({
     padding: SPACING.xl,
   },
   emptyText: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textLight,
+    fontSize: 16,
+    color: '#757575',
     textAlign: 'center',
     marginBottom: SPACING.xl,
+    paddingHorizontal: SPACING.md,
+    lineHeight: 24,
   },
   exploreButton: {
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.xl,
     backgroundColor: '#F47B20',
     borderRadius: 8,
-    width: 380,
-    height: 50,
+    width: '90%',
     justifyContent: 'center',
     alignItems: 'center',
+    height: 50,
   },
   exploreButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
-  },
-  listContent: {
-    padding: SPACING.md,
-  },
-  enquiryCard: {
-    flexDirection: 'row',
-    marginBottom: SPACING.md,
-    padding: SPACING.sm,
-    backgroundColor: '#FFFFFF',
-    borderRadius: BORDER_RADIUS.md,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  carImageContainer: {
-    width: 100,
-    height: 80,
-    borderRadius: BORDER_RADIUS.sm,
-    overflow: 'hidden',
-  },
-  carImage: {
-    width: '100%',
-    height: '100%',
-  },
-  carImagePlaceholder: {
-    width: '100%',
-    height: '100%',
-    backgroundColor: '#F8F8F8',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  enquiryDetails: {
-    flex: 1,
-    marginLeft: SPACING.md,
-    justifyContent: 'space-between',
-  },
-  carTitle: {
-    fontSize: FONT_SIZES.md,
-    fontWeight: '600',
-    color: COLORS.textDark,
-    marginBottom: 4,
-  },
-  priceText: {
-    fontSize: FONT_SIZES.lg,
-    fontWeight: '700',
-    color: COLORS.primary,
-    marginBottom: 4,
-  },
-  viewCarButton: {
-    alignSelf: 'flex-end',
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    backgroundColor: COLORS.primary,
-    borderRadius: BORDER_RADIUS.sm,
-  },
-  viewCarButtonText: {
-    color: '#FFFFFF',
-    fontSize: FONT_SIZES.sm,
-    fontWeight: '600',
   },
   noEnquiryImage: {
     width: 194,
     height: 186,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#212121',
+    marginLeft: 16,
   },
 });
 

@@ -12,13 +12,21 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle")
+        classpath("com.android.tools.build:gradle:8.8.2")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
         classpath('com.android.tools.build:gradle:7.2.1')
         classpath('com.google.gms:google-services:4.3.3') //<--- Mandatory for using Firebase Messaging, skip if not using FCM
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
 
 apply plugin: "com.facebook.react.rootproject"
-// apply plugins 'com.google.gms.google-services'
+
+// Define the global repositories for the project
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://www.jitpack.io' }
+    }
+}

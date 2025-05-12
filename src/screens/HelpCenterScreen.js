@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,47 +11,51 @@ import {
   FlatList,
   ActivityIndicator,
   Alert,
-  Dimensions
+  Dimensions,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Svg, { Path, Circle } from 'react-native-svg';
-import { getFaqCategories } from '../services/api';
+import {useNavigation} from '@react-navigation/native';
+import Svg, {Path, Circle} from 'react-native-svg';
+import {getFaqCategories} from '../services/api';
+import {useTheme, themeColors} from '../context/ThemeContext';
+import SvgComponent from 'src/utils/icon/SvgComponent';
 
 // Utility functions for handling HTML content
-const parseHtmlContent = (html) => {
+const parseHtmlContent = html => {
   if (!html) return '';
-  
+
   // First, remove any script or style tags and their content
-  let parsed = html.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-                   .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
-  
+  let parsed = html
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '');
+
   // Replace common HTML entities
-  parsed = parsed.replace(/&nbsp;/g, ' ')
-                .replace(/&amp;/g, '&')
-                .replace(/&lt;/g, '<')
-                .replace(/&gt;/g, '>')
-                .replace(/&quot;/g, '"')
-                .replace(/&apos;/g, "'");
-  
+  parsed = parsed
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'");
+
   // Replace <br>, <p>, </p>, <div>, </div> tags with newlines
-  parsed = parsed.replace(/<br\s*\/?>/gi, '\n')
-                .replace(/<\/p>/gi, '\n')
-                .replace(/<\/div>/gi, '\n')
-                .replace(/<p[^>]*>/gi, '')
-                .replace(/<div[^>]*>/gi, '');
-  
+  parsed = parsed
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<p[^>]*>/gi, '')
+    .replace(/<div[^>]*>/gi, '');
+
   // Remove all other HTML tags but keep their content
   parsed = parsed.replace(/<[^>]*>/g, '');
-  
+
   // Clean up excessive whitespace and newlines
-  parsed = parsed.replace(/\n\s*\n/g, '\n')
-                .replace(/^\s+|\s+$/g, '');
-  
+  parsed = parsed.replace(/\n\s*\n/g, '\n').replace(/^\s+|\s+$/g, '');
+
   return parsed;
 };
 
 // Strip all HTML tags for search functionality
-const stripHtmlTags = (html) => {
+const stripHtmlTags = html => {
   if (!html) return '';
   return html.replace(/<\/?[^>]+(>|$)/g, '');
 };
@@ -268,13 +272,20 @@ const InstagramIcon = () => (
 
 const HelpCenterScreen = () => {
   const navigation = useNavigation();
+  const {theme, isDark} = useTheme();
   const [activeTab, setActiveTab] = useState('FAQ');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedItem, setExpandedItem] = useState(null);
-  
+
   // Add new states for API data
   const [loading, setLoading] = useState(true);
-  const [faqCategories, setFaqCategories] = useState([]);
+  const [faqCategories, setFaqCategories] = useState([
+    {id: 1, name: 'All', active: true},
+    {id: 2, name: 'Account', active: false},
+    {id: 3, name: 'Orders', active: false},
+    {id: 4, name: 'Payments', active: false},
+    {id: 5, name: 'Shipping', active: false},
+  ]);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
   const [faqs, setFaqs] = useState([]);
   const [filteredFaqs, setFilteredFaqs] = useState([]);
@@ -295,46 +306,48 @@ const HelpCenterScreen = () => {
     setError(null);
     try {
       const response = await getFaqCategories(language);
-      
+
       if (response.success && response.data) {
         console.log('FAQ data received:', response.data);
-        
+
         // Process categories and set first one as active
         const categories = response.data.map((category, index) => ({
           id: category.id,
           name: category.name,
-          active: index === 0
+          active: index === 0,
         }));
-        
+
         setFaqCategories(categories);
-        
+
         // Set the first category as active if categories exist
         if (categories.length > 0) {
           setActiveCategoryId(categories[0].id);
         }
-        
+
         // Flatten all FAQs for search functionality
         const allFaqs = [];
         response.data.forEach(category => {
           if (category.faqs && category.faqs.length > 0) {
             category.faqs.forEach(faq => {
               allFaqs.push({
-                id: `${category.id}-${faq.id || Math.random().toString(36).substring(7)}`,
+                id: `${category.id}-${
+                  faq.id || Math.random().toString(36).substring(7)
+                }`,
                 categoryId: category.id,
                 question: faq.question,
                 answer: faq.answer,
-                plainTextAnswer: stripHtmlTags(faq.answer) // Add plain text version for search
+                plainTextAnswer: stripHtmlTags(faq.answer), // Add plain text version for search
               });
             });
           }
         });
-        
+
         setFaqs(allFaqs);
         setFilteredFaqs(allFaqs);
       } else {
         console.log('API returned unsuccessful response for FAQs:', response);
         setError('Failed to load FAQs. Please try again later.');
-        
+
         // Set empty data to avoid undefined errors
         setFaqCategories([]);
         setFaqs([]);
@@ -342,8 +355,10 @@ const HelpCenterScreen = () => {
       }
     } catch (error) {
       console.error('Error fetching FAQ data:', error);
-      setError('An error occurred while loading FAQs. Please check your connection and try again.');
-      
+      setError(
+        'An error occurred while loading FAQs. Please check your connection and try again.',
+      );
+
       // Set empty data to avoid undefined errors
       setFaqCategories([]);
       setFaqs([]);
@@ -355,37 +370,39 @@ const HelpCenterScreen = () => {
 
   const filterFaqs = () => {
     let filtered = [...faqs];
-    
+
     // Filter by active category
     if (activeCategoryId) {
       filtered = filtered.filter(faq => faq.categoryId === activeCategoryId);
     }
-    
+
     // Filter by search query using plain text versions
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(faq => 
-        faq.question.toLowerCase().includes(query) || 
-        (faq.plainTextAnswer && faq.plainTextAnswer.toLowerCase().includes(query))
+      filtered = filtered.filter(
+        faq =>
+          faq.question.toLowerCase().includes(query) ||
+          (faq.plainTextAnswer &&
+            faq.plainTextAnswer.toLowerCase().includes(query)),
       );
     }
-    
+
     setFilteredFaqs(filtered);
   };
 
-  const handleCategoryPress = (categoryId) => {
+  const handleCategoryPress = categoryId => {
     setActiveCategoryId(categoryId);
-    
+
     // Update active status in faqCategories
     const updatedCategories = faqCategories.map(category => ({
       ...category,
-      active: category.id === categoryId
+      active: category.id === categoryId,
     }));
-    
+
     setFaqCategories(updatedCategories);
   };
 
-  const toggleExpandItem = (id) => {
+  const toggleExpandItem = id => {
     if (expandedItem === id) {
       setExpandedItem(null);
     } else {
@@ -393,7 +410,7 @@ const HelpCenterScreen = () => {
     }
   };
 
-  const handleSearch = (text) => {
+  const handleSearch = text => {
     setSearchQuery(text);
   };
 
@@ -404,12 +421,12 @@ const HelpCenterScreen = () => {
 
   // Define contact items for Contact Us tab
   const contactItems = [
-    { id: '1', name: 'Customer Service', icon: <HeadphonesIcon /> },
-    { id: '2', name: 'WhatsApp', icon: <WhatsAppIcon /> },
-    { id: '3', name: 'Website', icon: <WebsiteIcon /> },
-    { id: '4', name: 'Facebook', icon: <FacebookIcon /> },
-    { id: '5', name: 'Twitter', icon: <TwitterIcon /> },
-    { id: '6', name: 'Instagram', icon: <InstagramIcon /> },
+    {id: '1', name: 'Customer Service', icon: <HeadphonesIcon />},
+    {id: '2', name: 'WhatsApp', icon: <WhatsAppIcon />},
+    {id: '3', name: 'Website', icon: <WebsiteIcon />},
+    {id: '4', name: 'Facebook', icon: <FacebookIcon />},
+    {id: '5', name: 'Twitter', icon: <TwitterIcon />},
+    {id: '6', name: 'Instagram', icon: <InstagramIcon />},
   ];
 
   const renderFAQTab = () => {
@@ -417,15 +434,19 @@ const HelpCenterScreen = () => {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={styles.loadingText}>Loading FAQs...</Text>
+          <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
+            Loading FAQs...
+          </Text>
         </View>
       );
     }
-    
+
     if (error) {
       return (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={[styles.errorText, {color: themeColors[theme].text}]}>
+            {error}
+          </Text>
           <TouchableOpacity style={styles.retryButton} onPress={handleRefresh}>
             <Text style={styles.retryButtonText}>Try Again</Text>
           </TouchableOpacity>
@@ -437,26 +458,23 @@ const HelpCenterScreen = () => {
       <View style={styles.tabContent}>
         {/* FAQ Categories */}
         {faqCategories.length > 0 && (
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
-            style={styles.categoriesContainer}
-          >
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.categoriesContainer}>
             {faqCategories.map(category => (
               <TouchableOpacity
                 key={category.id}
                 style={[
                   styles.categoryButton,
-                  category.active && styles.activeCategoryButton
+                  category.active && styles.activeCategoryButton,
                 ]}
-                onPress={() => handleCategoryPress(category.id)}
-              >
+                onPress={() => handleCategoryPress(category.id)}>
                 <Text
                   style={[
                     styles.categoryText,
-                    category.active && styles.activeCategoryText
-                  ]}
-                >
+                    category.active && styles.activeCategoryText,
+                  ]}>
                   {category.name}
                 </Text>
               </TouchableOpacity>
@@ -465,13 +483,26 @@ const HelpCenterScreen = () => {
         )}
 
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
+        <View
+          style={[
+            styles.searchContainer,
+            {
+              borderColor: themeColors[theme].border,
+              backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+            },
+          ]}>
           <View style={styles.searchIcon}>
             <SearchIcon />
           </View>
           <TextInput
-            style={styles.searchInput}
+            style={[
+              styles.searchInput,
+              {
+                color: isDark ? '#FFFFFF' : themeColors[theme].text,
+              },
+            ]}
             placeholder="Search for help"
+            placeholderTextColor={isDark ? '#888888' : '#666666'}
             value={searchQuery}
             onChangeText={handleSearch}
           />
@@ -482,18 +513,32 @@ const HelpCenterScreen = () => {
           <View style={styles.faqItemsContainer}>
             {filteredFaqs.map(item => (
               <View key={item.id} style={styles.faqItem}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.faqQuestion}
-                  onPress={() => toggleExpandItem(item.id)}
-                >
-                  <Text style={styles.questionText}>{item.question}</Text>
-                  <View style={expandedItem === item.id ? styles.chevronUp : styles.chevronDown}>
+                  onPress={() => toggleExpandItem(item.id)}>
+                  <Text
+                    style={[
+                      styles.questionText,
+                      {color: isDark ? '#FFFFFF' : '#212121'},
+                    ]}>
+                    {item.question}
+                  </Text>
+                  <View
+                    style={
+                      expandedItem === item.id
+                        ? styles.chevronUp
+                        : styles.chevronDown
+                    }>
                     <ChevronDownIcon />
                   </View>
                 </TouchableOpacity>
                 {expandedItem === item.id && item.answer && (
                   <View style={styles.answerContainer}>
-                    <Text style={styles.answerText}>
+                    <Text
+                      style={[
+                        styles.answerText,
+                        {color: isDark ? '#FFFFFF' : '#757575'},
+                      ]}>
                       {parseHtmlContent(item.answer)}
                     </Text>
                   </View>
@@ -504,9 +549,9 @@ const HelpCenterScreen = () => {
         ) : (
           <View style={styles.noResultsContainer}>
             <Text style={styles.noResultsText}>
-              {searchQuery.trim() 
-                ? "No FAQs found matching your search. Try different keywords." 
-                : "No FAQs available for this category."}
+              {searchQuery.trim()
+                ? 'No FAQs found matching your search. Try different keywords.'
+                : 'No FAQs available for this category.'}
             </Text>
           </View>
         )}
@@ -519,11 +564,20 @@ const HelpCenterScreen = () => {
       <View style={styles.tabContent}>
         <View style={styles.contactItemsContainer}>
           {contactItems.map(item => (
-            <TouchableOpacity key={item.id} style={styles.contactItem}>
-              <View style={styles.contactIcon}>
-                {item.icon}
-              </View>
-              <Text style={styles.contactName}>{item.name}</Text>
+            <TouchableOpacity
+              key={item.id}
+              style={[
+                styles.contactItem,
+                {borderBottomColor: themeColors[theme].border},
+              ]}>
+              <View style={styles.contactIcon}>{item.icon}</View>
+              <Text
+                style={[
+                  styles.contactName,
+                  {color: isDark ? '#FFFFFF' : '#212121'},
+                ]}>
+                {item.name}
+              </Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -532,43 +586,86 @@ const HelpCenterScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
+      ]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={styles.header}>
-        <TouchableOpacity 
-          style={styles.backButton} 
-          onPress={() => navigation.goBack()}
-        >
-          <BackIcon />
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
+          <SvgComponent />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Help Center</Text>
+        <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+          Help Center
+        </Text>
         <TouchableOpacity style={styles.infoButton}>
-          <InfoCircleIcon />
+          <View style={styles.infoIconContainer}>
+            <Text style={styles.infoIconDot}>...</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity 
-          style={[styles.tabButton, activeTab === 'FAQ' && styles.activeTabButton]}
-          onPress={() => setActiveTab('FAQ')}
-        >
-          <Text 
-            style={[styles.tabText, activeTab === 'FAQ' && styles.activeTabText]}
-          >
+      <View
+        style={[
+          styles.tabsContainer,
+          {borderBottomColor: themeColors[theme].border},
+        ]}>
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === 'FAQ' && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab('FAQ')}>
+          <Text
+            style={[
+              styles.tabText,
+              {
+                color:
+                  activeTab === 'FAQ'
+                    ? themeColors[theme].primary
+                    : themeColors[theme].text,
+              },
+            ]}>
             FAQ
           </Text>
-          {activeTab === 'FAQ' && <View style={styles.activeTabIndicator} />}
+          {activeTab === 'FAQ' && (
+            <View
+              style={[
+                styles.activeTabIndicator,
+                {backgroundColor: themeColors[theme].primary},
+              ]}
+            />
+          )}
         </TouchableOpacity>
-        <TouchableOpacity 
-          style={[styles.tabButton, activeTab === 'Contact' && styles.activeTabButton]}
-          onPress={() => setActiveTab('Contact')}
-        >
-          <Text 
-            style={[styles.tabText, activeTab === 'Contact' && styles.activeTabText]}
-          >
+        <TouchableOpacity
+          style={[
+            styles.tabButton,
+            activeTab === 'Contact' && styles.activeTabButton,
+          ]}
+          onPress={() => setActiveTab('Contact')}>
+          <Text
+            style={[
+              styles.tabText,
+              {
+                color:
+                  activeTab === 'Contact'
+                    ? themeColors[theme].primary
+                    : themeColors[theme].text,
+              },
+            ]}>
             Contact us
           </Text>
-          {activeTab === 'Contact' && <View style={styles.activeTabIndicator} />}
+          {activeTab === 'Contact' && (
+            <View
+              style={[
+                styles.activeTabIndicator,
+                {backgroundColor: themeColors[theme].primary},
+              ]}
+            />
+          )}
         </TouchableOpacity>
       </View>
 
@@ -582,7 +679,7 @@ const HelpCenterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    padding:24
   },
   header: {
     flexDirection: 'row',
@@ -597,7 +694,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#212121',
   },
   infoButton: {
     padding: 4,
@@ -605,7 +701,6 @@ const styles = StyleSheet.create({
   tabsContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   tabButton: {
     flex: 1,
@@ -618,11 +713,6 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    color: '#9E9E9E',
-  },
-  activeTabText: {
-    color: '#7A40C6',
-    fontWeight: '600',
   },
   activeTabIndicator: {
     position: 'absolute',
@@ -630,7 +720,6 @@ const styles = StyleSheet.create({
     left: 24,
     right: 24,
     height: 2,
-    backgroundColor: '#7A40C6',
   },
   content: {
     flex: 1,
@@ -645,7 +734,7 @@ const styles = StyleSheet.create({
   categoryButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    borderRadius: 20,
+    borderRadius: 8,
     marginRight: 8,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
@@ -665,7 +754,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
     borderRadius: 10,
     paddingHorizontal: 12,
     marginBottom: 16,
@@ -694,12 +782,11 @@ const styles = StyleSheet.create({
   },
   questionText: {
     fontSize: 14,
-    color: '#212121',
     flex: 1,
     paddingRight: 8,
   },
   chevronUp: {
-    transform: [{ rotate: '180deg' }],
+    transform: [{rotate: '180deg'}],
   },
   chevronDown: {
     // Default orientation, no transformation needed
@@ -710,7 +797,6 @@ const styles = StyleSheet.create({
   },
   answerText: {
     fontSize: 14,
-    color: '#757575',
     lineHeight: 20,
     marginBottom: 8,
   },
@@ -747,14 +833,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   contactIcon: {
     marginRight: 16,
   },
   contactName: {
     fontSize: 16,
-    color: '#212121',
   },
   loadingContainer: {
     flex: 1,
@@ -804,4 +888,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HelpCenterScreen; 
+export default HelpCenterScreen;

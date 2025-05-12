@@ -25,6 +25,7 @@ import {useWishlist} from '../../context/WishlistContext';
 import {getCarList} from 'src/services/api';
 import CarCard from '../explore/CarCard';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {useTheme} from 'src/context/ThemeContext';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -188,6 +189,7 @@ const JustArrived = () => {
   const {user} = useAuth();
   const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
     useWishlist();
+  const {isDark} = useTheme();
 
   // Use a ref to avoid making API calls if component unmounts
   const isMounted = useRef(true);
@@ -404,44 +406,97 @@ const JustArrived = () => {
   );
 
   const renderEmptyComponent = () => (
-    <View style={styles.emptyContainer}>
+    <View
+      style={[
+        styles.emptyContainer,
+        {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+      ]}>
       <MaterialCommunityIcons
         name="car-clock"
         size={50}
-        color={COLORS.textLight}
+        color={isDark ? '#FFFFFF' : COLORS.textLight}
       />
-      <Text style={styles.emptyText}>No new arrivals found</Text>
+      <Text
+        style={[
+          styles.emptyText,
+          {color: isDark ? '#FFFFFF' : COLORS.textLight},
+        ]}>
+        No new arrivals found
+      </Text>
     </View>
   );
 
   const renderLoadingItem = ({item}) => (
-    <View style={[styles.carCard, styles.skeletonCard]}>
-      <View style={[styles.imageContainer, styles.skeletonImage]} />
+    <View
+      style={[
+        styles.carCard,
+        styles.skeletonCard,
+        {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+      ]}>
+      <View
+        style={[
+          styles.imageContainer,
+          styles.skeletonImage,
+          {backgroundColor: isDark ? '#2D2D2D' : '#EEEEEE'},
+        ]}
+      />
       <View style={styles.cardContent}>
-        <View style={[styles.skeletonText, {width: '40%', marginBottom: 8}]} />
         <View
           style={[
             styles.skeletonText,
-            {width: '90%', height: 18, marginBottom: 12},
+            {
+              width: '40%',
+              marginBottom: 8,
+              backgroundColor: isDark ? '#2D2D2D' : '#EEEEEE',
+            },
+          ]}
+        />
+        <View
+          style={[
+            styles.skeletonText,
+            {
+              width: '90%',
+              height: 18,
+              marginBottom: 12,
+              backgroundColor: isDark ? '#2D2D2D' : '#EEEEEE',
+            },
           ]}
         />
         <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
           <View
             style={[
               styles.skeletonText,
-              {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
+              {
+                width: '30%',
+                height: 14,
+                marginRight: 8,
+                marginBottom: 8,
+                backgroundColor: isDark ? '#2D2D2D' : '#EEEEEE',
+              },
             ]}
           />
           <View
             style={[
               styles.skeletonText,
-              {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
+              {
+                width: '30%',
+                height: 14,
+                marginRight: 8,
+                marginBottom: 8,
+                backgroundColor: isDark ? '#2D2D2D' : '#EEEEEE',
+              },
             ]}
           />
           <View
             style={[
               styles.skeletonText,
-              {width: '30%', height: 14, marginRight: 8, marginBottom: 8},
+              {
+                width: '30%',
+                height: 14,
+                marginRight: 8,
+                marginBottom: 8,
+                backgroundColor: isDark ? '#2D2D2D' : '#EEEEEE',
+              },
             ]}
           />
         </View>
@@ -451,23 +506,58 @@ const JustArrived = () => {
             justifyContent: 'space-between',
             marginTop: 8,
           }}>
-          <View style={[styles.skeletonText, {width: '30%', height: 14}]} />
-          <View style={[styles.skeletonText, {width: '30%', height: 14}]} />
+          <View
+            style={[
+              styles.skeletonText,
+              {
+                width: '30%',
+                height: 14,
+                backgroundColor: isDark ? '#2D2D2D' : '#EEEEEE',
+              },
+            ]}
+          />
+          <View
+            style={[
+              styles.skeletonText,
+              {
+                width: '30%',
+                height: 14,
+                backgroundColor: isDark ? '#2D2D2D' : '#EEEEEE',
+              },
+            ]}
+          />
         </View>
       </View>
     </View>
   );
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: 'none'},
+      ]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Just Arrived!</Text>
+        <Text
+          style={[styles.title, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>
+          Just Arrived!
+        </Text>
         <TouchableOpacity onPress={navigateToAllNewArrivals}>
-          <Text style={styles.viewAllText}>See All</Text>
+          <Text
+            style={[
+              styles.viewAllText,
+              {color: isDark ? '#FF8C00' : COLORS.primary},
+            ]}>
+            See All
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.subtitle}>
+      <Text
+        style={[
+          styles.subtitle,
+          {color: isDark ? '#FFFFFF' : COLORS.textMedium},
+        ]}>
         Be the first to see our newest vehicles
       </Text>
 
@@ -504,6 +594,8 @@ const JustArrived = () => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: SPACING.xl,
+    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: SPACING.lg,
   },
   header: {
     flexDirection: 'row',
@@ -515,16 +607,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONT_SIZES.xl,
     fontWeight: 'bold',
-    color: COLORS.textDark,
   },
   subtitle: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textMedium,
     marginBottom: SPACING.md,
     paddingHorizontal: SPACING.lg,
   },
   viewAllText: {
-    color: COLORS.primary,
     fontSize: FONT_SIZES.md,
     fontWeight: '500',
   },
@@ -534,7 +623,6 @@ const styles = StyleSheet.create({
   },
   carCard: {
     width: cardWidth,
-    backgroundColor: COLORS.white,
     borderRadius: 10,
     marginRight: SPACING.lg,
     shadowColor: '#000',
@@ -545,7 +633,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
   },
-
   tagText: {
     color: COLORS.white,
     fontWeight: 'bold',
@@ -554,7 +641,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: '100%',
     height: 180,
-    backgroundColor: '#ffffff',
     borderRadius: BORDER_RADIUS.lg,
     overflow: 'hidden',
   },
@@ -583,10 +669,9 @@ const styles = StyleSheet.create({
   carTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
     marginBottom: 10,
     lineHeight: 22,
-    minHeight: 44, // Ensure space for 2 lines
+    minHeight: 44,
   },
   specRow: {
     flexDirection: 'row',
@@ -630,15 +715,10 @@ const styles = StyleSheet.create({
     marginLeft: 15,
   },
   // Skeleton styles
-  skeletonCard: {
-    backgroundColor: COLORS.white,
-  },
-  skeletonImage: {
-    backgroundColor: '#EEEEEE',
-  },
+  skeletonCard: {},
+  skeletonImage: {},
   skeletonText: {
     height: 14,
-    backgroundColor: '#EEEEEE',
     borderRadius: BORDER_RADIUS.sm,
     marginBottom: 8,
   },
@@ -647,12 +727,10 @@ const styles = StyleSheet.create({
     height: 280,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
     borderRadius: BORDER_RADIUS.lg,
   },
   emptyText: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textLight,
     marginTop: SPACING.md,
   },
 });

@@ -100,7 +100,7 @@ const SearchBar = ({
           </View>
           <TextInput
             style={[styles.searchInput, disabled && styles.disabledInput]}
-            placeholder="Sports Car"
+            placeholder="Search by body type.."
             placeholderTextColor={
               disabled ? '#C0C0C0' : COLORS.inputPlaceholder
             }
@@ -145,11 +145,11 @@ const styles = StyleSheet.create({
   },
   searchSection: {
     flexDirection: 'row',
-    borderRadius: 25,
+    borderRadius: 8,
     backgroundColor: 'white',
     borderWidth: 1,
     borderColor: '#9E86A7',
-    height: 55,
+    height: 44,
     overflow: 'hidden',
     alignItems: 'center',
   },

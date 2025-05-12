@@ -137,6 +137,9 @@ export const getAllPossibleImageUrls = (path) => {
   return urls;
 };
 
+// Add the console.log to show what API URL is being used
+console.log('Loading API configuration...');
+
 export default {
   API_BASE_URL,
   API_IMAGE_BASE_URL,

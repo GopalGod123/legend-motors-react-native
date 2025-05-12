@@ -6,18 +6,22 @@ import {WishlistProvider} from './src/context/WishlistContext';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {CurrencyLanguageProvider} from './src/context/CurrencyLanguageContext';
 import useCleverTapNotifications from 'src/services/NotificationHandler';
+import {ThemeProvider} from './src/context/ThemeContext';
+
 const App = () => {
   useCleverTapNotifications();
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <SafeAreaProvider>
-        <CurrencyLanguageProvider>
-          <AuthProvider>
-            <WishlistProvider>
-              <AppNavigator />
-            </WishlistProvider>
-          </AuthProvider>
-        </CurrencyLanguageProvider>
+        <ThemeProvider>
+          <CurrencyLanguageProvider>
+            <AuthProvider>
+              <WishlistProvider>
+                <AppNavigator />
+              </WishlistProvider>
+            </AuthProvider>
+          </CurrencyLanguageProvider>
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

@@ -3,6 +3,8 @@ import {Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {API_BASE_URL, API_KEY} from '../utils/apiConfig';
 
+console.log('API Base URL:', API_BASE_URL);
+
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -737,43 +739,62 @@ export const getUserEnquiries = async (params = {}) => {
   try {
     // Ensure token is synchronized before making the request
     await syncAuthToken();
-
+    
     // Default parameters
     const defaultParams = {
       page: 1,
-      limit: 10,
+      limit: 100,
     };
-
+    
     // Merge default with provided params
     const requestParams = {...defaultParams, ...params};
-
+    
     console.log('Fetching user enquiries with params:', requestParams);
-
-    const response = await api.get('/car-enquiry/user-enquiries', {
+    
+    // Use the correct API endpoint
+    const response = await api.get('https://api.staging.legendmotorsglobal.com/api/v1/car-enquiry/user-enquiries', { 
       params: requestParams,
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+      },
     });
-
+    
+    console.log('User enquiries API response:', JSON.stringify(response.data));
+    
     if (response.data && response.data.success) {
-      return response.data;
+      console.log(`Successfully fetched ${response.data.data?.length || 0} user enquiries`);
+      return {
+        success: true,
+        data: response.data.data || [],
+        pagination: response.data.pagination || {},
+        msg: response.data.msg || 'Enquiries retrieved successfully',
+      };
     } else {
-      console.log(
-        'API returned unsuccessful response for user enquiries:',
-        response.data,
-      );
+      console.error('API returned unsuccessful response for user enquiries:', response.data);
       return {
         success: false,
-        msg: response.data?.message || 'Failed to fetch enquiries',
         data: [],
+        msg: response.data?.msg || 'Failed to fetch enquiries',
       };
     }
   } catch (error) {
     console.error('Error fetching user enquiries:', error);
-
-    // Return a structured error response
+    
+    // Add more detailed error logging
+    if (error.response) {
+      console.error('Error response status:', error.response.status);
+      console.error('Error response data:', error.response.data);
+    } else if (error.request) {
+      console.error('No response received from server');
+    } else {
+      console.error('Error setting up request:', error.message);
+    }
+    
     return {
       success: false,
-      msg: error.message || 'Failed to fetch enquiries',
       data: [],
+      msg: error.response?.data?.msg || error.message || 'Failed to fetch enquiries',
     };
   }
 };
@@ -1158,6 +1179,87 @@ export const getWishlist = async (params = {}) => {
         'Failed to fetch wishlist',
       error: error.response?.status || 'unknown',
       data: [],
+    };
+  }
+};
+
+// Submit car enquiry
+export const submitCarEnquiry = async (enquiryData) => {
+  try {
+    console.log('Submitting car enquiry with data:', JSON.stringify(enquiryData));
+    
+    // Ensure required fields are present
+    if (!enquiryData.carId) {
+      console.error('Missing required field: carId');
+      return {
+        success: false,
+        msg: 'Car ID is required',
+      };
+    }
+    
+    // Ensure phone number is properly formatted with country code
+    let finalPhoneNumber = enquiryData.phoneNumber || '';
+    
+    // If country code is provided and not already part of the phone number
+    if (enquiryData.countryCode) {
+      const countryCodeWithoutPlus = enquiryData.countryCode.replace('+', '');
+      
+      // Remove country code if it's already in the phone number
+      if (finalPhoneNumber.startsWith('+' + countryCodeWithoutPlus)) {
+        finalPhoneNumber = finalPhoneNumber.substring(('+' + countryCodeWithoutPlus).length);
+      } else if (finalPhoneNumber.startsWith(countryCodeWithoutPlus)) {
+        finalPhoneNumber = finalPhoneNumber.substring(countryCodeWithoutPlus.length);
+      }
+      
+      // Ensure we don't have leading zeros
+      while (finalPhoneNumber.startsWith('0')) {
+        finalPhoneNumber = finalPhoneNumber.substring(1);
+      }
+      
+      // Add country code to the phone number
+      finalPhoneNumber = enquiryData.countryCode + finalPhoneNumber;
+    }
+    
+    // Format the data according to API requirements
+    const formattedData = {
+      carId: parseInt(enquiryData.carId, 10),
+      name: enquiryData.name,
+      phoneNumber: finalPhoneNumber, // Properly formatted phone number with country code
+      emailAddress: enquiryData.emailAddress,
+      pageUrl: enquiryData.pageUrl || `https://legendmotorsglobal.com/cars/${enquiryData.carId}`,
+      countryCode: enquiryData.countryCode || '+971',
+    };
+    
+    console.log('Final formatted data for API:', JSON.stringify(formattedData));
+    
+    // Make the API call
+    const response = await api.post('/car-enquiry/create', formattedData);
+    
+    console.log('Car enquiry response:', JSON.stringify(response.data));
+    
+    return {
+      success: true,
+      data: response.data.data,
+      msg: response.data.msg || 'Enquiry submitted successfully',
+    };
+  } catch (error) {
+    console.error('Error submitting car enquiry:', error);
+    console.error('Request data:', error.request?.data);
+    console.error('Response status:', error.response?.status);
+    console.error('Response data:', error.response?.data);
+    
+    // Provide better error message specifically for phone validation issues
+    if (error.response?.data?.message?.includes('phone') || 
+        error.response?.data?.errors?.some(err => err.includes('phone'))) {
+      return {
+        success: false,
+        msg: 'The phone number format is invalid. Please ensure you\'ve entered a valid phone number for the selected country code.',
+      };
+    }
+    
+    return {
+      success: false,
+      msg: error.response?.data?.message || error.message || 'Failed to submit enquiry',
     };
   }
 };

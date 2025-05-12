@@ -3,12 +3,14 @@ import {View, Text, StyleSheet} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {COLORS} from '../utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {
   ListSearchIcon,
   EyeIcon,
   BlogIcon,
   ProfileIcon,
 } from '../components/icons';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -20,20 +22,22 @@ import EnquiriesScreen from '../screens/EnquiriesScreen';
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
-  console.log('bottam tab');
+  const {theme, isDark} = useTheme();
+  const insets = useSafeAreaInsets();
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: '#F47B20',
-        tabBarInactiveTintColor: '#8E8E8E',
+        tabBarInactiveTintColor: isDark ? '#666666' : '#8E8E8E',
         tabBarStyle: {
-          backgroundColor: '#FFFFFF',
-          height: 70,
-          paddingBottom: 10,
+          backgroundColor: themeColors[theme].background,
+          height: 70 + insets.bottom,
+          paddingBottom: 10 + insets.bottom,
           paddingTop: 10,
           borderTopWidth: 1,
-          borderTopColor: '#EEEEEE',
+          borderTopColor: themeColors[theme].border,
           elevation: 8,
           shadowColor: '#000',
           shadowOffset: {width: 0, height: -2},
@@ -44,6 +48,7 @@ const BottomTabNavigator = () => {
           fontSize: 12,
           fontWeight: '400',
           marginTop: 2,
+          color: themeColors[theme].text,
         },
         tabBarItemStyle: {
           padding: 5,
@@ -63,7 +68,7 @@ const BottomTabNavigator = () => {
         name="EnquiriesTab"
         component={EnquiriesScreen}
         options={{
-          tabBarLabel: 'Enquiries',
+          tabBarLabel: 'Inquiries',
           tabBarIcon: ({color, size}) => (
             <ListSearchIcon width={size} height={size} color={color} />
           ),

@@ -1,47 +1,67 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import { HatchbackIcon, SedanIcon, SUVIcon } from '../icons';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import {HatchbackIcon, SedanIcon, SUVIcon} from '../icons';
+import {useTheme} from 'src/context/ThemeContext';
 
-const BodyTypeItem = ({ icon, title }) => {
+const BodyTypeItem = ({icon, title, isDark}) => {
   return (
     <TouchableOpacity style={styles.itemContainer}>
-      <View style={styles.imageContainer}>
+      <View
+        style={[
+          styles.imageContainer,
+          {backgroundColor: isDark ? '#1A1A1A' : '#FFF'},
+        ]}>
         {icon}
       </View>
-      <Text style={styles.itemTitle}>{title}</Text>
+      <Text style={[styles.itemTitle, {color: isDark ? '#FFFFFF' : '#333'}]}>
+        {title}
+      </Text>
     </TouchableOpacity>
   );
 };
 
 const BodyTypeSearch = () => {
   const bodyTypes = [
-    { id: 1, title: 'Hatchback', icon: <HatchbackIcon width={60} height={40} /> },
-    { id: 2, title: 'Sedan', icon: <SedanIcon width={60} height={40} /> },
-    { id: 3, title: 'SUV', icon: <SUVIcon width={60} height={40} /> },
-    { id: 4, title: 'Crossover', icon: <HatchbackIcon width={60} height={40} /> },
-    { id: 5, title: 'Coupe', icon: <SedanIcon width={60} height={40} /> },
-    { id: 6, title: 'Convertible', icon: <SUVIcon width={60} height={40} /> },
+    {id: 1, title: 'Hatchback', icon: <HatchbackIcon width={60} height={40} />},
+    {id: 2, title: 'Sedan', icon: <SedanIcon width={60} height={40} />},
+    {id: 3, title: 'SUV', icon: <SUVIcon width={60} height={40} />},
+    {id: 4, title: 'Crossover', icon: <HatchbackIcon width={60} height={40} />},
+    {id: 5, title: 'Coupe', icon: <SedanIcon width={60} height={40} />},
+    {id: 6, title: 'Convertible', icon: <SUVIcon width={60} height={40} />},
   ];
+  const {isDark} = useTheme();
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : 'none'},
+      ]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Search by Body Type</Text>
+        <Text style={[styles.title, {color: isDark ? '#FFFFFF' : '#333'}]}>
+          Search by Body Type
+        </Text>
         <TouchableOpacity>
           <Text style={styles.seeAllText}>See All</Text>
         </TouchableOpacity>
       </View>
-      
-      <ScrollView 
+
+      <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {bodyTypes.map((item) => (
-          <BodyTypeItem 
+        contentContainerStyle={styles.scrollContent}>
+        {bodyTypes.map(item => (
+          <BodyTypeItem
             key={item.id}
             icon={item.icon}
             title={item.title}
+            isDark={isDark}
           />
         ))}
       </ScrollView>
@@ -63,7 +83,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
   },
   seeAllText: {
     fontSize: 16,
@@ -81,12 +100,11 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: 100,
     height: 100,
-    backgroundColor: '#FFF',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
@@ -94,9 +112,8 @@ const styles = StyleSheet.create({
   },
   itemTitle: {
     fontSize: 14,
-    color: '#333',
     textAlign: 'center',
   },
 });
 
-export default BodyTypeSearch; 
+export default BodyTypeSearch;

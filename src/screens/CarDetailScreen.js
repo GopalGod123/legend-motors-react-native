@@ -32,6 +32,13 @@ import {
   createColorMatchFunction,
 } from '../utils/colorUtils';
 
+// Import custom icons
+const LtrIcon = require('../components/explore/icon_assets/ltr.png');
+const ElectricIcon = require('../components/explore/icon_assets/electric.png');
+const AutomaticIcon = require('../components/explore/icon_assets/Automatic.png');
+const CountryIcon = require('../components/explore/icon_assets/country.png');
+const SteeringIcon = require('../components/explore/icon_assets/Steering.png');
+
 const {width} = Dimensions.get('window');
 
 // Helper function to convert color names to hex color codes
@@ -252,10 +259,24 @@ const CarDetailScreen = () => {
   };
 
   const handleInquire = () => {
-    // Here you would implement functionality to inquire about the car
-    console.log('Inquire about car:', car?.id);
-    // For demonstration, show car ID
-    alert(`Inquire about car ID: ${car?.id}`);
+    // Navigate to the enquiry form screen with car details
+    if (!car) {
+      console.error('Cannot navigate to enquiry form: No car data available');
+      return;
+    }
+    
+    console.log('Navigating to enquiry form with car ID:', car.id);
+    
+    // Ensure we're passing a valid carId and image
+    const carImageData = carImages && carImages.length > 0 ? carImages[0] : null;
+    
+    navigation.navigate('EnquiryFormScreen', {
+      carId: car.id, // Ensure this is a valid car ID
+      carTitle: title || `${car.Year?.year || ''} ${car.Brand?.name || ''} ${car.CarModel?.name || ''}`,
+      carImage: carImageData,
+      carPrice: price,
+      currency: selectedCurrency,
+    });
   };
 
   const toggleFavorite = async () => {
@@ -541,7 +562,7 @@ const CarDetailScreen = () => {
                   Interior
                 </Text>
               </TouchableOpacity>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={[
                   styles.galleryTab,
                   activeTab === 'highlight' && styles.activeGalleryTab,
@@ -554,7 +575,7 @@ const CarDetailScreen = () => {
                   ]}>
                   Highlight
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
 
             <CarImageCarousel
@@ -630,30 +651,63 @@ const CarDetailScreen = () => {
             {/* Specs pills in rows, using the design from the image */}
             <View style={styles.specsContainer}>
               <View style={styles.specPill}>
-                <Icon name="settings" size={18} color="#5E366D" />
-                <Text style={styles.specPillText}>ltr</Text>
+                <Image 
+                  source={LtrIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
+                <Text style={styles.specPillText}>
+                  {specifications.find(spec => spec.Specification?.key === 'drive_type')?.name || 'ltr'}
+                </Text>
               </View>
 
               <View style={styles.specPill}>
-                <Icon name="bolt" size={18} color="#5E366D" />
-                <Text style={styles.specPillText}>Electric</Text>
+                <Image 
+                  source={ElectricIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
+                <Text style={styles.specPillText}>
+                  {specifications.find(spec => spec.Specification?.key === 'fuel_type')?.name || fuelType}
+                </Text>
               </View>
 
               <View style={styles.specPill}>
-                <Icon name="sync" size={18} color="#5E366D" />
-                <Text style={styles.specPillText}>Automatic</Text>
+                <Image 
+                  source={AutomaticIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
+                <Text style={styles.specPillText}>
+                  {specifications.find(spec => spec.Specification?.key === 'transmission')?.name || transmission}
+                </Text>
               </View>
 
               <View style={styles.specPill}>
-                <Icon name="public" size={18} color="#5E366D" />
-                <Text style={styles.specPillText}>China</Text>
+                <Image 
+                  source={CountryIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
+                <Text style={styles.specPillText}>
+                  {specifications.find(spec => spec.Specification?.key === 'regional_specification')?.name || region}
+                </Text>
               </View>
-            </View>
-
-            <View style={styles.specsContainer}>
+              
               <View style={styles.specPill}>
-                <Icon name="drive-eta" size={18} color="#5E366D" />
-                <Text style={styles.specPillText}>Left hand drive</Text>
+                <Image 
+                  source={SteeringIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
+                <Text style={styles.specPillText}>
+                  {specifications.find(spec => spec.Specification?.key === 'steering')?.name || steeringType}
+                </Text>
               </View>
             </View>
 
@@ -679,7 +733,7 @@ const CarDetailScreen = () => {
             {/* Condition */}
             <View style={styles.overviewItem}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="directions-car" size={20} color="#9E9E9E" />
+                <Icon name="directions-car" size={22} color="#9E9E9E" />
               </View>
               <Text style={styles.overviewLabel}>Condition:</Text>
               <Text style={styles.overviewValue}>{car.condition || 'New'}</Text>
@@ -688,25 +742,25 @@ const CarDetailScreen = () => {
             {/* Cylinders */}
             <View style={styles.overviewItem}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="settings" size={20} color="#9E9E9E" />
+                <Icon name="settings" size={22} color="#9E9E9E" />
               </View>
               <Text style={styles.overviewLabel}>Cylinders:</Text>
               <Text style={styles.overviewValue}>
                 {specifications.find(
-                  spec => spec.Specification?.name === 'Cylinders',
-                )?.name || 'None - Electric'}
+                  spec => spec.Specification?.key === 'cylinders',
+                )?.name || '4 Cylinders'}
               </Text>
             </View>
 
             {/* Fuel Type */}
             <View style={styles.overviewItem}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="local-gas-station" size={20} color="#9E9E9E" />
+                <Icon name="local-gas-station" size={22} color="#9E9E9E" />
               </View>
               <Text style={styles.overviewLabel}>Fuel Type:</Text>
               <Text style={styles.overviewValue}>
                 {specifications.find(
-                  spec => spec.Specification?.name === 'Fuel Type',
+                  spec => spec.Specification?.key === 'fuel_type',
                 )?.name || fuelType}
               </Text>
             </View>
@@ -714,21 +768,21 @@ const CarDetailScreen = () => {
             {/* Built Year */}
             <View style={styles.overviewItem}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="event" size={20} color="#9E9E9E" />
+                <Icon name="event" size={22} color="#9E9E9E" />
               </View>
               <Text style={styles.overviewLabel}>Built Year:</Text>
-              <Text style={styles.overviewValue}>{year}</Text>
+              <Text style={styles.overviewValue}>{year || '2025'}</Text>
             </View>
 
             {/* Transmission */}
             <View style={styles.overviewItem}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="transform" size={20} color="#9E9E9E" />
+                <Icon name="transform" size={22} color="#9E9E9E" />
               </View>
               <Text style={styles.overviewLabel}>Transmission:</Text>
               <Text style={styles.overviewValue}>
                 {specifications.find(
-                  spec => spec.Specification?.name === 'Transmission',
+                  spec => spec.Specification?.key === 'transmission',
                 )?.name || transmission}
               </Text>
             </View>
@@ -736,13 +790,13 @@ const CarDetailScreen = () => {
             {/* Color */}
             <View style={styles.overviewItem}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="palette" size={20} color="#9E9E9E" />
+                <Icon name="palette" size={22} color="#9E9E9E" />
               </View>
               <Text style={styles.overviewLabel}>Color:</Text>
               <Text style={styles.overviewValue}>
                 {specifications.find(
-                  spec => spec.Specification?.name === 'Color',
-                )?.name || 'Black'}
+                  spec => spec.Specification?.key === 'exterior_color',
+                )?.name || 'White'}
               </Text>
             </View>
           </View>
@@ -884,7 +938,7 @@ const CarDetailScreen = () => {
         <TouchableOpacity
           style={[styles.actionButton, styles.inquireButton]}
           onPress={handleInquire}>
-          <Text style={styles.inquireButtonText}>Enquire Now</Text>
+          <Text style={styles.inquireButtonText}>Inquire Now</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -1040,21 +1094,28 @@ const styles = StyleSheet.create({
   specsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 8,
+    gap: 10,
+    marginBottom: 12,
   },
   specPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#E9E5EB',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     gap: 6,
+    alignSelf: 'flex-start',
   },
   specPillText: {
     fontSize: 14,
-    color: '#424242',
+    color: '#333333',
+    fontWeight: '500',
+  },
+  specIcon: {
+    width: 18,
+    height: 18,
+    marginRight: 4,
   },
   priceRow: {
     flexDirection: 'row',
@@ -1068,18 +1129,20 @@ const styles = StyleSheet.create({
     color: '#5E366D',
   },
   sectionContainer: {
-    padding: SPACING.md,
+    paddingHorizontal: 10,
+    paddingTop: 3,
+    paddingBottom: SPACING.lg,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
     backgroundColor: '#FFFFFF',
   },
   sectionTitle: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: 18,
     fontWeight: '600',
     color: COLORS.textDark,
-    marginBottom: SPACING.md,
+    marginBottom: 10,
     position: 'relative',
-    paddingBottom: 10,
+    paddingBottom: 8,
   },
   sectionTitleLine: {
     position: 'absolute',
@@ -1091,31 +1154,40 @@ const styles = StyleSheet.create({
     borderRadius: 1.5,
   },
   overviewList: {
-    marginTop: SPACING.xs,
+    marginTop: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    overflow: 'hidden',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    marginHorizontal: 8,
   },
   overviewItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F8F8F8',
+    borderBottomColor: '#F0F0F0',
   },
   overviewIconContainer: {
-    width: 30,
-    height: 30,
+    width: 40,
+    height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
+    marginRight: 16,
   },
   overviewLabel: {
-    fontSize: FONT_SIZES.md,
-    color: COLORS.textLight,
+    fontSize: 15,
+    color: '#757575',
     flex: 1,
+    paddingRight: 12,
   },
   overviewValue: {
-    fontSize: FONT_SIZES.md,
+    fontSize: 15,
     fontWeight: '600',
     color: '#5E366D',
+    marginRight: 8,
   },
   featureCategory: {
     marginBottom: SPACING.md,

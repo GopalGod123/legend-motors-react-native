@@ -32,6 +32,7 @@ import {useWishlist} from '../../context/WishlistContext';
 import api, {getCarList} from 'src/services/api';
 import CarCard from '../explore/CarCard';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {useTheme} from 'src/context/ThemeContext';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.85;
@@ -45,6 +46,7 @@ const HotDeals = () => {
   const {user} = useAuth();
   const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
     useWishlist();
+  const {isDark} = useTheme();
 
   // Use a ref to avoid making API calls if component unmounts
   const isMounted = useRef(true);
@@ -261,52 +263,105 @@ const HotDeals = () => {
   );
 
   const renderLoadingItem = ({item}) => (
-    <View style={[styles.cardContainer, {backgroundColor: '#f8f8f8'}]}>
-      <View style={[styles.carImage, {backgroundColor: '#eeeeee'}]} />
+    <View
+      style={[
+        styles.cardContainer,
+        {backgroundColor: isDark ? '#3D3D3D' : '#f8f8f8'},
+      ]}>
+      <View
+        style={[
+          styles.carImage,
+          {backgroundColor: isDark ? '#2D2D2D' : '#eeeeee'},
+        ]}
+      />
       <View style={styles.cardContent}>
-        <View style={[styles.skeletonLine, {width: '40%', marginBottom: 10}]} />
         <View
           style={[
             styles.skeletonLine,
-            {width: '80%', height: 20, marginBottom: 15},
+            {
+              width: '40%',
+              marginBottom: 10,
+              backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
+            },
           ]}
         />
         <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            marginBottom: 10,
-          }}>
+          style={[
+            styles.skeletonLine,
+            {
+              width: '80%',
+              height: 20,
+              marginBottom: 15,
+              backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
+            },
+          ]}
+        />
+        <View
+          style={{flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10}}>
           <View
             style={[
               styles.skeletonLine,
-              {width: '30%', marginRight: 8, marginBottom: 8},
+              {
+                width: '30%',
+                marginRight: 8,
+                marginBottom: 8,
+                backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
+              },
             ]}
           />
           <View
             style={[
               styles.skeletonLine,
-              {width: '30%', marginRight: 8, marginBottom: 8},
+              {
+                width: '30%',
+                marginRight: 8,
+                marginBottom: 8,
+                backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
+              },
             ]}
           />
           <View
             style={[
               styles.skeletonLine,
-              {width: '30%', marginRight: 8, marginBottom: 8},
+              {
+                width: '30%',
+                marginRight: 8,
+                marginBottom: 8,
+                backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
+              },
             ]}
           />
           <View
             style={[
               styles.skeletonLine,
-              {width: '30%', marginRight: 8, marginBottom: 8},
+              {
+                width: '30%',
+                marginRight: 8,
+                marginBottom: 8,
+                backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
+              },
             ]}
           />
         </View>
-        <View style={[styles.skeletonLine, {width: '40%', marginBottom: 15}]} />
         <View
           style={[
             styles.skeletonLine,
-            {width: '100%', height: 40, borderRadius: 20},
+            {
+              width: '40%',
+              marginBottom: 15,
+              backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
+            },
+          ]}
+        />
+        <View
+          style={[
+            styles.skeletonLine,
+            {
+              width: '100%',
+              height: 40,
+              borderRadius: 20,
+              backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
+            },
           ]}
         />
       </View>
@@ -315,31 +370,60 @@ const HotDeals = () => {
 
   // For empty state
   const renderEmptyComponent = () => (
-    <View style={styles.noDealsContainer}>
+    <View
+      style={[
+        styles.noDealsContainer,
+        {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+      ]}>
       <MaterialCommunityIcons
         name="tag-text"
         size={40}
-        color={COLORS.textLight}
+        color={isDark ? '#FFFFFF' : COLORS.textLight}
       />
-      <Text style={styles.noDealsText}>
+      <Text
+        style={[
+          styles.noDealsText,
+          {color: isDark ? '#FFFFFF' : COLORS.textMedium},
+        ]}>
         No hot deals available at the moment
       </Text>
     </View>
   );
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: 'none'},
+      ]}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
-         
-          <Text style={styles.title}>Hot Deals</Text>
+          <Text
+            style={[
+              styles.title,
+              {color: isDark ? '#FFFFFF' : COLORS.textDark},
+            ]}>
+            Hot Deals
+          </Text>
         </View>
         <TouchableOpacity onPress={navigateToAllHotDeals}>
-          <Text style={styles.viewAllText}>See All</Text>
+          <Text
+            style={[
+              styles.viewAllText,
+              {color: isDark ? '#FF8C00' : COLORS.primary},
+            ]}>
+            See All
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.subtitle}>Checkout our exclusive offers</Text>
+      <Text
+        style={[
+          styles.subtitle,
+          {color: isDark ? '#FFFFFF' : COLORS.textMedium},
+        ]}>
+        Checkout our exclusive offers
+      </Text>
 
       {loading ? (
         <FlatList
@@ -372,6 +456,9 @@ const HotDeals = () => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: SPACING.xl,
+    borderRadius: BORDER_RADIUS.lg,
+    paddingVertical: SPACING.lg,
+    backgroundColor: 'transparent'
   },
   header: {
     flexDirection: 'row',
@@ -383,16 +470,13 @@ const styles = StyleSheet.create({
   title: {
     fontSize: FONT_SIZES.xl,
     fontWeight: 'bold',
-    color: COLORS.textDark,
   },
   subtitle: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textMedium,
     marginBottom: SPACING.md,
     paddingHorizontal: SPACING.lg,
   },
   viewAllText: {
-    color: COLORS.primary,
     fontSize: FONT_SIZES.md,
     fontWeight: '500',
   },
@@ -403,7 +487,6 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     width: cardWidth,
-    backgroundColor: COLORS.white,
     borderRadius: 10,
     marginRight: SPACING.lg,
     shadowColor: '#000',
@@ -492,13 +575,11 @@ const styles = StyleSheet.create({
   },
   skeletonLine: {
     height: 12,
-    backgroundColor: '#eeeeee',
     borderRadius: 6,
   },
   noDealsContainer: {
     width: cardWidth,
     height: 300,
-    backgroundColor: COLORS.white,
     borderRadius: BORDER_RADIUS.lg,
     justifyContent: 'center',
     alignItems: 'center',
@@ -506,11 +587,10 @@ const styles = StyleSheet.create({
   },
   noDealsText: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textMedium,
     textAlign: 'center',
     marginTop: SPACING.md,
   },
-  
+
   tagText: {
     color: COLORS.white,
     fontWeight: 'bold',

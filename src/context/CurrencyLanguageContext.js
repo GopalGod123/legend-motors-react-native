@@ -16,8 +16,8 @@ export const CurrencyLanguageProvider = ({children}) => {
 
     // Handle RTL languages
     const isRTL = language === 'ar';
-    I18nManager.allowRTL(isRTL);
-    I18nManager.forceRTL(isRTL);
+    // I18nManager.allowRTL(isRTL);
+    // I18nManager.forceRTL(isRTL);
 
     // Update API default params
     api.defaults.params = {
