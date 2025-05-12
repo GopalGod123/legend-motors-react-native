@@ -70,7 +70,7 @@ export const WishlistProvider = ({ children }) => {
       const isUserAuthenticated = await isAuthenticated();
       if (!isUserAuthenticated) {
         console.log('Cannot add to wishlist: User not authenticated');
-        return false;
+        return { success: false, requiresAuth: true };
       }
       
       setLoading(true);
@@ -89,12 +89,12 @@ export const WishlistProvider = ({ children }) => {
           // If no car data in response, just refresh the wishlist
           fetchWishlistItems();
         }
-        return true;
+        return { success: true };
       }
-      return false;
+      return { success: false };
     } catch (error) {
       console.error('Error adding item to wishlist:', error);
-      return false;
+      return { success: false };
     } finally {
       setLoading(false);
     }
@@ -107,13 +107,13 @@ export const WishlistProvider = ({ children }) => {
       const isUserAuthenticated = await isAuthenticated();
       if (!isUserAuthenticated) {
         console.log('Cannot remove from wishlist: User not authenticated');
-        return false;
+        return { success: false, requiresAuth: true };
       }
       
       // Check if this item is already being removed globally
       if (globalRemovingItems[idParam]) {
         console.log(`Item ${idParam} is already being removed globally, skipping duplicate request`);
-        return true; // Return true to prevent error messages in UI
+        return { success: true }; // Return true to prevent error messages in UI
       }
       
       // Mark this item as being removed globally
@@ -168,14 +168,14 @@ export const WishlistProvider = ({ children }) => {
           });
         });
         
-        return true;
+        return { success: true };
       } else {
         console.error(`Failed to remove car ID ${carId} from wishlist: ${response.msg}`);
-        return false;
+        return { success: false };
       }
     } catch (error) {
       console.error('Error removing item from wishlist:', error);
-      return false;
+      return { success: false };
     } finally {
       setLoading(false);
       

@@ -26,6 +26,8 @@ import {getCarList} from 'src/services/api';
 import CarCard from '../explore/CarCard';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme} from 'src/context/ThemeContext';
+import LoginPromptModal from '../../components/LoginPromptModal';
+import { useLoginPrompt } from '../../hooks/useLoginPrompt';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -290,6 +292,14 @@ const JustArrived = () => {
   }, []);
   const {selectedLanguage, selectedCurrency} = useCurrencyLanguage();
 
+  // Add the login prompt hook
+  const {
+    loginModalVisible,
+    hideLoginPrompt,
+    navigateToLogin,
+    checkAuthAndShowPrompt
+  } = useLoginPrompt();
+
   useEffect(() => {
     fetchNewArrivals();
     return () => {
@@ -340,19 +350,23 @@ const JustArrived = () => {
   };
 
   const toggleFavorite = async carId => {
-    if (!user) {
-      navigation.navigate('Login', {
-        returnScreen: 'HomeScreen',
-        message: 'Please login to save favorites',
-      });
-      return;
+    // Check if user is authenticated first
+    const isAuthorized = await checkAuthAndShowPrompt();
+    if (!isAuthorized) {
+      return; // Stop here if user is not authenticated
     }
 
     try {
+      let result;
       if (isInWishlist(carId)) {
-        await removeItemFromWishlist(carId);
+        result = await removeItemFromWishlist(carId);
       } else {
-        await addItemToWishlist(carId);
+        result = await addItemToWishlist(carId);
+      }
+      
+      // If operation failed but not because of auth (since we already checked auth)
+      if (!result.success && !result.requiresAuth) {
+        console.error('Wishlist operation failed');
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -386,9 +400,19 @@ const JustArrived = () => {
   const navigateToAllNewArrivals = () => {
     navigation.navigate('ExploreTab', {
       filters: {
+        // Reset any existing filters by providing a fresh object
         specifications: {
           tags: [2]  // Filter for Just Arrived tag
-        }
+        },
+        // Explicitly reset other filter properties
+        brands: [],
+        brandIds: [],
+        models: [],
+        modelIds: [],
+        trims: [],
+        trimIds: [],
+        years: [],
+        yearIds: []
       }
     });
   };
@@ -591,6 +615,13 @@ const JustArrived = () => {
           ListEmptyComponent={renderEmptyComponent}
         />
       )}
+
+      {/* Add the LoginPromptModal */}
+      <LoginPromptModal
+        visible={loginModalVisible}
+        onClose={hideLoginPrompt}
+        onLoginPress={navigateToLogin}
+      />
     </View>
   );
 };

@@ -19,9 +19,11 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import { Ionicons } from '../utils/icon';
-import { submitCarEnquiry } from '../services/api';
+import { submitCarEnquiry, isAuthenticated } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
+import LoginPromptModal from '../components/LoginPromptModal';
+import { useLoginPrompt } from '../hooks/useLoginPrompt';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -63,7 +65,15 @@ const countryCodes = [
 const EnquiryFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
+  
+  // Add the login prompt hook
+  const {
+    loginModalVisible,
+    hideLoginPrompt,
+    navigateToLogin,
+    checkAuthAndShowPrompt
+  } = useLoginPrompt();
   
   // Get car details from route params
   const { carId, carTitle, carImage, carPrice, currency } = route.params || {};
@@ -90,38 +100,25 @@ const EnquiryFormScreen = () => {
   const [countrySearch, setCountrySearch] = useState('');
   const [filteredCountryCodes, setFilteredCountryCodes] = useState(countryCodes);
   
-  // Fill form with user profile data if available and checkbox is checked
+  // Check authentication when component mounts
   useEffect(() => {
-    if (user && sameAsProfile) {
-      setName(user.name || '');
-      setEmail(user.email || '');
-      
-      // Extract phone number without country code if possible
-      if (user.phoneNumber) {
-        const userPhone = user.phoneNumber;
-        // If user phone already has the current country code, remove it
-        if (userPhone.startsWith(countryCode)) {
-          setPhoneNumber(userPhone.slice(countryCode.length));
-        } else {
-          // Try to extract from other country codes
-          let foundCode = false;
-          for (const country of countryCodes) {
-            if (userPhone.startsWith(country.code)) {
-              setCountryCode(country.code);
-              setPhoneNumber(userPhone.slice(country.code.length));
-              foundCode = true;
-              break;
-            }
-          }
-          
-          // If no country code found, just use as is
-          if (!foundCode) {
-            setPhoneNumber(userPhone);
-          }
+    const checkAuth = async () => {
+      const isAuthorized = await checkAuthAndShowPrompt();
+      if (!isAuthorized) {
+        // If not authenticated, the login prompt will show automatically
+        // We'll stay on this screen until they log in or dismiss the prompt
+      } else {
+        // If authenticated, pre-fill form with user data if available
+        if (user) {
+          setName(user.name || '');
+          setEmail(user.email || '');
+          setPhoneNumber(user.phoneNumber || '');
         }
       }
-    }
-  }, [user, sameAsProfile]);
+    };
+    
+    checkAuth();
+  }, [user, checkAuthAndShowPrompt]);
 
   // Handle checkbox toggle
   const toggleSameAsProfile = () => {
@@ -465,7 +462,7 @@ const EnquiryFormScreen = () => {
             {renderPhoneInput()}
             
             {/* Auto-fill Checkbox (only if user is authenticated) */}
-            {isAuthenticated && (
+            {user && (
               <TouchableOpacity
                 style={styles.checkboxContainer}
                 onPress={toggleSameAsProfile}
@@ -615,6 +612,13 @@ const EnquiryFormScreen = () => {
           </Modal>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Add the LoginPromptModal */}
+      <LoginPromptModal
+        visible={loginModalVisible}
+        onClose={hideLoginPrompt}
+        onLoginPress={navigateToLogin}
+      />
     </SafeAreaView>
   );
 };

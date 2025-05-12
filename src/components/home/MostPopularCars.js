@@ -26,6 +26,8 @@ import {getCarList} from 'src/services/api';
 import CarCard from '../explore/CarCard';
 import {useTheme} from 'src/context/ThemeContext';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import LoginPromptModal from '../../components/LoginPromptModal';
+import { useLoginPrompt } from '../../hooks/useLoginPrompt';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -191,6 +193,12 @@ const MostPopularCars = () => {
     useWishlist();
   const {isDark} = useTheme();
   const {selectedCurrency} = useCurrencyLanguage();
+  const {
+    loginModalVisible,
+    hideLoginPrompt,
+    navigateToLogin,
+    checkAuthAndShowPrompt
+  } = useLoginPrompt();
 
   // Use a ref to avoid making API calls if component unmounts
   const isMounted = useRef(true);
@@ -334,25 +342,37 @@ const MostPopularCars = () => {
       filters: {
         specifications: {
           tags: [1]  // Filter for Popular tag
-        }
+        },
+        brands: [],
+        brandIds: [],
+        models: [],
+        modelIds: [],
+        trims: [],
+        trimIds: [],
+        years: [],
+        yearIds: []
       }
     });
   };
 
   const toggleFavorite = async carId => {
-    if (!user) {
-      navigation.navigate('Login', {
-        returnScreen: 'HomeScreen',
-        message: 'Please login to save favorites',
-      });
-      return;
+    // Check if user is authenticated first
+    const isAuthorized = await checkAuthAndShowPrompt();
+    if (!isAuthorized) {
+      return; // Stop here if user is not authenticated
     }
 
     try {
+      let result;
       if (isInWishlist(carId)) {
-        await removeItemFromWishlist(carId);
+        result = await removeItemFromWishlist(carId);
       } else {
-        await addItemToWishlist(carId);
+        result = await addItemToWishlist(carId);
+      }
+      
+      // If operation failed but not because of auth (since we already checked auth)
+      if (!result.success && !result.requiresAuth) {
+        console.error('Wishlist operation failed');
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -469,6 +489,12 @@ const MostPopularCars = () => {
           ListEmptyComponent={renderEmptyComponent}
         />
       )}
+
+      <LoginPromptModal
+        visible={loginModalVisible}
+        onClose={hideLoginPrompt}
+        onLoginPress={navigateToLogin}
+      />
     </View>
   );
 };

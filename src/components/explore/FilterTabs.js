@@ -7,8 +7,11 @@ import {
   BORDER_RADIUS,
 } from '../../utils/constants';
 import {AntDesign, Ionicons} from 'src/utils/icon/index';
+import {useTheme} from '../../context/ThemeContext';
 
 const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
+  const {isDark} = useTheme();
+  
   const renderFilterItem = ({item}) => (
     <TouchableOpacity
       style={[
@@ -34,7 +37,9 @@ const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
   return (
     <View style={styles.filtersContainer}>
       {home ? null : (
-        <Text style={styles.filtersTitle}>{'Advanced Filters'}</Text>
+        <Text style={[styles.filtersTitle, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>
+          {'Advanced Filters'}
+        </Text>
       )}
       <FlatList
         horizontal
@@ -56,6 +61,11 @@ const styles = StyleSheet.create({
   filtersList: {
     paddingVertical: SPACING.xs,
     gap: 8,
+  },
+  filtersTitle: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    marginBottom: SPACING.xs,
   },
   filterButton: {
     width: 115,

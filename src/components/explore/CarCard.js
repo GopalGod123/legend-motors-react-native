@@ -19,6 +19,7 @@ import {useNavigation} from '@react-navigation/native';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme, themeColors} from 'src/context/ThemeContext';
 import {Svg, Mask, G, Path, Rect} from 'react-native-svg';
+import {useLoginPrompt} from '../../hooks/useLoginPrompt';
 const {width} = Dimensions.get('window');
 
 const CarCard = memo(
@@ -33,6 +34,8 @@ const CarCard = memo(
   }) => {
     const navigation = useNavigation();
     const {theme, isDark} = useTheme();
+    const {selectedCurrency} = useCurrencyLanguage();
+    const {showLoginPrompt} = useLoginPrompt();
     // Extract data from the API response
     const brandName = item.Brand?.name || item.brand?.name || '';
     const carModel = item.CarModel?.name || item.model || '';
@@ -81,7 +84,6 @@ const CarCard = memo(
         require('../../components/home/car_Image.png'),
       ];
     // Get pricce from API response
-    const {selectedCurrency} = useCurrencyLanguage();
     const price = item?.CarPrices?.find(
       crr => crr.currency === selectedCurrency,
     )?.price;
@@ -284,10 +286,7 @@ const CarCard = memo(
                   borderRadius: BORDER_RADIUS.md,
                 }}
                 onPress={() => {
-                  navigation.reset({
-                    index: 0,
-                    routes: [{name: 'Login'}],
-                  });
+                  showLoginPrompt();
                 }}>
                 <Text style={{color: COLORS.white}}>Login to view price</Text>
               </TouchableOpacity>
