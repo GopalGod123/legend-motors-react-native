@@ -516,13 +516,11 @@ const CarDetailScreen = () => {
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#333333" : colors.background} />
 
       {/* Header with back button */}
-      <View style={[styles.header, {backgroundColor: isDark ? '#333333' :   colors.background}]}>
+      <View style={[styles.header, {backgroundColor: isDark ? '#333333' : colors.background}]}>
         <TouchableOpacity onPress={goBack} style={styles.backButtonSmall}>
           <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, {color: colors.text}]} numberOfLines={1}>
-          Car Details
-        </Text>
+        <Text style={[styles.headerTitle, {color: colors.text}]}>Car Details</Text>
         <View style={styles.headerRightPlaceholder} />
       </View>
 
@@ -536,7 +534,7 @@ const CarDetailScreen = () => {
         <View style={[styles.cardContainer, {backgroundColor: isDark ? '#333333' : colors.card}]}>
           <View style={styles.imageContainer}>
             {/* Tabs for exterior/interior */}
-            <View style={[styles.galleryTabs, {backgroundColor: colors.card, borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+            <View style={[styles.galleryTabs, {backgroundColor: isDark ? '#333333' : colors.card, borderBottomColor: isDark ? '#444444' : '#EEEEEE'}]}>
               <TouchableOpacity
                 style={[
                   styles.galleryTab,
@@ -577,7 +575,7 @@ const CarDetailScreen = () => {
             />
           </View>
 
-          <View style={[styles.cardContent, {backgroundColor: colors.card}]}>
+          <View style={[styles.cardContent, {backgroundColor: isDark ? '#333333' : colors.card}]}>
             <Text
               style={[styles.carTitle, {color: colors.text}]}
               numberOfLines={2}
@@ -795,7 +793,7 @@ const CarDetailScreen = () => {
           <Text style={[styles.sectionTitle, {color: colors.text}]}>Features</Text>
 
           {/* Main features grid - two column layout showing some top features */}
-          <View style={[styles.featuresGrid, {backgroundColor: '#FFFFFF', borderRadius: 8}]}>
+          <View style={[styles.featuresGrid, {backgroundColor: isDark ? '#ffffff' : '#FFFFFF'}]}>
             {/* Column 1 */}
             <View style={styles.featuresColumn}>
               {features
@@ -914,7 +912,10 @@ const CarDetailScreen = () => {
       </ScrollView>
 
       {/* Bottom Action Bar */}
-      <View style={[styles.actionBar, {backgroundColor: colors.card, borderTopColor: isDark ? '#333333' : '#F0F0F0'}]}>
+      <View style={[styles.actionBar, {
+        backgroundColor: isDark ? '#333333' : colors.background,
+        borderTopColor: isDark ? '#444444' : colors.border
+      }]}>
         <View style={styles.priceContainer}>
           <Text style={[styles.priceLabel, {color: isDark ? '#BBBBBB' : COLORS.textLight}]}>Price</Text>
           <Text style={[styles.priceLargeText, {color: isDark ? '#FFFFFF' : colors.text}]}>
@@ -969,11 +970,6 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   imageContainer: {
     width: '100%',
