@@ -294,10 +294,10 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingLeft:12,
-    paddingRight:12,
-    paddingTop:60,
-    paddingBottom:24
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 60,
+    paddingBottom: 24,
   },
   content: {
     paddingBottom: 70,

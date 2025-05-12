@@ -10,6 +10,8 @@ import {useNavigation} from '@react-navigation/native';
 import {FilterIcon} from '../icons';
 import {COLORS, SPACING, BORDER_RADIUS} from '../../utils/constants';
 import {Ionicons} from 'src/utils/icon';
+import {useTheme} from '../../context/ThemeContext';
+
 let timer = null;
 const SearchBar = ({
   searchQuery = '',
@@ -20,35 +22,26 @@ const SearchBar = ({
   currentFilters = {},
   home = false,
 }) => {
-  // Use currentFilters directly instead of copying to state
+  const {isDark} = useTheme();
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
-
-  // Track if this is the first render
   const isFirstRender = useRef(true);
-
   const navigation = useNavigation();
-
-  // Add a ref to track navigation state to prevent multiple navigations
   const isNavigating = useRef(false);
 
-  // // Update local state when props change
   useEffect(() => {
     setLocalSearchQuery(searchQuery);
   }, [searchQuery]);
-
-  // Remove the useEffect that watches currentFilters
 
   const handleOpenFilter = () => {
     navigation.navigate('FilterScreen', {
       filterType: 'brands',
       onApplyCallback: handleFilterApply,
-      currentFilters: currentFilters, // Pass the prop directly
+      currentFilters: currentFilters,
     });
   };
 
   const handleFilterApply = filters => {
     if (filters && onApplyFilters) {
-      // Skip state update and directly call parent callback
       onApplyFilters(filters);
     }
   };
@@ -56,7 +49,6 @@ const SearchBar = ({
   const handleTextChange = text => {
     setLocalSearchQuery(text);
     if (onSearch && !home) {
-      console.log('first');
       if (timer) {
         clearTimeout(timer);
       }
@@ -73,22 +65,36 @@ const SearchBar = ({
     }
   };
 
-  // Skip first render to prevent update loops
   useEffect(() => {
     isFirstRender.current = false;
   }, []);
 
   return (
     <View style={styles.container}>
-      <View style={[styles.searchSection, disabled && styles.disabledSearch]}>
+      <View
+        style={[
+          styles.searchSection,
+          disabled && styles.disabledSearch,
+          isDark && styles.searchSectionDark,
+        ]}>
         <TouchableOpacity
-          style={styles.filterButton}
+          style={[styles.filterButton, isDark && styles.filterButtonDark]}
           onPress={handleOpenFilter}
           disabled={disabled}>
-          <Text style={[styles.filterText, disabled && styles.disabledText]}>
+          <Text
+            style={[
+              styles.filterText,
+              disabled && styles.disabledText,
+              isDark && styles.filterTextDark,
+            ]}>
             Filter
           </Text>
-          <Text style={[styles.filterIcon, disabled && styles.disabledText]}>
+          <Text
+            style={[
+              styles.filterIcon,
+              disabled && styles.disabledText,
+              isDark && styles.filterIconDark,
+            ]}>
             ▼
           </Text>
         </TouchableOpacity>
@@ -98,20 +104,27 @@ const SearchBar = ({
             <Ionicons
               name="search"
               size={20}
-              color={disabled ? '#C0C0C0' : '#5E366D'}
+              color={disabled ? '#C0C0C0' : isDark ? '#FFFFFF' : '#5E366D'}
             />
           </View>
           <TextInput
-            style={[styles.searchInput, disabled && styles.disabledInput]}
+            style={[
+              styles.searchInput,
+              disabled && styles.disabledInput,
+              isDark && styles.searchInputDark,
+            ]}
             placeholder="Search by body type.."
             placeholderTextColor={
-              disabled ? '#C0C0C0' : COLORS.inputPlaceholder
+              disabled
+                ? '#C0C0C0'
+                : isDark
+                ? '#CCCCCC'
+                : COLORS.inputPlaceholder
             }
             value={localSearchQuery}
             onChangeText={handleTextChange}
             editable={!disabled}
             onSubmitEditing={() => {
-              console.log('Search text:', localSearchQuery);
               onSearch(localSearchQuery);
             }}
             enterKeyHint="search"
@@ -124,7 +137,7 @@ const SearchBar = ({
               <Ionicons
                 name="close-circle"
                 size={18}
-                color={disabled ? '#C0C0C0' : '#666'}
+                color={disabled ? '#C0C0C0' : isDark ? '#FFFFFF' : '#666'}
               />
             </TouchableOpacity>
           )}
@@ -134,7 +147,7 @@ const SearchBar = ({
           style={styles.filterIconRight}
           onPress={handleOpenFilter}
           disabled={disabled}>
-          <FilterIcon size={20} color={disabled ? '#C0C0C0' : '#F86E1F'} />
+          <FilterIcon size={20} color={disabled ? '#C0C0C0' : COLORS.primary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -156,6 +169,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     alignItems: 'center',
   },
+  searchSectionDark: {
+    backgroundColor: '#2D2D2D',
+    borderColor: '#6D3E7E',
+  },
   disabledSearch: {
     backgroundColor: '#f9f9f9',
     borderColor: '#e0e0e0',
@@ -171,11 +188,18 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     borderRightColor: '#9E86A7',
   },
+  filterButtonDark: {
+    backgroundColor: '#312836',
+    borderRightColor: '#6D3E7E',
+  },
   filterText: {
     color: '#6f4a8e',
     fontWeight: '600',
     marginRight: SPACING.xs,
     fontSize: 16,
+  },
+  filterTextDark: {
+    color: '#FFFFFF',
   },
   disabledText: {
     color: '#a0a0a0',
@@ -183,6 +207,9 @@ const styles = StyleSheet.create({
   filterIcon: {
     fontSize: 10,
     color: '#6f4a8e',
+  },
+  filterIconDark: {
+    color: '#FFFFFF',
   },
   searchInputContainer: {
     flex: 1,
@@ -201,6 +228,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
   },
+  searchInputDark: {
+    color: '#FFFFFF',
+  },
   disabledInput: {
     color: '#a0a0a0',
   },
@@ -217,7 +247,6 @@ const styles = StyleSheet.create({
   resultText: {
     fontSize: 16,
     color: COLORS.textDark,
-    marginTop: SPACING.xs,
     fontWeight: 'bold',
     marginTop: 10,
   },
