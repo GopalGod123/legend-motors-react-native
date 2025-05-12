@@ -24,6 +24,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import LanguageScreen from '../screens/LanguageScreen';
 import HelpCenterScreen from '../screens/HelpCenterScreen';
 import BlogPostDetailScreen from '../screens/BlogPostDetailScreen';
+import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +58,7 @@ const AppNavigator = () => {
         <Stack.Screen name="LanguageScreen" component={LanguageScreen} />
         <Stack.Screen name="HelpCenterScreen" component={HelpCenterScreen} />
         <Stack.Screen name="BlogPostDetailScreen" component={BlogPostDetailScreen} />
+        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

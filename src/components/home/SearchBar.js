@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {
   View,
   Text,
@@ -27,6 +27,9 @@ const SearchBar = ({
   const isFirstRender = useRef(true);
 
   const navigation = useNavigation();
+
+  // Add a ref to track navigation state to prevent multiple navigations
+  const isNavigating = useRef(false);
 
   // // Update local state when props change
   useEffect(() => {

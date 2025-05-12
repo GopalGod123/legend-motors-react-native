@@ -15,7 +15,7 @@ const BodyTypeItem = ({icon, title, isDark}) => {
       <View
         style={[
           styles.imageContainer,
-          {backgroundColor: isDark ? '#1A1A1A' : '#FFF'},
+          {backgroundColor: isDark ? '#ffffff' : '#FFF'},
         ]}>
         {icon}
       </View>
@@ -93,9 +93,10 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   itemContainer: {
-    width: 110,
+    width: 91,
     marginRight: 12,
     alignItems: 'center',
+    marginLeft:10
   },
   imageContainer: {
     width: 100,

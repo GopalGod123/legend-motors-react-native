@@ -279,10 +279,11 @@ const HotDeals = () => {
       isFavorite={isInWishlist(item.id)}
       tag={
         <View style={styles.tagBadge}>
-          <Text style={styles.tagText}></Text>
+          <Text style={styles.tagText}>Hot Deal</Text>
         </View>
       }
-      width={Dimensions.get('window').width * 0.85}
+      width={cardWidth}
+      isDarkMode={isDark}
     />
   );
 

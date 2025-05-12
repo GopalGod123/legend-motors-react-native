@@ -34,18 +34,21 @@ const cardWidth = width * 0.8;
 
 // Memoized card component to prevent unnecessary re-renders
 const PopularCarCard = memo(
-  ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
+  ({item, onPress, toggleFavorite, shareCar, isFavorite, isDarkMode}) => {
     // Use pre-computed values whenever possible
     const bodyType = item.bodyType || 'SUV';
     const fuelType = item.fuelType || 'Electric';
     const transmission = item.transmissionType || 'Automatic';
     const region = item.region || 'China';
     const steeringType = item.steeringType || 'Left hand drive';
+    const [imageLoadError, setImageLoadError] = useState(false);
 
-    // Use only one image for faster rendering
+    // Improved image URL handling
     let imageUrl = null;
+    let fallbackImage = require('./HotDealsCar.png');
 
-    if (item.CarImages && item.CarImages.length > 0) {
+    // First try CarImages array
+    if (item.CarImages && Array.isArray(item.CarImages) && item.CarImages.length > 0) {
       const firstImage = item.CarImages[0];
       if (firstImage.FileSystem) {
         const path =
@@ -57,11 +60,20 @@ const PopularCarCard = memo(
           imageUrl = {uri: `https://cdn.legendmotorsglobal.com${path}`};
         }
       }
+    } 
+    // Then try images array
+    else if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+      const firstImage = item.images[0];
+      imageUrl = typeof firstImage === 'string' ? {uri: firstImage} : firstImage;
+    }
+    // Finally try image property
+    else if (item.image) {
+      imageUrl = typeof item.image === 'string' ? {uri: item.image} : item.image;
     }
 
-    // If no valid image from API, use the fallback
+    // If still no valid image, use the fallback
     if (!imageUrl) {
-      imageUrl = require('./HotDealsCar.png');
+      imageUrl = fallbackImage;
     }
 
     // Pre-computed car title
@@ -75,6 +87,16 @@ const PopularCarCard = memo(
     // Get price from API response
     const price = item.price || item.Price || 750000;
 
+    // Calculate icon color based on dark mode
+    const iconColor = isDarkMode ? "#FFFFFF" : "#8A2BE2";
+    const specTextColor = isDarkMode ? "#FFFFFF" : "#666";
+    const specItemBgColor = isDarkMode ? "#333333" : "#F0E6FA";
+
+    const handleImageError = () => {
+      console.log('Image load error for car:', item.id);
+      setImageLoadError(true);
+    };
+
     return (
       <TouchableOpacity
         style={styles.carCard}
@@ -85,12 +107,21 @@ const PopularCarCard = memo(
         </View>
 
         <View style={styles.imageContainer}>
-          <CarImage
-            source={imageUrl}
-            style={styles.carImage}
-            resizeMode="cover"
-            loadingIndicatorSource={require('./HotDealsCar.png')}
-          />
+          {imageLoadError ? (
+            <Image
+              source={fallbackImage}
+              style={styles.carImage}
+              resizeMode="cover"
+            />
+          ) : (
+            <CarImage
+              source={imageUrl}
+              style={styles.carImage}
+              resizeMode="cover"
+              loadingIndicatorSource={fallbackImage}
+              onError={handleImageError}
+            />
+          )}
         </View>
 
         <View style={styles.cardContent}>
@@ -106,43 +137,43 @@ const PopularCarCard = memo(
           </Text>
 
           <View style={styles.specRow}>
-            <View style={styles.specItem}>
-              <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
-              <Text style={styles.specText}>ltr</Text>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
+              <MaterialCommunityIcons name="engine" size={16} color={iconColor} />
+              <Text style={[styles.specText, {color: specTextColor}]}>ltr</Text>
             </View>
 
-            <View style={styles.specItem}>
-              <Ionicons name="flash" size={16} color="#8A2BE2" />
-              <Text style={styles.specText}>{fuelType}</Text>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
+              <Ionicons name="flash" size={16} color={iconColor} />
+              <Text style={[styles.specText, {color: specTextColor}]}>{fuelType}</Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="car-shift-pattern"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{transmission}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{transmission}</Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="map-marker"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{region}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{region}</Text>
             </View>
           </View>
 
           <View style={styles.steeringRow}>
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="steering"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{steeringType}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{steeringType}</Text>
             </View>
           </View>
 
@@ -239,20 +270,37 @@ const MostPopularCars = () => {
         car.images.length > 0
       ) {
         processedImages = car.images.map(image => {
-          return typeof image === 'string' ? {uri: image} : image;
-        });
+          if (typeof image === 'string') {
+            return {uri: image};
+          } else if (image && image.uri) {
+            return image;
+          }
+          return null;
+        }).filter(img => img !== null);
       } else if (
         car.Images &&
         Array.isArray(car.Images) &&
         car.Images.length > 0
       ) {
         processedImages = car.Images.map(image => {
-          return typeof image === 'string' ? {uri: image} : image;
-        });
+          if (typeof image === 'string') {
+            return {uri: image};
+          } else if (image && image.uri) {
+            return image;
+          }
+          return null;
+        }).filter(img => img !== null);
       } else if (car.image) {
-        processedImages = [
-          typeof car.image === 'string' ? {uri: car.image} : car.image,
-        ];
+        if (typeof car.image === 'string') {
+          processedImages = [{uri: car.image}];
+        } else if (car.image && car.image.uri) {
+          processedImages = [car.image];
+        }
+      }
+
+      // If no images were found, add a default one to prevent issues
+      if (processedImages.length === 0) {
+        processedImages = [require('./HotDealsCar.png')];
       }
 
       car.bodyType =
@@ -412,6 +460,7 @@ const MostPopularCars = () => {
         </View>
       }
       width={Dimensions.get('window').width * 0.85}
+      isDarkMode={isDark}
     />
   );
 
