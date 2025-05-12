@@ -1532,7 +1532,8 @@ const ExploreScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF', // Default color, will be overridden
+    backgroundColor: '#FFFFFF',
+    padding:18 // Default color, will be overridden
   },
   carsList: {
     paddingHorizontal: SPACING.lg,

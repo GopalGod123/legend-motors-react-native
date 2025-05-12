@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
+import { useTheme, themeColors } from '../../context/ThemeContext';
 
 const ResultsHeader = ({ 
   totalCars, 
@@ -11,6 +12,8 @@ const ResultsHeader = ({
   hasFilters = false, 
   onClearFilters 
 }) => {
+  const { isDark, theme } = useTheme();
+
   // Format number with commas
   const formatNumber = (num) => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -20,27 +23,27 @@ const ResultsHeader = ({
   const getResultsText = () => {
     if (isViewingSpecificCar) {
       return (
-        <Text style={styles.resultsText}>
+        <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>
           Viewing car details (ID: {carId || 'unknown'})
         </Text>
       );
     } else if (filteredBySearch && searchQuery) {
       return (
         <View style={styles.searchResultsContainer}>
-          <Text style={styles.resultsText}>Results for "</Text>
+          <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>Results for "</Text>
           <Text style={styles.searchQueryText}>{searchQuery}</Text>
-          <Text style={styles.resultsText}>"</Text>
+          <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>"</Text>
         </View>
       );
     } else if (hasFilters) {
       return (
-        <Text style={styles.resultsText}>
+        <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>
           Showing {totalCars} cars
         </Text>
       );
     } else {
       return (
-        <Text style={styles.resultsText}>
+        <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>
           Total: {totalCars} cars
         </Text>
       );
@@ -59,7 +62,7 @@ const ResultsHeader = ({
   };
 
   return (
-    <View style={styles.resultsHeader}>
+    <View style={[styles.resultsHeader, { borderBottomColor: isDark ? '#444444' : '#F0F0F0' }]}>
       <View style={styles.resultTextContainer}>
         {getResultsText()}
       </View>
@@ -88,7 +91,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.xs,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
     marginBottom: SPACING.sm,
   },
   resultTextContainer: {
@@ -102,7 +104,6 @@ const styles = StyleSheet.create({
   },
   resultsText: {
     fontSize: 18,
-    color: '#000000',
     fontWeight: '600',
   },
   searchQueryText: {

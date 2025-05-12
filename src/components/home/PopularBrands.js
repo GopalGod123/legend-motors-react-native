@@ -85,7 +85,7 @@ const BrandItem = memo(({item, onPress, placeholder}) => {
     <TouchableOpacity
       style={[
         styles.brandItem,
-        {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+        {backgroundColor: isDark ? '#ffffff' : COLORS.white},
       ]}
       onPress={() => onPress(item)}>
       <View style={styles.logoContainer}>{renderBrandLogo()}</View>
@@ -116,7 +116,7 @@ const SeeAllItem = memo(({onPress}) => {
         <Text
           style={[
             styles.ellipsis,
-            {color: isDark ? '#FFFFFF' : COLORS.textDark},
+            {color: isDark ? '#000000' : COLORS.textDark},
           ]}>
           •••
         </Text>
@@ -124,7 +124,7 @@ const SeeAllItem = memo(({onPress}) => {
       <Text
         style={[
           styles.brandName,
-          {color: isDark ? '#FFFFFF' : COLORS.textDark},
+          {color: isDark ? '#000000' : COLORS.textDark},
         ]}>
         See All
       </Text>
