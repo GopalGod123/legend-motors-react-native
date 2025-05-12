@@ -69,7 +69,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
         <View
           style={[
             styles.currencyToggle,
-            {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+            {backgroundColor: isDark ? '#1A1A1A' : COLORS.white},
           ]}>
           <TouchableOpacity
             style={[
@@ -83,12 +83,13 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
             onPress={() => toggleCurrency('AED')}>
             <Text
               style={[
-                styles.currencyText,
                 selectedCurrency === 'AED'
                   ? isDark
                     ? {color: '#000'}
                     : styles.activeText
-                  : {color: '#5E366D'},
+                  : isDark
+                  ? {color: '#9E86A8'}
+                  : styles.currencyText,
               ]}>
               AED
             </Text>
@@ -106,12 +107,13 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
             onPress={() => toggleCurrency('USD')}>
             <Text
               style={[
-                styles.currencyText,
                 selectedCurrency === 'USD'
                   ? isDark
                     ? {color: '#000'}
                     : styles.activeText
-                  : {color: '#5E366D'},
+                  : isDark
+                  ? {color: '#9E86A8'}
+                  : styles.currencyText,
               ]}>
               USD
             </Text>
