@@ -30,10 +30,11 @@ const BodyTypeItem = ({icon, title, isDark, onPress}) => {
 const BodyTypeSearch = () => {
   const bodyTypes = [
     {id: 53, title: 'Hatchback', icon: <HatchbackIcon width={60} height={40} />},
-    {id: 51, title: 'Sedan', icon: <SedanIcon width={60} height={40} />},
-    {id: 52, title: 'SUV', icon: <SUVIcon width={60} height={40} />},
-    {id: 59, title: 'Crossover', icon: <HatchbackIcon width={60} height={40} />},
-    {id: 54, title: 'Coupe', icon: <SedanIcon width={60} height={40} />},
+    {id: 49, title: 'Sedan', icon: <SedanIcon width={60} height={40} />},
+    {id: 51, title: 'SUV', icon: <SUVIcon width={60} height={40} />},
+    {id: 56, title: 'VAN', icon: <SUVIcon width={60} height={40} />},
+    {id: 52, title: 'Crossover', icon: <HatchbackIcon width={60} height={40} />},
+    {id: 55, title: 'Pickup Truck', icon: <SedanIcon width={60} height={40} />},
     {id: 58, title: 'Convertible', icon: <SUVIcon width={60} height={40} />},
   ];
   const {isDark} = useTheme();
