@@ -18,18 +18,23 @@ import {useAuth} from '../context/AuthContext';
 import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
 import {Ionicons} from 'src/utils/icon';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {useTheme} from '../context/ThemeContext';
 import Logo from 'src/components/Logo';
 
 const {width} = Dimensions.get('window');
 
 // Custom Logo component to replace the missing icon
-const LegendMotorsLogo = () => (
-  <View style={styles.logoContainer}>
-    <Text style={styles.logoText}>Legend</Text>
-    <View style={styles.logoBox} />
-    <Text style={styles.motorsText}>Motors</Text>
-  </View>
-);
+const LegendMotorsLogo = () => {
+  const {isDark} = useTheme();
+  
+  return (
+    <View style={styles.logoContainer}>
+      <Text style={[styles.logoText, {color: isDark ? '#FFFFFF' : '#212121'}]}>Legend</Text>
+      <View style={styles.logoBox} />
+      <Text style={styles.motorsText}>Motors</Text>
+    </View>
+  );
+};
 
 const EnquiriesScreen = () => {
   const navigation = useNavigation();
@@ -40,6 +45,7 @@ const EnquiriesScreen = () => {
   const [error, setError] = useState(null);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
   const {selectedCurrency} = useCurrencyLanguage();
+  const {theme, isDark} = useTheme();
 
   // Load enquiries when screen is focused
   useFocusEffect(
@@ -120,21 +126,21 @@ const EnquiriesScreen = () => {
   // Loading state
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
           <View style={styles.headerLogoContainer}>
             <LegendMotorsLogo />
-            <Text style={styles.headerTitle}>My Inquiries</Text>
+            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
           </View>
           
           <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color="#000" />
+            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
           </TouchableOpacity>
         </View>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={COLORS.primary} />
-          <Text style={styles.loadingText}>Loading enquiries...</Text>
+          <ActivityIndicator size="large" color="#F47B20" />
+          <Text style={[styles.loadingText, {color: isDark ? '#CCCCCC' : '#757575'}]}>Loading enquiries...</Text>
         </View>
       </SafeAreaView>
     );
@@ -143,20 +149,20 @@ const EnquiriesScreen = () => {
   // Error state
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
           <View style={styles.headerLogoContainer}>
             <LegendMotorsLogo />
-            <Text style={styles.headerTitle}>My Inquiries</Text>
+            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
           </View>
           
           <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color="#000" />
+            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
           </TouchableOpacity>
         </View>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
+          <Text style={[styles.errorText, {color: isDark ? '#FF453A' : '#FF3B30'}]}>{error}</Text>
           <TouchableOpacity
             style={styles.retryButton}
             onPress={checkAuthAndFetchEnquiries}>
@@ -170,16 +176,16 @@ const EnquiriesScreen = () => {
   // Not authenticated state - show login prompt
   if (!isUserAuthenticated) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
           <View style={styles.headerLogoContainer}>
             <LegendMotorsLogo />
-            <Text style={styles.headerTitle}>My Inquiries</Text>
+            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
           </View>
           
           <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color="#000" />
+            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
           </TouchableOpacity>
         </View>
         <View style={styles.loginContainer}>
@@ -190,8 +196,8 @@ const EnquiriesScreen = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.noEnquiriesTitle}>No Enquiries found</Text>
-          <Text style={styles.loginPromptText}>
+          <Text style={[styles.noEnquiriesTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>No Enquiries found</Text>
+          <Text style={[styles.loginPromptText, {color: isDark ? '#CCCCCC' : '#757575'}]}>
             Login/Register to track all your enquiries in one place hassle free.
           </Text>
           <TouchableOpacity
@@ -209,16 +215,16 @@ const EnquiriesScreen = () => {
   // Authenticated but no enquiries
   if (enquiries.length === 0) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <View style={styles.header}>
+      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
           <View style={styles.headerLogoContainer}>
             <LegendMotorsLogo />
-            <Text style={styles.headerTitle}>My Inquiries</Text>
+            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
           </View>
           
           <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color="#000" />
+            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
           </TouchableOpacity>
         </View>
         <View style={styles.emptyContainer}>
@@ -229,8 +235,8 @@ const EnquiriesScreen = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.noEnquiriesTitle}>No Enquiries yet</Text>
-          <Text style={styles.emptyText}>
+          <Text style={[styles.noEnquiriesTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>No Enquiries yet</Text>
+          <Text style={[styles.emptyText, {color: isDark ? '#CCCCCC' : '#757575'}]}>
             You haven't made any enquiries yet. Start exploring cars and submit
             enquiries.
           </Text>
@@ -246,9 +252,9 @@ const EnquiriesScreen = () => {
 
   // Render list of enquiries - updated to match the Figma design
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'}]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
+      <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
         {/* Add Legend Motors logo next to title */}
         <View style={styles.headerLogoContainer}>
           <Image
@@ -261,13 +267,14 @@ const EnquiriesScreen = () => {
             fontWeight: '400',
             fontSize: 24,
             lineHeight: 24 * 1.2, // 120% of font size
-            letterSpacing: 0
+            letterSpacing: 0,
+            color: isDark ? '#FFFFFF' : '#212121'
           }]}>My Inquiries</Text>
         </View>
         
         {/* Add search icon */}
         <TouchableOpacity style={styles.searchButton}>
-          <Ionicons name="search" size={24} color="#000" />
+          <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
         </TouchableOpacity>
       </View>
 
@@ -294,8 +301,8 @@ const EnquiriesScreen = () => {
           )?.price || car.price || item.price || 0;
           
           return (
-            <View style={styles.cardContainer}>
-              <View style={styles.carImageContainer}>
+            <View style={[styles.cardContainer, {backgroundColor: isDark ? '#0D0D0D' : 'transparent'}]}>
+              <View style={[styles.carImageContainer, {borderColor: isDark ? '#0D0D0D' : '#E0E0E0', backgroundColor: isDark ? '#0D0D0D' : '#f5f5f5'}]}>
                 {processedCar.image ? (
                   <Image
                     source={{ uri: `https://cdn.legendmotorsglobal.com${processedCar.image}` }}
@@ -312,18 +319,18 @@ const EnquiriesScreen = () => {
               </View>
               
               <View style={styles.carDetailsContainer}>
-                <Text style={styles.carTitle}>
+                <Text style={[styles.carTitle, {color: isDark ? '#FFFFFF' : '#0D0D0D'}]}>
                   {car.additionalInfo || `${processedCar.brand} ${processedCar.model} ${processedCar.trim}`}
                 </Text>
                 
                 <View style={styles.priceButtonContainer}>
-                  <Text style={styles.priceText}>
-                    $ {Number(price).toLocaleString()}
+                  <Text style={[styles.priceText, {color: isDark ? '#ffffff' : '#0D0D0D'}]}>
+                    {selectedCurrency === 'AED' ? 'AED' : '$'} {Number(price).toLocaleString()}
                   </Text>
                   <TouchableOpacity
                     style={styles.viewButton}
                     onPress={() => handleViewCar(item)}>
-                    <Text style={styles.viewButtonText}>View Car</Text>
+                    <Text style={[styles.viewButtonText, {color:isDark ? '#000' : '#ffff'}]}>View Car</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -333,7 +340,11 @@ const EnquiriesScreen = () => {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh}
+            tintColor={isDark ? '#FFFFFF' : '#000000'} 
+          />
         }
       />
     </SafeAreaView>
@@ -344,14 +355,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    padding:12
+    padding:24
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 2,
+    paddingVertical: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
   },
@@ -369,8 +380,8 @@ const styles = StyleSheet.create({
     color: '#212121',
   },
   logoBox: {
-    width: 18,
-    height: 18,
+    width: 32,
+    height: 32,
     backgroundColor: '#5E366D',
     marginHorizontal: 4,
   },
@@ -393,11 +404,13 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    padding: 15,
+    paddingTop:20,
+    borderRadius:32
   },
   carImageContainer: {
-    width: 120,
-    height: 102,
+    width: 104,
+    height: 92,
     borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: '#f5f5f5',
@@ -407,6 +420,7 @@ const styles = StyleSheet.create({
   carImage: {
     width: '100%',
     height: '100%',
+    borderRadius: 24,
   },
   carDetailsContainer: {
     flex: 1,
@@ -425,7 +439,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   priceText: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#212121',
   },
@@ -433,8 +447,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#F47B20',
     borderRadius: 8,
     paddingVertical: 8,
-    paddingHorizontal: 16,
-    marginLeft: 10,
+    paddingHorizontal: 12,
+    marginRight: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },

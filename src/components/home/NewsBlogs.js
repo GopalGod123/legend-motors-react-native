@@ -203,6 +203,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'none',
   },
   container: {
     width: 380,
@@ -211,6 +212,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'center',
     paddingVertical: 10,
+    backgroundColor: 'none',
   },
   titleContainer: {
     flexDirection: 'row',
@@ -276,6 +278,7 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'none',
   },
   featuredCard: {
     width: 348,

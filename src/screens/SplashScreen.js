@@ -6,22 +6,20 @@ const SplashScreen = () => {
   const navigation = useNavigation();
 
   useEffect(() => {
-    // Just wait for a short time to show the splash screen
+    // Navigate to the next screen after 3 seconds
     const timer = setTimeout(() => {
-      // Navigate to LanguageSelect screen after splash
       navigation.replace('LanguageSelect');
-    }, 3000); // Increased to 3 seconds to ensure animation is visible
+    }, 3000);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer); // Clean up the timer on component unmount
   }, [navigation]);
 
   return (
     <View style={styles.container}>
-      <Image 
-        source={require('./logo_Animation.gif')} 
+      <Image
+        source={require('./logo_Animation.gif')}
         style={styles.logo}
-        resizeMode="contain"
-        resizeMethod="resize"
+        resizeMode="contain"  // Use the built-in Image resizeMode property
       />
     </View>
   );
@@ -32,12 +30,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#FFFFFF',  // Background color for the splash screen
   },
   logo: {
-    width: '100%',
-    height: '100%',
+    width: '100%',   // Adjust as needed
+    height: '100%',  // Adjust as needed
   },
 });
 
-export default SplashScreen; 
+export default SplashScreen;

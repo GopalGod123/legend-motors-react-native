@@ -324,7 +324,7 @@ const PopularBrands = () => {
     <View
       style={[
         styles.container,
-        {backgroundColor: isDark ? '#2D2D2D' : COLORS.white},
+        {backgroundColor: 'none'},
       ]}>
       <View style={styles.header}>
         <Text
@@ -423,7 +423,6 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.sm,

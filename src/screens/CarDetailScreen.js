@@ -651,35 +651,60 @@ const CarDetailScreen = () => {
             {/* Specs pills in rows, using the design from the image */}
             <View style={styles.specsContainer}>
               <View style={styles.specPill}>
-                <Image source={LtrIcon} style={styles.specIcon} resizeMode="contain" />
+                <Image 
+                  source={LtrIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
                 <Text style={styles.specPillText}>
                   {specifications.find(spec => spec.Specification?.key === 'drive_type')?.name || 'ltr'}
                 </Text>
               </View>
 
               <View style={styles.specPill}>
-                <Image source={ElectricIcon} style={styles.specIcon} resizeMode="contain" />
+                <Image 
+                  source={ElectricIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
                 <Text style={styles.specPillText}>
                   {specifications.find(spec => spec.Specification?.key === 'fuel_type')?.name || fuelType}
                 </Text>
               </View>
 
               <View style={styles.specPill}>
-                <Image source={AutomaticIcon} style={styles.specIcon} resizeMode="contain" />
+                <Image 
+                  source={AutomaticIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
                 <Text style={styles.specPillText}>
                   {specifications.find(spec => spec.Specification?.key === 'transmission')?.name || transmission}
                 </Text>
               </View>
 
               <View style={styles.specPill}>
-                <Image source={CountryIcon} style={styles.specIcon} resizeMode="contain" />
+                <Image 
+                  source={CountryIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
                 <Text style={styles.specPillText}>
                   {specifications.find(spec => spec.Specification?.key === 'regional_specification')?.name || region}
                 </Text>
               </View>
               
               <View style={styles.specPill}>
-                <Image source={SteeringIcon} style={styles.specIcon} resizeMode="contain" />
+                <Image 
+                  source={SteeringIcon} 
+                  style={[styles.specIcon, isDark && styles.specIconDark]} 
+                  resizeMode="contain" 
+                  tintColor={isDark ? '#FFFFFF' : undefined}
+                />
                 <Text style={styles.specPillText}>
                   {specifications.find(spec => spec.Specification?.key === 'steering')?.name || steeringType}
                 </Text>

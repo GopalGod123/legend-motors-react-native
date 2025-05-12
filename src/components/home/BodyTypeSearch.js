@@ -41,7 +41,7 @@ const BodyTypeSearch = () => {
     <View
       style={[
         styles.container,
-        {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+        {backgroundColor: isDark ? '#2D2D2D' : 'none'},
       ]}>
       <View style={styles.header}>
         <Text style={[styles.title, {color: isDark ? '#FFFFFF' : '#333'}]}>

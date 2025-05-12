@@ -394,7 +394,7 @@ const HotDeals = () => {
     <View
       style={[
         styles.container,
-        {backgroundColor: isDark ? '#2D2D2D' : COLORS.white},
+        {backgroundColor: 'none'},
       ]}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
@@ -458,6 +458,7 @@ const styles = StyleSheet.create({
     marginVertical: SPACING.xl,
     borderRadius: BORDER_RADIUS.lg,
     paddingVertical: SPACING.lg,
+    backgroundColor: 'transparent'
   },
   header: {
     flexDirection: 'row',

@@ -17,6 +17,7 @@ import {useNavigation} from '@react-navigation/native';
 import Svg, {Path, Circle} from 'react-native-svg';
 import {getFaqCategories} from '../services/api';
 import {useTheme, themeColors} from '../context/ThemeContext';
+import SvgComponent from 'src/utils/icon/SvgComponent';
 
 // Utility functions for handling HTML content
 const parseHtmlContent = html => {
@@ -595,13 +596,15 @@ const HelpCenterScreen = () => {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <BackIcon />
+          <SvgComponent />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
           Help Center
         </Text>
         <TouchableOpacity style={styles.infoButton}>
-          <InfoCircleIcon />
+          <View style={styles.infoIconContainer}>
+            <Text style={styles.infoIconDot}>...</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
@@ -676,6 +679,7 @@ const HelpCenterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding:24
   },
   header: {
     flexDirection: 'row',
@@ -730,7 +734,7 @@ const styles = StyleSheet.create({
   categoryButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    borderRadius: 20,
+    borderRadius: 8,
     marginRight: 8,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,

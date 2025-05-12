@@ -535,7 +535,7 @@ const JustArrived = () => {
     <View
       style={[
         styles.container,
-        {backgroundColor: isDark ? '#2D2D2D' : COLORS.white},
+        {backgroundColor: 'none'},
       ]}>
       <View style={styles.header}>
         <Text

@@ -110,7 +110,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
         <TouchableOpacity style={styles.iconButton}>
           <Ionicons
             name="notifications"
-            size={28}
+            size={24}
             color={isDark ? '#FFFFFF' : '#5E366D'}
           />
         </TouchableOpacity>
@@ -118,7 +118,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
         <TouchableOpacity style={styles.iconButton} onPress={onWishlistPress}>
           <Ionicons
             name="heart"
-            size={28}
+            size={24}
             color={isDark ? '#FFFFFF' : '#5E366D'}
           />
         </TouchableOpacity>
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.xl,
-    paddingHorizontal: 23,
+    paddingHorizontal: 12,
   },
   profileSection: {
     flexDirection: 'row',
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     borderRadius: BORDER_RADIUS.xl,
     marginRight: SPACING.md,
     overflow: 'hidden',
-    borderWidth: 0,
+    borderWidth: 1,
     elevation: 1,
   },
   currencyButton: {
@@ -171,9 +171,12 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
     minWidth: 45,
     alignItems: 'center',
+    
   },
   activeCurrencyButton: {
     backgroundColor: COLORS.currency,
+    borderRadius: BORDER_RADIUS.xl,
+
   },
   currencyText: {
     fontWeight: '500',
