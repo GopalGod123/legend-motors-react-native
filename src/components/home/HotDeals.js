@@ -241,8 +241,12 @@ const HotDeals = () => {
   };
 
   const navigateToAllHotDeals = () => {
-    navigation.navigate('ExploreScreen', {
-      filters: {tagIds: [3]}, // Filter for Hot Deal tag
+    navigation.navigate('ExploreTab', {
+      filters: {
+        specifications: {
+          tags: [3]  // Filter for Hot Deal tag
+        }
+      }
     });
   };
 

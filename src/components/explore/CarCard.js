@@ -273,7 +273,7 @@ const CarCard = memo(
                   styles.priceText,
                   {color: isDark ? '#FFFFFF' : '#5E366D'},
                 ]}>
-                {selectedCurrency} {price.toLocaleString()}
+                {selectedCurrency === 'USD' ? '$' : selectedCurrency} {parseInt(price).toLocaleString()}
               </Text>
             ) : (
               <TouchableOpacity

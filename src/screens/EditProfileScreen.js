@@ -24,6 +24,7 @@ import {
 } from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
+import BackArrow from '../components/BackArrow';
 
 // Back Arrow Icon
 const BackIcon = () => {
@@ -686,7 +687,7 @@ const EditProfileScreen = () => {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <BackIcon />
+          <BackArrow />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
           Edit Profile

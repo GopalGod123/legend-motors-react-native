@@ -25,6 +25,7 @@ import {useWishlist} from '../../context/WishlistContext';
 import {getCarList} from 'src/services/api';
 import CarCard from '../explore/CarCard';
 import {useTheme} from 'src/context/ThemeContext';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -144,7 +145,7 @@ const PopularCarCard = memo(
           </View>
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
+            <Text style={styles.priceText}>{selectedCurrency === 'USD' ? '$' : selectedCurrency} {parseInt(price).toLocaleString()}</Text>
 
             <View style={styles.actionButtons}>
               <TouchableOpacity
@@ -189,6 +190,7 @@ const MostPopularCars = () => {
   const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
     useWishlist();
   const {isDark} = useTheme();
+  const {selectedCurrency} = useCurrencyLanguage();
 
   // Use a ref to avoid making API calls if component unmounts
   const isMounted = useRef(true);
@@ -328,8 +330,12 @@ const MostPopularCars = () => {
   };
 
   const navigateToAllPopular = () => {
-    navigation.navigate('ExploreScreen', {
-      filters: {sortBy: 'popularity', order: 'desc'},
+    navigation.navigate('ExploreTab', {
+      filters: {
+        specifications: {
+          tags: [1]  // Filter for Popular tag
+        }
+      }
     });
   };
 

@@ -27,6 +27,7 @@ import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useWishlist} from '../context/WishlistContext';
 import RenderHtml from 'react-native-render-html';
 import {useAuth} from '../context/AuthContext';
+import {useTheme} from '../context/ThemeContext';
 import {
   extractColorsFromSlug,
   createColorMatchFunction,
@@ -115,6 +116,7 @@ const CarDetailScreen = () => {
   const {carId, lang = 'en'} = route.params || {};
   const {selectedCurrency} = useCurrencyLanguage();
   const {user, isAuthenticated} = useAuth();
+  const {theme, isDark} = useTheme();
   const {
     isInWishlist,
     addItemToWishlist,
@@ -715,7 +717,7 @@ const CarDetailScreen = () => {
             <View style={styles.priceRow}>
               {price ? (
                 <Text style={styles.priceText}>
-                  {selectedCurrency} {price.toLocaleString()}
+                  {selectedCurrency === 'USD' ? '$' : selectedCurrency} {Math.floor(price).toLocaleString()}
                 </Text>
               ) : (
                 <Text style={styles.priceText}>Price on Request</Text>
@@ -932,7 +934,7 @@ const CarDetailScreen = () => {
         <View style={styles.priceContainer}>
           <Text style={styles.priceLabel}>Price</Text>
           <Text style={styles.priceLargeText}>
-            {selectedCurrency} {price ? price.toLocaleString() : '175,000'}
+            {selectedCurrency === 'USD' ? '$' : selectedCurrency} {price ? Math.floor(price).toLocaleString() : '175,000'}
           </Text>
         </View>
         <TouchableOpacity
@@ -1321,6 +1323,8 @@ const styles = StyleSheet.create({
   inquireButton: {
     backgroundColor: '#FF8C00',
     flex: 1,
+    marginTop: 10,
+    width:250,
     borderRadius: 8,
   },
   inquireButtonText: {

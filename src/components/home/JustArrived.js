@@ -145,7 +145,7 @@ const ArrivedCarCard = memo(
           </View>
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
+            <Text style={styles.priceText}>{selectedCurrency === 'USD' ? '$' : selectedCurrency} {parseInt(price).toLocaleString()}</Text>
 
             <View style={styles.actionButtons}>
               <TouchableOpacity
@@ -288,7 +288,7 @@ const JustArrived = () => {
       return null;
     }
   }, []);
-  const {selectedLanguage} = useCurrencyLanguage();
+  const {selectedLanguage, selectedCurrency} = useCurrencyLanguage();
 
   useEffect(() => {
     fetchNewArrivals();
@@ -384,8 +384,12 @@ const JustArrived = () => {
   };
 
   const navigateToAllNewArrivals = () => {
-    navigation.navigate('ExploreScreen', {
-      filters: {tagIds: [2]}, // Filter for Just Arrived tag
+    navigation.navigate('ExploreTab', {
+      filters: {
+        specifications: {
+          tags: [2]  // Filter for Just Arrived tag
+        }
+      }
     });
   };
 

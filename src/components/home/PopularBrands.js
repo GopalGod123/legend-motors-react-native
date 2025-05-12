@@ -385,7 +385,7 @@ const PopularBrands = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.md,
     paddingHorizontal: 23,
     borderRadius: BORDER_RADIUS.lg,
     paddingVertical: SPACING.lg,
