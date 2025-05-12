@@ -31,11 +31,16 @@ const CarCard = memo(
     isFavorite,
     tag = null,
     width = '100%',
+    isDarkMode,
   }) => {
     const navigation = useNavigation();
     const {theme, isDark} = useTheme();
     const {selectedCurrency} = useCurrencyLanguage();
     const {showLoginPrompt} = useLoginPrompt();
+    
+    // Use provided isDarkMode prop if available, otherwise use the theme context
+    const effectiveDarkMode = isDarkMode !== undefined ? isDarkMode : isDark;
+
     // Extract data from the API response
     const brandName = item.Brand?.name || item.brand?.name || '';
     const carModel = item.CarModel?.name || item.model || '';
@@ -94,8 +99,8 @@ const CarCard = memo(
           styles.cardContainer,
           {
             width,
-            backgroundColor: isDark ? '#000' : COLORS.white,
-            shadowColor: isDark ? '#000' : '#000',
+            backgroundColor: effectiveDarkMode ? '#000' : COLORS.white,
+            shadowColor: effectiveDarkMode ? '#000' : '#000',
           },
         ]}
         onPress={() => onPress(item)}
@@ -153,7 +158,7 @@ const CarCard = memo(
               <Text
                 style={[
                   styles.categoryText,
-                  {color: isDark ? '#FF8C00' : '#FF8C00'},
+                  {color: effectiveDarkMode ? '#FF8C00' : '#FF8C00'},
                 ]}>
                 {bodyType}
               </Text>
@@ -161,7 +166,7 @@ const CarCard = memo(
           </View>
 
           <Text
-            style={[styles.carTitle, {color: isDark ? '#FFFFFF' : '#000000'}]}
+            style={[styles.carTitle, {color: effectiveDarkMode ? '#FFFFFF' : '#000000'}]}
             numberOfLines={2}
             ellipsizeMode="tail">
             {carTitle}
@@ -172,7 +177,7 @@ const CarCard = memo(
             <View
               style={[
                 styles.specItem,
-                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
               ]}>
               <Image
                 source={require('./icon_assets/ltr.png')}
@@ -182,7 +187,7 @@ const CarCard = memo(
               <Text
                 style={[
                   styles.specText,
-                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
                 ]}>
                 ltr
               </Text>
@@ -191,7 +196,7 @@ const CarCard = memo(
             <View
               style={[
                 styles.specItem,
-                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
               ]}>
               <Image
                 source={require('./icon_assets/electric.png')}
@@ -201,7 +206,7 @@ const CarCard = memo(
               <Text
                 style={[
                   styles.specText,
-                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
                 ]}>
                 {fuelType}
               </Text>
@@ -210,7 +215,7 @@ const CarCard = memo(
             <View
               style={[
                 styles.specItem,
-                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
               ]}>
               <Image
                 source={require('./icon_assets/Automatic.png')}
@@ -220,7 +225,7 @@ const CarCard = memo(
               <Text
                 style={[
                   styles.specText,
-                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
                 ]}>
                 {transmission}
               </Text>
@@ -232,7 +237,7 @@ const CarCard = memo(
             <View
               style={[
                 styles.specItem,
-                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
               ]}>
               <Image
                 source={require('./icon_assets/country.png')}
@@ -242,7 +247,7 @@ const CarCard = memo(
               <Text
                 style={[
                   styles.specText,
-                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
                 ]}>
                 {region}
               </Text>
@@ -251,7 +256,7 @@ const CarCard = memo(
             <View
               style={[
                 styles.specItem,
-                {backgroundColor: isDark ? '#3D3D3D' : '#E9E5EB'},
+                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
               ]}>
               <Image
                 source={require('./icon_assets/Steering.png')}
@@ -261,7 +266,7 @@ const CarCard = memo(
               <Text
                 style={[
                   styles.specText,
-                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
                 ]}>
                 {steeringType}
               </Text>
@@ -273,7 +278,7 @@ const CarCard = memo(
               <Text
                 style={[
                   styles.priceText,
-                  {color: isDark ? '#FFFFFF' : '#5E366D'},
+                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
                 ]}>
                 {selectedCurrency === 'USD' ? '$' : selectedCurrency} {parseInt(price).toLocaleString()}
               </Text>
@@ -315,7 +320,7 @@ const CarCard = memo(
                 <Ionicons
                   name="share-social"
                   size={24}
-                  color={isDark ? '#FFFFFF' : '#212121'}
+                  color={effectiveDarkMode ? '#FFFFFF' : '#212121'}
                 />
               </TouchableOpacity>
             </View>

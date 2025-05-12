@@ -149,7 +149,9 @@ const SettingsScreen = () => {
               Terms of Service
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('PrivacyPolicy')}>
             <Text
               style={[styles.menuItemText, {color: themeColors[theme].text}]}>
               Privacy Policy

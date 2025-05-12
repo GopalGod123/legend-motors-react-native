@@ -34,7 +34,7 @@ const cardWidth = width * 0.8;
 
 // Memoized card component to prevent unnecessary re-renders
 const ArrivedCarCard = memo(
-  ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
+  ({item, onPress, toggleFavorite, shareCar, isFavorite, isDarkMode}) => {
     // Use pre-computed values whenever possible
     const bodyType = item.bodyType || 'SUV';
     const fuelType = item.fuelType || 'Electric';
@@ -75,6 +75,11 @@ const ArrivedCarCard = memo(
     // Get price from API response
     const price = item.price || item.Price || 750000;
 
+    // Calculate icon color based on dark mode
+    const iconColor = isDarkMode ? "#FFFFFF" : "#8A2BE2";
+    const specTextColor = isDarkMode ? "#FFFFFF" : "#666";
+    const specItemBgColor = isDarkMode ? "#333333" : "#F0E6FA";
+
     return (
       <TouchableOpacity
         style={styles.carCard}
@@ -106,43 +111,43 @@ const ArrivedCarCard = memo(
           </Text>
 
           <View style={styles.specRow}>
-            <View style={styles.specItem}>
-              <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
-              <Text style={styles.specText}>ltr</Text>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
+              <MaterialCommunityIcons name="engine" size={16} color={iconColor} />
+              <Text style={[styles.specText, {color: specTextColor}]}>ltr</Text>
             </View>
 
-            <View style={styles.specItem}>
-              <Ionicons name="flash" size={16} color="#8A2BE2" />
-              <Text style={styles.specText}>{fuelType}</Text>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
+              <Ionicons name="flash" size={16} color={iconColor} />
+              <Text style={[styles.specText, {color: specTextColor}]}>{fuelType}</Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="car-shift-pattern"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{transmission}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{transmission}</Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="map-marker"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{region}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{region}</Text>
             </View>
           </View>
 
           <View style={styles.steeringRow}>
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="steering"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{steeringType}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{steeringType}</Text>
             </View>
           </View>
 
@@ -430,6 +435,7 @@ const JustArrived = () => {
           <Text style={styles.tagText}></Text>
         </View>
       }
+      isDarkMode={isDark}
     />
   );
 
