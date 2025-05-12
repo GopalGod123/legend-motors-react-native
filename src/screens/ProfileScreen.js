@@ -401,7 +401,8 @@ const ProfileScreen = () => {
 
     // Add country code if available
     if (userProfile.countryCode) {
-      return `+${userProfile.countryCode} ${userProfile.phone}`;
+      const formattedPhone = `+${userProfile.countryCode} ${userProfile.phone}`;
+      return isDark ? <Text style={{color: '#ffffff'}}>{formattedPhone}</Text> : formattedPhone;
     }
 
     return userProfile.phone;
@@ -692,9 +693,9 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   avatar: {
-    width: 82,
-    height: 82,
-    borderRadius: 41,
+    width: 120,
+    height: 120,
+    borderRadius: 50,
   },
   badgeContainer: {
     position: 'absolute',
