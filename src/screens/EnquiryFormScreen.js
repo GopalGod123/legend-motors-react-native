@@ -339,44 +339,15 @@ const EnquiryFormScreen = () => {
     </TouchableOpacity>
   );
 
-  // Render phone input with better country code display
-  const renderPhoneInput = () => (
-    <View style={styles.inputContainer}>
-      <View style={[styles.input, errors.phoneNumber ? styles.inputError : null, styles.phoneInputWrapper]}>
-        <TouchableOpacity
-          style={styles.countryCodeContainer}
-          onPress={() => setCountryPickerVisible(true)}>
-          <Ionicons name="flag" size={20} color="#5E366D" style={styles.inputIcon} />
-          <Text style={styles.countryCodeText}>{countryCode}</Text>
-          <Ionicons name="chevron-down" size={16} color="#777" />
-        </TouchableOpacity>
-        <TextInput
-          style={styles.phoneInput}
-          placeholder="Phone Number"
-          placeholderTextColor="#777"
-          keyboardType="phone-pad"
-          value={phoneNumber}
-          onChangeText={(text) => {
-            // Remove non-digit characters on input
-            const digitsOnly = text.replace(/\D/g, '');
-            setPhoneNumber(digitsOnly);
-          }}
-        />
-      </View>
-      {errors.phoneNumber ? (
-        <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-      ) : null}
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}>
+        style={styles.keyboardAvoidingContainer}>
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
           
           {/* Header with back button */}
           <View style={styles.header}>
@@ -403,7 +374,7 @@ const EnquiryFormScreen = () => {
                 <View style={styles.priceWrapper}>
                   <Text style={styles.priceLabel}>Price</Text>
                   <Text style={styles.priceValue} numberOfLines={1} ellipsizeMode="tail">
-                    {currency} {carPrice?.toLocaleString() || '175,000'}
+                    {currency} {carPrice ? Math.floor(carPrice).toLocaleString() : '175,000'}
                   </Text>
                 </View>
               </View>
@@ -428,7 +399,7 @@ const EnquiryFormScreen = () => {
             {/* Name Input */}
             <View style={styles.inputContainer}>
               <TextInput
-                style={[styles.input, errors.name ? styles.inputError : null]}
+                style={[styles.baseInput, errors.name ? styles.inputError : null]}
                 placeholder="Your Name"
                 placeholderTextColor="#777"
                 value={name}
@@ -441,10 +412,10 @@ const EnquiryFormScreen = () => {
             
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <View style={[styles.input, errors.email ? styles.inputError : null, styles.emailInputWrapper]}>
+              <View style={[styles.baseInput, errors.email ? styles.inputError : null, styles.iconInputContainer]}>
                 <Ionicons name="mail" size={20} color="#5E366D" style={styles.inputIcon} />
                 <TextInput
-                  style={styles.emailInput}
+                  style={styles.iconInput}
                   placeholder="Email"
                   placeholderTextColor="#777"
                   keyboardType="email-address"
@@ -458,8 +429,33 @@ const EnquiryFormScreen = () => {
               ) : null}
             </View>
             
-            {/* Phone Input - using the custom component */}
-            {renderPhoneInput()}
+            {/* Phone Input */}
+            <View style={styles.inputContainer}>
+              <View style={[styles.baseInput, errors.phoneNumber ? styles.inputError : null, styles.phoneContainer]}>
+                <TouchableOpacity
+                  style={styles.countryCodeButton}
+                  onPress={() => setCountryPickerVisible(true)}>
+                  <Ionicons name="flag" size={20} color="#5E366D" style={styles.inputIcon} />
+                  <Text style={styles.countryCodeText}>{countryCode}</Text>
+                  <Ionicons name="chevron-down" size={16} color="#777" />
+                </TouchableOpacity>
+                <TextInput
+                  style={styles.phoneNumberInput}
+                  placeholder="Phone Number"
+                  placeholderTextColor="#777"
+                  keyboardType="phone-pad"
+                  value={phoneNumber}
+                  onChangeText={(text) => {
+                    // Remove non-digit characters on input
+                    const digitsOnly = text.replace(/\D/g, '');
+                    setPhoneNumber(digitsOnly);
+                  }}
+                />
+              </View>
+              {errors.phoneNumber ? (
+                <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+              ) : null}
+            </View>
             
             {/* Auto-fill Checkbox (only if user is authenticated) */}
             {user && (
@@ -628,9 +624,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  keyboardAvoidingContainer: {
+    flex: 1,
+  },
   scrollContent: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 80,
   },
   header: {
     flexDirection: 'row',
@@ -677,8 +676,9 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
     borderRadius: 10,
-    padding: 10,
+    padding: 12,
     marginBottom: SPACING.lg,
+    marginHorizontal: 2,
   },
   carTitleContainer: {
     marginBottom: 8,
@@ -743,11 +743,13 @@ const styles = StyleSheet.create({
   formContainer: {
     width: '100%',
     marginTop: 20,
+    marginBottom: 20,
   },
   inputContainer: {
-    marginBottom: 14,
+    width: '100%',
+    marginBottom: 20,
   },
-  input: {
+  baseInput: {
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     padding: 14,
@@ -755,7 +757,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
-    height: 52,
+    height: 56,
   },
   inputError: {
     borderColor: 'red',
@@ -766,38 +768,29 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginLeft: 4,
   },
-  emailInputWrapper: {
+  iconInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderStyle: 'dashed',
-    height: 56,
     paddingHorizontal: 16,
+    paddingVertical: 0,
   },
   inputIcon: {
     marginRight: 12,
-    color: '#757575',
+    color: '#5E366D',
   },
-  emailInput: {
+  iconInput: {
     flex: 1,
     fontSize: 16,
     color: '#212121',
     height: '100%',
+    paddingVertical: 14,
   },
-  phoneInputWrapper: {
+  phoneContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderStyle: 'dashed',
-    height: 56,
+    padding: 0,
   },
-  countryCodeContainer: {
+  countryCodeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -811,11 +804,12 @@ const styles = StyleSheet.create({
     color: '#212121',
     marginRight: 8,
   },
-  phoneInput: {
+  phoneNumberInput: {
     flex: 1,
     marginLeft: 16,
     fontSize: 16,
     height: '100%',
+    paddingVertical: 14,
   },
   checkboxContainer: {
     flexDirection: 'row',
@@ -844,11 +838,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 24,
-    height: 56,
+    height: 60,
+    marginBottom: 30,
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
   modalOverlay: {
