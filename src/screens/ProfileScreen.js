@@ -121,6 +121,23 @@ const ShieldIcon = () => {
   );
 };
 
+const ProfileImageIcon = props => (
+  <Svg
+    width={26}
+    height={26}
+    viewBox="0 0 26 26"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}>
+    <Path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M18.8316 0.512919C20.6298 0.400535 22.4029 1.02489 23.7391 2.24862C24.9628 3.58474 25.5872 5.35791 25.4873 7.16853V18.8315C25.5997 20.6421 24.9628 22.4153 23.7516 23.7514C22.4154 24.9751 20.6298 25.5995 18.8316 25.4871H7.16859C5.35795 25.5995 3.58477 24.9751 2.24864 23.7514C1.02489 22.4153 0.400535 20.6421 0.512919 18.8315V7.16853C0.400535 5.35791 1.02489 3.58474 2.24864 2.24862C3.58477 1.02489 5.35795 0.400535 7.16859 0.512919H18.8316ZM11.7264 19.0562L20.1303 10.6275C20.892 9.85325 20.892 8.60455 20.1303 7.84283L18.5069 6.21951C17.7327 5.44532 16.484 5.44532 15.7098 6.21951L14.8732 7.06864C14.7483 7.19351 14.7483 7.40579 14.8732 7.53066C14.8732 7.53066 16.8586 9.50362 16.8961 9.55357C17.0335 9.70341 17.1209 9.9032 17.1209 10.128C17.1209 10.5775 16.7587 10.9521 16.2967 10.9521C16.0844 10.9521 15.8846 10.8647 15.7473 10.7274L13.6619 8.6545C13.562 8.5546 13.3872 8.5546 13.2873 8.6545L7.33092 14.6108C6.91884 15.0229 6.68159 15.5723 6.6691 16.1592L6.59418 19.1187C6.59418 19.281 6.64413 19.4308 6.75651 19.5432C6.8689 19.6556 7.01874 19.718 7.18107 19.718H10.1156C10.7149 19.718 11.2894 19.4808 11.7264 19.0562Z"
+      fill="#EF9439"
+    />
+  </Svg>
+);
+
 const GlobeIcon = () => {
   const {theme} = useTheme();
   return (
@@ -305,6 +322,37 @@ const ProfileScreen = () => {
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      
+      // Check if it's an auth error (401)
+      if (error?.response?.status === 401 || 
+          (error?.message && error.message.includes('Authentication error'))) {
+        try {
+          // Try to refresh the token
+          const refreshed = await syncAuthToken();
+          if (refreshed) {
+            // Try again with new token
+            const retryResponse = await getUserProfile();
+            if (retryResponse.success) {
+              setUserProfile(retryResponse.data);
+            }
+          } else {
+            // If refresh fails, logout
+            Alert.alert(
+              'Session Expired',
+              'Your session has expired. Please log in again.',
+              [{ text: 'OK', onPress: handleLogout }]
+            );
+          }
+        } catch (refreshError) {
+          console.error('Token refresh error:', refreshError);
+          // Show auth error to user
+          Alert.alert(
+            'Authentication Error',
+            'Please log in again to continue.',
+            [{ text: 'OK', onPress: handleLogout }]
+          );
+        }
+      }
     } finally {
       setLoading(false);
     }
@@ -329,13 +377,10 @@ const ProfileScreen = () => {
   const handleLogout = async () => {
     try {
       setShowLogoutModal(false);
-
       // Call logout API
       await logoutUser();
-
       // Call context logout
       await logout();
-
       // Navigate to Login screen
       navigation.reset({
         index: 0,
@@ -343,7 +388,6 @@ const ProfileScreen = () => {
       });
     } catch (error) {
       console.error('Logout error:', error);
-
       // Even if there's an error, still try to log out locally
       logout();
       navigation.reset({
@@ -356,10 +400,8 @@ const ProfileScreen = () => {
   // Format user name from profile data
   const getUserName = () => {
     if (!userProfile) return 'User';
-
     const firstName = userProfile.firstName || '';
     const lastName = userProfile.lastName || '';
-
     if (firstName && lastName) {
       return `${firstName} ${lastName}`;
     } else if (firstName) {
@@ -368,7 +410,6 @@ const ProfileScreen = () => {
       // If no name, use first part of email
       return userProfile.email.split('@')[0];
     }
-
     return 'User';
   };
 
@@ -376,11 +417,9 @@ const ProfileScreen = () => {
   const getProfileImageUrl = () => {
     if (userProfile && userProfile.profileImage) {
       const image = userProfile.profileImage;
-
       // Try different image paths
       const imagePath =
         image.webp || image.original || image.thumbnailPath || image.path;
-
       if (imagePath) {
         // If path starts with http, use as is, otherwise prepend a base URL
         if (imagePath.startsWith('http')) {
@@ -390,7 +429,6 @@ const ProfileScreen = () => {
         }
       }
     }
-
     // Default avatar
     return 'https://randomuser.me/api/portraits/men/32.jpg';
   };
@@ -398,13 +436,10 @@ const ProfileScreen = () => {
   // Get user phone with formatting
   const getUserPhone = () => {
     if (!userProfile || !userProfile.phone) return '';
-
     // Add country code if available
     if (userProfile.countryCode) {
-      const formattedPhone = `+${userProfile.countryCode} ${userProfile.phone}`;
-      return isDark ? <Text style={{color: '#ffffff'}}>{formattedPhone}</Text> : formattedPhone;
+      return `+${userProfile.countryCode} ${userProfile.phone}`;
     }
-
     return userProfile.phone;
   };
 
@@ -421,215 +456,114 @@ const ProfileScreen = () => {
   }
 
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
-      ]}>
-      <StatusBar
-        barStyle={isDark ? 'light-content' : 'dark-content'}
-        backgroundColor={themeColors[theme].background}
-      />
-      <ScrollView
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background}]}>
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={themeColors[theme].background} />
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+          <Text style={[styles.headerTitle, {color: isDark ? '#888888' : '#888888'}]}>
             Profile & settings
           </Text>
         </View>
-
         <View style={styles.profileContainer}>
           <View style={styles.profileHeader}>
-            <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
-              Profile
-            </Text>
+            <Text style={[styles.logoText, {color: themeColors[theme].text}]}>Profile</Text>
             {/* <TouchableOpacity
-              style={[
-                styles.editIconContainer,
-                {borderColor: themeColors[theme].border},
-              ]}> */}
-              {/* <Text
-                style={[styles.editIconText, {color: themeColors[theme].text}]}>
-                ···
-              </Text> */}
+              style={[styles.editIconContainer, {borderColor: themeColors[theme].border}]}> */}
+            {/* <Text style={[styles.editIconText, {color: themeColors[theme].text}]}>···</Text> */}
             {/* </TouchableOpacity> */}
           </View>
-
           <View style={styles.profileInfoContainer}>
             <View style={styles.avatarContainer}>
-              <Image
-                source={{uri: getProfileImageUrl()}}
-                style={styles.avatar}
-              />
+              <Image source={{uri: getProfileImageUrl()}} style={styles.avatar} />
               <View style={styles.badgeContainer}>
-                <View style={styles.badgeIcon}></View>
+                <ProfileImageIcon width={24} height={24} />
               </View>
             </View>
-
-            <Text style={[styles.userName, {color: themeColors[theme].text}]}>
-              {getUserName()}
-            </Text>
-            <Text style={styles.userPhone}>{getUserPhone()}</Text>
-
+            <Text style={[styles.userName, {color: themeColors[theme].text}]}>{getUserName()}</Text>
+            <Text style={[styles.userPhone, {color: isDark ? '#ffffff' : '#888888'}]}>{getUserPhone()}</Text>
             <View style={styles.menuContainer}>
               <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  {borderBottomColor: themeColors[theme].border},
-                ]}
+                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
                 onPress={() => handleNavigate('EditProfileScreen')}>
                 <View style={styles.menuIconContainer}>
                   <UserIcon />
                 </View>
-                <Text
-                  style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Edit Profile
-                </Text>
+                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Edit Profile</Text>
                 <ChevronIcon />
               </TouchableOpacity>
-
+              {/* 
               <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  {borderBottomColor: themeColors[theme].border},
-                ]}>
+                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}>
                 <View style={styles.menuIconContainer}>
                   <BellIcon />
                 </View>
-                <Text
-                  style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Notification
-                </Text>
-                <ChevronIcon />
-              </TouchableOpacity>
-{/* 
-              <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  {borderBottomColor: themeColors[theme].border},
-                ]}>
-                <View style={styles.menuIconContainer}>
-                  <InfoIcon />
-                </View>
-                <Text
-                  style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  About Us
-                </Text>
+                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Notification</Text>
                 <ChevronIcon />
               </TouchableOpacity> */}
-
               {/* <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  {borderBottomColor: themeColors[theme].border},
-                ]}>
+                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}>
                 <View style={styles.menuIconContainer}>
                   <ShieldIcon />
                 </View>
-                <Text
-                  style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Security
-                </Text>
+                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Security</Text>
                 <ChevronIcon />
               </TouchableOpacity> */}
-
               <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  {borderBottomColor: themeColors[theme].border},
-                ]}
+                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
                 onPress={() => handleNavigate('LanguageScreen')}>
                 <View style={styles.menuIconContainer}>
                   <GlobeIcon />
                 </View>
-                <Text
-                  style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Language
-                </Text>
+                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Language</Text>
                 <View style={styles.rightContainer}>
-                  <Text style={[
-                    styles.languageValue, 
-                    {color: isDark ? 'white' : '#7A40C6'}
-                  ]}>
+                  <Text style={[styles.languageValue, {color: isDark ? 'white' : '#7A40C6'}]}>
                     {languages.find(lang => lang.id == selectedLanguage)?.name}
                   </Text>
                   <ChevronIcon />
                 </View>
               </TouchableOpacity>
-
               <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  {borderBottomColor: themeColors[theme].border},
-                ]}
+                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
                 onPress={() => navigation.navigate('PrivacyPolicy')}>
                 <View style={styles.menuIconContainer}>
                   <DocumentIcon />
                 </View>
-                <Text
-                  style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Privacy Policy
-                </Text>
+                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Privacy Policy</Text>
                 <ChevronIcon />
               </TouchableOpacity>
-
               <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  {borderBottomColor: themeColors[theme].border},
-                ]}
+                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
                 onPress={() => handleNavigate('HelpCenterScreen')}>
                 <View style={styles.menuIconContainer}>
                   <HelpIcon />
                 </View>
-                <Text
-                  style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Help Center
-                </Text>
+                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Help Center</Text>
                 <ChevronIcon />
               </TouchableOpacity>
-
               <TouchableOpacity
-                style={[
-                  styles.menuItem,
-                  {borderBottomColor: themeColors[theme].border},
-                ]}
+                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
                 onPress={toggleTheme}>
                 <View style={styles.menuItemLeft}>
                   <MoonIcon />
-                  <Text
-                    style={[
-                      styles.menuItemText,
-                      {color: themeColors[theme].text},
-                    ]}>
-                    Dark Mode
-                  </Text>
+                  <Text style={[styles.menuItemText, {color: themeColors[theme].text}]}>Dark Mode</Text>
                 </View>
                 <Switch
                   value={isDark}
                   onValueChange={toggleTheme}
-                  trackColor={{
-                    false: '#767577',
-                    true: themeColors[theme].primary,
-                  }}
+                  trackColor={{false: '#767577', true: themeColors[theme].primary}}
                   thumbColor={isDark ? '#f4f3f4' : '#f4f3f4'}
                 />
               </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.logoutItem}
-                onPress={() => setShowLogoutModal(true)}>
+              <TouchableOpacity style={styles.logoutItem} onPress={() => setShowLogoutModal(true)}>
                 <View style={styles.logoutIconContainer}>
                   <LogoutIcon />
                 </View>
-                <Text style={styles.logoutText}>Logout</Text>
+                <Text style={[styles.logoutText, {color: '#FF3B30'}]}>Logout</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </ScrollView>
-
       <LogoutModal
         visible={showLogoutModal}
         onCancel={() => setShowLogoutModal(false)}
@@ -660,6 +594,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingBottom: 16,
+    backgroundColor: 'transparent',
   },
   profileHeader: {
     flexDirection: 'row',
@@ -704,9 +639,10 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#F47B20',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 0,
   },
   badgeIcon: {
     width: 12,
@@ -723,7 +659,6 @@ const styles = StyleSheet.create({
   },
   userPhone: {
     fontSize: 14,
-    color: '#888888',
     marginBottom: 16,
   },
   menuContainer: {
@@ -768,7 +703,6 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     fontSize: 16,
-    color: '#FF3B30',
   },
   loadingContainer: {
     flex: 1,

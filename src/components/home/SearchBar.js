@@ -134,7 +134,7 @@ const SearchBar = ({
           style={styles.filterIconRight}
           onPress={handleOpenFilter}
           disabled={disabled}>
-          <FilterIcon size={20} color={disabled ? '#C0C0C0' : '#F86E1F'} />
+          <FilterIcon size={20} color={disabled ? '#C0C0C0' : '#ED8721'} />
         </TouchableOpacity>
       </View>
     </View>

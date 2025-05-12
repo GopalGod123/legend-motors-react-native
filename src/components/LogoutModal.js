@@ -7,8 +7,11 @@ import {
   Modal,
   Pressable
 } from 'react-native';
+import { useTheme, themeColors } from '../context/ThemeContext';
 
 const LogoutModal = ({ visible, onCancel, onLogout }) => {
+  const { theme, isDark } = useTheme();
+  
   return (
     <Modal
       animationType="fade"
@@ -17,16 +20,28 @@ const LogoutModal = ({ visible, onCancel, onLogout }) => {
       onRequestClose={onCancel}
     >
       <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
+        <View style={[
+          styles.modalContainer, 
+          {backgroundColor: isDark ? '#3D3D3D' : '#FFFFFF'}
+        ]}>
           <Text style={styles.logoutText}>Logout</Text>
-          <Text style={styles.confirmationText}>Are you sure you want to log out?</Text>
+          <Text style={[
+            styles.confirmationText,
+            {color: themeColors[theme].text}
+          ]}>Are you sure you want to log out?</Text>
           
           <View style={styles.buttonContainer}>
             <TouchableOpacity 
-              style={styles.cancelButton}
+              style={[
+                styles.cancelButton,
+                {backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5'}
+              ]}
               onPress={onCancel}
             >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
+              <Text style={[
+                styles.cancelButtonText,
+                {color: themeColors[theme].text}
+              ]}>Cancel</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -52,7 +67,6 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     width: '100%',
-    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 24,
@@ -66,7 +80,6 @@ const styles = StyleSheet.create({
   },
   confirmationText: {
     fontSize: 16,
-    color: '#212121',
     marginBottom: 24,
     textAlign: 'center',
   },
@@ -78,7 +91,6 @@ const styles = StyleSheet.create({
   cancelButton: {
     flex: 1,
     height: 50,
-    backgroundColor: '#F5F5F5',
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -87,7 +99,6 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontSize: 16,
     fontWeight: '500',
-    color: '#212121',
   },
   logoutButton: {
     flex: 1,
