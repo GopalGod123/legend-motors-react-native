@@ -632,7 +632,7 @@ const CarDetailScreen = () => {
                   </Text>
                 </View>
 
-                <View style={[styles.categoryBadge, {backgroundColor: isDark ? '#333333' : '#F5F5F5'}]}>
+                <View style={[styles.categoryBadge]}>
                   <Icon name="directions-car" size={18} color="#FF8C00" />
                   <Text style={styles.categoryText}>{bodyType || 'SUV'}</Text>
                 </View>
@@ -641,7 +641,7 @@ const CarDetailScreen = () => {
               {/* Right side - action buttons */}
               <View style={styles.actionButtonsRow}>
                 <TouchableOpacity
-                  style={[styles.actionIconButton, {backgroundColor: colors.card}]}
+                  style={styles.actionIconButton}
                   onPress={toggleFavorite}
                   disabled={processingWishlist}>
                   {processingWishlist ? (
@@ -654,7 +654,7 @@ const CarDetailScreen = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.actionIconButton, {backgroundColor: colors.card}]}
+                  style={styles.actionIconButton}
                   onPress={() => {
                     // Handle download functionality
                     if (car.brochureFile?.path) {
@@ -668,7 +668,7 @@ const CarDetailScreen = () => {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={[styles.actionIconButton, {backgroundColor: colors.card}]}
+                  style={styles.actionIconButton}
                   onPress={handleShare}>
                   <Ionicons name="share-social" size={24} color={colors.text} />
                 </TouchableOpacity>
@@ -1095,11 +1095,6 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
   },
   carTitle: {
     fontSize: 16,
@@ -1259,14 +1254,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: -3,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 5,
   },
   priceContainer: {
     flex: 1,
@@ -1341,7 +1328,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   accordionContainer: {
-    marginTop: 8,
+    marginTop: 20,
     paddingHorizontal: 16,
   },
   accordionHeader: {
