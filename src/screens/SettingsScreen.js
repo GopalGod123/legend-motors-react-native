@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,8 +8,9 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  Button,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../context/AuthContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
 
@@ -17,6 +18,16 @@ const SettingsScreen = () => {
   const navigation = useNavigation();
   const {user, logout} = useAuth();
   const {theme, isDark} = useTheme();
+
+  // Add focus effect to detect when screen gains focus
+  useFocusEffect(
+    useCallback(() => {
+      console.log('SettingsScreen is focused');
+      return () => {
+        console.log('SettingsScreen is unfocused');
+      };
+    }, [])
+  );
 
   const handleLogout = () => {
     Alert.alert('Log Out', 'Are you sure you want to log out?', [
@@ -35,6 +46,14 @@ const SettingsScreen = () => {
     ]);
   };
 
+  const navigateToPrivacyPolicy = () => {
+    console.log('Attempting to navigate to TestNavigation screen');
+    Alert.alert('Navigation', 'Attempting to navigate to TestNavigation screen');
+    
+    // Navigate to the test screen first
+    navigation.navigate('TestNavigation');
+  };
+
   return (
     <SafeAreaView
       style={[
@@ -42,6 +61,16 @@ const SettingsScreen = () => {
         {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
       ]}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
+      
+      {/* Test Navigation Button */}
+      <View style={styles.testButtonContainer}>
+        <Button 
+          title="Test Privacy Policy Navigation" 
+          onPress={navigateToPrivacyPolicy} 
+          color="#F47B20"
+        />
+      </View>
+      
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
@@ -244,6 +273,9 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  testButtonContainer: {
+    padding: 16,
   },
 });
 

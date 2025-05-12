@@ -6,6 +6,7 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
+  TouchableOpacity,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useTheme, themeColors} from '../context/ThemeContext';
@@ -23,10 +24,19 @@ const PrivacyPolicyScreen = () => {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
-            Privacy Policy
-          </Text>
-          <Text style={[styles.lastUpdated, {color: themeColors[theme].textSecondary}]}>
+          <View style={styles.headerRow}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}>
+              <Text style={[styles.backButtonText, {color: themeColors[theme].primary}]}>
+                ← Back
+              </Text>
+            </TouchableOpacity>
+            <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+              Privacy Policy
+            </Text>
+          </View>
+          <Text style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
             Last Updated: 5th May 2025
           </Text>
         </View>
@@ -211,7 +221,7 @@ const PrivacyPolicyScreen = () => {
           </View>
 
           <View style={styles.footer}>
-            <Text style={[styles.footerText, {color: themeColors[theme].textSecondary}]}>
+            <Text style={[styles.footerText, {color: themeColors[theme].primary}]}>
               Note: This policy is compliant with the EU General Data Protection Regulation (GDPR), UAE Federal Decree-Law No. 45/2021, and other applicable privacy laws.
             </Text>
           </View>
@@ -224,6 +234,7 @@ const PrivacyPolicyScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding:12
   },
   scrollView: {
     flex: 1,
@@ -233,10 +244,23 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 8,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 8,
+  },
+  backButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   headerTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 8,
+    flex: 1,
   },
   lastUpdated: {
     fontSize: 14,
