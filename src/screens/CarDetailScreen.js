@@ -1113,9 +1113,9 @@ const styles = StyleSheet.create({
     color: '#5E366D',
   },
   sectionContainer: {
-    paddingHorizontal: 10,
+    paddingHorizontal: 0,
     paddingTop: 3,
-    paddingBottom: SPACING.lg,
+    paddingBottom: SPACING.sm,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
     backgroundColor: '#FFFFFF',
