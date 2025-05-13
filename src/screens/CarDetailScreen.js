@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -139,7 +139,10 @@ const CarDetailScreen = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isAlreadyInquired, setIsAlreadyInquired] = useState(false);
   const [userEnquiries, setUserEnquiries] = useState([]);
+  const [autoScrolling, setAutoScrolling] = useState(true);
   const carouselRef = useRef(null);
+  const thumbnailsListRef = useRef(null);
+  const autoScrollTimerRef = useRef(null);
 
   // Add state for managing accordion open/close state
   const [expandedAccordions, setExpandedAccordions] = useState({
@@ -204,6 +207,72 @@ const CarDetailScreen = () => {
       setIsFavorite(favoriteStatus);
     }
   }, [car, isInWishlist]);
+
+  // Auto-scroll images
+  useEffect(() => {
+    if (autoScrolling && carImages && carImages.length > 1) {
+      // Set up timer for auto-scrolling
+      autoScrollTimerRef.current = setInterval(() => {
+        const nextIndex = (selectedImageIndex + 1) % carImages.length;
+        
+        // If we've reached the end of exterior images, switch to interior tab
+        if (activeTab === 'exterior' && nextIndex === 0) {
+          setActiveTab('interior');
+        }
+        
+        // If we've reached the end of interior images, switch back to exterior tab
+        if (activeTab === 'interior' && nextIndex === 0) {
+          setActiveTab('exterior');
+        }
+        
+        // Wait briefly to allow tab change to complete and images to load
+        setTimeout(() => {
+          setSelectedImageIndex(nextIndex);
+          
+          // Scroll main carousel
+          if (carouselRef.current) {
+            carouselRef.current.scrollToIndex({
+              index: nextIndex,
+              animated: true,
+            });
+          }
+          
+          // Scroll thumbnails
+          if (thumbnailsListRef.current) {
+            thumbnailsListRef.current.scrollToIndex({
+              index: nextIndex,
+              animated: true,
+              viewPosition: 0.5,
+            });
+          }
+        }, 100);
+      }, 5000); // 5 seconds between images
+      
+      return () => {
+        if (autoScrollTimerRef.current) {
+          clearInterval(autoScrollTimerRef.current);
+        }
+      };
+    }
+  }, [selectedImageIndex, carImages, activeTab, autoScrolling]);
+
+  // Reset auto-scroll when tab changes
+  useEffect(() => {
+    setSelectedImageIndex(0);
+  }, [activeTab]);
+
+  // Pause auto-scrolling when user interacts with the carousel
+  const handleImagePress = () => {
+    setAutoScrolling(false);
+    // Resume auto-scrolling after 20 seconds of inactivity
+    if (autoScrollTimerRef.current) {
+      clearInterval(autoScrollTimerRef.current);
+    }
+    
+    setTimeout(() => {
+      setAutoScrolling(true);
+    }, 20000);
+  };
 
   // Function to handle viewing similar color cars
   const handleViewSimilarColorCars = () => {
@@ -711,7 +780,7 @@ const CarDetailScreen = () => {
               images={carImages}
               style={styles.carImage}
               height={220}
-              onImagePress={() => {}}
+              onImagePress={handleImagePress}
               ref={carouselRef}
               initialIndex={selectedImageIndex}
               onIndexChange={(index) => setSelectedImageIndex(index)}
@@ -720,36 +789,53 @@ const CarDetailScreen = () => {
            
           </View>
           
-          <View style={{marginTop:100}} > 
-              {/* Thumbnails Gallery */}
-              {carImages.length > 1 && (
+          <View style={{marginTop: 8}}> 
+            {/* Thumbnails Gallery */}
+            {carImages.length > 1 && (
               <View style={styles.thumbnailsContainer}>
                 <FlatList
+                  ref={thumbnailsListRef}
                   data={carImages}
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   keyExtractor={(item, index) => `thumbnail-${index}`}
                   contentContainerStyle={styles.thumbnailsContent}
+                  onScrollBeginDrag={() => setAutoScrolling(false)}
+                  getItemLayout={(data, index) => ({
+                    length: 94, // item width + margin
+                    offset: 94 * index,
+                    index,
+                  })}
                   renderItem={({ item, index }) => (
                     <TouchableOpacity
                       style={[
                         styles.thumbnailItem,
-                        selectedImageIndex === index &&
-                          styles.thumbnailItemSelected,
+                        selectedImageIndex === index
+                          ? styles.thumbnailItemSelected
+                          : null,
                       ]}
                       onPress={() => {
                         setSelectedImageIndex(index);
+                        setAutoScrolling(false);
                         if (carouselRef.current) {
                           carouselRef.current.scrollToIndex({
                             index,
                             animated: true,
                           });
                         }
+                        
+                        // Resume auto-scrolling after 20 seconds
+                        setTimeout(() => {
+                          setAutoScrolling(true);
+                        }, 20000);
                       }}
                     >
                       <CarImage
                         source={item}
-                        style={styles.thumbnailImage}
+                        style={[
+                          styles.thumbnailImage,
+                          selectedImageIndex !== index ? styles.thumbnailImageUnselected : null,
+                        ]}
                         resizeMode="cover"
                       />
                     </TouchableOpacity>
@@ -1782,10 +1868,7 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 6,
     marginTop: 0,
-    marginTop: 100,
-    position: 'absolute',
-    bottom: 0,
-    zIndex: 10,
+    marginBottom: 10,
   },
   thumbnailsContent: {
     paddingHorizontal: 2,
@@ -1795,20 +1878,22 @@ const styles = StyleSheet.create({
   thumbnailItem: {
     width: 90,
     height: 70,
-    borderRadius:24,
+    borderRadius: 12,
     marginHorizontal: 2,
-    borderRadius: 0,
     overflow: 'hidden',
     borderWidth: 0,
   },
   thumbnailItemSelected: {
     borderWidth: 2,
-    borderColor: '#5E366D',
+    borderColor: '#FF8C00', // Orange border for selected thumbnail
   },
   thumbnailImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 0,
+    borderRadius: 12,
+  },
+  thumbnailImageUnselected: {
+    opacity: 0.6, // Makes unselected thumbnails appear dull
   },
 });
 
