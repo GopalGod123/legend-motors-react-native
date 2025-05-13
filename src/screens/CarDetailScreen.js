@@ -137,6 +137,7 @@ const CarDetailScreen = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [processingWishlist, setProcessingWishlist] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isAlreadyInquired, setIsAlreadyInquired] = useState(false);
   const carouselRef = useRef(null);
 
   // Add state for managing accordion open/close state
@@ -166,6 +167,7 @@ const CarDetailScreen = () => {
 
   useEffect(() => {
     fetchCarDetails();
+    checkIfAlreadyInquired(); // Check if this car was already inquired about
   }, [carId]);
 
   useEffect(() => {
@@ -273,6 +275,26 @@ const CarDetailScreen = () => {
     navigation.goBack();
   };
 
+  const checkIfAlreadyInquired = async () => {
+    // This is a placeholder function that would check if the user has already inquired about this car
+    // In a real implementation, you would likely check against a server or local storage
+    if (isAuthenticated && user && carId) {
+      try {
+        // Here you would make an API call to check if the user has already inquired about this car
+        // For now, we'll use a mock implementation
+        // This might be something like: const result = await checkInquiryStatus(carId, user.id);
+        
+        // Mock implementation - you'll need to replace this with actual API call
+        const mockAlreadyInquired = localStorage.getItem(`inquired_${user.id}_${carId}`);
+        if (mockAlreadyInquired) {
+          setIsAlreadyInquired(true);
+        }
+      } catch (error) {
+        console.error('Error checking inquiry status:', error);
+      }
+    }
+  };
+
   const handleInquire = async () => {
     // Navigate to the enquiry form screen with car details
     if (!car) {
@@ -303,6 +325,14 @@ const CarDetailScreen = () => {
       carPrice: price,
       currency: selectedCurrency,
     });
+    
+    // Mark this car as inquired after successful navigation
+    if (isAuthenticated && user) {
+      // In a real implementation, this would be handled by the server upon successful inquiry submission
+      // For this mock implementation, we'll set it in local storage
+      localStorage.setItem(`inquired_${user.id}_${carId}`, 'true');
+      setIsAlreadyInquired(true);
+    }
   };
 
   const toggleFavorite = async () => {
@@ -1281,16 +1311,22 @@ const CarDetailScreen = () => {
           </Text>
         </View>
         <TouchableOpacity
-          style={[styles.actionButton, styles.inquireButton]}
+          style={[
+            styles.actionButton, 
+            styles.inquireButton,
+            isAlreadyInquired && styles.alreadyInquiredButton
+          ]}
           onPress={handleInquire}
+          disabled={isAlreadyInquired}
         >
           <Text
             style={[
               styles.inquireButtonText,
               { color: isDark ? '#000000' : '#FFFFFF' },
+              isAlreadyInquired && styles.alreadyInquiredText
             ]}
           >
-            Inquire Now
+            {isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -1613,10 +1649,16 @@ const styles = StyleSheet.create({
     width: 250,
     borderRadius: 8,
   },
+  alreadyInquiredButton: {
+    backgroundColor: '#AAAAAA',
+  },
   inquireButtonText: {
     color: '#FFFFFF',
     fontSize: FONT_SIZES.md,
     fontWeight: '600',
+  },
+  alreadyInquiredText: {
+    color: '#FFFFFF',
   },
   loadingContainer: {
     flex: 1,
