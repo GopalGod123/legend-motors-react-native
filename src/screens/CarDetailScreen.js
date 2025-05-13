@@ -896,7 +896,7 @@ const CarDetailScreen = () => {
             style={[
               styles.overviewList,
               {
-                backgroundColor: isDark ? '#ffffff' : '#FFFFFF',
+                backgroundColor: isDark ? 'transparent' : '#FFFFFF',
                 borderRadius: 8,
               },
             ]}
@@ -907,18 +907,18 @@ const CarDetailScreen = () => {
                 <Icon
                   name="directions-car"
                   size={22}
-                  color={isDark ? '#9E9E9E' : '#9E9E9E'}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
                 />
               </View>
               <Text
                 style={[
                   styles.overviewLabel,
-                  { color: isDark ? '#757575' : '#757575' },
+                  { color: isDark ? '#FF8C00' : '#757575' },
                 ]}
               >
                 Condition:
               </Text>
-              <Text style={[styles.overviewValue, { color: '#6f4a8e' }]}>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {car.condition || 'New'}
               </Text>
             </View>
@@ -929,18 +929,18 @@ const CarDetailScreen = () => {
                 <Icon
                   name="settings"
                   size={22}
-                  color={isDark ? '#9E9E9E' : '#9E9E9E'}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
                 />
               </View>
               <Text
                 style={[
                   styles.overviewLabel,
-                  { color: isDark ? '#757575' : '#757575' },
+                  { color: isDark ? '#FF8C00' : '#757575' },
                 ]}
               >
                 Cylinders:
               </Text>
-              <Text style={[styles.overviewValue, { color: '#6f4a8e' }]}>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {specifications.find(
                   (spec) => spec.Specification?.key === 'cylinders'
                 )?.name || '4 Cylinders'}
@@ -953,18 +953,18 @@ const CarDetailScreen = () => {
                 <Icon
                   name="local-gas-station"
                   size={22}
-                  color={isDark ? '#9E9E9E' : '#9E9E9E'}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
                 />
               </View>
               <Text
                 style={[
                   styles.overviewLabel,
-                  { color: isDark ? '#757575' : '#757575' },
+                  { color: isDark ? '#FF8C00' : '#757575' },
                 ]}
               >
                 Fuel Type:
               </Text>
-              <Text style={[styles.overviewValue, { color: '#6f4a8e' }]}>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {specifications.find(
                   (spec) => spec.Specification?.key === 'fuel_type'
                 )?.name || fuelType}
@@ -977,18 +977,18 @@ const CarDetailScreen = () => {
                 <Icon
                   name="event"
                   size={22}
-                  color={isDark ? '#9E9E9E' : '#9E9E9E'}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
                 />
               </View>
               <Text
                 style={[
                   styles.overviewLabel,
-                  { color: isDark ? '#757575' : '#757575' },
+                  { color: isDark ? '#FF8C00' : '#757575' },
                 ]}
               >
                 Built Year:
               </Text>
-              <Text style={[styles.overviewValue, { color: '#6f4a8e' }]}>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {year || '2025'}
               </Text>
             </View>
@@ -999,18 +999,18 @@ const CarDetailScreen = () => {
                 <Icon
                   name="transform"
                   size={22}
-                  color={isDark ? '#9E9E9E' : '#9E9E9E'}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
                 />
               </View>
               <Text
                 style={[
                   styles.overviewLabel,
-                  { color: isDark ? '#757575' : '#757575' },
+                  { color: isDark ? '#FF8C00' : '#757575' },
                 ]}
               >
                 Transmission:
               </Text>
-              <Text style={[styles.overviewValue, { color: '#6f4a8e' }]}>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {specifications.find(
                   (spec) => spec.Specification?.key === 'transmission'
                 )?.name || transmission}
@@ -1023,18 +1023,18 @@ const CarDetailScreen = () => {
                 <Icon
                   name="palette"
                   size={22}
-                  color={isDark ? '#9E9E9E' : '#9E9E9E'}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
                 />
               </View>
               <Text
                 style={[
                   styles.overviewLabel,
-                  { color: isDark ? '#757575' : '#757575' },
+                  { color: isDark ? '#FF8C00' : '#757575' },
                 ]}
               >
                 Color:
               </Text>
-              <Text style={[styles.overviewValue, { color: '#6f4a8e' }]}>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {specifications.find(
                   (spec) => spec.Specification?.key === 'exterior_color'
                 )?.name || 'White'}
@@ -1061,7 +1061,7 @@ const CarDetailScreen = () => {
           <View
             style={[
               styles.featuresGrid,
-              { backgroundColor: isDark ? '#ffffff' : '#FFFFFF' },
+              { backgroundColor: isDark ? 'transparent' : '#FFFFFF' },
             ]}
           >
             {/* Column 1 */}
@@ -1079,7 +1079,7 @@ const CarDetailScreen = () => {
                     <Text
                       style={[
                         styles.featureText,
-                        { color: isDark ? '#000000' : colors.text },
+                        { color: isDark ? '#ffffff' : colors.text },
                       ]}
                     >
                       {feature.name}
@@ -1106,7 +1106,7 @@ const CarDetailScreen = () => {
                     <Text
                       style={[
                         styles.featureText,
-                        { color: isDark ? '#000000' : colors.text },
+                        { color: isDark ? '#ffffff' : colors.text },
                       ]}
                     >
                       {feature.name}
@@ -1545,7 +1545,7 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     marginTop: SPACING.xs,
-    paddingHorizontal: 10,
+    paddingHorizontal: 25,
   },
   descriptionText: {
     fontSize: FONT_SIZES.sm,
