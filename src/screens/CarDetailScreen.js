@@ -755,7 +755,7 @@ const CarDetailScreen = () => {
         </View>
 
         {/* Car Overview Section */}  
-        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background, borderBottomWidth: 0, marginTop: -30, paddingBottom: 6}]}>
+        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background, borderBottomWidth: 0, marginTop: -30, paddingBottom: 0}]}>
           <Text style={[styles.sectionTitle, {color: colors.text, marginBottom: 0}]}>Car Overview</Text>
 
           <View style={[styles.overviewList, {backgroundColor: isDark ? '#ffffff' : '#FFFFFF', borderRadius: 8}]}>
@@ -896,13 +896,18 @@ const CarDetailScreen = () => {
                         expandedAccordions[category]
                       ]}
                       onPress={() => toggleAccordion(category)}>
-                      <Text style={[styles.accordionTitle, {color: colors.text}]}>
+                      <Text style={[
+                        styles.accordionTitle, 
+                        {
+                          color: expandedAccordions[category] ? COLORS.primary : colors.text
+                        }
+                      ]}>
                         {categoryDisplayName}
                       </Text>
                       <Icon
                         name={expandedAccordions[category] ? 'remove' : 'add'}
                         size={24}
-                        color={expandedAccordions[category] ? '#FF8C00' : '#AAAAAA'}
+                        color={expandedAccordions[category] ? COLORS.primary : '#AAAAAA'}
                       />
                     </TouchableOpacity>
 
@@ -1150,7 +1155,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingTop: 12,
     paddingBottom: 12,
-    borderBottomWidth: 1,
     marginBottom: 0,
   },
   sectionTitle: {
@@ -1367,7 +1371,7 @@ const styles = StyleSheet.create({
   thumbnailsContainer: {
     width: '100%',
     padding: 6,
-    backgroundColor: '#1E1E1E',
+    backgroundColor: '#333333',
     borderWidth: 1,
     borderColor: '#1E90FF',
     marginTop: 0,
