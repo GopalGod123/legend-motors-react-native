@@ -43,25 +43,25 @@ const BackIcon = () => {
 };
 
 // Calendar Icon
-const CalendarIcon = () => (
+const CalendarIcon = ({color = '#212121'}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M8 2V5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M16 2V5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M3.5 9.09H20.5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -70,7 +70,7 @@ const CalendarIcon = () => (
       fillRule="evenodd"
       clipRule="evenodd"
       d="M19 4.5H5C4.17157 4.5 3.5 5.17157 3.5 6V19C3.5 19.8284 4.17157 20.5 5 20.5H19C19.8284 20.5 20.5 19.8284 20.5 19V6C20.5 5.17157 19.8284 4.5 19 4.5Z"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -79,18 +79,18 @@ const CalendarIcon = () => (
 );
 
 // Email Icon
-const EmailIcon = () => (
+const EmailIcon = ({color = '#7A40C6'}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M17 21H7C4 21 2 19.5 2 16V8C2 4.5 4 3 7 3H17C20 3 22 4.5 22 8V16C22 19.5 20 21 17 21Z"
-      stroke="#7A40C6"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M18.5 8.5L13.5736 12.4222C12.6941 13.1255 11.4577 13.1255 10.5781 12.4222L5.5 8.5"
-      stroke="#7A40C6"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -701,7 +701,7 @@ const EditProfileScreen = () => {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <BackArrow />
+          <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
           Edit Profile
@@ -777,7 +777,7 @@ const EditProfileScreen = () => {
                 {formData.dateOfBirth || 'Date of Birth (MM/DD/YYYY)'}
               </Text>
               <View style={styles.inputIcon}>
-                <CalendarIcon />
+                <CalendarIcon color={themeColors[theme].primary} />
               </View>
             </TouchableOpacity>
 
@@ -845,7 +845,7 @@ const EditProfileScreen = () => {
               keyboardType="email-address"
             />
             <View style={styles.inputIcon}>
-              <EmailIcon />
+              <EmailIcon color={themeColors[theme].primary} />
             </View>
           </View>
 
@@ -981,9 +981,16 @@ const EditProfileScreen = () => {
           onPress={handleUpdate}
           disabled={updating}>
           {updating ? (
-            <ActivityIndicator size="small" color={isDark ? "#000000" : "#FFFFFF"} />
+            <ActivityIndicator
+              size="small"
+              color={isDark ? '#000000' : '#FFFFFF'}
+            />
           ) : (
-            <Text color={isDark ? "#000000" : "#FFFFFF"} style={styles.updateButtonText}>Update</Text>
+            <Text
+              color={isDark ? '#000000' : '#FFFFFF'}
+              style={styles.updateButtonText}>
+              Update
+            </Text>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -1026,9 +1033,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    paddingHorizontal: 10,
   },
   formContainer: {
     paddingVertical: 16,
+    paddingBottom: 0,
   },
   inputContainer: {
     marginBottom: 16,
@@ -1073,7 +1082,7 @@ const styles = StyleSheet.create({
     height: 55,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 120,
+    marginTop: 70,
   },
   disabledButton: {
     backgroundColor: '#F8C4A6',

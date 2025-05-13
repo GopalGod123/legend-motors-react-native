@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -7,8 +7,9 @@ import {
   TextInput,
   Alert,
   ActivityIndicator,
+  useColorScheme,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
 import Logo from '../components/Logo';
 import EmailIcon from '../components/icons/EmailIcon';
@@ -17,27 +18,29 @@ import EyeIcon from '../components/icons/EyeIcon';
 import CheckIcon from '../components/icons/CheckIcon';
 import AppleIcon from '../components/icons/AppleIcon';
 import GoogleIcon from '../components/icons/GoogleIcon';
-import { useAuth } from '../context/AuthContext';
+import {useAuth} from '../context/AuthContext';
+import {useTheme} from 'src/context/ThemeContext';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const initialEmail = route.params?.email || '';
-  
+  const {isDark} = useTheme();
+
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  
+
   // Get authentication context
-  const { login, loading, error } = useAuth();
+  const {login, loading, error} = useAuth();
 
   // Effect for when coming from registration with an email
   useEffect(() => {
     if (route.params?.email && route.params?.fromRegistration) {
       Alert.alert(
         'Registration Complete',
-        'Your account has been created successfully. Please log in with your credentials.'
+        'Your account has been created successfully. Please log in with your credentials.',
       );
     }
   }, [route.params]);
@@ -54,12 +57,12 @@ const LoginScreen = () => {
 
     try {
       const result = await login(email, password);
-      
+
       if (result.success) {
         // Navigate to home screen on successful login
         navigation.reset({
           index: 0,
-          routes: [{ name: 'Main' }],
+          routes: [{name: 'Main'}],
         });
       } else {
         // Show error message
@@ -71,40 +74,53 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={isDark ? styles.containerDark : styles.container}>
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => navigation.goBack()}>
-        <BackArrow />
+        onPress={() => {
+          if (navigation.canGoBack()) {
+            navigation.goBack();
+          } else {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main'}],
+            });
+          }
+        }}>
+        <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
       </TouchableOpacity>
 
       <View style={styles.logoContainer}>
         <Logo width={200} height={80} />
       </View>
 
-      <Text style={styles.title}>Login to Your Account</Text>
+      <Text style={[styles.title, isDark && styles.titleDark]}>
+        Login to Your Account
+      </Text>
 
       <View style={styles.inputContainer}>
-        <View style={styles.inputWrapper}>
+        <View style={[styles.inputWrapper, isDark && styles.inputWrapperDark]}>
           <EmailIcon />
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDark && styles.inputDark]}
             placeholder="Email"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
+            placeholderTextColor={isDark ? '#666666' : undefined}
           />
         </View>
 
-        <View style={styles.inputWrapper}>
+        <View style={[styles.inputWrapper, isDark && styles.inputWrapperDark]}>
           <LockIcon />
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDark && styles.inputDark]}
             placeholder="Password"
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
+            placeholderTextColor={isDark ? '#666666' : undefined}
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
@@ -121,12 +137,14 @@ const LoginScreen = () => {
           <View style={[styles.checkbox, rememberMe && styles.checkboxChecked]}>
             {rememberMe && <CheckIcon />}
           </View>
-          <Text style={styles.rememberText}>Remember me</Text>
+          <Text style={[styles.rememberText, isDark && styles.textDark]}>
+            Remember me
+          </Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        style={styles.loginButton} 
+      <TouchableOpacity
+        style={styles.loginButton}
         onPress={handleLogin}
         disabled={loading}>
         {loading ? (
@@ -139,25 +157,35 @@ const LoginScreen = () => {
       <TouchableOpacity
         style={styles.forgotPassword}
         onPress={() => navigation.navigate('ForgotPassword')}>
-        <Text style={styles.forgotPasswordText}>Forgot the password?</Text>
+        <Text style={[styles.forgotPasswordText, isDark && styles.textDark]}>
+          Forgot the password?
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.registerContainer}>
-        <Text style={styles.registerText}>Don't have an account? </Text>
+        <Text style={[styles.registerText, isDark && styles.textDark]}>
+          Don't have an account?{' '}
+        </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
           <Text style={styles.registerLink}>Register</Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.socialContainer}>
-        <TouchableOpacity style={styles.socialButton}>
-          <AppleIcon size={24} />
-          <Text style={styles.socialButtonText}>Continue with Apple</Text>
+        <TouchableOpacity
+          style={[styles.socialButton, isDark && styles.socialButtonDark]}>
+          <AppleIcon size={24} color={isDark ? '#FFFFFF' : '#000000'} />
+          <Text style={[styles.socialButtonText, isDark && styles.textDark]}>
+            Continue with Apple
+          </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.socialButton}>
+        <TouchableOpacity
+          style={[styles.socialButton, isDark && styles.socialButtonDark]}>
           <GoogleIcon size={24} />
-          <Text style={styles.socialButtonText}>Continue with Google</Text>
+          <Text style={[styles.socialButtonText, isDark && styles.textDark]}>
+            Continue with Google
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -167,8 +195,13 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
     padding: 20,
+    backgroundColor: '#FFFFFF',
+  },
+  containerDark: {
+    flex: 1,
+    padding: 20,
+    backgroundColor: '#1A1A1A',
   },
   backButton: {
     marginTop: 20,
@@ -188,6 +221,9 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     textAlign: 'center',
   },
+  titleDark: {
+    color: '#FFFFFF',
+  },
   inputContainer: {
     gap: 16,
   },
@@ -200,12 +236,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     height: 48,
   },
+  inputWrapperDark: {
+    backgroundColor: '#000000',
+    borderColor: '#333333',
+  },
   input: {
     flex: 1,
     height: '100%',
     fontSize: 16,
     color: '#333333',
     marginLeft: 8,
+  },
+  inputDark: {
+    color: '#FFFFFF',
   },
   eyeIcon: {
     padding: 8,
@@ -237,6 +280,9 @@ const styles = StyleSheet.create({
   rememberText: {
     fontSize: 14,
     color: '#666666',
+  },
+  textDark: {
+    color: '#FFFFFF',
   },
   loginButton: {
     backgroundColor: '#F4821F',
@@ -285,10 +331,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 8,
   },
+  socialButtonDark: {
+    backgroundColor: '#000000',
+    borderColor: '#333333',
+  },
   socialButtonText: {
     fontSize: 16,
     color: '#333333',
   },
 });
 
-export default LoginScreen; 
+export default LoginScreen;

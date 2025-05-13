@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,25 +10,27 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import Logo from '../components/Logo';
 import BackArrow from '../components/BackArrow';
-import { verifyOTP, requestOTP } from '../services/api';
+import {verifyOTP, requestOTP} from '../services/api';
+import {useTheme} from 'src/context/ThemeContext';
 
 const OTPVerificationScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { email } = route.params;
+  const {email} = route.params;
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30);
   const otpInputs = useRef([]);
+  const {isDark} = useTheme();
 
   useEffect(() => {
     let interval = null;
     if (timer > 0) {
       interval = setInterval(() => {
-        setTimer((prevTimer) => prevTimer - 1);
+        setTimer(prevTimer => prevTimer - 1);
       }, 1000);
     }
     return () => {
@@ -59,19 +61,19 @@ const OTPVerificationScreen = () => {
     try {
       setLoading(true);
       const response = await verifyOTP(email, otpString);
-      
+
       // Log the response to debug
       console.log('Verification response:', response);
-      
+
       if (!response.registrationToken) {
         Alert.alert('Error', 'Registration token not received from server');
         return;
       }
-      
+
       // Navigate to profile screen with email and registration token
-      navigation.replace('FillProfile', { 
+      navigation.replace('FillProfile', {
         email,
-        registrationToken: response.registrationToken
+        registrationToken: response.registrationToken,
       });
     } catch (error) {
       console.error('OTP verification error:', error);
@@ -86,43 +88,52 @@ const OTPVerificationScreen = () => {
       setLoading(true);
       await requestOTP(email);
       setTimer(30);
-      Alert.alert('Success', 'New verification code has been sent to your email');
+      Alert.alert(
+        'Success',
+        'New verification code has been sent to your email',
+      );
     } catch (error) {
-      Alert.alert('Error', error.message || 'Failed to resend verification code');
+      Alert.alert(
+        'Error',
+        error.message || 'Failed to resend verification code',
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}>
+      style={isDark ? styles.containerDark : styles.container}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}>
-        <BackArrow />
+        <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
       </TouchableOpacity>
 
       <View style={styles.logoContainer}>
         <Logo />
       </View>
 
-      <Text style={styles.title}>Create Your Account</Text>
+      <Text style={[styles.title, isDark && styles.textDark]}>
+        Create Your Account
+      </Text>
 
-      <View style={styles.emailContainer}>
+      <View
+        style={[styles.emailContainer, isDark && styles.emailContainerDark]}>
         <Text style={styles.emailIcon}>✉️</Text>
-        <Text style={styles.email}>{email}</Text>
+        <Text style={[styles.email, isDark && styles.textDark]}>{email}</Text>
       </View>
 
       <View style={styles.otpContainer}>
         {otp.map((digit, index) => (
           <TextInput
             key={index}
-            ref={(input) => (otpInputs.current[index] = input)}
-            style={styles.otpInput}
+            ref={input => (otpInputs.current[index] = input)}
+            style={[styles.otpInput, isDark && styles.otpInputDark]}
             value={digit}
-            onChangeText={(value) => handleOtpChange(value, index)}
+            onChangeText={value => handleOtpChange(value, index)}
             keyboardType="number-pad"
             maxLength={1}
             selectTextOnFocus
@@ -130,7 +141,7 @@ const OTPVerificationScreen = () => {
         ))}
       </View>
 
-      <Text style={styles.timerText}>
+      <Text style={[styles.timerText, isDark && styles.textDark]}>
         Resend Code {timer > 0 ? `00:${timer.toString().padStart(2, '0')}` : ''}
       </Text>
 
@@ -154,6 +165,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     padding: 20,
   },
+  containerDark: {
+    flex: 1,
+    backgroundColor: '#1A1A1A',
+    padding: 20,
+  },
   backButton: {
     marginTop: 20,
     marginBottom: 10,
@@ -172,6 +188,9 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     textAlign: 'center',
   },
+  textDark: {
+    color: '#FFFFFF',
+  },
   emailContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -179,6 +198,9 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginBottom: 20,
+  },
+  emailContainerDark: {
+    backgroundColor: '#000000',
   },
   emailIcon: {
     marginRight: 10,
@@ -204,6 +226,11 @@ const styles = StyleSheet.create({
     color: '#333333',
     backgroundColor: '#FFFFFF',
   },
+  otpInputDark: {
+    backgroundColor: '#000000',
+    borderColor: '#333333',
+    color: '#FFFFFF',
+  },
   timerText: {
     textAlign: 'center',
     color: '#666666',
@@ -223,4 +250,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default OTPVerificationScreen; 
+export default OTPVerificationScreen;
