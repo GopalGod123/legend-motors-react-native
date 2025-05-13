@@ -5,6 +5,7 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   runOnJS,
+  withSpring,
 } from 'react-native-reanimated';
 import {COLORS} from 'src/utils/constants';
 
@@ -45,21 +46,45 @@ const VerticalRangeSlider = ({min = 0, max = 100, onChange}) => {
     if (onChange) runOnJS(onChange)({min: lowerValue, max: upperValue});
   };
 
-  const lowerGesture = Gesture.Pan().onUpdate(e => {
-    const newY = lowerThumbY.value + e.translationY * DAMPING;
-    lowerThumbY.value = clamp(
-      newY,
-      upperThumbY.value + HANDLE_SIZE,
-      SLIDER_HEIGHT - HANDLE_SIZE,
-    );
-    updateRange();
-  });
+  const lowerGesture = Gesture.Pan()
+    .onUpdate(e => {
+      const newY = lowerThumbY.value + e.translationY * DAMPING;
+      lowerThumbY.value = clamp(
+        newY,
+        upperThumbY.value + HANDLE_SIZE,
+        SLIDER_HEIGHT - HANDLE_SIZE,
+      );
+      updateRange();
+    })
+    .onEnd(() => {
+      // Apply spring animation when gesture ends for smooth deceleration
+      lowerThumbY.value = withSpring(lowerThumbY.value, {
+        damping: 20,
+        stiffness: 90,
+        mass: 1,
+        overshootClamping: true,
+        duration: 1000,
+      });
+      updateRange();
+    });
 
-  const upperGesture = Gesture.Pan().onUpdate(e => {
-    const newY = upperThumbY.value + e.translationY * DAMPING;
-    upperThumbY.value = clamp(newY, 0, lowerThumbY.value - HANDLE_SIZE);
-    updateRange();
-  });
+  const upperGesture = Gesture.Pan()
+    .onUpdate(e => {
+      const newY = upperThumbY.value + e.translationY * DAMPING;
+      upperThumbY.value = clamp(newY, 0, lowerThumbY.value - HANDLE_SIZE);
+      updateRange();
+    })
+    .onEnd(() => {
+      // Apply spring animation when gesture ends for smooth deceleration
+      upperThumbY.value = withSpring(upperThumbY.value, {
+        damping: 20,
+        stiffness: 90,
+        mass: 1,
+        overshootClamping: true,
+        duration: 1000,
+      });
+      updateRange();
+    });
 
   const lowerThumbStyle = useAnimatedStyle(() => ({
     position: 'absolute',
