@@ -517,7 +517,7 @@ const CarDetailScreen = () => {
     car.price;
 
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
+    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#333333' : '#FFFFFF'}]}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#333333" : colors.background} />
 
       {/* Header with back button */}
@@ -888,10 +888,6 @@ const CarDetailScreen = () => {
                 return (
                   <View key={`accordion-${category}`} style={{
                     backgroundColor: 'transparent', 
-                    borderRadius: 8, 
-                    marginBottom: 8,
-                    borderBottomWidth: 0.5,
-                    borderBottomColor: isDark ? '#444444' : '#E0E0E0'
                   }}>
                     <TouchableOpacity
                       style={[
@@ -906,7 +902,7 @@ const CarDetailScreen = () => {
                       <Icon
                         name={expandedAccordions[category] ? 'remove' : 'add'}
                         size={24}
-                        color="#5E366D"
+                        color={expandedAccordions[category] ? '#FF8C00' : '#AAAAAA'}
                       />
                     </TouchableOpacity>
 
@@ -956,7 +952,7 @@ const CarDetailScreen = () => {
 
       {/* Bottom Action Bar */}
       <View style={[styles.actionBar, {
-        backgroundColor: isDark ? '#333333' : colors.background,
+        backgroundColor: isDark ? '#444444' : colors.background,
         borderTopColor: isDark ? '#444444' : colors.border
       }]}>
         <View style={styles.priceContainer}>
@@ -1360,8 +1356,7 @@ const styles = StyleSheet.create({
   },
   accordionContent: {
     paddingVertical: 2,
-    paddingHorizontal: 5,
-    borderBottomWidth: 1,
+    paddingHorizontal: 20,
     backgroundColor: 'transparent',
   },
   accordionFeatureText: {
