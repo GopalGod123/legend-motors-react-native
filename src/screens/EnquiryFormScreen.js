@@ -76,7 +76,7 @@ const EnquiryFormScreen = () => {
   } = useLoginPrompt();
   
   // Get car details from route params
-  const { carId, carTitle, carImage, carPrice, currency } = route.params || {};
+  const { carId, carTitle, carImage, carPrice, currency, onEnquirySubmit } = route.params || {};
   
   // Form state
   const [name, setName] = useState('');
@@ -89,6 +89,8 @@ const EnquiryFormScreen = () => {
   
   // Success modal state
   const [successModalVisible, setSuccessModalVisible] = useState(false);
+  // Already submitted state
+  const [alreadySubmittedModalVisible, setAlreadySubmittedModalVisible] = useState(false);
   
   // Validation state
   const [errors, setErrors] = useState({
@@ -266,16 +268,35 @@ const EnquiryFormScreen = () => {
         
         // Show success modal instead of alert
         setSuccessModalVisible(true);
+        
+        // Call the callback if provided
+        if (onEnquirySubmit) {
+          onEnquirySubmit(true, false);
+        }
       } else {
         console.error('Failed to submit enquiry:', response.msg);
         Alert.alert('Error', response.msg || 'Failed to submit enquiry. Please try again.');
       }
     } catch (error) {
       console.error('Error in submit handler:', error);
-      Alert.alert(
-        'Error',
-        'An error occurred while submitting your enquiry. Please try again.',
-      );
+      
+      // Check if this is a 409 conflict (already submitted) error
+      if (error.response && error.response.status === 409) {
+        console.log('Already submitted inquiry:', error.response.data);
+        
+        // Show the already submitted modal instead of an error
+        setAlreadySubmittedModalVisible(true);
+        
+        // Call the callback if provided, with isAlreadySubmitted=true
+        if (onEnquirySubmit) {
+          onEnquirySubmit(false, true);
+        }
+      } else {
+        Alert.alert(
+          'Error',
+          'An error occurred while submitting your enquiry. Please try again.',
+        );
+      }
     } finally {
       setSubmitting(false);
     }
@@ -288,9 +309,17 @@ const EnquiryFormScreen = () => {
     navigation.goBack();
   };
 
+  // Handle already submitted modal close
+  const handleAlreadySubmittedModalClose = () => {
+    setAlreadySubmittedModalVisible(false);
+    // Navigate after modal is closed
+    navigation.goBack();
+  };
+
   // Handle navigation to enquiries screen
   const navigateToEnquiries = () => {
     setSuccessModalVisible(false);
+    setAlreadySubmittedModalVisible(false);
     // Set a small timeout to ensure modal is dismissed
     setTimeout(() => {
       // Navigate to the Main tab navigator first, then to the EnquiriesTab
@@ -606,10 +635,69 @@ const EnquiryFormScreen = () => {
               </View>
             </TouchableOpacity>
           </Modal>
+          
+          {/* Already Submitted Modal */}
+          <Modal
+            visible={alreadySubmittedModalVisible}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={handleAlreadySubmittedModalClose}>
+            <TouchableOpacity 
+              style={styles.successModalOverlay} 
+              activeOpacity={1}
+              onPress={handleAlreadySubmittedModalClose}>
+              <View 
+                style={styles.successModalContent}
+                onStartShouldSetResponder={() => true}
+                onTouchEnd={(e) => e.stopPropagation()}>
+                
+                {/* Close button */}
+                <TouchableOpacity 
+                  style={styles.successModalCloseButton}
+                  onPress={handleAlreadySubmittedModalClose}>
+                  <Ionicons name="close" size={24} color="#000" />
+                </TouchableOpacity>
+                
+                {/* Logo */}
+                <View style={styles.successModalLogoContainer}>
+                  <View style={styles.logoContainer}>
+                    <Text style={styles.logoText}>Legend</Text>
+                    <View style={styles.logoBox} />
+                    <Text style={styles.motorsText}>Motors</Text>
+                  </View>
+                </View>
+                
+                {/* Already submitted message */}
+                <Text style={styles.successModalTitle}>
+                  Already Inquired
+                </Text>
+                
+                <Text style={styles.successModalMessage}>
+                  You have already submitted an inquiry for this car with this email.
+                  Our team will contact you soon with more information.
+                </Text>
+                
+                {/* Buttons */}
+                <View style={styles.successModalButtonsContainer}>
+                  <TouchableOpacity
+                    style={styles.successModalButton}
+                    onPress={navigateToEnquiries}>
+                    <Text style={styles.successModalButtonText}>View My Enquiries</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[styles.successModalButton, styles.successModalSecondaryButton]}
+                    onPress={handleAlreadySubmittedModalClose}>
+                    <Text style={styles.successModalSecondaryButtonText}>Continue Browsing</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableOpacity>
+          </Modal>
         </ScrollView>
       </KeyboardAvoidingView>
       
-      {/* Add the LoginPromptModal */}
+      {/* Login Prompt Modal */}
       <LoginPromptModal
         visible={loginModalVisible}
         onClose={hideLoginPrompt}

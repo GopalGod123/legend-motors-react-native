@@ -17,7 +17,7 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { getCarByIdOrSlug } from '../services/api';
+import { getCarByIdOrSlug, getUserEnquiries } from '../services/api';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import { CarImage, CarImageCarousel } from '../components/common';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -138,6 +138,7 @@ const CarDetailScreen = () => {
   const [processingWishlist, setProcessingWishlist] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isAlreadyInquired, setIsAlreadyInquired] = useState(false);
+  const [userEnquiries, setUserEnquiries] = useState([]);
   const carouselRef = useRef(null);
 
   // Add state for managing accordion open/close state
@@ -167,8 +168,19 @@ const CarDetailScreen = () => {
 
   useEffect(() => {
     fetchCarDetails();
-    checkIfAlreadyInquired(); // Check if this car was already inquired about
   }, [carId]);
+
+  useEffect(() => {
+    // Fetch user's enquiries if user is authenticated
+    if (isAuthenticated && user) {
+      fetchUserEnquiries();
+    }
+  }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    // Check if car is in the user's enquiries list
+    checkIfAlreadyInquired();
+  }, [car, userEnquiries]);
 
   useEffect(() => {
     // Extract colors when car data changes
@@ -271,27 +283,36 @@ const CarDetailScreen = () => {
     }
   };
 
+  const fetchUserEnquiries = async () => {
+    try {
+      const response = await getUserEnquiries();
+      if (response.success && Array.isArray(response.data)) {
+        setUserEnquiries(response.data);
+        console.log('Fetched user enquiries:', response.data.length);
+      } else {
+        console.error('Failed to fetch user enquiries:', response.message || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Error fetching user enquiries:', error);
+    }
+  };
+
   const goBack = () => {
     navigation.goBack();
   };
 
-  const checkIfAlreadyInquired = async () => {
-    // This is a placeholder function that would check if the user has already inquired about this car
-    // In a real implementation, you would likely check against a server or local storage
-    if (isAuthenticated && user && carId) {
-      try {
-        // Here you would make an API call to check if the user has already inquired about this car
-        // For now, we'll use a mock implementation
-        // This might be something like: const result = await checkInquiryStatus(carId, user.id);
-        
-        // Mock implementation - you'll need to replace this with actual API call
-        const mockAlreadyInquired = localStorage.getItem(`inquired_${user.id}_${carId}`);
-        if (mockAlreadyInquired) {
-          setIsAlreadyInquired(true);
-        }
-      } catch (error) {
-        console.error('Error checking inquiry status:', error);
-      }
+  const checkIfAlreadyInquired = () => {
+    // Check if the current car ID is in the user's enquiries
+    if (car && car.id && userEnquiries.length > 0) {
+      // Find if this car is in the user's enquiries
+      const hasInquired = userEnquiries.some(inquiry => {
+        // Check both direct carId and car.id property inside nested car object
+        return (inquiry.carId === car.id) || 
+               (inquiry.car && inquiry.car.id === car.id);
+      });
+      
+      console.log(`Car ${car.id} already inquired status:`, hasInquired);
+      setIsAlreadyInquired(hasInquired);
     }
   };
 
@@ -306,6 +327,25 @@ const CarDetailScreen = () => {
     const isAuthorized = await checkAuthAndShowPrompt();
     if (!isAuthorized) {
       return; // Stop here if user is not authenticated
+    }
+
+    // If already inquired, show a message instead of navigating
+    if (isAlreadyInquired) {
+      Alert.alert(
+        'Already Inquired',
+        'You have already submitted an inquiry for this car. Check your inquiries for updates.',
+        [
+          {
+            text: 'View My Inquiries',
+            onPress: () => navigation.navigate('Main', { screen: 'EnquiriesTab' }),
+          },
+          {
+            text: 'OK',
+            style: 'cancel',
+          },
+        ]
+      );
+      return;
     }
 
     console.log('Navigating to enquiry form with car ID:', car.id);
@@ -324,15 +364,14 @@ const CarDetailScreen = () => {
       carImage: carImageData,
       carPrice: price,
       currency: selectedCurrency,
+      onEnquirySubmit: (success, isAlreadySubmitted) => {
+        // After submission, update the local state and refresh enquiries
+        if (success || isAlreadySubmitted) {
+          setIsAlreadyInquired(true);
+          fetchUserEnquiries();
+        }
+      }
     });
-    
-    // Mark this car as inquired after successful navigation
-    if (isAuthenticated && user) {
-      // In a real implementation, this would be handled by the server upon successful inquiry submission
-      // For this mock implementation, we'll set it in local storage
-      localStorage.setItem(`inquired_${user.id}_${carId}`, 'true');
-      setIsAlreadyInquired(true);
-    }
   };
 
   const toggleFavorite = async () => {
