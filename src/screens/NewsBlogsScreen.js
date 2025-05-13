@@ -14,11 +14,13 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {getBlogPosts} from '../services/api';
+import {useTheme} from '../context/ThemeContext';
 
 const {width} = Dimensions.get('window');
 
 const NewsBlogsScreen = () => {
   const navigation = useNavigation();
+  const {isDark} = useTheme();
   const [activeTab, setActiveTab] = useState('News');
   const [loading, setLoading] = useState(true);
   const [newsData, setNewsData] = useState([]);
@@ -76,7 +78,7 @@ const NewsBlogsScreen = () => {
   };
 
   const renderTabIndicator = () => (
-    <View style={styles.tabsContainer}>
+    <View style={[styles.tabsContainer, isDark && styles.tabsContainerDark]}>
       <TouchableOpacity
         style={[
           styles.tabButton,
@@ -87,6 +89,7 @@ const NewsBlogsScreen = () => {
           style={[
             styles.tabText,
             activeTab === 'News' && styles.activeTabText,
+            isDark && styles.tabTextDark,
           ]}>
           News
         </Text>
@@ -103,6 +106,7 @@ const NewsBlogsScreen = () => {
           style={[
             styles.tabText,
             activeTab === 'Blogs' && styles.activeTabText,
+            isDark && styles.tabTextDark,
           ]}>
           Blogs
         </Text>
@@ -119,7 +123,7 @@ const NewsBlogsScreen = () => {
 
     return (
       <TouchableOpacity
-        style={styles.newsCard}
+        style={[styles.newsCard, isDark && styles.newsCardDark]}
         onPress={() => handlePostPress(item)}>
         <View style={styles.cardInnerContainer}>
           <View style={styles.cardImageSection}>
@@ -137,14 +141,24 @@ const NewsBlogsScreen = () => {
           </View>
 
           <View style={styles.cardTextSection}>
-            <Text style={styles.cardTitle} numberOfLines={3}>
+            <Text
+              style={[styles.cardTitle, isDark && styles.cardTitleDark]}
+              numberOfLines={3}>
               {item.title}
             </Text>
 
             <View style={styles.cardFooter}>
               <View style={styles.authorContainer}>
-                <View style={styles.authorAvatar}>
-                  <Text style={styles.authorInitials}>
+                <View
+                  style={[
+                    styles.authorAvatar,
+                    isDark && styles.authorAvatarDark,
+                  ]}>
+                  <Text
+                    style={[
+                      styles.authorInitials,
+                      isDark && styles.authorInitialsDark,
+                    ]}>
                     {item.author
                       ? `${item.author.firstName.charAt(
                           0,
@@ -152,14 +166,21 @@ const NewsBlogsScreen = () => {
                       : ''}
                   </Text>
                 </View>
-                <Text style={styles.authorName}>
+                <Text
+                  style={[styles.authorName, isDark && styles.authorNameDark]}>
                   {item.author
                     ? `${item.author.firstName} ${item.author.lastName}`
                     : 'Lorem ipsum'}
                 </Text>
               </View>
-              <View style={styles.dateContainer}>
-                <Text style={styles.dateText}>30 Mar</Text>
+              <View
+                style={[
+                  styles.dateContainer,
+                  isDark && styles.dateContainerDark,
+                ]}>
+                <Text style={[styles.dateText, isDark && styles.dateTextDark]}>
+                  30 Mar
+                </Text>
               </View>
             </View>
           </View>
@@ -181,7 +202,7 @@ const NewsBlogsScreen = () => {
     return (
       <View style={styles.featuredSection}>
         <TouchableOpacity
-          style={styles.newsCard} // Using the same card style for consistency
+          style={[styles.newsCard, isDark && styles.newsCardDark]}
           onPress={() => handlePostPress(featuredPost)}>
           <View style={styles.cardInnerContainer}>
             <View style={styles.cardImageSection}>
@@ -199,14 +220,24 @@ const NewsBlogsScreen = () => {
             </View>
 
             <View style={styles.cardTextSection}>
-              <Text style={styles.cardTitle} numberOfLines={3}>
+              <Text
+                style={[styles.cardTitle, isDark && styles.cardTitleDark]}
+                numberOfLines={3}>
                 {featuredPost.title}
               </Text>
 
               <View style={styles.cardFooter}>
                 <View style={styles.authorContainer}>
-                  <View style={styles.authorAvatar}>
-                    <Text style={styles.authorInitials}>
+                  <View
+                    style={[
+                      styles.authorAvatar,
+                      isDark && styles.authorAvatarDark,
+                    ]}>
+                    <Text
+                      style={[
+                        styles.authorInitials,
+                        isDark && styles.authorInitialsDark,
+                      ]}>
                       {featuredPost.author
                         ? `${featuredPost.author.firstName.charAt(
                             0,
@@ -214,14 +245,25 @@ const NewsBlogsScreen = () => {
                         : ''}
                     </Text>
                   </View>
-                  <Text style={styles.authorName}>
+                  <Text
+                    style={[
+                      styles.authorName,
+                      isDark && styles.authorNameDark,
+                    ]}>
                     {featuredPost.author
                       ? `${featuredPost.author.firstName} ${featuredPost.author.lastName}`
                       : 'Lorem ipsum'}
                   </Text>
                 </View>
-                <View style={styles.dateContainer}>
-                  <Text style={styles.dateText}>30 Mar</Text>
+                <View
+                  style={[
+                    styles.dateContainer,
+                    isDark && styles.dateContainerDark,
+                  ]}>
+                  <Text
+                    style={[styles.dateText, isDark && styles.dateTextDark]}>
+                    30 Mar
+                  </Text>
                 </View>
               </View>
             </View>
@@ -235,7 +277,9 @@ const NewsBlogsScreen = () => {
     if (blogsData.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No blog posts available</Text>
+          <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>
+            No blog posts available
+          </Text>
         </View>
       );
     }
@@ -259,7 +303,7 @@ const NewsBlogsScreen = () => {
 
             return (
               <TouchableOpacity
-                style={styles.newsCard}
+                style={[styles.newsCard, isDark && styles.newsCardDark]}
                 onPress={() => handlePostPress(item)}>
                 <View style={styles.cardInnerContainer}>
                   <View style={styles.cardImageSection}>
@@ -277,14 +321,24 @@ const NewsBlogsScreen = () => {
                   </View>
 
                   <View style={styles.cardTextSection}>
-                    <Text style={styles.cardTitle} numberOfLines={3}>
+                    <Text
+                      style={[styles.cardTitle, isDark && styles.cardTitleDark]}
+                      numberOfLines={3}>
                       {item.title}
                     </Text>
 
                     <View style={styles.cardFooter}>
                       <View style={styles.authorContainer}>
-                        <View style={styles.authorAvatar}>
-                          <Text style={styles.authorInitials}>
+                        <View
+                          style={[
+                            styles.authorAvatar,
+                            isDark && styles.authorAvatarDark,
+                          ]}>
+                          <Text
+                            style={[
+                              styles.authorInitials,
+                              isDark && styles.authorInitialsDark,
+                            ]}>
                             {item.author
                               ? `${item.author.firstName.charAt(
                                   0,
@@ -292,14 +346,28 @@ const NewsBlogsScreen = () => {
                               : ''}
                           </Text>
                         </View>
-                        <Text style={styles.authorName}>
+                        <Text
+                          style={[
+                            styles.authorName,
+                            isDark && styles.authorNameDark,
+                          ]}>
                           {item.author
                             ? `${item.author.firstName} ${item.author.lastName}`
                             : 'Lorem ipsum'}
                         </Text>
                       </View>
-                      <View style={styles.dateContainer}>
-                        <Text style={styles.dateText}>30 Mar</Text>
+                      <View
+                        style={[
+                          styles.dateContainer,
+                          isDark && styles.dateContainerDark,
+                        ]}>
+                        <Text
+                          style={[
+                            styles.dateText,
+                            isDark && styles.dateTextDark,
+                          ]}>
+                          30 Mar
+                        </Text>
                       </View>
                     </View>
                   </View>
@@ -337,12 +405,19 @@ const NewsBlogsScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <Text style={styles.sectionTitle}>News & Blogs</Text>
+      <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor={isDark ? '#2D2D2D' : '#FFFFFF'}
+        />
+        <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>
+          News & Blogs
+        </Text>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={styles.loadingText}>Loading content...</Text>
+          <Text style={[styles.loadingText, isDark && styles.loadingTextDark]}>
+            Loading content...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -350,12 +425,21 @@ const NewsBlogsScreen = () => {
 
   if (error) {
     return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-        <Text style={styles.sectionTitle}>News & Blogs</Text>
+      <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor={isDark ? '#2D2D2D' : '#FFFFFF'}
+        />
+        <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>
+          News & Blogs
+        </Text>
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={fetchBlogPosts}>
+          <Text style={[styles.errorText, isDark && styles.errorTextDark]}>
+            {error}
+          </Text>
+          <TouchableOpacity
+            style={[styles.retryButton, isDark && styles.retryButtonDark]}
+            onPress={fetchBlogPosts}>
             <Text style={styles.retryText}>Retry</Text>
           </TouchableOpacity>
         </View>
@@ -364,9 +448,14 @@ const NewsBlogsScreen = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      <Text style={styles.sectionTitle}>News & Blogs</Text>
+    <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#2D2D2D' : '#FFFFFF'}
+      />
+      <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>
+        News & Blogs
+      </Text>
 
       {renderTabIndicator()}
 
@@ -380,8 +469,11 @@ const NewsBlogsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#2D2D2D',
+    backgroundColor: '#FFFFFF',
     padding: 24,
+  },
+  containerDark: {
+    backgroundColor: '#2D2D2D',
   },
   loadingContainer: {
     flex: 1,
@@ -392,6 +484,9 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 14,
+    color: '#666666',
+  },
+  loadingTextDark: {
     color: '#CCCCCC',
   },
   errorContainer: {
@@ -406,11 +501,17 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
+  errorTextDark: {
+    color: '#FF6B6B',
+  },
   retryButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
     backgroundColor: '#F47B20',
     borderRadius: 8,
+  },
+  retryButtonDark: {
+    backgroundColor: '#F47B20',
   },
   retryText: {
     color: '#FFFFFF',
@@ -419,15 +520,21 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#FFFFFF',
+    color: '#000000',
     paddingHorizontal: 16,
     paddingVertical: 10,
+  },
+  sectionTitleDark: {
+    color: '#FFFFFF',
   },
   tabsContainer: {
     flexDirection: 'row',
     borderBottomWidth: 1,
-    borderBottomColor: '#333333',
+    borderBottomColor: '#E5E5E5',
     marginBottom: 16,
+  },
+  tabsContainerDark: {
+    borderBottomColor: '#333333',
   },
   tabButton: {
     flex: 1,
@@ -440,7 +547,10 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 16,
-    color: '#9E9E9E',
+    color: '#666666',
+  },
+  tabTextDark: {
+    color: '#CCCCCC',
   },
   activeTabText: {
     color: '#F47B20',
@@ -465,14 +575,17 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 14,
-    color: '#CCCCCC',
+    color: '#666666',
     textAlign: 'center',
+  },
+  emptyTextDark: {
+    color: '#CCCCCC',
   },
   newsCard: {
     marginHorizontal: 2,
     marginVertical: 10,
     borderRadius: 8,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#F5F5F5',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -483,8 +596,12 @@ const styles = StyleSheet.create({
     elevation: 3,
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: '#333333',
+    borderColor: '#E5E5E5',
     borderStyle: 'solid',
+  },
+  newsCardDark: {
+    backgroundColor: '#1A1A1A',
+    borderColor: '#333333',
   },
   cardInnerContainer: {
     flexDirection: 'row',
@@ -539,9 +656,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#000000',
     lineHeight: 22,
     marginBottom: 8,
+  },
+  cardTitleDark: {
+    color: '#FFFFFF',
   },
   cardFooter: {
     flexDirection: 'row',
@@ -556,35 +676,49 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 16,
-    backgroundColor: '#333333',
+    backgroundColor: '#E5E5E5',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 4,
   },
+  authorAvatarDark: {
+    backgroundColor: '#333333',
+  },
   authorInitials: {
     fontSize: 10,
     fontWeight: 'bold',
+    color: '#666666',
+  },
+  authorInitialsDark: {
     color: '#FFFFFF',
   },
   authorName: {
     fontSize: 12,
+    color: '#666666',
+  },
+  authorNameDark: {
     color: '#CCCCCC',
   },
   dateContainer: {
-    backgroundColor: '#2A2A2A',
+    backgroundColor: '#E5E5E5',
     paddingHorizontal: 4,
     paddingVertical: 2,
     borderRadius: 4,
   },
+  dateContainerDark: {
+    backgroundColor: '#2A2A2A',
+  },
   dateText: {
     fontSize: 10,
+    color: '#666666',
+  },
+  dateTextDark: {
     color: '#CCCCCC',
   },
   blogsContainer: {
     paddingVertical: 8,
   },
   featuredSection: {
-    // paddingHorizontal: 16,
     marginBottom: 16,
   },
   featuredTitle: {
@@ -596,7 +730,7 @@ const styles = StyleSheet.create({
   },
   featuredCard: {
     borderRadius: 12,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#F5F5F5',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -608,6 +742,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 16,
   },
+  featuredCardDark: {
+    backgroundColor: '#1A1A1A',
+  },
   featuredImage: {
     width: '100%',
     height: 180,
@@ -618,13 +755,19 @@ const styles = StyleSheet.create({
   featuredPostTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#FFFFFF',
+    color: '#000000',
     marginBottom: 8,
+  },
+  featuredPostTitleDark: {
+    color: '#FFFFFF',
   },
   featuredPostExcerpt: {
     fontSize: 14,
-    color: '#CCCCCC',
+    color: '#666666',
     marginBottom: 8,
+  },
+  featuredPostExcerptDark: {
+    color: '#CCCCCC',
   },
   featuredFooter: {
     flexDirection: 'row',
@@ -637,6 +780,9 @@ const styles = StyleSheet.create({
   },
   featuredReadTime: {
     fontSize: 12,
+    color: '#666666',
+  },
+  featuredReadTimeDark: {
     color: '#CCCCCC',
   },
   arrowButton: {

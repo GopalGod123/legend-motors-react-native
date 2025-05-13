@@ -213,7 +213,7 @@ const FilterContent = ({
         </View>
       )}
       {itemType === 'priceRange' ? (
-        <PriceRangeSelector />
+        <PriceRangeSelector onSelectItem={onSelectItem} />
       ) : data.length > 0 ? (
         <FlatList
           data={data}

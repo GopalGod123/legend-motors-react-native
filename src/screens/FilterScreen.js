@@ -9,6 +9,7 @@ import {
   FilterContent,
   FilterFooter,
 } from '../components/filter';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 
 const FilterScreen = ({route, navigation}) => {
   // Get parameters from navigation or use defaults
@@ -62,6 +63,10 @@ const FilterScreen = ({route, navigation}) => {
   const [selectedYearIds, setSelectedYearIds] = useState(
     currentFilters.yearIds || [],
   );
+  const [selectedPriceRange, setSelectedPriceRange] = useState({
+    min: null,
+    max: null,
+  });
 
   // Filter list items
   const filterItems = [
@@ -1686,6 +1691,11 @@ const FilterScreen = ({route, navigation}) => {
     }
   };
 
+  const handlePriceRangeSelect = value => {
+    console.log('priceRange', value);
+    setSelectedPriceRange(value);
+  };
+
   // Get item select handler for current filter
   const getItemSelectHandler = () => {
     switch (activeFilter) {
@@ -1697,6 +1707,8 @@ const FilterScreen = ({route, navigation}) => {
         return handleTrimSelect;
       case 'years':
         return handleYearSelect;
+      case 'priceRange':
+        return handlePriceRangeSelect;
       default:
         return handleSpecValueSelect;
     }
@@ -2169,6 +2181,7 @@ const FilterScreen = ({route, navigation}) => {
   const handleFilterSelect = filterId => {
     setActiveFilter(filterId);
   };
+  const {selectedCurrency} = useCurrencyLanguage();
   // Handle apply button press - enhance to properly use slug extracted colors
   const handleApply = () => {
     // Construct filters object
@@ -2348,7 +2361,20 @@ const FilterScreen = ({route, navigation}) => {
       // Backward compatibility
       useSpecificationValues: true,
     };
-
+    console.log('selectedPriceRange', selectedPriceRange);
+    if (selectedPriceRange.min !== null && selectedPriceRange.max !== null) {
+      if (selectedCurrency === 'USD') {
+        filters.priceRange = {
+          minPriceUSD: selectedPriceRange.min * 1000,
+          maxPriceUSD: selectedPriceRange.max * 1000,
+        };
+      } else {
+        filters.priceRange = {
+          minPriceAED: selectedPriceRange.min * 1000,
+          maxPriceAED: selectedPriceRange.max * 1000,
+        };
+      }
+    }
     // Call the callback with filters
     if (onApplyCallback) {
       console.log(
