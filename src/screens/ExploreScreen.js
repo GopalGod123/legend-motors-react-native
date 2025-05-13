@@ -1606,10 +1606,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    padding: 18, // Default color, will be overridden
+    padding: 8, // Default color, will be overridden
   },
   carsList: {
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.sm,
     paddingBottom: SPACING.xl,
     flexGrow: 1,
     minHeight: 300,

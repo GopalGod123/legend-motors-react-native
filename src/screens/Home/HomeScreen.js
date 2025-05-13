@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 40,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
   },
   scrollContent: {
     paddingBottom: 70, // Add padding at the bottom for the footer

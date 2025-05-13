@@ -15,6 +15,7 @@ import {
   Share,
   useWindowDimensions,
   Alert,
+  Platform,
 } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { getCarByIdOrSlug, getUserEnquiries } from '../services/api';
@@ -566,6 +567,84 @@ const CarDetailScreen = () => {
     }, {});
   };
 
+  // Add logging effect to check brochure data when car data changes
+  useEffect(() => {
+    if (car) {
+      console.log('Car data loaded, checking for brochure file:');
+      if (car.brochureFile) {
+        console.log('Brochure file found:', car.brochureFile);
+      } else if (car.brochureid) {
+        console.log('Brochure ID found:', car.brochureid);
+      } else {
+        console.log('No brochure file or ID found in car data');
+        // Look for other possible brochure fields
+        const carString = JSON.stringify(car);
+        if (carString.includes('brochure')) {
+          console.log('Found possible brochure reference in car data:', 
+            Object.keys(car).filter(key => key.toLowerCase().includes('brochure')));
+        }
+      }
+    }
+  }, [car]);
+
+  // Update function to handle brochure download/view
+  const handleBrochureView = async () => {
+    try {
+      // Check if the car has a brochure file
+      const brochureData = car?.brochureFile || (car?.brochureid ? { path: car.brochureid } : null);
+      
+      // Log what we found
+      console.log('Attempting to open brochure with data:', brochureData);
+      
+      if (brochureData && brochureData.path) {
+        // Construct the full URL to the brochure
+        const brochureUrl = `https://cdn.legendmotorsglobal.com${brochureData.path}`;
+        console.log('Opening brochure URL in browser:', brochureUrl);
+        
+        // Simple direct opening in browser for all platforms
+        const canOpen = await Linking.canOpenURL(brochureUrl);
+        if (canOpen) {
+          // Open directly in the browser
+          await Linking.openURL(brochureUrl);
+        } else {
+          throw new Error('Cannot open URL in browser');
+        }
+      } else {
+        // If no brochure is available, show an alert to the user
+        console.log('No brochure data found in car object:', car);
+        Alert.alert(
+          'Brochure Not Available',
+          'The brochure for this car is not available at the moment.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error opening brochure:', error);
+      
+      // Show a more descriptive error message with alternative
+      Alert.alert(
+        'Cannot Open PDF',
+        'Unable to open the brochure in browser. Would you like to copy the URL instead?',
+        [
+          {
+            text: 'Open PDF',
+            onPress: () => {
+              const brochureData = car?.brochureFile || (car?.brochureid ? { path: car.brochureid } : null);
+              if (brochureData && brochureData.path) {
+                const url = `https://cdn.legendmotorsglobal.com${brochureData.path}`;
+                Share.share({
+                  message: url,
+                  title: 'Car Brochure URL'
+                });
+              }
+            }
+          },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+    }
+  }; 
+
   if (loading) {
     return (
       <SafeAreaView
@@ -893,15 +972,7 @@ const CarDetailScreen = () => {
 
                 <TouchableOpacity
                   style={styles.actionIconButton}
-                  onPress={() => {
-                    // Handle download functionality
-                    if (car.brochureFile?.path) {
-                      alert('Downloading brochure...');
-                      // Implement actual download logic here
-                    } else {
-                      alert('No brochure available for download');
-                    }
-                  }}
+                  onPress={handleBrochureView}
                 >
                   <Ionicons
                     name="download-outline"

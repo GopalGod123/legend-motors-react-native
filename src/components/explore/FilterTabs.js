@@ -35,7 +35,7 @@ const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
           activeFilter === item.id
             ? '#ffffff'
             : isDark
-            ? '#F47B20'
+            ? '#FFFFFF'
             : COLORS.primary
         }
       />
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   },
   filterButtonDark: {
     backgroundColor: '#2D2D2D',
-    borderColor: '#F47B20',
+    borderColor: '#FF8C00',
   },
   activeFilterButton: {
     backgroundColor: COLORS.primary,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   filterButtonTextDark: {
-    color: '#F47B20',
+    color: '#FFFFFF',
   },
   activeFilterText: {
     color: '#FFFFFF',

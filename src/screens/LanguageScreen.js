@@ -38,14 +38,14 @@ const RadioSelected = () => {
         cx="12"
         cy="12"
         r="11"
-        stroke={isDark ? '#EF9439' : themeColors[theme].primary}
+        stroke={isDark ? '#FFFFFF' : themeColors[theme].primary}
         strokeWidth="2"
       />
       <Circle
         cx="12"
         cy="12"
         r="6"
-        fill={isDark ? '#EF9439' : themeColors[theme].primary}
+        fill={isDark ? '#FFFFFF' : themeColors[theme].primary}
       />
     </Svg>
   );

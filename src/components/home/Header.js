@@ -133,7 +133,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           <Ionicons
             name="notifications"
             size={24}
-            color={isDark ? '#FFFFFF' : '#5E366D'}
+            color={isDark ? '#9E86A8' : '#5E366D'}
           />
         </TouchableOpacity>
 
@@ -141,7 +141,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           <Ionicons
             name="heart"
             size={24}
-            color={isDark ? '#FFFFFF' : '#5E366D'}
+            color={isDark ? '#9E86A8' : '#5E366D'}
           />
         </TouchableOpacity>
       </View>
