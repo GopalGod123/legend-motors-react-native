@@ -742,7 +742,7 @@ const CarDetailScreen = () => {
             </View>
 
             {/* Action buttons */}
-            <View style={styles.priceRow}>
+            {/* <View style={styles.priceRow}>
               {price ? (
                 <Text style={styles.priceText}>
                   {selectedCurrency === 'USD' ? '$' : selectedCurrency} {Math.floor(price).toLocaleString()}
@@ -750,13 +750,13 @@ const CarDetailScreen = () => {
               ) : (
                 <Text style={styles.priceText}>Price on Request</Text>
               )}
-            </View>
+            </View> */}
           </View>
         </View>
 
         {/* Car Overview Section */}  
-        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background, borderBottomWidth: 0}]}>
-          <Text style={[styles.sectionTitle, {color: colors.text}]}>Car Overview</Text>
+        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background, borderBottomWidth: 0, marginTop: -30, paddingBottom: 6}]}>
+          <Text style={[styles.sectionTitle, {color: colors.text, marginBottom: 0}]}>Car Overview</Text>
 
           <View style={[styles.overviewList, {backgroundColor: isDark ? '#ffffff' : '#FFFFFF', borderRadius: 8}]}>
             {/* Condition */}
