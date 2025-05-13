@@ -27,7 +27,7 @@ import CarCard from '../explore/CarCard';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme} from 'src/context/ThemeContext';
 import LoginPromptModal from '../../components/LoginPromptModal';
-import { useLoginPrompt } from '../../hooks/useLoginPrompt';
+import {useLoginPrompt} from '../../hooks/useLoginPrompt';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -76,9 +76,9 @@ const ArrivedCarCard = memo(
     const price = item.price || item.Price || 750000;
 
     // Calculate icon color based on dark mode
-    const iconColor = isDarkMode ? "#FFFFFF" : "#8A2BE2";
-    const specTextColor = isDarkMode ? "#FFFFFF" : "#666";
-    const specItemBgColor = isDarkMode ? "#333333" : "#F0E6FA";
+    const iconColor = isDarkMode ? '#FFFFFF' : '#8A2BE2';
+    const specTextColor = isDarkMode ? '#FFFFFF' : '#666';
+    const specItemBgColor = isDarkMode ? '#333333' : '#F0E6FA';
 
     return (
       <TouchableOpacity
@@ -112,13 +112,19 @@ const ArrivedCarCard = memo(
 
           <View style={styles.specRow}>
             <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
-              <MaterialCommunityIcons name="engine" size={16} color={iconColor} />
+              <MaterialCommunityIcons
+                name="engine"
+                size={16}
+                color={iconColor}
+              />
               <Text style={[styles.specText, {color: specTextColor}]}>ltr</Text>
             </View>
 
             <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <Ionicons name="flash" size={16} color={iconColor} />
-              <Text style={[styles.specText, {color: specTextColor}]}>{fuelType}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>
+                {fuelType}
+              </Text>
             </View>
 
             <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
@@ -127,7 +133,9 @@ const ArrivedCarCard = memo(
                 size={16}
                 color={iconColor}
               />
-              <Text style={[styles.specText, {color: specTextColor}]}>{transmission}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>
+                {transmission}
+              </Text>
             </View>
 
             <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
@@ -136,7 +144,9 @@ const ArrivedCarCard = memo(
                 size={16}
                 color={iconColor}
               />
-              <Text style={[styles.specText, {color: specTextColor}]}>{region}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>
+                {region}
+              </Text>
             </View>
           </View>
 
@@ -147,12 +157,17 @@ const ArrivedCarCard = memo(
                 size={16}
                 color={iconColor}
               />
-              <Text style={[styles.specText, {color: specTextColor}]}>{steeringType}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>
+                {steeringType}
+              </Text>
             </View>
           </View>
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceText}>{selectedCurrency === 'USD' ? '$' : selectedCurrency} {parseInt(price).toLocaleString()}</Text>
+            <Text style={styles.priceText}>
+              {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
+              {parseInt(price).toLocaleString()}
+            </Text>
 
             <View style={styles.actionButtons}>
               <TouchableOpacity
@@ -257,20 +272,18 @@ const JustArrived = () => {
       car.bodyType =
         car?.SpecificationValues?.find(a => a.Specification?.key == 'body_type')
           ?.name ?? 'SUV';
-      car.fuelType =
-        car?.SpecificationValues?.find(a => a.Specification?.key == 'fuel_type')
-          ?.name ?? 'Electric';
-      car.transmissionType =
-        car?.SpecificationValues?.find(
-          a => a.Specification?.key == 'transmission',
-        )?.name ?? 'Automatic';
-      car.steeringType =
-        car?.SpecificationValues?.find(a => a.Specification?.key == 'steering')
-          ?.name ?? 'Left hand drive';
-      car.region =
-        car?.SpecificationValues?.find(
-          a => a.Specification?.key == 'regional_specification',
-        )?.name ?? 'China';
+      car.fuelType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'fuel_type',
+      )?.name;
+      car.transmissionType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'transmission',
+      )?.name;
+      car.steeringType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'steering',
+      )?.name;
+      car.region = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'regional_specification',
+      )?.name;
 
       // Create a normalized car object with consistent property names
       const processedCar = {
@@ -302,7 +315,7 @@ const JustArrived = () => {
     loginModalVisible,
     hideLoginPrompt,
     navigateToLogin,
-    checkAuthAndShowPrompt
+    checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
   useEffect(() => {
@@ -368,7 +381,7 @@ const JustArrived = () => {
       } else {
         result = await addItemToWishlist(carId);
       }
-      
+
       // If operation failed but not because of auth (since we already checked auth)
       if (!result.success && !result.requiresAuth) {
         console.error('Wishlist operation failed');
@@ -407,7 +420,7 @@ const JustArrived = () => {
       filters: {
         // Reset any existing filters by providing a fresh object
         specifications: {
-          tags: [2]  // Filter for Just Arrived tag
+          tags: [2], // Filter for Just Arrived tag
         },
         // Explicitly reset other filter properties
         brands: [],
@@ -417,8 +430,8 @@ const JustArrived = () => {
         trims: [],
         trimIds: [],
         years: [],
-        yearIds: []
-      }
+        yearIds: [],
+      },
     });
   };
 
@@ -566,11 +579,7 @@ const JustArrived = () => {
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        {backgroundColor: 'none'},
-      ]}>
+    <View style={[styles.container, {backgroundColor: 'none'}]}>
       <View style={styles.header}>
         <Text
           style={[styles.title, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>
@@ -634,9 +643,10 @@ const JustArrived = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: SPACING.xl,
+    // marginVertical: SPACING.xl,
     borderRadius: BORDER_RADIUS.lg,
-    paddingVertical: SPACING.lg,
+    // paddingVertical: SPACING.lg,
+    // marginTop: SPACING.md,
   },
   header: {
     flexDirection: 'row',

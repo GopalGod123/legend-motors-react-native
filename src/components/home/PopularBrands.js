@@ -57,7 +57,11 @@ const BrandItem = memo(({item, onPress, placeholder}) => {
       } else {
         // Show first letter of brand name if no specific placeholder
         return (
-          <Text style={[styles.brandInitial, {color: isDark ? '#000000' : COLORS.textDark}]}>
+          <Text
+            style={[
+              styles.brandInitial,
+              {color: isDark ? '#000000' : COLORS.textDark},
+            ]}>
             {formatBrandName(item.name)[0]}
           </Text>
         );
@@ -82,22 +86,24 @@ const BrandItem = memo(({item, onPress, placeholder}) => {
   };
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.brandItem,
-        {backgroundColor: isDark ? '#ffffff' : COLORS.white},
-      ]}
-      onPress={() => onPress(item)}>
-      <View style={styles.logoContainer}>{renderBrandLogo()}</View>
+    <View style={{alignItems: 'center'}}>
+      <TouchableOpacity
+        style={[
+          styles.brandItem,
+          {backgroundColor: isDark ? '#ffffff' : COLORS.white},
+        ]}
+        onPress={() => onPress(item)}>
+        <View style={styles.logoContainer}>{renderBrandLogo()}</View>
+      </TouchableOpacity>
       <Text
         style={[
           styles.brandName,
-          {color: isDark ? '#000000' : COLORS.textDark},
+          {color: isDark ? '#ffffff' : COLORS.textDark},
         ]}
         numberOfLines={1}>
         {formatBrandName(item.name)}
       </Text>
-    </TouchableOpacity>
+    </View>
   );
 });
 
@@ -145,9 +151,8 @@ const PopularBrands = () => {
     return () => {
       isMounted.current = false;
     };
-  }, []);
+  }, [fetchBrands]);
 
-  // Extract logo path helper
   const extractLogoPath = useCallback(logoData => {
     // If it's already a string, use it directly
     if (typeof logoData === 'string') {
@@ -175,7 +180,7 @@ const PopularBrands = () => {
     return null;
   }, []);
 
-  const fetchBrands = async () => {
+  const fetchBrands = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -259,13 +264,13 @@ const PopularBrands = () => {
 
       // Cache the fallbacks too
       cachedBrands = fallbackBrands;
-      lastFetchTime = now;
+      lastFetchTime = Date.now();
     } finally {
       if (isMounted.current) {
         setLoading(false);
       }
     }
-  };
+  }, [extractLogoPath]);
 
   const handleBrandPress = useCallback(
     brand => {
@@ -321,11 +326,7 @@ const PopularBrands = () => {
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        {backgroundColor: 'none'},
-      ]}>
+    <View style={[styles.container, {backgroundColor: 'none'}]}>
       <View style={styles.header}>
         <Text
           style={[styles.title, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>
@@ -354,19 +355,13 @@ const PopularBrands = () => {
         />
       ) : (
         <FlatList
-          data={[...brands, {id: 'see-all', isSeeAll: true}]}
-          renderItem={({item}) =>
-            item.isSeeAll ? (
-              <SeeAllItem onPress={navigateToAllBrands} />
-            ) : (
-              renderBrandItem({item})
-            )
-          }
+          data={[...brands]}
+          renderItem={({item}) => renderBrandItem({item})}
           keyExtractor={item => item.id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.brandsList}
-          ListFooterComponent={renderSeeAllItem}
+          // ListFooterComponent={renderSeeAllItem}
           ItemSeparatorComponent={ItemSeparatorComponent}
           initialNumToRender={4}
           maxToRenderPerBatch={4}
@@ -385,10 +380,11 @@ const PopularBrands = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: SPACING.md,
+    // marginBottom: SPACING.md,
+    marginTop: SPACING.md,
     paddingHorizontal: 23,
     borderRadius: BORDER_RADIUS.lg,
-    paddingVertical: SPACING.lg,
+    // paddingVertical: SPACING.lg,
   },
   header: {
     flexDirection: 'row',
@@ -411,7 +407,7 @@ const styles = StyleSheet.create({
     width: 100,
     marginRight: SPACING.md,
     borderRadius: BORDER_RADIUS.lg,
-    padding: SPACING.md,
+    paddingVertical: SPACING.md,
     alignItems: 'center',
     elevation: 2,
     shadowColor: '#000',
@@ -420,7 +416,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   logoContainer: {
-    width: 60,
+    width: 100,
     height: 60,
     borderRadius: 30,
     justifyContent: 'center',
@@ -428,8 +424,8 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.sm,
   },
   logo: {
-    width: 40,
-    height: 40,
+    width: 70,
+    height: 70,
   },
   brandLogo: {
     fontSize: FONT_SIZES.lg,

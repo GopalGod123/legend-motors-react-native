@@ -68,7 +68,7 @@ const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
 const styles = StyleSheet.create({
   filtersContainer: {
     paddingHorizontal: SPACING.lg,
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.sm,
   },
   filtersList: {
     paddingVertical: SPACING.xs,

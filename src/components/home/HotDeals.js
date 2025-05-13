@@ -34,7 +34,7 @@ import CarCard from '../explore/CarCard';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme} from 'src/context/ThemeContext';
 import LoginPromptModal from '../../components/LoginPromptModal';
-import { useLoginPrompt } from '../../hooks/useLoginPrompt';
+import {useLoginPrompt} from '../../hooks/useLoginPrompt';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.85;
@@ -53,7 +53,7 @@ const HotDeals = () => {
     loginModalVisible,
     hideLoginPrompt,
     navigateToLogin,
-    checkAuthAndShowPrompt
+    checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
   // Use a ref to avoid making API calls if component unmounts
@@ -115,20 +115,18 @@ const HotDeals = () => {
       car.bodyType =
         car?.SpecificationValues?.find(a => a.Specification?.key == 'body_type')
           ?.name ?? 'SUV';
-      car.fuelType =
-        car?.SpecificationValues?.find(a => a.Specification?.key == 'fuel_type')
-          ?.name ?? 'Electric';
-      car.transmissionType =
-        car?.SpecificationValues?.find(
-          a => a.Specification?.key == 'transmission',
-        )?.name ?? 'Automatic';
-      car.steeringType =
-        car?.SpecificationValues?.find(a => a.Specification?.key == 'steering')
-          ?.name ?? 'Left hand drive';
-      car.region =
-        car?.SpecificationValues?.find(
-          a => a.Specification?.key == 'regional_specification',
-        )?.name ?? 'China';
+      car.fuelType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'fuel_type',
+      )?.name;
+      car.transmissionType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'transmission',
+      )?.name;
+      car.steeringType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'steering',
+      )?.name;
+      car.region = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'regional_specification',
+      )?.name;
 
       // Create a normalized car object with consistent property names
       const processedCar = {
@@ -218,7 +216,7 @@ const HotDeals = () => {
       } else {
         result = await addItemToWishlist(carId);
       }
-      
+
       // If operation failed but not because of auth (since we already checked auth)
       if (!result.success && !result.requiresAuth) {
         console.error('Wishlist operation failed');
@@ -256,7 +254,7 @@ const HotDeals = () => {
     navigation.navigate('ExploreTab', {
       filters: {
         specifications: {
-          tags: [3]  // Filter for Hot Deal tag
+          tags: [3], // Filter for Hot Deal tag
         },
         brands: [],
         brandIds: [],
@@ -265,8 +263,8 @@ const HotDeals = () => {
         trims: [],
         trimIds: [],
         years: [],
-        yearIds: []
-      }
+        yearIds: [],
+      },
     });
   };
 
@@ -416,11 +414,7 @@ const HotDeals = () => {
   );
 
   return (
-    <View
-      style={[
-        styles.container,
-        {backgroundColor: 'none'},
-      ]}>
+    <View style={[styles.container, {backgroundColor: 'none'}]}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <Text
@@ -486,10 +480,11 @@ const HotDeals = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: SPACING.xl,
+    // marginVertical: SPACING.xl,
     borderRadius: BORDER_RADIUS.lg,
-    paddingVertical: SPACING.lg,
-    backgroundColor: 'transparent'
+    // paddingVertical: SPACING.lg,
+    backgroundColor: 'transparent',
+    marginTop: SPACING.md,
   },
   header: {
     flexDirection: 'row',

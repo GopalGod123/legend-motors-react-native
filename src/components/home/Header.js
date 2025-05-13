@@ -1,5 +1,11 @@
 import React, {useState} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import {ImagePlaceholder} from '../common';
 import {
   COLORS,
@@ -56,6 +62,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
             Hi{' '}
           </Text>
           <Text
+            numberOfLines={1}
             style={[
               styles.nameText,
               {color: isDark ? '#FFFFFF' : COLORS.textDark},
@@ -90,6 +97,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
                   : isDark
                   ? {color: '#9E86A8'}
                   : styles.currencyText,
+                styles.toggleText,
               ]}>
               AED
             </Text>
@@ -114,6 +122,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
                   : isDark
                   ? {color: '#9E86A8'}
                   : styles.currencyText,
+                styles.toggleText,
               ]}>
               USD
             </Text>
@@ -164,8 +173,10 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
   },
   nameText: {
-    fontSize: FONT_SIZES.xl,
+    fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
+    // flex: 1,
+    width: Dimensions.get('window').width * 0.4,
   },
   headerControls: {
     flexDirection: 'row',
@@ -181,9 +192,9 @@ const styles = StyleSheet.create({
     borderColor: COLORS.currency,
   },
   currencyButton: {
-    paddingHorizontal: SPACING.md,
-    paddingVertical: SPACING.xs,
-    minWidth: 45,
+    paddingHorizontal: SPACING.xs,
+    paddingVertical: 3,
+    // minWidth: 40,
     alignItems: 'center',
   },
   activeCurrencyButton: {
@@ -203,6 +214,9 @@ const styles = StyleSheet.create({
   },
   activeText: {
     color: COLORS.white,
+  },
+  toggleText: {
+    fontSize: 11,
   },
   iconButton: {
     marginLeft: SPACING.md,

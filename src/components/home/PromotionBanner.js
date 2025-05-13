@@ -81,7 +81,7 @@ const PromotionBanner = () => {
 
 const styles = StyleSheet.create({
   promotionBanner: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.sm,
     marginHorizontal: SPACING.lg,
     borderRadius: BORDER_RADIUS.lg,
     overflow: 'hidden',
