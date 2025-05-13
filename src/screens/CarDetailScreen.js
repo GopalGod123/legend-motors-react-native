@@ -1365,14 +1365,14 @@ const styles = StyleSheet.create({
   },
   activeGalleryTab: {
     borderBottomWidth: 3,
-    borderBottomColor: '#5E366D',
+    borderBottomColor: '#FF8C00',
   },
   galleryTabText: {
     fontSize: 14,
     fontWeight: '500',
   },
   activeGalleryTabText: {
-    color: '#5E366D',
+    color: '#FF8C00',
     fontWeight: '600',
   },
   carImage: {
