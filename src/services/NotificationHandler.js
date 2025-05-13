@@ -20,10 +20,10 @@ export default function useCleverTapNotifications() {
     // Get Push Token (Firebase or APNs)
 
     CleverTap.onUserLogin({
-      Name: 'Test',
-      Identity: '123456',
-      Email: 'test@gmail.com',
-      custom1: 43,
+      Name: 'satyam',
+      Identity: '909090',
+      Email: 'satyam@gmail.com',
+      custom1: 20,
     });
     // Optional: Track App Launch
     CleverTap.isPushPermissionGranted((err, res) => {

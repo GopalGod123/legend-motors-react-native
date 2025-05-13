@@ -1,4 +1,4 @@
-package com.legendmotorsglobal.legendmotorsapp
+package com.lhgl.LegendCarTradingCustomer
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
@@ -20,12 +20,12 @@ class MainActivity : ReactActivity() {
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
 
-  override fun onNewIntent(intent: Intent?) {
-   super.onNewIntent(intent)
+ // override fun onNewIntent(intent: Intent?) {
+  // super.onNewIntent(intent)
 
    // On Android 12 and onwards, raise notification clicked event and get the click callback
-   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-       cleverTapDefaultInstance?.pushNotificationClickedEvent(intent!!.extras)
-        }
-    }
+   //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+     //  cleverTapDefaultInstance?.pushNotificationClickedEvent(intent!!.extras)
+       // }
+   // }
 }

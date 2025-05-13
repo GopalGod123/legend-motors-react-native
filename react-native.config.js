@@ -1,7 +1,7 @@
 module.exports = {
   project: {
     android: {
-      packageName: 'com.legendmotorsglobal.legendmotorsapp', // Ensure this matches your AndroidManifest.xml
+      packageName: 'com.lhgl.LegendCarTradingCustomer', // Ensure this matches your AndroidManifest.xml
     },
   },
   dependencies: {

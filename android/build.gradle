@@ -23,10 +23,10 @@ buildscript {
 apply plugin: "com.facebook.react.rootproject"
 
 // Define the global repositories for the project
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url 'https://www.jitpack.io' }
-    }
-}
+// allprojects {
+//     repositories {
+//         google()
+//         mavenCentral()
+//         maven { url 'https://www.jitpack.io' }
+//     }
+// }

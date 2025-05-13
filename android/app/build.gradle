@@ -79,9 +79,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.legendmotorsglobal.legendmotorsapp"
+    namespace "com.lhgl.LegendCarTradingCustomer"
     defaultConfig {
-        applicationId "com.legendmotorsglobal.legendmotorsapp"
+        applicationId "com.lhgl.LegendCarTradingCustomer"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

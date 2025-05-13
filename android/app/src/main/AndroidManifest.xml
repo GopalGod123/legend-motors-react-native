@@ -23,6 +23,11 @@
       <meta-data 
         android:name="CLEVERTAP_REGION" 
         android:value="global"/>
+         <service android:name="com.clevertap.android.sdk.pushnotification.fcm.FcmMessageListenerService"  android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -36,9 +41,5 @@
         </intent-filter>
       </activity>
     </application>
-    <service android:name="com.clevertap.android.sdk.pushnotification.fcm.FcmMessageListenerService"  android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+   
 </manifest>
