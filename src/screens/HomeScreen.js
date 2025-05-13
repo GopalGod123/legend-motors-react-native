@@ -170,9 +170,36 @@ const HomeScreen = () => {
     fetchCarData();
   }, []);
 
+  // Add a state to prevent multiple navigations
+  const [isNavigating, setIsNavigating] = useState(false);
+
   const handleScroll = useCallback(event => {
-    // No need to track visibility since all sections are visible by default
-  }, []);
+    // Get current scroll position
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    // Get the screen height
+    const screenHeight = event.nativeEvent.layoutMeasurement.height;
+    // Get the total content height
+    const contentHeight = event.nativeEvent.contentSize.height;
+    
+    // Check if user has scrolled to the bottom (with a small threshold)
+    const isScrolledToBottom = currentOffset + screenHeight >= contentHeight - 20;
+    
+    if (isScrolledToBottom && !isNavigating) {
+      // Set navigating flag to prevent multiple triggers
+      setIsNavigating(true);
+      
+      // Add a small delay to make the transition feel smoother
+      setTimeout(() => {
+        navigation.navigate('ExploreTab');
+        
+        // Reset the flag after a bit longer to prevent immediate re-triggering
+        // if the user navigates back to the home screen
+        setTimeout(() => {
+          setIsNavigating(false);
+        }, 1000);
+      }, 300);
+    }
+  }, [navigation, isNavigating]);
 
   const handleLoginPress = useCallback(() => {
     setShowLoginPrompt(false);
@@ -294,10 +321,10 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingLeft:12,
-    paddingRight:12,
-    paddingTop:24,
-    paddingBottom:24
+    paddingLeft: 12,
+    paddingRight: 12,
+    paddingTop: 60,
+    paddingBottom: 24,
   },
   content: {
     paddingBottom: 70,

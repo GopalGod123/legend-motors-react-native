@@ -26,13 +26,15 @@ import {getCarList} from 'src/services/api';
 import CarCard from '../explore/CarCard';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme} from 'src/context/ThemeContext';
+import LoginPromptModal from '../../components/LoginPromptModal';
+import { useLoginPrompt } from '../../hooks/useLoginPrompt';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
 
 // Memoized card component to prevent unnecessary re-renders
 const ArrivedCarCard = memo(
-  ({item, onPress, toggleFavorite, shareCar, isFavorite}) => {
+  ({item, onPress, toggleFavorite, shareCar, isFavorite, isDarkMode}) => {
     // Use pre-computed values whenever possible
     const bodyType = item.bodyType || 'SUV';
     const fuelType = item.fuelType || 'Electric';
@@ -73,6 +75,11 @@ const ArrivedCarCard = memo(
     // Get price from API response
     const price = item.price || item.Price || 750000;
 
+    // Calculate icon color based on dark mode
+    const iconColor = isDarkMode ? "#FFFFFF" : "#8A2BE2";
+    const specTextColor = isDarkMode ? "#FFFFFF" : "#666";
+    const specItemBgColor = isDarkMode ? "#333333" : "#F0E6FA";
+
     return (
       <TouchableOpacity
         style={styles.carCard}
@@ -104,48 +111,48 @@ const ArrivedCarCard = memo(
           </Text>
 
           <View style={styles.specRow}>
-            <View style={styles.specItem}>
-              <MaterialCommunityIcons name="engine" size={16} color="#8A2BE2" />
-              <Text style={styles.specText}>ltr</Text>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
+              <MaterialCommunityIcons name="engine" size={16} color={iconColor} />
+              <Text style={[styles.specText, {color: specTextColor}]}>ltr</Text>
             </View>
 
-            <View style={styles.specItem}>
-              <Ionicons name="flash" size={16} color="#8A2BE2" />
-              <Text style={styles.specText}>{fuelType}</Text>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
+              <Ionicons name="flash" size={16} color={iconColor} />
+              <Text style={[styles.specText, {color: specTextColor}]}>{fuelType}</Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="car-shift-pattern"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{transmission}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{transmission}</Text>
             </View>
 
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="map-marker"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{region}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{region}</Text>
             </View>
           </View>
 
           <View style={styles.steeringRow}>
-            <View style={styles.specItem}>
+            <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <MaterialCommunityIcons
                 name="steering"
                 size={16}
-                color="#8A2BE2"
+                color={iconColor}
               />
-              <Text style={styles.specText}>{steeringType}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>{steeringType}</Text>
             </View>
           </View>
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
+            <Text style={styles.priceText}>{selectedCurrency === 'USD' ? '$' : selectedCurrency} {parseInt(price).toLocaleString()}</Text>
 
             <View style={styles.actionButtons}>
               <TouchableOpacity
@@ -288,7 +295,15 @@ const JustArrived = () => {
       return null;
     }
   }, []);
-  const {selectedLanguage} = useCurrencyLanguage();
+  const {selectedLanguage, selectedCurrency} = useCurrencyLanguage();
+
+  // Add the login prompt hook
+  const {
+    loginModalVisible,
+    hideLoginPrompt,
+    navigateToLogin,
+    checkAuthAndShowPrompt
+  } = useLoginPrompt();
 
   useEffect(() => {
     fetchNewArrivals();
@@ -340,19 +355,23 @@ const JustArrived = () => {
   };
 
   const toggleFavorite = async carId => {
-    if (!user) {
-      navigation.navigate('Login', {
-        returnScreen: 'HomeScreen',
-        message: 'Please login to save favorites',
-      });
-      return;
+    // Check if user is authenticated first
+    const isAuthorized = await checkAuthAndShowPrompt();
+    if (!isAuthorized) {
+      return; // Stop here if user is not authenticated
     }
 
     try {
+      let result;
       if (isInWishlist(carId)) {
-        await removeItemFromWishlist(carId);
+        result = await removeItemFromWishlist(carId);
       } else {
-        await addItemToWishlist(carId);
+        result = await addItemToWishlist(carId);
+      }
+      
+      // If operation failed but not because of auth (since we already checked auth)
+      if (!result.success && !result.requiresAuth) {
+        console.error('Wishlist operation failed');
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -384,8 +403,22 @@ const JustArrived = () => {
   };
 
   const navigateToAllNewArrivals = () => {
-    navigation.navigate('ExploreScreen', {
-      filters: {tagIds: [2]}, // Filter for Just Arrived tag
+    navigation.navigate('ExploreTab', {
+      filters: {
+        // Reset any existing filters by providing a fresh object
+        specifications: {
+          tags: [2]  // Filter for Just Arrived tag
+        },
+        // Explicitly reset other filter properties
+        brands: [],
+        brandIds: [],
+        models: [],
+        modelIds: [],
+        trims: [],
+        trimIds: [],
+        years: [],
+        yearIds: []
+      }
     });
   };
 
@@ -402,6 +435,7 @@ const JustArrived = () => {
           <Text style={styles.tagText}></Text>
         </View>
       }
+      isDarkMode={isDark}
     />
   );
 
@@ -587,6 +621,13 @@ const JustArrived = () => {
           ListEmptyComponent={renderEmptyComponent}
         />
       )}
+
+      {/* Add the LoginPromptModal */}
+      <LoginPromptModal
+        visible={loginModalVisible}
+        onClose={hideLoginPrompt}
+        onLoginPress={navigateToLogin}
+      />
     </View>
   );
 };

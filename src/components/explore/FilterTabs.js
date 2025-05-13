@@ -7,26 +7,37 @@ import {
   BORDER_RADIUS,
 } from '../../utils/constants';
 import {AntDesign, Ionicons} from 'src/utils/icon/index';
+import {useTheme} from '../../context/ThemeContext';
 
 const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
+  const {isDark} = useTheme();
+
   const renderFilterItem = ({item}) => (
     <TouchableOpacity
       style={[
         styles.filterButton,
         activeFilter === item.id && styles.activeFilterButton,
+        isDark && styles.filterButtonDark,
       ]}
       onPress={() => onSelect(item.id)}>
       <Text
         style={[
           styles.filterButtonText,
           activeFilter === item.id && styles.activeFilterText,
+          isDark && styles.filterButtonTextDark,
         ]}>
         {item.label}{' '}
       </Text>
       <AntDesign
         name={'caretdown'}
         size={8}
-        color={activeFilter === item.id ? '#ffffff' : COLORS.primary}
+        color={
+          activeFilter === item.id
+            ? '#ffffff'
+            : isDark
+            ? '#F47B20'
+            : COLORS.primary
+        }
       />
     </TouchableOpacity>
   );
@@ -34,7 +45,13 @@ const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
   return (
     <View style={styles.filtersContainer}>
       {home ? null : (
-        <Text style={styles.filtersTitle}>{'Advanced Filters'}</Text>
+        <Text
+          style={[
+            styles.filtersTitle,
+            {color: isDark ? '#FFFFFF' : COLORS.textDark},
+          ]}>
+          {'Advanced Filters'}
+        </Text>
       )}
       <FlatList
         horizontal
@@ -57,6 +74,11 @@ const styles = StyleSheet.create({
     paddingVertical: SPACING.xs,
     gap: 8,
   },
+  filtersTitle: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    marginBottom: SPACING.xs,
+  },
   filterButton: {
     width: 115,
     height: 38,
@@ -70,6 +92,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
   },
+  filterButtonDark: {
+    backgroundColor: '#2D2D2D',
+    borderColor: '#F47B20',
+  },
   activeFilterButton: {
     backgroundColor: COLORS.primary,
   },
@@ -77,6 +103,9 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
     color: COLORS.primary,
     fontWeight: '500',
+  },
+  filterButtonTextDark: {
+    color: '#F47B20',
   },
   activeFilterText: {
     color: '#FFFFFF',

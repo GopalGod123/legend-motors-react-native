@@ -17,6 +17,8 @@ import {useAuth} from '../context/AuthContext';
 import {useWishlist} from '../context/WishlistContext';
 import {COLORS, SPACING, FONT_SIZES} from '../utils/constants';
 import {CarImage} from '../components/common';
+import LoginPromptModal from '../components/LoginPromptModal';
+import {useLoginPrompt} from '../hooks/useLoginPrompt';
 
 // Car card component for wishlist items
 const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
@@ -132,6 +134,12 @@ const MyWishlistScreen = () => {
   const {user} = useAuth();
   const {removeItemFromWishlist, fetchWishlistItems: contextFetchWishlist} =
     useWishlist();
+  const {
+    loginModalVisible,
+    hideLoginPrompt,
+    navigateToLogin,
+    checkAuthAndShowPrompt
+  } = useLoginPrompt();
 
   // Fetch wishlist data
   const fetchWishlist = async () => {
@@ -201,6 +209,12 @@ const MyWishlistScreen = () => {
         return;
       }
 
+      // Check if user is authenticated first
+      const isAuthorized = await checkAuthAndShowPrompt();
+      if (!isAuthorized) {
+        return; // Stop here if user is not authenticated
+      }
+
       console.log(`Attempting to remove car ID ${itemId} from wishlist`);
 
       // Mark this item as being removed
@@ -210,9 +224,9 @@ const MyWishlistScreen = () => {
       setLoading(true);
 
       // Use carId for API call as required by the API
-      const success = await removeItemFromWishlist(itemId);
+      const result = await removeItemFromWishlist(itemId);
 
-      if (success) {
+      if (result.success) {
         console.log(`Successfully removed car ID ${itemId} from wishlist`);
 
         // Remove from local state for immediate UI update
@@ -222,7 +236,7 @@ const MyWishlistScreen = () => {
             return item.id !== itemId && item.carId !== itemId;
           });
         });
-      } else {
+      } else if (!result.requiresAuth) {
         console.error(`Failed to remove car ID ${itemId} from wishlist`);
         Alert.alert('Error', 'Failed to remove car from wishlist');
       }
@@ -262,7 +276,7 @@ const MyWishlistScreen = () => {
       <Text style={styles.emptySubtext}>Cars you love will appear here</Text>
       <TouchableOpacity
         style={styles.exploreButton}
-        onPress={() => navigation.navigate('Main')}>
+        onPress={() => navigation.navigate('Main', { screen: 'ExploreTab' })}>
         <Text style={styles.exploreButtonText}>Explore Cars</Text>
       </TouchableOpacity>
     </View>
@@ -310,6 +324,12 @@ const MyWishlistScreen = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      <LoginPromptModal
+        visible={loginModalVisible}
+        onClose={hideLoginPrompt}
+        onLoginPress={navigateToLogin}
+      />
     </SafeAreaView>
   );
 };

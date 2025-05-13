@@ -19,6 +19,7 @@ target 'legend_motors' do
    pod 'clevertap-react-native', :path => '../node_modules/clevertap-react-native'
    pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons', :modular_headers => false
 
+  $RN_HERMES = true
   config = use_native_modules!
 
   use_react_native!(

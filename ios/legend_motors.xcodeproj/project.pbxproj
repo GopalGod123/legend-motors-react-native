@@ -13,6 +13,7 @@
 		67A84AC57E53E0CCEA376D29 /* Pods_legend_motors.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FC924BD21A7229E970461458 /* Pods_legend_motors.framework */; };
 		761780ED2CA45674006654EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EC2CA45674006654EE /* AppDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		91317AB8A97428BE3D8A2A68 /* Pods_legend_motors.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8972A115BD96564A89EAC1AB /* Pods_legend_motors.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +27,7 @@
 		5709B34CF0A7D63546082F79 /* Pods-legend_motors.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-legend_motors.release.xcconfig"; path = "Target Support Files/Pods-legend_motors/Pods-legend_motors.release.xcconfig"; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = legend_motors/AppDelegate.swift; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = legend_motors/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8972A115BD96564A89EAC1AB /* Pods_legend_motors.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_legend_motors.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		FC924BD21A7229E970461458 /* Pods_legend_motors.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_legend_motors.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -37,6 +39,7 @@
 			files = (
 				1F4A3ACD2DCFEEA1000424AE /* CoreLocation.framework in Frameworks */,
 				67A84AC57E53E0CCEA376D29 /* Pods_legend_motors.framework in Frameworks */,
+				91317AB8A97428BE3D8A2A68 /* Pods_legend_motors.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -62,6 +65,7 @@
 				1F4A3ACC2DCFEEA1000424AE /* CoreLocation.framework */,
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				FC924BD21A7229E970461458 /* Pods_legend_motors.framework */,
+				8972A115BD96564A89EAC1AB /* Pods_legend_motors.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -271,6 +275,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = legend_motors/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LegendMotors;
+				INFOPLIST_KEY_CFBundleDisplayName = "Legend Motors";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -282,7 +287,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.lhgl.LegendCarTradingCustomer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.legendmotorsglobal.legendmotorsapp;
 				PRODUCT_NAME = legend_motors;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -301,6 +306,7 @@
 				DEVELOPMENT_TEAM = N9M76RZ6R8;
 				INFOPLIST_FILE = legend_motors/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = LegendMotors;
+				INFOPLIST_KEY_CFBundleDisplayName = "Legend Motors";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -312,7 +318,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.lhgl.LegendCarTradingCustomer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.legendmotorsglobal.legendmotorsapp;
 				PRODUCT_NAME = legend_motors;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

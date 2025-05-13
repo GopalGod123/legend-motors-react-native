@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { 
   View, 
   StyleSheet, 
@@ -12,21 +12,47 @@ import CarImage from './CarImage';
 
 const { width } = Dimensions.get('window');
 
-const CarImageCarousel = ({ 
+const CarImageCarousel = forwardRef(({ 
   images, 
   height = 180,
   style,
   onImagePress,
-  showIndex = false
-}) => {
-  const [activeIndex, setActiveIndex] = useState(0);
+  showIndex = false,
+  initialIndex = 0,
+  onIndexChange
+}, ref) => {
+  const [activeIndex, setActiveIndex] = useState(initialIndex);
   const flatListRef = useRef(null);
+  
+  // Expose methods to parent component
+  useImperativeHandle(ref, () => ({
+    scrollToIndex: ({ index, animated = true }) => {
+      if (flatListRef.current) {
+        flatListRef.current.scrollToIndex({ index, animated });
+        setActiveIndex(index);
+      }
+    }
+  }));
+  
+  // Set initial index when it changes
+  useEffect(() => {
+    if (initialIndex !== activeIndex && flatListRef.current) {
+      flatListRef.current.scrollToIndex({
+        index: initialIndex,
+        animated: true,
+      });
+      setActiveIndex(initialIndex);
+    }
+  }, [initialIndex]);
 
   // Handle when scrolling ends to update the active index
   const handleScroll = (event) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(contentOffsetX / width);
     setActiveIndex(newIndex);
+    if (onIndexChange && newIndex !== activeIndex) {
+      onIndexChange(newIndex);
+    }
   };
 
   // Go to a specific image
@@ -37,6 +63,9 @@ const CarImageCarousel = ({
         animated: true,
       });
       setActiveIndex(index);
+      if (onIndexChange) {
+        onIndexChange(index);
+      }
     }
   };
 
@@ -91,6 +120,24 @@ const CarImageCarousel = ({
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
         keyExtractor={(_, index) => `car_image_${index}`}
+        initialScrollIndex={initialIndex > 0 && initialIndex < images.length ? initialIndex : undefined}
+        getItemLayout={(_, index) => ({
+          length: width,
+          offset: width * index,
+          index,
+        })}
+        onScrollToIndexFailed={(info) => {
+          console.warn('Scroll to index failed:', info);
+          // Handle scroll failure, maybe with a setTimeout
+          setTimeout(() => {
+            if (flatListRef.current) {
+              flatListRef.current.scrollToOffset({
+                offset: info.index * width,
+                animated: false
+              });
+            }
+          }, 100);
+        }}
       />
 
       {/* Pagination dots */}
@@ -108,7 +155,7 @@ const CarImageCarousel = ({
       </View>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

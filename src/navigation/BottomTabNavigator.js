@@ -21,6 +21,22 @@ import EnquiriesScreen from '../screens/EnquiriesScreen';
 
 const Tab = createBottomTabNavigator();
 
+const CustomLabel = ({focused, color, label}) => {
+  const isNewsBlogs = label === 'News/Blogs';
+  return (
+    <Text
+      style={[
+        styles.tabBarLabel,
+        {
+          color,
+          fontSize: isNewsBlogs ? 10 : 12,
+        },
+      ]}>
+      {label}
+    </Text>
+  );
+};
+
 const BottomTabNavigator = () => {
   const {theme, isDark} = useTheme();
   const insets = useSafeAreaInsets();
@@ -44,12 +60,9 @@ const BottomTabNavigator = () => {
           shadowOpacity: 0.1,
           shadowRadius: 3,
         },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '400',
-          marginTop: 2,
-          color: themeColors[theme].text,
-        },
+        tabBarLabel: ({focused, color, label}) => (
+          <CustomLabel focused={focused} color={color} label={label} />
+        ),
         tabBarItemStyle: {
           padding: 5,
         },
@@ -113,6 +126,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  tabBarLabel: {
+    fontWeight: '400',
+    marginTop: 2,
+    textAlign: 'center',
+    width: '100%',
   },
 });
 

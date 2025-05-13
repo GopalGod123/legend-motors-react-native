@@ -19,9 +19,11 @@ import {
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
 import { Ionicons } from '../utils/icon';
-import { submitCarEnquiry } from '../services/api';
+import { submitCarEnquiry, isAuthenticated } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/Logo';
+import LoginPromptModal from '../components/LoginPromptModal';
+import { useLoginPrompt } from '../hooks/useLoginPrompt';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -63,7 +65,15 @@ const countryCodes = [
 const EnquiryFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
+  
+  // Add the login prompt hook
+  const {
+    loginModalVisible,
+    hideLoginPrompt,
+    navigateToLogin,
+    checkAuthAndShowPrompt
+  } = useLoginPrompt();
   
   // Get car details from route params
   const { carId, carTitle, carImage, carPrice, currency } = route.params || {};
@@ -90,38 +100,25 @@ const EnquiryFormScreen = () => {
   const [countrySearch, setCountrySearch] = useState('');
   const [filteredCountryCodes, setFilteredCountryCodes] = useState(countryCodes);
   
-  // Fill form with user profile data if available and checkbox is checked
+  // Check authentication when component mounts
   useEffect(() => {
-    if (user && sameAsProfile) {
-      setName(user.name || '');
-      setEmail(user.email || '');
-      
-      // Extract phone number without country code if possible
-      if (user.phoneNumber) {
-        const userPhone = user.phoneNumber;
-        // If user phone already has the current country code, remove it
-        if (userPhone.startsWith(countryCode)) {
-          setPhoneNumber(userPhone.slice(countryCode.length));
-        } else {
-          // Try to extract from other country codes
-          let foundCode = false;
-          for (const country of countryCodes) {
-            if (userPhone.startsWith(country.code)) {
-              setCountryCode(country.code);
-              setPhoneNumber(userPhone.slice(country.code.length));
-              foundCode = true;
-              break;
-            }
-          }
-          
-          // If no country code found, just use as is
-          if (!foundCode) {
-            setPhoneNumber(userPhone);
-          }
+    const checkAuth = async () => {
+      const isAuthorized = await checkAuthAndShowPrompt();
+      if (!isAuthorized) {
+        // If not authenticated, the login prompt will show automatically
+        // We'll stay on this screen until they log in or dismiss the prompt
+      } else {
+        // If authenticated, pre-fill form with user data if available
+        if (user) {
+          setName(user.name || '');
+          setEmail(user.email || '');
+          setPhoneNumber(user.phoneNumber || '');
         }
       }
-    }
-  }, [user, sameAsProfile]);
+    };
+    
+    checkAuth();
+  }, [user, checkAuthAndShowPrompt]);
 
   // Handle checkbox toggle
   const toggleSameAsProfile = () => {
@@ -342,44 +339,15 @@ const EnquiryFormScreen = () => {
     </TouchableOpacity>
   );
 
-  // Render phone input with better country code display
-  const renderPhoneInput = () => (
-    <View style={styles.inputContainer}>
-      <View style={[styles.input, errors.phoneNumber ? styles.inputError : null, styles.phoneInputWrapper]}>
-        <TouchableOpacity
-          style={styles.countryCodeContainer}
-          onPress={() => setCountryPickerVisible(true)}>
-          <Ionicons name="flag" size={20} color="#5E366D" style={styles.inputIcon} />
-          <Text style={styles.countryCodeText}>{countryCode}</Text>
-          <Ionicons name="chevron-down" size={16} color="#777" />
-        </TouchableOpacity>
-        <TextInput
-          style={styles.phoneInput}
-          placeholder="Phone Number"
-          placeholderTextColor="#777"
-          keyboardType="phone-pad"
-          value={phoneNumber}
-          onChangeText={(text) => {
-            // Remove non-digit characters on input
-            const digitsOnly = text.replace(/\D/g, '');
-            setPhoneNumber(digitsOnly);
-          }}
-        />
-      </View>
-      {errors.phoneNumber ? (
-        <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-      ) : null}
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container}>
+        style={styles.keyboardAvoidingContainer}>
         <ScrollView 
           contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
           
           {/* Header with back button */}
           <View style={styles.header}>
@@ -406,7 +374,7 @@ const EnquiryFormScreen = () => {
                 <View style={styles.priceWrapper}>
                   <Text style={styles.priceLabel}>Price</Text>
                   <Text style={styles.priceValue} numberOfLines={1} ellipsizeMode="tail">
-                    {currency} {carPrice?.toLocaleString() || '175,000'}
+                    {currency} {carPrice ? Math.floor(carPrice).toLocaleString() : '175,000'}
                   </Text>
                 </View>
               </View>
@@ -431,7 +399,7 @@ const EnquiryFormScreen = () => {
             {/* Name Input */}
             <View style={styles.inputContainer}>
               <TextInput
-                style={[styles.input, errors.name ? styles.inputError : null]}
+                style={[styles.baseInput, errors.name ? styles.inputError : null]}
                 placeholder="Your Name"
                 placeholderTextColor="#777"
                 value={name}
@@ -444,10 +412,10 @@ const EnquiryFormScreen = () => {
             
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <View style={[styles.input, errors.email ? styles.inputError : null, styles.emailInputWrapper]}>
+              <View style={[styles.baseInput, errors.email ? styles.inputError : null, styles.iconInputContainer]}>
                 <Ionicons name="mail" size={20} color="#5E366D" style={styles.inputIcon} />
                 <TextInput
-                  style={styles.emailInput}
+                  style={styles.iconInput}
                   placeholder="Email"
                   placeholderTextColor="#777"
                   keyboardType="email-address"
@@ -461,11 +429,36 @@ const EnquiryFormScreen = () => {
               ) : null}
             </View>
             
-            {/* Phone Input - using the custom component */}
-            {renderPhoneInput()}
+            {/* Phone Input */}
+            <View style={styles.inputContainer}>
+              <View style={[styles.baseInput, errors.phoneNumber ? styles.inputError : null, styles.phoneContainer]}>
+                <TouchableOpacity
+                  style={styles.countryCodeButton}
+                  onPress={() => setCountryPickerVisible(true)}>
+                  <Ionicons name="flag" size={20} color="#5E366D" style={styles.inputIcon} />
+                  <Text style={styles.countryCodeText}>{countryCode}</Text>
+                  <Ionicons name="chevron-down" size={16} color="#777" />
+                </TouchableOpacity>
+                <TextInput
+                  style={styles.phoneNumberInput}
+                  placeholder="Phone Number"
+                  placeholderTextColor="#777"
+                  keyboardType="phone-pad"
+                  value={phoneNumber}
+                  onChangeText={(text) => {
+                    // Remove non-digit characters on input
+                    const digitsOnly = text.replace(/\D/g, '');
+                    setPhoneNumber(digitsOnly);
+                  }}
+                />
+              </View>
+              {errors.phoneNumber ? (
+                <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+              ) : null}
+            </View>
             
             {/* Auto-fill Checkbox (only if user is authenticated) */}
-            {isAuthenticated && (
+            {user && (
               <TouchableOpacity
                 style={styles.checkboxContainer}
                 onPress={toggleSameAsProfile}
@@ -615,6 +608,13 @@ const EnquiryFormScreen = () => {
           </Modal>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Add the LoginPromptModal */}
+      <LoginPromptModal
+        visible={loginModalVisible}
+        onClose={hideLoginPrompt}
+        onLoginPress={navigateToLogin}
+      />
     </SafeAreaView>
   );
 };
@@ -624,9 +624,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  keyboardAvoidingContainer: {
+    flex: 1,
+  },
   scrollContent: {
     padding: 20,
-    paddingBottom: 40,
+    paddingBottom: 80,
   },
   header: {
     flexDirection: 'row',
@@ -673,8 +676,9 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
     borderRadius: 10,
-    padding: 10,
+    padding: 16,
     marginBottom: SPACING.lg,
+    marginHorizontal: 2,
   },
   carTitleContainer: {
     marginBottom: 8,
@@ -697,9 +701,9 @@ const styles = StyleSheet.create({
   },
   carInfoLeft: {
     flex: 1,
-    marginRight: 5,
+    marginRight: 10,
     justifyContent: 'flex-start',
-    maxWidth: '65%',
+    maxWidth: '60%',
   },
   priceWrapper: {
     flexDirection: 'column',
@@ -712,9 +716,10 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   priceValue: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#5E366D',
+    flexShrink: 1,
   },
   carImageContainer: {
     width: 165,
@@ -739,11 +744,13 @@ const styles = StyleSheet.create({
   formContainer: {
     width: '100%',
     marginTop: 20,
+    marginBottom: 20,
   },
   inputContainer: {
-    marginBottom: 14,
+    width: '100%',
+    marginBottom: 20,
   },
-  input: {
+  baseInput: {
     backgroundColor: '#FFFFFF',
     borderRadius: 8,
     padding: 14,
@@ -751,7 +758,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderStyle: 'dashed',
-    height: 52,
+    height: 56,
   },
   inputError: {
     borderColor: 'red',
@@ -762,38 +769,29 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginLeft: 4,
   },
-  emailInputWrapper: {
+  iconInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderStyle: 'dashed',
-    height: 56,
     paddingHorizontal: 16,
+    paddingVertical: 0,
   },
   inputIcon: {
     marginRight: 12,
-    color: '#757575',
+    color: '#5E366D',
   },
-  emailInput: {
+  iconInput: {
     flex: 1,
     fontSize: 16,
     color: '#212121',
     height: '100%',
+    paddingVertical: 14,
   },
-  phoneInputWrapper: {
+  phoneContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderStyle: 'dashed',
-    height: 56,
+    padding: 0,
   },
-  countryCodeContainer: {
+  countryCodeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -807,11 +805,12 @@ const styles = StyleSheet.create({
     color: '#212121',
     marginRight: 8,
   },
-  phoneInput: {
+  phoneNumberInput: {
     flex: 1,
     marginLeft: 16,
     fontSize: 16,
     height: '100%',
+    paddingVertical: 14,
   },
   checkboxContainer: {
     flexDirection: 'row',
@@ -840,11 +839,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 24,
-    height: 56,
+    height: 60,
+    marginBottom: 30,
   },
   submitButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
   },
   modalOverlay: {

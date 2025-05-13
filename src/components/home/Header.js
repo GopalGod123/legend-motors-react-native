@@ -69,21 +69,27 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
         <View
           style={[
             styles.currencyToggle,
-            {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+            {backgroundColor: isDark ? '#1A1A1A' : COLORS.white},
           ]}>
           <TouchableOpacity
             style={[
               styles.currencyButton,
-              {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
-              selectedCurrency === 'AED' && styles.activeCurrencyButton,
+              selectedCurrency === 'AED'
+                ? isDark
+                  ? styles.activeCurrencyButtonDark
+                  : styles.activeCurrencyButton
+                : {},
             ]}
             onPress={() => toggleCurrency('AED')}>
             <Text
               style={[
-                styles.currencyText,
                 selectedCurrency === 'AED'
-                  ? styles.activeText
-                  : {color: isDark ? '#FFFFFF' : '#5E366D'},
+                  ? isDark
+                    ? {color: '#000'}
+                    : styles.activeText
+                  : isDark
+                  ? {color: '#9E86A8'}
+                  : styles.currencyText,
               ]}>
               AED
             </Text>
@@ -91,16 +97,23 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           <TouchableOpacity
             style={[
               styles.currencyButton,
-              {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
-              selectedCurrency === 'USD' && styles.activeCurrencyButton,
+
+              selectedCurrency === 'USD'
+                ? isDark
+                  ? styles.activeCurrencyButtonDark
+                  : styles.activeCurrencyButton
+                : {},
             ]}
             onPress={() => toggleCurrency('USD')}>
             <Text
               style={[
-                styles.currencyText,
                 selectedCurrency === 'USD'
-                  ? styles.activeText
-                  : {color: isDark ? '#FFFFFF' : '#5E366D'},
+                  ? isDark
+                    ? {color: '#000'}
+                    : styles.activeText
+                  : isDark
+                  ? {color: '#9E86A8'}
+                  : styles.currencyText,
               ]}>
               USD
             </Text>
@@ -165,18 +178,23 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     elevation: 1,
+    borderColor: COLORS.currency,
   },
   currencyButton: {
     paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
     minWidth: 45,
     alignItems: 'center',
-    
   },
   activeCurrencyButton: {
     backgroundColor: COLORS.currency,
     borderRadius: BORDER_RADIUS.xl,
-
+  },
+  activeCurrencyButtonDark: {
+    backgroundColor: '#9E86A8',
+    borderRadius: BORDER_RADIUS.xl,
+    borderWidth: 1,
+    borderColor: COLORS.currency,
   },
   currencyText: {
     fontWeight: '500',

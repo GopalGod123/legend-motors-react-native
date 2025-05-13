@@ -57,7 +57,7 @@ const BrandItem = memo(({item, onPress, placeholder}) => {
       } else {
         // Show first letter of brand name if no specific placeholder
         return (
-          <Text style={styles.brandInitial}>
+          <Text style={[styles.brandInitial, {color: isDark ? '#000000' : COLORS.textDark}]}>
             {formatBrandName(item.name)[0]}
           </Text>
         );
@@ -85,14 +85,14 @@ const BrandItem = memo(({item, onPress, placeholder}) => {
     <TouchableOpacity
       style={[
         styles.brandItem,
-        {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+        {backgroundColor: isDark ? '#ffffff' : COLORS.white},
       ]}
       onPress={() => onPress(item)}>
       <View style={styles.logoContainer}>{renderBrandLogo()}</View>
       <Text
         style={[
           styles.brandName,
-          {color: isDark ? '#FFFFFF' : COLORS.textDark},
+          {color: isDark ? '#000000' : COLORS.textDark},
         ]}
         numberOfLines={1}>
         {formatBrandName(item.name)}
@@ -109,14 +109,14 @@ const SeeAllItem = memo(({onPress}) => {
     <TouchableOpacity
       style={[
         styles.brandItem,
-        {backgroundColor: isDark ? '#3D3D3D' : COLORS.white},
+        {backgroundColor: isDark ? '#ffffff' : COLORS.white},
       ]}
       onPress={onPress}>
       <View style={styles.logoContainer}>
         <Text
           style={[
             styles.ellipsis,
-            {color: isDark ? '#FFFFFF' : COLORS.textDark},
+            {color: isDark ? '#000000' : COLORS.textDark},
           ]}>
           •••
         </Text>
@@ -124,7 +124,7 @@ const SeeAllItem = memo(({onPress}) => {
       <Text
         style={[
           styles.brandName,
-          {color: isDark ? '#FFFFFF' : COLORS.textDark},
+          {color: isDark ? '#000000' : COLORS.textDark},
         ]}>
         See All
       </Text>
@@ -385,7 +385,7 @@ const PopularBrands = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.md,
     paddingHorizontal: 23,
     borderRadius: BORDER_RADIUS.lg,
     paddingVertical: SPACING.lg,

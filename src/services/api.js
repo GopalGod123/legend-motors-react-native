@@ -190,6 +190,42 @@ export const logoutUser = async () => {
   }
 };
 
+// Function to refresh the authentication token
+export const refreshAuthToken = async (refreshToken) => {
+  try {
+    // Call the token refresh endpoint
+    const response = await api.post('/auth/refresh-token', { refreshToken });
+    
+    // Check if the response contains a new token
+    if (response.data && response.data.success && response.data.token) {
+      // Store the new token in AsyncStorage
+      await AsyncStorage.setItem('auth_token', response.data.token);
+      await AsyncStorage.setItem('userToken', response.data.token);
+      
+      // Update the API headers
+      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+      
+      console.log('Token refreshed successfully');
+      return {
+        success: true,
+        token: response.data.token,
+        refreshToken: response.data.refreshToken || refreshToken
+      };
+    } else {
+      console.warn('No new token received from refresh API');
+      return { success: false, message: 'No token received' };
+    }
+  } catch (error) {
+    console.error('Token refresh error:', error.response?.data || error.message);
+    
+    // Return error details
+    return {
+      success: false,
+      error: error.response?.data || { message: 'Token refresh failed' }
+    };
+  }
+};
+
 // Password Reset Functions
 export const requestPasswordResetOTP = async email => {
   try {

@@ -2,8 +2,11 @@ import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import {COLORS, SPACING, FONT_SIZES} from '../../utils/constants';
 import Logo from '../Logo';
+import {useTheme} from '../../context/ThemeContext';
 
 const Header = ({isViewingSpecificCar = false, onBackToAllCars}) => {
+  const {isDark} = useTheme();
+  
   return (
     <View style={styles.header}>
       <View style={{flexDirection: 'row'}}>
@@ -11,7 +14,7 @@ const Header = ({isViewingSpecificCar = false, onBackToAllCars}) => {
           style={styles.logo}
           source={require('../../assets/images/logo.png')}
         />
-        <Text style={styles.headerTitle}>Explore</Text>
+        <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>Explore</Text>
       </View>
       {isViewingSpecificCar && (
         <TouchableOpacity style={styles.backButton} onPress={onBackToAllCars}>
@@ -37,7 +40,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: FONT_SIZES.xl,
     fontWeight: '600',
-    color: COLORS.textDark,
   },
   backButton: {
     paddingVertical: SPACING.xs,

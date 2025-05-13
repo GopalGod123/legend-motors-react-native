@@ -8,14 +8,15 @@ import {
 } from 'react-native';
 import {HatchbackIcon, SedanIcon, SUVIcon} from '../icons';
 import {useTheme} from 'src/context/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
 
-const BodyTypeItem = ({icon, title, isDark}) => {
+const BodyTypeItem = ({icon, title, isDark, onPress}) => {
   return (
-    <TouchableOpacity style={styles.itemContainer}>
+    <TouchableOpacity style={styles.itemContainer} onPress={onPress}>
       <View
         style={[
           styles.imageContainer,
-          {backgroundColor: isDark ? '#1A1A1A' : '#FFF'},
+          {backgroundColor: isDark ? '#ffffff' : '#FFF'},
         ]}>
         {icon}
       </View>
@@ -28,14 +29,40 @@ const BodyTypeItem = ({icon, title, isDark}) => {
 
 const BodyTypeSearch = () => {
   const bodyTypes = [
-    {id: 1, title: 'Hatchback', icon: <HatchbackIcon width={60} height={40} />},
-    {id: 2, title: 'Sedan', icon: <SedanIcon width={60} height={40} />},
-    {id: 3, title: 'SUV', icon: <SUVIcon width={60} height={40} />},
-    {id: 4, title: 'Crossover', icon: <HatchbackIcon width={60} height={40} />},
-    {id: 5, title: 'Coupe', icon: <SedanIcon width={60} height={40} />},
-    {id: 6, title: 'Convertible', icon: <SUVIcon width={60} height={40} />},
+    {id: 53, title: 'Hatchback', icon: <HatchbackIcon width={60} height={40} />},
+    {id: 49, title: 'Sedan', icon: <SedanIcon width={60} height={40} />},
+    {id: 51, title: 'SUV', icon: <SUVIcon width={60} height={40} />},
+    {id: 56, title: 'VAN', icon: <SUVIcon width={60} height={40} />},
+    {id: 52, title: 'Crossover', icon: <HatchbackIcon width={60} height={40} />},
+    {id: 55, title: 'Pickup Truck', icon: <SedanIcon width={60} height={40} />},
+    {id: 58, title: 'Convertible', icon: <SUVIcon width={60} height={40} />},
   ];
   const {isDark} = useTheme();
+  const navigation = useNavigation();
+
+  const handleBodyTypePress = (id) => {
+    navigation.navigate('ExploreTab', {
+      filters: {
+        specifications: {
+          body_type: [id]
+        },
+        brands: [],
+        brandIds: [],
+        models: [],
+        modelIds: [],
+        trims: [],
+        trimIds: [],
+        years: [],
+        yearIds: []
+      }
+    });
+  };
+
+  const handleSeeAllPress = () => {
+    navigation.navigate('FilterScreen', {
+      filterType: 'bodyType',
+    });
+  };
 
   return (
     <View
@@ -47,7 +74,7 @@ const BodyTypeSearch = () => {
         <Text style={[styles.title, {color: isDark ? '#FFFFFF' : '#333'}]}>
           Search by Body Type
         </Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleSeeAllPress}>
           <Text style={styles.seeAllText}>See All</Text>
         </TouchableOpacity>
       </View>
@@ -62,6 +89,7 @@ const BodyTypeSearch = () => {
             icon={item.icon}
             title={item.title}
             isDark={isDark}
+            onPress={() => handleBodyTypePress(item.id)}
           />
         ))}
       </ScrollView>
@@ -93,9 +121,10 @@ const styles = StyleSheet.create({
     paddingRight: 20,
   },
   itemContainer: {
-    width: 110,
+    width: 91,
     marginRight: 12,
     alignItems: 'center',
+    marginLeft:10
   },
   imageContainer: {
     width: 100,
@@ -117,3 +146,4 @@ const styles = StyleSheet.create({
 });
 
 export default BodyTypeSearch;
+

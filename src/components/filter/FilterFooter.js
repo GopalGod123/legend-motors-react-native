@@ -1,11 +1,22 @@
 import React from 'react';
 import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {useTheme} from '../../context/ThemeContext';
 
 const FilterFooter = ({onReset, onApply, selectedCount = 0}) => {
+  const {isDark} = useTheme();
+
   return (
-    <View style={styles.footer}>
-      <TouchableOpacity style={styles.resetButton} onPress={onReset}>
-        <Text style={styles.resetButtonText}>Reset</Text>
+    <View style={[styles.footer, isDark && styles.footerDark]}>
+      <TouchableOpacity
+        style={[styles.resetButton, isDark && styles.resetButtonDark]}
+        onPress={onReset}>
+        <Text
+          style={[
+            styles.resetButtonText,
+            isDark && styles.resetButtonTextDark,
+          ]}>
+          Reset
+        </Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.applyButton} onPress={onApply}>
@@ -24,6 +35,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: '#EEEEEE',
+    backgroundColor: '#FFFFFF',
+  },
+  footerDark: {
+    borderTopColor: '#333333',
+    backgroundColor: '#2D2D2D',
   },
   resetButton: {
     flex: 1,
@@ -40,12 +56,17 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.36,
     shadowRadius: 6.68,
-
     elevation: 11,
+  },
+  resetButtonDark: {
+    backgroundColor: '#4D3D2D',
   },
   resetButtonText: {
     fontSize: 16,
     color: '#333333',
+  },
+  resetButtonTextDark: {
+    color: '#FFFFFF',
   },
   applyButton: {
     flex: 1,
@@ -62,7 +83,6 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.36,
     shadowRadius: 6.68,
-
     elevation: 11,
   },
   applyButtonText: {

@@ -37,6 +37,9 @@ import {
 // Import the SearchBar from components/home
 import SearchBar from '../components/home/SearchBar';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
+import LoginPromptModal from '../components/LoginPromptModal';
+import {useLoginPrompt} from '../hooks/useLoginPrompt';
 
 // Create color statistics tracker
 const colorStats = {
@@ -341,9 +344,38 @@ const ExploreScreen = () => {
     resetSearch: null,
   });
 
+  const {isDark, theme} = useTheme();
+
+  // Add the login prompt hook
+  const {
+    loginModalVisible,
+    hideLoginPrompt,
+    navigateToLogin,
+    checkAuthAndShowPrompt,
+  } = useLoginPrompt();
+
   useEffect(() => {
     if (route.params?.filters) {
+      // Completely reset previous filters when new ones are applied
       setAppliedFilters(route.params.filters);
+
+      // Reset other states that might be affected by previous filters
+      setActiveFilter(
+        route.params.filters.brands && route.params.filters.brands.length > 0
+          ? 'brands'
+          : 'all',
+      );
+
+      // If we have a tag filter, update the active filter tab accordingly
+      if (
+        route.params.filters.specifications &&
+        route.params.filters.specifications.tags
+      ) {
+        const tagId = route.params.filters.specifications.tags[0];
+        if (tagId === 1) setActiveFilter('popular');
+        else if (tagId === 2) setActiveFilter('new');
+        else if (tagId === 3) setActiveFilter('hot');
+      }
     }
     if (route.params?.search) {
       setSearchQuery(route.params.search);
@@ -373,7 +405,7 @@ const ExploreScreen = () => {
         // Check if any filters are applied
 
         // Base API parameters
-        const params = {
+        let params = {
           page: newPage,
           limit: PAGE_SIZE,
           status: 'published',
@@ -416,13 +448,26 @@ const ExploreScreen = () => {
         if (appliedFilters?.maxPrice) {
           params.maxPriceAED = appliedFilters.maxPrice;
         }
-        Object.keys(appliedFilters?.specifications ?? {}).forEach(key => {
-          if (appliedFilters.specifications[key].length > 0) {
-            params[key] = appliedFilters.specifications[key].join(',');
-          }
-        });
-        // }
 
+        // Handle specifications including tags
+        if (appliedFilters?.specifications) {
+          Object.keys(appliedFilters.specifications).forEach(key => {
+            if (appliedFilters.specifications[key].length > 0) {
+              // Special handling for tags
+              if (key === 'tags') {
+                params.tags = appliedFilters.specifications[key].join(',');
+              } else {
+                params[key] = appliedFilters.specifications[key].join(',');
+              }
+            }
+          });
+        }
+        if (appliedFilters?.priceRange) {
+          params = {
+            ...appliedFilters,
+            ...appliedFilters.priceRange,
+          };
+        }
         console.log(`Fetching cars with API params:`, JSON.stringify(params));
 
         // Get car data from API with filters applied
@@ -614,7 +659,7 @@ const ExploreScreen = () => {
 
       try {
         // Base API parameters
-        const params = {
+        let params = {
           page: 1,
           limit: 10,
           status: 'published',
@@ -640,11 +685,26 @@ const ExploreScreen = () => {
           if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
             params.yearId = appliedFilters.yearIds.join(',');
           }
-          Object.keys(appliedFilters.specifications).forEach(key => {
-            if (appliedFilters.specifications[key].length > 0) {
-              params[key] = appliedFilters.specifications[key].join(',');
-            }
-          });
+
+          // Handle specifications including tags
+          if (appliedFilters.specifications) {
+            Object.keys(appliedFilters.specifications).forEach(key => {
+              if (appliedFilters.specifications[key].length > 0) {
+                // Special handling for tags
+                if (key === 'tags') {
+                  params.tags = appliedFilters.specifications[key].join(',');
+                } else {
+                  params[key] = appliedFilters.specifications[key].join(',');
+                }
+              }
+            });
+          }
+          if (appliedFilters?.priceRange) {
+            params = {
+              ...params,
+              ...appliedFilters.priceRange,
+            };
+          }
           // Add other API parameters as needed
         }
 
@@ -787,26 +847,29 @@ const ExploreScreen = () => {
   }, []);
 
   const toggleFavorite = async carId => {
-    if (!user) {
-      // Prompt user to login
-      navigation.navigate('Login', {
-        returnScreen: 'ExploreScreen',
-        message: 'Please login to save favorites',
-      });
-      return;
+    // Check if user is authenticated first
+    const isAuthorized = await checkAuthAndShowPrompt();
+    if (!isAuthorized) {
+      return; // Stop here if user is not authenticated
     }
 
     try {
+      let result;
       if (isInWishlist(carId)) {
-        const success = await removeItemFromWishlist(carId);
-        if (success) {
+        result = await removeItemFromWishlist(carId);
+        if (result.success) {
           console.log(`Removed car ${carId} from wishlist`);
         }
       } else {
-        const success = await addItemToWishlist(carId);
-        if (success) {
+        result = await addItemToWishlist(carId);
+        if (result.success) {
           console.log(`Added car ${carId} to wishlist`);
         }
+      }
+
+      // If operation failed but not because of auth (since we already checked auth)
+      if (!result.success && !result.requiresAuth) {
+        console.error('Wishlist operation failed');
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
@@ -1411,8 +1474,15 @@ const ExploreScreen = () => {
   }, [page, loadingMore, hasMoreData, functionRef]);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
+      ]}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#2D2D2D' : themeColors[theme].background}
+      />
 
       {/* Header Component */}
       <Header
@@ -1510,14 +1580,25 @@ const ExploreScreen = () => {
             windowSize={21}
             ListFooterComponent={renderFooter}
             ListEmptyComponent={
-              <EmptyState 
+              <EmptyState
                 onClearFilters={clearAllFilters}
-                brandName={appliedFilters?.brands && appliedFilters.brands.length > 0 ? appliedFilters.brands[0] : null}
+                brandName={
+                  appliedFilters?.brands && appliedFilters.brands.length > 0
+                    ? appliedFilters.brands[0]
+                    : null
+                }
               />
             }
           />
         </ErrorBoundary>
       )}
+
+      {/* Add the LoginPromptModal */}
+      <LoginPromptModal
+        visible={loginModalVisible}
+        onClose={hideLoginPrompt}
+        onLoginPress={navigateToLogin}
+      />
     </SafeAreaView>
   );
 };
@@ -1527,6 +1608,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    padding: 18, // Default color, will be overridden
   },
   carsList: {
     paddingHorizontal: SPACING.lg,

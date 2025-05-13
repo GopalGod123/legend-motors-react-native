@@ -24,6 +24,7 @@ import {
 } from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
+import BackArrow from '../components/BackArrow';
 
 // Back Arrow Icon
 const BackIcon = () => {
@@ -127,54 +128,54 @@ const EditProfileScreen = () => {
     profileImage: null,
   });
   const [updating, setUpdating] = useState(false);
-  
+
   // Replace modals with dropdown states
   const [openDropdown, setOpenDropdown] = useState(null);
-  
+
   // Add a ref for the ScrollView to handle dropdown scrolling
   const dropdownScrollViewRef = React.useRef(null);
 
   // Add country/location options
   const locationOptions = [
-    { name: 'United States', code: 'US' },
-    { name: 'United Kingdom', code: 'GB' },
-    { name: 'India', code: 'IN' },
-    { name: 'United Arab Emirates', code: 'AE' },
-    { name: 'Australia', code: 'AU' },
-    { name: 'China', code: 'CN' },
-    { name: 'Germany', code: 'DE' },
-    { name: 'France', code: 'FR' },
-    { name: 'Japan', code: 'JP' },
-    { name: 'Italy', code: 'IT' },
-    { name: 'Russia', code: 'RU' },
-    { name: 'Brazil', code: 'BR' },
-    { name: 'Mexico', code: 'MX' },
-    { name: 'South Korea', code: 'KR' },
-    { name: 'Spain', code: 'ES' },
-    { name: 'Canada', code: 'CA' },
-    { name: 'Singapore', code: 'SG' },
-    { name: 'Saudi Arabia', code: 'SA' },
-    { name: 'South Africa', code: 'ZA' },
-    { name: 'Pakistan', code: 'PK' },
+    {name: 'United States', code: 'US'},
+    {name: 'United Kingdom', code: 'GB'},
+    {name: 'India', code: 'IN'},
+    {name: 'United Arab Emirates', code: 'AE'},
+    {name: 'Australia', code: 'AU'},
+    {name: 'China', code: 'CN'},
+    {name: 'Germany', code: 'DE'},
+    {name: 'France', code: 'FR'},
+    {name: 'Japan', code: 'JP'},
+    {name: 'Italy', code: 'IT'},
+    {name: 'Russia', code: 'RU'},
+    {name: 'Brazil', code: 'BR'},
+    {name: 'Mexico', code: 'MX'},
+    {name: 'South Korea', code: 'KR'},
+    {name: 'Spain', code: 'ES'},
+    {name: 'Canada', code: 'CA'},
+    {name: 'Singapore', code: 'SG'},
+    {name: 'Saudi Arabia', code: 'SA'},
+    {name: 'South Africa', code: 'ZA'},
+    {name: 'Pakistan', code: 'PK'},
   ];
 
   // Add country code options with country codes for flags API
   const countryCodeOptions = [
-    { code: '+1', country: 'US', countryCode: 'US' },
-    { code: '+44', country: 'UK', countryCode: 'GB' },
-    { code: '+91', country: 'IN', countryCode: 'IN' },
-    { code: '+971', country: 'UAE', countryCode: 'AE' },
-    { code: '+61', country: 'AU', countryCode: 'AU' },
-    { code: '+86', country: 'CN', countryCode: 'CN' },
-    { code: '+49', country: 'Germany', countryCode: 'DE' },
-    { code: '+33', country: 'France', countryCode: 'FR' },
-    { code: '+81', country: 'Japan', countryCode: 'JP' },
-    { code: '+39', country: 'Italy', countryCode: 'IT' },
-    { code: '+7', country: 'Russia', countryCode: 'RU' },
-    { code: '+55', country: 'Brazil', countryCode: 'BR' },
-    { code: '+52', country: 'Mexico', countryCode: 'MX' },
-    { code: '+82', country: 'South Korea', countryCode: 'KR' },
-    { code: '+34', country: 'Spain', countryCode: 'ES' },
+    {code: '+1', country: 'US', countryCode: 'US'},
+    {code: '+44', country: 'UK', countryCode: 'GB'},
+    {code: '+91', country: 'IN', countryCode: 'IN'},
+    {code: '+971', country: 'UAE', countryCode: 'AE'},
+    {code: '+61', country: 'AU', countryCode: 'AU'},
+    {code: '+86', country: 'CN', countryCode: 'CN'},
+    {code: '+49', country: 'Germany', countryCode: 'DE'},
+    {code: '+33', country: 'France', countryCode: 'FR'},
+    {code: '+81', country: 'Japan', countryCode: 'JP'},
+    {code: '+39', country: 'Italy', countryCode: 'IT'},
+    {code: '+7', country: 'Russia', countryCode: 'RU'},
+    {code: '+55', country: 'Brazil', countryCode: 'BR'},
+    {code: '+52', country: 'Mexico', countryCode: 'MX'},
+    {code: '+82', country: 'South Korea', countryCode: 'KR'},
+    {code: '+34', country: 'Spain', countryCode: 'ES'},
   ];
 
   useEffect(() => {
@@ -274,7 +275,7 @@ const EditProfileScreen = () => {
   };
 
   // Toggle dropdown visibility
-  const toggleDropdown = (name) => {
+  const toggleDropdown = name => {
     if (openDropdown === name) {
       setOpenDropdown(null);
     } else {
@@ -282,7 +283,7 @@ const EditProfileScreen = () => {
       // Reset scroll position when opening dropdown
       setTimeout(() => {
         if (dropdownScrollViewRef.current) {
-          dropdownScrollViewRef.current.scrollTo({ x: 0, y: 0, animated: false });
+          dropdownScrollViewRef.current.scrollTo({x: 0, y: 0, animated: false});
         }
       }, 100);
     }
@@ -376,32 +377,32 @@ const EditProfileScreen = () => {
 
   // Add gender options
   const genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
-  
+
   // Location validation
-  const validateLocation = (text) => {
+  const validateLocation = text => {
     // Only allow letters, spaces, commas, and periods in location
     return text.replace(/[^a-zA-Z\s,.]/g, '');
   };
 
   // Phone validation
-  const validatePhone = (text) => {
+  const validatePhone = text => {
     // Only allow numbers
     return text.replace(/[^0-9]/g, '');
   };
 
   // Get country code from dial code
-  const getCountryCodeFromDialCode = (dialCode) => {
+  const getCountryCodeFromDialCode = dialCode => {
     const country = countryCodeOptions.find(option => option.code === dialCode);
     return country ? country.countryCode : 'US';
   };
 
   // Get country flag component based on country code
-  const getCountryFlag = (dialCode) => {
+  const getCountryFlag = dialCode => {
     const countryCode = getCountryCodeFromDialCode(dialCode);
     return (
       <Image
-        source={{ uri: `https://flagsapi.com/${countryCode}/flat/32.png` }}
-        style={{ width: 24, height: 16, borderRadius: 2 }}
+        source={{uri: `https://flagsapi.com/${countryCode}/flat/32.png`}}
+        style={{width: 24, height: 16, borderRadius: 2}}
         resizeMode="cover"
         key={`flag-${dialCode}-${countryCode}`} // Unique key to force re-render
       />
@@ -409,10 +410,10 @@ const EditProfileScreen = () => {
   };
 
   // Format the phone number as it's being entered
-  const formatPhoneNumber = (text) => {
+  const formatPhoneNumber = text => {
     // Remove any non-numeric characters
     let cleaned = text.replace(/\D/g, '');
-    
+
     // Apply different formatting based on country code
     if (formData.countryCode === '+1') {
       // US format: (XXX) XXX-XXXX
@@ -422,7 +423,10 @@ const EditProfileScreen = () => {
         } else if (cleaned.length <= 6) {
           return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
         } else {
-          return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+          return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(
+            6,
+            10,
+          )}`;
         }
       }
     } else if (formData.countryCode === '+91') {
@@ -431,40 +435,44 @@ const EditProfileScreen = () => {
         return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 10)}`;
       }
     }
-    
+
     // Default format for other countries (limit to reasonable length)
     return cleaned.slice(0, 15);
   };
-  
+
   // Handle phone number input with formatting
-  const handlePhoneInput = (text) => {
+  const handlePhoneInput = text => {
     const formatted = formatPhoneNumber(text);
     handleChange('phone', formatted);
   };
-  
+
   // Handle country code selection with appropriate phone formatting update
-  const handleCountrySelect = (code) => {
+  const handleCountrySelect = code => {
     // Store current phone without formatting
     const currentPhone = formData.phone.replace(/\D/g, '');
-    
+
     // Update country code - use setState directly to ensure UI update
     setFormData({
       ...formData,
-      countryCode: code
+      countryCode: code,
     });
-    
+
     // Re-format phone number according to new country format
     setTimeout(() => {
       const newFormattedPhone = formatPhoneNumber(currentPhone);
       setFormData(prevState => ({
         ...prevState,
-        phone: newFormattedPhone
+        phone: newFormattedPhone,
       }));
-      
+
       // Close dropdown
       setOpenDropdown(null);
-      
-      console.log(`Selected country code: ${code}, country: ${getCountryCodeFromDialCode(code)}`);
+
+      console.log(
+        `Selected country code: ${code}, country: ${getCountryCodeFromDialCode(
+          code,
+        )}`,
+      );
     }, 100);
   };
 
@@ -472,7 +480,7 @@ const EditProfileScreen = () => {
   const renderPhoneInput = () => {
     const currentCountryCode = formData.countryCode;
     const countryFlagCode = getCountryCodeFromDialCode(currentCountryCode);
-    
+
     return (
       <View style={styles.phoneInputContainer}>
         <View
@@ -489,16 +497,19 @@ const EditProfileScreen = () => {
               {borderRightColor: themeColors[theme].border},
             ]}
             onPress={() => toggleDropdown('countryCode')}>
-            <Text style={{
-              marginRight: 4, 
-              color: themeColors[theme].text, 
-              fontWeight: '500'
-            }}>
+            <Text
+              style={{
+                marginRight: 4,
+                color: themeColors[theme].text,
+                fontWeight: '500',
+              }}>
               {currentCountryCode}
             </Text>
             <Image
-              source={{ uri: `https://flagsapi.com/${countryFlagCode}/flat/32.png` }}
-              style={{ width: 24, height: 16, borderRadius: 2 }}
+              source={{
+                uri: `https://flagsapi.com/${countryFlagCode}/flat/32.png`,
+              }}
+              style={{width: 24, height: 16, borderRadius: 2}}
               resizeMode="cover"
             />
           </TouchableOpacity>
@@ -524,60 +535,62 @@ const EditProfileScreen = () => {
   // Render the dropdown options for country code
   const renderCountryCodeDropdown = () => {
     if (openDropdown !== 'countryCode') return null;
-    
+
     return (
-      <View 
-        style={[
-          styles.dropdownOverlay,
-          {backgroundColor: 'rgba(0,0,0,0.5)'}
-        ]}
-      >
-        <View 
+      <View
+        style={[styles.dropdownOverlay, {backgroundColor: 'rgba(0,0,0,0.5)'}]}>
+        <View
           style={[
             styles.dropdownPopup,
-            {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'}
-          ]}
-        >
-          <Text style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
+            {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+          ]}>
+          <Text
+            style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
             Select Country Code
           </Text>
-          
+
           <FlatList
             data={countryCodeOptions}
-            keyExtractor={(item) => item.code}
+            keyExtractor={item => item.code}
             style={styles.countryList}
             showsVerticalScrollIndicator={true}
             renderItem={({item}) => (
               <TouchableOpacity
                 style={[
                   styles.countryItem,
-                  formData.countryCode === item.code && {backgroundColor: '#F47B20'}
+                  formData.countryCode === item.code && {
+                    backgroundColor: '#F47B20',
+                  },
                 ]}
-                onPress={() => handleCountrySelect(item.code)}
-              >
+                onPress={() => handleCountrySelect(item.code)}>
                 <View style={styles.countryInfo}>
                   <Image
-                    source={{ uri: `https://flagsapi.com/${item.countryCode}/flat/32.png` }}
+                    source={{
+                      uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
+                    }}
                     style={styles.flagImage}
                     resizeMode="cover"
                   />
-                  <Text 
+                  <Text
                     style={[
                       styles.countryText,
-                      {color: formData.countryCode === item.code ? '#FFFFFF' : themeColors[theme].text}
-                    ]}
-                  >
+                      {
+                        color:
+                          formData.countryCode === item.code
+                            ? '#FFFFFF'
+                            : themeColors[theme].text,
+                      },
+                    ]}>
                     {item.code} {item.country}
                   </Text>
                 </View>
               </TouchableOpacity>
             )}
           />
-          
+
           <TouchableOpacity
             style={styles.closeButton}
-            onPress={() => setOpenDropdown(null)}
-          >
+            onPress={() => setOpenDropdown(null)}>
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
@@ -586,7 +599,7 @@ const EditProfileScreen = () => {
   };
 
   // Handle location selection
-  const handleLocationSelect = (location) => {
+  const handleLocationSelect = location => {
     handleChange('location', location);
     setOpenDropdown(null);
   };
@@ -594,62 +607,64 @@ const EditProfileScreen = () => {
   // Render the dropdown options for location
   const renderLocationDropdown = () => {
     if (openDropdown !== 'location') return null;
-    
+
     return (
-      <View 
-        style={[
-          styles.dropdownOverlay,
-          {backgroundColor: 'rgba(0,0,0,0.5)'}
-        ]}
-      >
-        <View 
+      <View
+        style={[styles.dropdownOverlay, {backgroundColor: 'rgba(0,0,0,0.5)'}]}>
+        <View
           style={[
             styles.dropdownPopup,
-            {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'}
-          ]}
-        >
-          <Text style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
+            {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+          ]}>
+          <Text
+            style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
             Select Country
           </Text>
-          
+
           <FlatList
             data={locationOptions}
-            keyExtractor={(item) => item.code}
+            keyExtractor={item => item.code}
             style={styles.countryList}
             showsVerticalScrollIndicator={true}
             renderItem={({item}) => (
               <TouchableOpacity
                 style={[
                   styles.countryItem,
-                  formData.location === item.name && {backgroundColor: '#F47B20'}
+                  formData.location === item.name && {
+                    backgroundColor: '#F47B20',
+                  },
                 ]}
                 onPress={() => {
                   handleLocationSelect(item.name);
-                }}
-              >
+                }}>
                 <View style={styles.countryInfo}>
                   <Image
-                    source={{ uri: `https://flagsapi.com/${item.code}/flat/32.png` }}
+                    source={{
+                      uri: `https://flagsapi.com/${item.code}/flat/32.png`,
+                    }}
                     style={styles.flagImage}
                     resizeMode="cover"
                   />
-                  <Text 
+                  <Text
                     style={[
                       styles.countryText,
-                      {color: formData.location === item.name ? '#FFFFFF' : themeColors[theme].text}
-                    ]}
-                  >
+                      {
+                        color:
+                          formData.location === item.name
+                            ? '#FFFFFF'
+                            : themeColors[theme].text,
+                      },
+                    ]}>
                     {item.name}
                   </Text>
                 </View>
               </TouchableOpacity>
             )}
           />
-          
+
           <TouchableOpacity
             style={styles.closeButton}
-            onPress={() => setOpenDropdown(null)}
-          >
+            onPress={() => setOpenDropdown(null)}>
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
@@ -686,7 +701,7 @@ const EditProfileScreen = () => {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <BackIcon />
+          <BackArrow />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
           Edit Profile
@@ -741,15 +756,23 @@ const EditProfileScreen = () => {
                 {
                   borderColor: themeColors[theme].border,
                   backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
-                  borderBottomLeftRadius: openDropdown === 'dateOfBirth' ? 0 : 10,
-                  borderBottomRightRadius: openDropdown === 'dateOfBirth' ? 0 : 10,
+                  borderBottomLeftRadius:
+                    openDropdown === 'dateOfBirth' ? 0 : 10,
+                  borderBottomRightRadius:
+                    openDropdown === 'dateOfBirth' ? 0 : 10,
                 },
               ]}
               onPress={() => toggleDropdown('dateOfBirth')}>
               <Text
                 style={[
                   styles.inputGender,
-                  {color: formData.dateOfBirth ? themeColors[theme].text : (isDark ? '#888888' : '#666666')},
+                  {
+                    color: formData.dateOfBirth
+                      ? themeColors[theme].text
+                      : isDark
+                      ? '#888888'
+                      : '#666666',
+                  },
                 ]}>
                 {formData.dateOfBirth || 'Date of Birth (MM/DD/YYYY)'}
               </Text>
@@ -757,39 +780,45 @@ const EditProfileScreen = () => {
                 <CalendarIcon />
               </View>
             </TouchableOpacity>
-            
+
             {openDropdown === 'dateOfBirth' && (
-              <View style={[
-                styles.dropdownContainer,
-                {
-                  backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF',
-                  borderColor: themeColors[theme].border,
-                }
-              ]}>
+              <View
+                style={[
+                  styles.dropdownContainer,
+                  {
+                    backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF',
+                    borderColor: themeColors[theme].border,
+                  },
+                ]}>
                 {[
                   {date: '01/01/1990', label: 'Jan 1, 1990'},
                   {date: '01/01/1995', label: 'Jan 1, 1995'},
                   {date: '01/01/2000', label: 'Jan 1, 2000'},
-                ].map((option) => (
+                ].map(option => (
                   <TouchableOpacity
                     key={option.date}
                     style={[
                       styles.dropdownItem,
                       {
-                        backgroundColor: formData.dateOfBirth === option.date
-                          ? '#F47B20'
-                          : 'transparent'
-                      }
+                        backgroundColor:
+                          formData.dateOfBirth === option.date
+                            ? '#F47B20'
+                            : 'transparent',
+                      },
                     ]}
-                    onPress={() => handleDropdownSelect('dateOfBirth', option.date)}>
-                    <Text style={[
-                      styles.dropdownItemText,
-                      {
-                        color: formData.dateOfBirth === option.date
-                          ? '#FFFFFF'
-                          : themeColors[theme].text
-                      }
-                    ]}>
+                    onPress={() =>
+                      handleDropdownSelect('dateOfBirth', option.date)
+                    }>
+                    <Text
+                      style={[
+                        styles.dropdownItemText,
+                        {
+                          color:
+                            formData.dateOfBirth === option.date
+                              ? '#FFFFFF'
+                              : themeColors[theme].text,
+                        },
+                      ]}>
                       {option.label}
                     </Text>
                   </TouchableOpacity>
@@ -834,10 +863,19 @@ const EditProfileScreen = () => {
               <View style={styles.locationContainer}>
                 {formData.location && (
                   <Image
-                    source={{ 
-                      uri: `https://flagsapi.com/${locationOptions.find(loc => loc.name === formData.location)?.code || 'US'}/flat/32.png` 
+                    source={{
+                      uri: `https://flagsapi.com/${
+                        locationOptions.find(
+                          loc => loc.name === formData.location,
+                        )?.code || 'US'
+                      }/flat/32.png`,
                     }}
-                    style={{ width: 24, height: 16, borderRadius: 2, marginRight: 10 }}
+                    style={{
+                      width: 24,
+                      height: 16,
+                      borderRadius: 2,
+                      marginRight: 10,
+                    }}
                     resizeMode="cover"
                     key={formData.location} // Add key to force re-render when location changes
                   />
@@ -845,7 +883,13 @@ const EditProfileScreen = () => {
                 <Text
                   style={[
                     styles.input,
-                    {color: formData.location ? themeColors[theme].text : (isDark ? '#888888' : '#666666')},
+                    {
+                      color: formData.location
+                        ? themeColors[theme].text
+                        : isDark
+                        ? '#888888'
+                        : '#666666',
+                    },
                   ]}>
                   {formData.location || 'Select Country'}
                 </Text>
@@ -875,7 +919,13 @@ const EditProfileScreen = () => {
               <Text
                 style={[
                   styles.inputGender,
-                  {color: formData.gender ? themeColors[theme].text : (isDark ? '#888888' : '#666666')},
+                  {
+                    color: formData.gender
+                      ? themeColors[theme].text
+                      : isDark
+                      ? '#888888'
+                      : '#666666',
+                  },
                 ]}>
                 {formData.gender || 'Select Gender'}
               </Text>
@@ -883,35 +933,39 @@ const EditProfileScreen = () => {
                 <DropdownIcon />
               </View>
             </TouchableOpacity>
-            
+
             {openDropdown === 'gender' && (
-              <View style={[
-                styles.dropdownContainer,
-                {
-                  backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF',
-                  borderColor: themeColors[theme].border,
-                }
-              ]}>
-                {genderOptions.map((option) => (
+              <View
+                style={[
+                  styles.dropdownContainer,
+                  {
+                    backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF',
+                    borderColor: themeColors[theme].border,
+                  },
+                ]}>
+                {genderOptions.map(option => (
                   <TouchableOpacity
                     key={option}
                     style={[
                       styles.dropdownItem,
                       {
-                        backgroundColor: formData.gender === option
-                          ? '#F47B20'
-                          : 'transparent'
-                      }
+                        backgroundColor:
+                          formData.gender === option
+                            ? '#F47B20'
+                            : 'transparent',
+                      },
                     ]}
                     onPress={() => handleDropdownSelect('gender', option)}>
-                    <Text style={[
-                      styles.dropdownItemText,
-                      {
-                        color: formData.gender === option
-                          ? '#FFFFFF'
-                          : themeColors[theme].text
-                      }
-                    ]}>
+                    <Text
+                      style={[
+                        styles.dropdownItemText,
+                        {
+                          color:
+                            formData.gender === option
+                              ? '#FFFFFF'
+                              : themeColors[theme].text,
+                        },
+                      ]}>
                       {option}
                     </Text>
                   </TouchableOpacity>
@@ -921,19 +975,19 @@ const EditProfileScreen = () => {
           </View>
 
           {/* Update Button */}
-          <TouchableOpacity
-            style={[styles.updateButton, updating && styles.disabledButton]}
-            onPress={handleUpdate}
-            disabled={updating}>
-            {updating ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <Text style={styles.updateButtonText}>Update</Text>
-            )}
-          </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          style={[styles.updateButton, updating && styles.disabledButton]}
+          onPress={handleUpdate}
+          disabled={updating}>
+          {updating ? (
+            <ActivityIndicator size="small" color={isDark ? "#000000" : "#FFFFFF"} />
+          ) : (
+            <Text color={isDark ? "#000000" : "#FFFFFF"} style={styles.updateButtonText}>Update</Text>
+          )}
+        </TouchableOpacity>
       </ScrollView>
-      
+
       {/* Render dropdowns outside of ScrollView */}
       {renderCountryCodeDropdown()}
       {renderLocationDropdown()}
@@ -944,7 +998,7 @@ const EditProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24
+    padding: 24,
   },
   loadingContainer: {
     flex: 1,
@@ -995,7 +1049,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     height: '100%',
-    marginTop:30
+    marginTop: 30,
   },
   dropdownInput: {
     paddingVertical: 16,
@@ -1019,7 +1073,7 @@ const styles = StyleSheet.create({
     height: 55,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 120,
   },
   disabledButton: {
     backgroundColor: '#F8C4A6',
@@ -1074,8 +1128,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 15,
     elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },

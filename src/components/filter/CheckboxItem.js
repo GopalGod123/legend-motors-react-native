@@ -1,6 +1,7 @@
 import React from 'react';
 import {TouchableOpacity, View, Text, StyleSheet} from 'react-native';
 import {Ionicons} from 'src/utils/icon';
+import {useTheme} from '../../context/ThemeContext';
 
 const CheckboxItem = ({
   label,
@@ -11,9 +12,15 @@ const CheckboxItem = ({
   status = '',
   customStyle = {},
 }) => {
+  const {isDark} = useTheme();
+
   return (
     <TouchableOpacity
-      style={[styles.checkboxItem, customStyle]}
+      style={[
+        styles.checkboxItem,
+        isDark && styles.checkboxItemDark,
+        isDark ? {backgroundColor: '#2D2D2D'} : customStyle,
+      ]}
       onPress={onSelect}>
       <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
         {isSelected && <Ionicons name="checkmark" size={16} color="#FFFFFF" />}
@@ -28,14 +35,19 @@ const CheckboxItem = ({
             backgroundColor: colorIndicator,
             marginRight: 10,
             borderWidth: 1,
-            borderColor: '#DDDDDD',
+            borderColor: isDark ? '#444444' : '#DDDDDD',
           }}
         />
       )}
 
       {icon}
 
-      <Text style={[styles.checkboxLabel, isSelected && styles.selectedLabel]}>
+      <Text
+        style={[
+          styles.checkboxLabel,
+          isDark && styles.checkboxLabelDark,
+          isSelected && styles.selectedLabel,
+        ]}>
         {label}
       </Text>
 
@@ -51,6 +63,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
+  },
+  checkboxItemDark: {
+    borderBottomColor: '#333333',
   },
   checkbox: {
     width: 22,
@@ -69,6 +84,9 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     fontSize: 16,
     color: '#333333',
+  },
+  checkboxLabelDark: {
+    color: '#CCCCCC',
   },
   selectedLabel: {
     fontWeight: '600',

@@ -10,6 +10,7 @@ import {
 import CheckboxItem from './CheckboxItem';
 import {Ionicons} from 'src/utils/icon';
 import PriceRangeSelector from './PriceRangeSelector';
+import {useTheme} from '../../context/ThemeContext';
 
 const FilterContent = ({
   title,
@@ -23,6 +24,8 @@ const FilterContent = ({
   itemType = 'default', // 'default', 'color', 'bodyType', 'seats', etc.
   headerText = '',
 }) => {
+  const {isDark} = useTheme();
+
   // Generate appropriate icon based on item type
   const getIcon = (item, type) => {
     if (type === 'bodyType') {
@@ -37,7 +40,7 @@ const FilterContent = ({
         <Ionicons
           name={iconName}
           size={20}
-          color="#666666"
+          color={isDark ? '#CCCCCC' : '#666666'}
           style={{marginRight: 10}}
         />
       );
@@ -46,7 +49,7 @@ const FilterContent = ({
         <Ionicons
           name={item.name.toLowerCase().includes('right') ? 'car' : 'car-sport'}
           size={20}
-          color="#666666"
+          color={isDark ? '#CCCCCC' : '#666666'}
           style={{marginRight: 10}}
         />
       );
@@ -55,7 +58,7 @@ const FilterContent = ({
         <Ionicons
           name="people-outline"
           size={20}
-          color="#666666"
+          color={isDark ? '#CCCCCC' : '#666666'}
           style={{marginRight: 10}}
         />
       );
@@ -64,7 +67,7 @@ const FilterContent = ({
         <Ionicons
           name="exit-outline"
           size={20}
-          color="#666666"
+          color={isDark ? '#CCCCCC' : '#666666'}
           style={{marginRight: 10}}
         />
       );
@@ -79,7 +82,7 @@ const FilterContent = ({
         <Ionicons
           name={iconName}
           size={20}
-          color="#666666"
+          color={isDark ? '#CCCCCC' : '#666666'}
           style={{marginRight: 10}}
         />
       );
@@ -92,7 +95,7 @@ const FilterContent = ({
         <Ionicons
           name={iconName}
           size={20}
-          color="#666666"
+          color={isDark ? '#CCCCCC' : '#666666'}
           style={{marginRight: 10}}
         />
       );
@@ -101,7 +104,7 @@ const FilterContent = ({
         <Ionicons
           name="disc-outline"
           size={20}
-          color="#666666"
+          color={isDark ? '#CCCCCC' : '#666666'}
           style={{marginRight: 10}}
         />
       );
@@ -188,22 +191,29 @@ const FilterContent = ({
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#F47B20" />
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={[styles.loadingText, isDark && styles.loadingTextDark]}>
+          Loading...
+        </Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.filterContent}>
-      <Text style={styles.filterTitle}>{title}</Text>
+    <View style={[styles.filterContent, isDark && styles.filterContentDark]}>
+      <Text style={[styles.filterTitle, isDark && styles.filterTitleDark]}>
+        {title}
+      </Text>
 
       {infoText && (
-        <View style={styles.infoContainer}>
-          <Text style={styles.infoText}>{infoText}</Text>
+        <View
+          style={[styles.infoContainer, isDark && styles.infoContainerDark]}>
+          <Text style={[styles.infoText, isDark && styles.infoTextDark]}>
+            {infoText}
+          </Text>
         </View>
       )}
       {itemType === 'priceRange' ? (
-        <PriceRangeSelector />
+        <PriceRangeSelector onSelectItem={onSelectItem} />
       ) : data.length > 0 ? (
         <FlatList
           data={data}
@@ -212,15 +222,23 @@ const FilterContent = ({
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
             headerText ? (
-              <View style={styles.infoContainer}>
-                <Text style={styles.infoText}>{headerText}</Text>
+              <View
+                style={[
+                  styles.infoContainer,
+                  isDark && styles.infoContainerDark,
+                ]}>
+                <Text style={[styles.infoText, isDark && styles.infoTextDark]}>
+                  {headerText}
+                </Text>
               </View>
             ) : null
           }
         />
       ) : (
         <View style={styles.emptyContentContainer}>
-          <Text style={styles.emptyText}>{emptyMessage}</Text>
+          <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>
+            {emptyMessage}
+          </Text>
           {onRetry && (
             <TouchableOpacity style={styles.reloadButton} onPress={onRetry}>
               <Text style={styles.reloadButtonText}>Retry Loading Data</Text>
@@ -236,12 +254,19 @@ const styles = StyleSheet.create({
   filterContent: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  filterContentDark: {
+    backgroundColor: '#2D2D2D',
   },
   filterTitle: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 16,
     color: '#333333',
+  },
+  filterTitleDark: {
+    color: '#FFFFFF',
   },
   loadingContainer: {
     flex: 1,
@@ -253,6 +278,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666666',
   },
+  loadingTextDark: {
+    color: '#FFFFFF',
+  },
   emptyContentContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -263,6 +291,9 @@ const styles = StyleSheet.create({
     color: '#999999',
     textAlign: 'center',
     marginTop: 32,
+  },
+  emptyTextDark: {
+    color: '#FFFFFF',
   },
   reloadButton: {
     marginTop: 16,
@@ -282,10 +313,16 @@ const styles = StyleSheet.create({
     borderLeftColor: '#F47B20',
     borderRadius: 4,
   },
+  infoContainerDark: {
+    backgroundColor: '#1A1A1A',
+  },
   infoText: {
     fontSize: 14,
     color: '#666666',
     lineHeight: 20,
+  },
+  infoTextDark: {
+    color: '#FFFFFF',
   },
   regionalSpecItem: {
     backgroundColor: '#F8F8F8',
