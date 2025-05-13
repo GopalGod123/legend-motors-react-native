@@ -581,6 +581,15 @@ const CarDetailScreen = () => {
               initialIndex={selectedImageIndex}
               onIndexChange={(index) => setSelectedImageIndex(index)}
             />
+            <CarImageCarousel
+              images={carImages}
+              style={styles.carImage}
+              height={220}
+              onImagePress={() => {}}
+              ref={carouselRef}
+              initialIndex={selectedImageIndex}
+              onIndexChange={(index) => setSelectedImageIndex(index)}
+            />
             
             {/* Thumbnails Gallery */}
             {carImages.length > 1 && (
@@ -616,7 +625,10 @@ const CarDetailScreen = () => {
                 />
               </View>
             )}
+
+            
           </View>
+          
 
           <View style={[styles.cardContent, {backgroundColor: isDark ? '#333333' : colors.card}]}>
             <Text
@@ -742,7 +754,7 @@ const CarDetailScreen = () => {
             </View>
 
             {/* Action buttons */}
-            <View style={styles.priceRow}>
+            {/* <View style={styles.priceRow}>
               {price ? (
                 <Text style={styles.priceText}>
                   {selectedCurrency === 'USD' ? '$' : selectedCurrency} {Math.floor(price).toLocaleString()}
@@ -750,12 +762,12 @@ const CarDetailScreen = () => {
               ) : (
                 <Text style={styles.priceText}>Price on Request</Text>
               )}
-            </View>
+            </View> */}
           </View>
         </View>
 
         {/* Car Overview Section */}  
-        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background, borderBottomWidth: 0}]}>
+        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background, borderBottomWidth: 0, marginTop: -30}]}>
           <Text style={[styles.sectionTitle, {color: colors.text}]}>Car Overview</Text>
 
           <View style={[styles.overviewList, {backgroundColor: isDark ? '#ffffff' : '#FFFFFF', borderRadius: 8}]}>
@@ -1031,7 +1043,7 @@ const styles = StyleSheet.create({
   galleryTabs: {
     flexDirection: 'row',
     width: '100%',
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
   },
   galleryTab: {
     flex: 1,
@@ -1154,7 +1166,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingTop: 12,
     paddingBottom: 12,
-    borderBottomWidth: 1,
     marginBottom: 0,
   },
   sectionTitle: {
@@ -1178,7 +1189,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 5,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
   },
   overviewIconContainer: {
     width: 32,
@@ -1361,7 +1372,7 @@ const styles = StyleSheet.create({
   accordionContent: {
     paddingVertical: 2,
     paddingHorizontal: 5,
-    borderBottomWidth: 1,
+    borderBottomWidth: 0,
     backgroundColor: 'transparent',
   },
   accordionFeatureText: {
