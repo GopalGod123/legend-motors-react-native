@@ -717,8 +717,12 @@ const CarDetailScreen = () => {
               onIndexChange={(index) => setSelectedImageIndex(index)}
             />
 
-            {/* Thumbnails Gallery */}
-            {carImages.length > 1 && (
+           
+          </View>
+          
+          <View style={{marginTop:100}} > 
+              {/* Thumbnails Gallery */}
+              {carImages.length > 1 && (
               <View style={styles.thumbnailsContainer}>
                 <FlatList
                   data={carImages}
@@ -761,6 +765,7 @@ const CarDetailScreen = () => {
               { backgroundColor: isDark ? '#333333' : colors.card },
             ]}
           >
+           
             <Text
               style={[styles.carTitle, { color: colors.text }]}
               numberOfLines={2}
@@ -1776,11 +1781,11 @@ const styles = StyleSheet.create({
   thumbnailsContainer: {
     width: '100%',
     padding: 6,
-    backgroundColor: '#333333',
-    borderWidth: 1,
-    borderColor: '#1E90FF',
     marginTop: 0,
-    marginBottom: 10,
+    marginTop: 100,
+    position: 'absolute',
+    bottom: 0,
+    zIndex: 10,
   },
   thumbnailsContent: {
     paddingHorizontal: 2,
@@ -1790,6 +1795,7 @@ const styles = StyleSheet.create({
   thumbnailItem: {
     width: 90,
     height: 70,
+    borderRadius:24,
     marginHorizontal: 2,
     borderRadius: 0,
     overflow: 'hidden',
@@ -1797,7 +1803,7 @@ const styles = StyleSheet.create({
   },
   thumbnailItemSelected: {
     borderWidth: 2,
-    borderColor: '#1E90FF',
+    borderColor: '#5E366D',
   },
   thumbnailImage: {
     width: '100%',
