@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   useColorScheme,
+  Platform,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
@@ -20,6 +21,12 @@ import AppleIcon from '../components/icons/AppleIcon';
 import GoogleIcon from '../components/icons/GoogleIcon';
 import {useAuth} from '../context/AuthContext';
 import {useTheme} from 'src/context/ThemeContext';
+import {
+  onAppleButtonPressAndroid,
+  onAppleButtonPressIOS,
+  onGoogleButtonPress,
+  ssoApi,
+} from 'src/services/socialAuth';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -70,6 +77,40 @@ const LoginScreen = () => {
       }
     } catch (error) {
       Alert.alert('Login Failed', error.toString());
+    }
+  };
+  const handleSsoLogin = async idToken => {
+    try {
+      const ssoResult = await ssoApi(idToken);
+      console.log('SSO result:', ssoResult);
+      if (ssoResult.success) {
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'Main'}],
+        });
+      }
+    } catch (error) {
+      console.error('sso sign-in error:', error);
+    }
+  };
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await onGoogleButtonPress();
+      let idToken = await result.user.getIdToken();
+      console.log('Google sign-in result:', idToken);
+      handleSsoLogin(idToken);
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+    }
+  };
+  const handleAppleLogin = async () => {
+    try {
+      const result = await onAppleButtonPressIOS();
+      let idToken = await result.user.getIdToken();
+      console.log('Apple sign-in result:', idToken);
+      handleSsoLogin(idToken);
+    } catch (error) {
+      console.error('Apple sign-in error:', error);
     }
   };
 
@@ -172,15 +213,19 @@ const LoginScreen = () => {
       </View>
 
       <View style={styles.socialContainer}>
-        <TouchableOpacity
-          style={[styles.socialButton, isDark && styles.socialButtonDark]}>
-          <AppleIcon size={24} color={isDark ? '#FFFFFF' : '#000000'} />
-          <Text style={[styles.socialButtonText, isDark && styles.textDark]}>
-            Continue with Apple
-          </Text>
-        </TouchableOpacity>
+        {Platform.OS === 'ios' && (
+          <TouchableOpacity
+            onPress={handleAppleLogin}
+            style={[styles.socialButton, isDark && styles.socialButtonDark]}>
+            <AppleIcon size={24} color={isDark ? '#FFFFFF' : '#000000'} />
+            <Text style={[styles.socialButtonText, isDark && styles.textDark]}>
+              Continue with Apple
+            </Text>
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity
+          onPress={handleGoogleLogin}
           style={[styles.socialButton, isDark && styles.socialButtonDark]}>
           <GoogleIcon size={24} />
           <Text style={[styles.socialButtonText, isDark && styles.textDark]}>

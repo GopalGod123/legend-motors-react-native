@@ -16,6 +16,7 @@ end
 
 target 'legend_motors' do
   use_frameworks! :linkage => :static
+  $RNFirebaseAsStaticFramework = true
   $RN_HERMES = true
   config = use_native_modules!
 

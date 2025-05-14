@@ -1,4 +1,4 @@
-package com.legend_motors
+package com.lhgl.LegendCarTradingCustomer
 
 import android.app.Application
 import com.facebook.react.PackageList

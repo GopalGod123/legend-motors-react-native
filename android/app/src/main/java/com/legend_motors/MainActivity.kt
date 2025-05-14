@@ -1,4 +1,4 @@
-package com.legend_motors
+package com.lhgl.LegendCarTradingCustomer
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
