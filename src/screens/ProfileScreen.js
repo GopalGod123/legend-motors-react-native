@@ -20,6 +20,7 @@ import {useAuth} from '../context/AuthContext';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import {languages} from './LanguageSelectScreen';
+import {COLORS} from 'src/utils/constants';
 // SVG icons as React components
 const UserIcon = () => {
   const {theme} = useTheme();
@@ -275,27 +276,27 @@ const ChevronIcon = () => {
   );
 };
 
-const LogoutIcon = () => {
+const LogoutIcon = ({color}) => {
   const {theme} = useTheme();
   return (
     <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
       <Path
         d="M15.016 7.38948V6.45648C15.016 4.42148 13.366 2.77148 11.331 2.77148H6.45597C4.42197 2.77148 2.77197 4.42148 2.77197 6.45648V17.5865C2.77197 19.6215 4.42197 21.2715 6.45597 21.2715H11.341C13.37 21.2715 15.016 19.6265 15.016 17.5975V16.6545"
-        stroke="#FF8A65"
+        stroke={color}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <Path
         d="M21.8096 12.0215H9.76855"
-        stroke="#FF8A65"
+        stroke={color}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <Path
         d="M18.8813 9.1062L21.8093 12.0212L18.8813 14.9372"
-        stroke="#FF8A65"
+        stroke={color}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -322,10 +323,12 @@ const ProfileScreen = () => {
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
-      
+
       // Check if it's an auth error (401)
-      if (error?.response?.status === 401 || 
-          (error?.message && error.message.includes('Authentication error'))) {
+      if (
+        error?.response?.status === 401 ||
+        (error?.message && error.message.includes('Authentication error'))
+      ) {
         try {
           // Try to refresh the token
           const refreshed = await syncAuthToken();
@@ -340,7 +343,7 @@ const ProfileScreen = () => {
             Alert.alert(
               'Session Expired',
               'Your session has expired. Please log in again.',
-              [{ text: 'OK', onPress: handleLogout }]
+              [{text: 'OK', onPress: handleLogout}],
             );
           }
         } catch (refreshError) {
@@ -349,7 +352,7 @@ const ProfileScreen = () => {
           Alert.alert(
             'Authentication Error',
             'Please log in again to continue.',
-            [{ text: 'OK', onPress: handleLogout }]
+            [{text: 'OK', onPress: handleLogout}],
           );
         }
       }
@@ -430,7 +433,7 @@ const ProfileScreen = () => {
       }
     }
     // Default avatar
-    return 'https://randomuser.me/api/portraits/men/32.jpg';
+    return 'data:image/png;base64,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';
   };
 
   // Get user phone with formatting
@@ -456,17 +459,32 @@ const ProfileScreen = () => {
   }
 
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background}]}>
-      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} backgroundColor={themeColors[theme].background} />
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
+      ]}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={themeColors[theme].background}
+      />
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, {color: isDark ? '#888888' : '#888888'}]}>
+          <Text
+            style={[
+              styles.headerTitle,
+              {color: isDark ? '#888888' : '#888888'},
+            ]}>
             Profile & settings
           </Text>
         </View>
         <View style={styles.profileContainer}>
           <View style={styles.profileHeader}>
-            <Text style={[styles.logoText, {color: themeColors[theme].text}]}>Profile</Text>
+            <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
+              Profile
+            </Text>
             {/* <TouchableOpacity
               style={[styles.editIconContainer, {borderColor: themeColors[theme].border}]}> */}
             {/* <Text style={[styles.editIconText, {color: themeColors[theme].text}]}>···</Text> */}
@@ -474,21 +492,38 @@ const ProfileScreen = () => {
           </View>
           <View style={styles.profileInfoContainer}>
             <View style={styles.avatarContainer}>
-              <Image source={{uri: getProfileImageUrl()}} style={styles.avatar} />
+              <Image
+                source={{uri: getProfileImageUrl()}}
+                style={styles.avatar}
+              />
               <View style={styles.badgeContainer}>
                 <ProfileImageIcon width={24} height={24} />
               </View>
             </View>
-            <Text style={[styles.userName, {color: themeColors[theme].text}]}>{getUserName()}</Text>
-            <Text style={[styles.userPhone, {color: isDark ? '#ffffff' : '#888888'}]}>{getUserPhone()}</Text>
+            <Text style={[styles.userName, {color: themeColors[theme].text}]}>
+              {getUserName()}
+            </Text>
+            <Text
+              style={[
+                styles.userPhone,
+                {color: isDark ? '#ffffff' : '#888888'},
+              ]}>
+              {getUserPhone()}
+            </Text>
             <View style={styles.menuContainer}>
               <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
+                style={[
+                  styles.menuItem,
+                  {borderBottomColor: themeColors[theme].border},
+                ]}
                 onPress={() => handleNavigate('EditProfileScreen')}>
                 <View style={styles.menuIconContainer}>
                   <UserIcon />
                 </View>
-                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Edit Profile</Text>
+                <Text
+                  style={[styles.menuText, {color: themeColors[theme].text}]}>
+                  Edit Profile
+                </Text>
                 <ChevronIcon />
               </TouchableOpacity>
               {/* 
@@ -509,56 +544,94 @@ const ProfileScreen = () => {
                 <ChevronIcon />
               </TouchableOpacity> */}
               <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
+                style={[
+                  styles.menuItem,
+                  {borderBottomColor: themeColors[theme].border},
+                ]}
                 onPress={() => handleNavigate('LanguageScreen')}>
                 <View style={styles.menuIconContainer}>
                   <GlobeIcon />
                 </View>
-                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Language</Text>
+                <Text
+                  style={[styles.menuText, {color: themeColors[theme].text}]}>
+                  Language
+                </Text>
                 <View style={styles.rightContainer}>
-                  <Text style={[styles.languageValue, {color: isDark ? 'white' : '#7A40C6'}]}>
+                  <Text
+                    style={[
+                      styles.languageValue,
+                      {color: isDark ? 'white' : '#7A40C6'},
+                    ]}>
                     {languages.find(lang => lang.id == selectedLanguage)?.name}
                   </Text>
                   <ChevronIcon />
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
+                style={[
+                  styles.menuItem,
+                  {borderBottomColor: themeColors[theme].border},
+                ]}
                 onPress={() => navigation.navigate('PrivacyPolicy')}>
                 <View style={styles.menuIconContainer}>
                   <DocumentIcon />
                 </View>
-                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Privacy Policy</Text>
+                <Text
+                  style={[styles.menuText, {color: themeColors[theme].text}]}>
+                  Privacy Policy
+                </Text>
                 <ChevronIcon />
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
+                style={[
+                  styles.menuItem,
+                  {borderBottomColor: themeColors[theme].border},
+                ]}
                 onPress={() => handleNavigate('HelpCenterScreen')}>
                 <View style={styles.menuIconContainer}>
                   <HelpIcon />
                 </View>
-                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Help Center</Text>
+                <Text
+                  style={[styles.menuText, {color: themeColors[theme].text}]}>
+                  Help Center
+                </Text>
                 <ChevronIcon />
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}
+                style={[
+                  styles.menuItem,
+                  {borderBottomColor: themeColors[theme].border},
+                ]}
                 onPress={toggleTheme}>
                 <View style={styles.menuItemLeft}>
                   <MoonIcon />
-                  <Text style={[styles.menuItemText, {color: themeColors[theme].text}]}>Dark Mode</Text>
+                  <Text
+                    style={[
+                      styles.menuItemText,
+                      {color: themeColors[theme].text},
+                    ]}>
+                    Dark Mode
+                  </Text>
                 </View>
                 <Switch
                   value={isDark}
                   onValueChange={toggleTheme}
-                  trackColor={{false: '#767577', true: themeColors[theme].primary}}
+                  trackColor={{
+                    false: '#767577',
+                    true: themeColors[theme].primary,
+                  }}
                   thumbColor={isDark ? '#f4f3f4' : '#f4f3f4'}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.logoutItem} onPress={() => setShowLogoutModal(true)}>
+              <TouchableOpacity
+                style={styles.logoutItem}
+                onPress={() => setShowLogoutModal(true)}>
                 <View style={styles.logoutIconContainer}>
-                  <LogoutIcon />
+                  <LogoutIcon color={COLORS.primary} />
                 </View>
-                <Text style={[styles.logoutText, {color: '#FF3B30'}]}>Logout</Text>
+                <Text style={[styles.logoutText, {color: COLORS.primary}]}>
+                  Logout
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

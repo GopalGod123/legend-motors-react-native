@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -16,68 +16,69 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
-import { Ionicons } from '../utils/icon';
-import { submitCarEnquiry, isAuthenticated } from '../services/api';
-import { useAuth } from '../context/AuthContext';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
+import {Ionicons} from '../utils/icon';
+import {submitCarEnquiry, isAuthenticated} from '../services/api';
+import {useAuth} from '../context/AuthContext';
 import Logo from '../components/Logo';
 import LoginPromptModal from '../components/LoginPromptModal';
-import { useLoginPrompt } from '../hooks/useLoginPrompt';
+import {useLoginPrompt} from '../hooks/useLoginPrompt';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
 // Common country codes
 const countryCodes = [
-  { code: '+971', country: 'UAE' },
-  { code: '+966', country: 'Saudi Arabia' },
-  { code: '+974', country: 'Qatar' },
-  { code: '+973', country: 'Bahrain' },
-  { code: '+965', country: 'Kuwait' },
-  { code: '+968', country: 'Oman' },
-  { code: '+962', country: 'Jordan' },
-  { code: '+961', country: 'Lebanon' },
-  { code: '+20', country: 'Egypt' },
-  { code: '+1', country: 'USA/Canada' },
-  { code: '+44', country: 'UK' },
-  { code: '+91', country: 'India' },
-  { code: '+92', country: 'Pakistan' },
-  { code: '+63', country: 'Philippines' },
-  { code: '+234', country: 'Nigeria' },
-  { code: '+27', country: 'South Africa' },
-  { code: '+60', country: 'Malaysia' },
-  { code: '+65', country: 'Singapore' },
-  { code: '+66', country: 'Thailand' },
-  { code: '+62', country: 'Indonesia' },
-  { code: '+81', country: 'Japan' },
-  { code: '+82', country: 'South Korea' },
-  { code: '+86', country: 'China' },
-  { code: '+33', country: 'France' },
-  { code: '+49', country: 'Germany' },
-  { code: '+39', country: 'Italy' },
-  { code: '+34', country: 'Spain' },
-  { code: '+7', country: 'Russia' },
-  { code: '+55', country: 'Brazil' },
-  { code: '+52', country: 'Mexico' },
+  {code: '+971', country: 'UAE'},
+  {code: '+966', country: 'Saudi Arabia'},
+  {code: '+974', country: 'Qatar'},
+  {code: '+973', country: 'Bahrain'},
+  {code: '+965', country: 'Kuwait'},
+  {code: '+968', country: 'Oman'},
+  {code: '+962', country: 'Jordan'},
+  {code: '+961', country: 'Lebanon'},
+  {code: '+20', country: 'Egypt'},
+  {code: '+1', country: 'USA/Canada'},
+  {code: '+44', country: 'UK'},
+  {code: '+91', country: 'India'},
+  {code: '+92', country: 'Pakistan'},
+  {code: '+63', country: 'Philippines'},
+  {code: '+234', country: 'Nigeria'},
+  {code: '+27', country: 'South Africa'},
+  {code: '+60', country: 'Malaysia'},
+  {code: '+65', country: 'Singapore'},
+  {code: '+66', country: 'Thailand'},
+  {code: '+62', country: 'Indonesia'},
+  {code: '+81', country: 'Japan'},
+  {code: '+82', country: 'South Korea'},
+  {code: '+86', country: 'China'},
+  {code: '+33', country: 'France'},
+  {code: '+49', country: 'Germany'},
+  {code: '+39', country: 'Italy'},
+  {code: '+34', country: 'Spain'},
+  {code: '+7', country: 'Russia'},
+  {code: '+55', country: 'Brazil'},
+  {code: '+52', country: 'Mexico'},
 ];
 
 const EnquiryFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { user } = useAuth();
-  
+  const {user} = useAuth();
+
   // Add the login prompt hook
   const {
     loginModalVisible,
     hideLoginPrompt,
     navigateToLogin,
-    checkAuthAndShowPrompt
+    checkAuthAndShowPrompt,
   } = useLoginPrompt();
-  
+
   // Get car details from route params
-  const { carId, carTitle, carImage, carPrice, currency, onEnquirySubmit } = route.params || {};
-  
+  const {carId, carTitle, carImage, carPrice, currency, onEnquirySubmit} =
+    route.params || {};
+
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -86,12 +87,13 @@ const EnquiryFormScreen = () => {
   const [countryPickerVisible, setCountryPickerVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [sameAsProfile, setSameAsProfile] = useState(false);
-  
+
   // Success modal state
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   // Already submitted state
-  const [alreadySubmittedModalVisible, setAlreadySubmittedModalVisible] = useState(false);
-  
+  const [alreadySubmittedModalVisible, setAlreadySubmittedModalVisible] =
+    useState(false);
+
   // Validation state
   const [errors, setErrors] = useState({
     name: '',
@@ -100,8 +102,9 @@ const EnquiryFormScreen = () => {
   });
 
   const [countrySearch, setCountrySearch] = useState('');
-  const [filteredCountryCodes, setFilteredCountryCodes] = useState(countryCodes);
-  
+  const [filteredCountryCodes, setFilteredCountryCodes] =
+    useState(countryCodes);
+
   // Check authentication when component mounts
   useEffect(() => {
     const checkAuth = async () => {
@@ -118,7 +121,7 @@ const EnquiryFormScreen = () => {
         }
       }
     };
-    
+
     checkAuth();
   }, [user, checkAuthAndShowPrompt]);
 
@@ -126,12 +129,12 @@ const EnquiryFormScreen = () => {
   const toggleSameAsProfile = () => {
     const newState = !sameAsProfile;
     setSameAsProfile(newState);
-    
+
     // If toggling on, fill the form with user data
     if (newState && user) {
       setName(user.name || '');
       setEmail(user.email || '');
-      
+
       // Handle phone as in the useEffect
       if (user.phoneNumber) {
         const userPhone = user.phoneNumber;
@@ -149,14 +152,14 @@ const EnquiryFormScreen = () => {
               break;
             }
           }
-          
+
           // If no country code found, just use as is
           if (!foundCode) {
             setPhoneNumber(userPhone);
           }
         }
       }
-      
+
       // Clear any validation errors
       setErrors({
         name: '',
@@ -169,26 +172,26 @@ const EnquiryFormScreen = () => {
   // Format phone number to meet country standards
   const formatPhoneNumber = (phone, code) => {
     if (!phone) return '';
-    
+
     // Remove any leading zeros
     let formattedPhone = phone.trim();
     while (formattedPhone.startsWith('0')) {
       formattedPhone = formattedPhone.substring(1);
     }
-    
+
     // Remove any non-digit characters except for the plus sign at the beginning
     formattedPhone = formattedPhone.replace(/[^\d+]/g, '');
-    
+
     // Remove any + sign since we'll add the country code
     if (formattedPhone.startsWith('+')) {
       formattedPhone = formattedPhone.substring(1);
     }
-    
+
     // Remove the country code if it's already included
     if (code && formattedPhone.startsWith(code.replace('+', ''))) {
       formattedPhone = formattedPhone.substring(code.replace('+', '').length);
     }
-    
+
     return formattedPhone;
   };
 
@@ -200,13 +203,13 @@ const EnquiryFormScreen = () => {
       email: '',
       phoneNumber: '',
     };
-    
+
     // Validate name
     if (!name.trim()) {
       newErrors.name = 'Name is required';
       isValid = false;
     }
-    
+
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) {
@@ -216,7 +219,7 @@ const EnquiryFormScreen = () => {
       newErrors.email = 'Please enter a valid email address';
       isValid = false;
     }
-    
+
     // Validate phone number
     if (!phoneNumber.trim()) {
       newErrors.phoneNumber = 'Phone number is required';
@@ -224,15 +227,16 @@ const EnquiryFormScreen = () => {
     } else {
       // Basic phone validation - ensure it has enough digits based on country code
       const formattedPhone = formatPhoneNumber(phoneNumber, countryCode);
-      
+
       // Different country codes have different requirements
       // Here we're just doing a simple length check
-      if (formattedPhone.length < 4) { // Minimum digits for a valid number
+      if (formattedPhone.length < 4) {
+        // Minimum digits for a valid number
         newErrors.phoneNumber = 'Please enter a valid phone number';
         isValid = false;
       }
     }
-    
+
     setErrors(newErrors);
     return isValid;
   };
@@ -242,13 +246,13 @@ const EnquiryFormScreen = () => {
     if (!validateForm()) {
       return;
     }
-    
+
     try {
       setSubmitting(true);
-      
+
       // Format phone number properly
       const formattedPhone = formatPhoneNumber(phoneNumber, countryCode);
-      
+
       // Prepare data for API
       const enquiryData = {
         carId: parseInt(carId, 10) || 0, // Ensure carId is a number
@@ -258,35 +262,41 @@ const EnquiryFormScreen = () => {
         pageUrl: `https://legendmotorsglobal.com/cars/${carId}`,
         countryCode: countryCode, // Send country code separately
       };
-      
+
       console.log('Submitting enquiry with data:', JSON.stringify(enquiryData));
-      
+
       const response = await submitCarEnquiry(enquiryData);
-      
+
       if (response.success) {
-        console.log('Enquiry submitted successfully:', JSON.stringify(response.data));
-        
+        console.log(
+          'Enquiry submitted successfully:',
+          JSON.stringify(response.data),
+        );
+
         // Show success modal instead of alert
         setSuccessModalVisible(true);
-        
+
         // Call the callback if provided
         if (onEnquirySubmit) {
           onEnquirySubmit(true, false);
         }
       } else {
         console.error('Failed to submit enquiry:', response.msg);
-        Alert.alert('Error', response.msg || 'Failed to submit enquiry. Please try again.');
+        Alert.alert(
+          'Error',
+          response.msg || 'Failed to submit enquiry. Please try again.',
+        );
       }
     } catch (error) {
       console.error('Error in submit handler:', error);
-      
+
       // Check if this is a 409 conflict (already submitted) error
       if (error.response && error.response.status === 409) {
         console.log('Already submitted inquiry:', error.response.data);
-        
+
         // Show the already submitted modal instead of an error
         setAlreadySubmittedModalVisible(true);
-        
+
         // Call the callback if provided, with isAlreadySubmitted=true
         if (onEnquirySubmit) {
           onEnquirySubmit(false, true);
@@ -323,7 +333,7 @@ const EnquiryFormScreen = () => {
     // Set a small timeout to ensure modal is dismissed
     setTimeout(() => {
       // Navigate to the Main tab navigator first, then to the EnquiriesTab
-      navigation.navigate('Main', { screen: 'EnquiriesTab' });
+      navigation.navigate('Main', {screen: 'EnquiriesTab'});
     }, 300);
   };
 
@@ -338,17 +348,17 @@ const EnquiryFormScreen = () => {
       setFilteredCountryCodes(countryCodes);
       return;
     }
-    
+
     const searchTerm = countrySearch.toLowerCase();
     const filtered = countryCodes.filter(
-      country => 
-        country.country.toLowerCase().includes(searchTerm) || 
-        country.code.includes(searchTerm)
+      country =>
+        country.country.toLowerCase().includes(searchTerm) ||
+        country.code.includes(searchTerm),
     );
-    
+
     setFilteredCountryCodes(filtered);
   }, [countrySearch]);
-  
+
   // Reset country search when modal is closed
   useEffect(() => {
     if (!countryPickerVisible) {
@@ -357,14 +367,16 @@ const EnquiryFormScreen = () => {
   }, [countryPickerVisible]);
 
   // Render country code item
-  const renderCountryCodeItem = ({ item }) => (
+  const renderCountryCodeItem = ({item}) => (
     <TouchableOpacity
       style={styles.countryCodeItem}
       onPress={() => {
         setCountryCode(item.code);
         setCountryPickerVisible(false);
       }}>
-      <Text style={styles.countryCodeItemText}>{item.code} ({item.country})</Text>
+      <Text style={styles.countryCodeItemText}>
+        {item.code} ({item.country})
+      </Text>
     </TouchableOpacity>
   );
 
@@ -373,44 +385,54 @@ const EnquiryFormScreen = () => {
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingContainer}>
-        <ScrollView 
+        <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled">
-          
           {/* Header with back button */}
           <View style={styles.header}>
             <TouchableOpacity onPress={goBack} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="#000" />
             </TouchableOpacity>
           </View>
-          
+
           {/* Logo */}
           <View style={styles.logoContainer}>
             <Logo width={286} height={115} />
           </View>
-          
+
           {/* Form Title */}
           <Text style={styles.formTitle}>GET IN TOUCH</Text>
-          
+
           {/* Car Info */}
           <View style={styles.carInfoContainer}>
             <View style={styles.carDetailsWrapper}>
               <View style={styles.carInfoLeft}>
                 <View style={styles.carTitleContainer}>
-                  <Text style={styles.carTitle} numberOfLines={2} ellipsizeMode="tail">{carTitle}</Text>
+                  <Text
+                    style={styles.carTitle}
+                    numberOfLines={2}
+                    ellipsizeMode="tail">
+                    {carTitle}
+                  </Text>
                 </View>
                 <View style={styles.priceWrapper}>
                   <Text style={styles.priceLabel}>Price</Text>
-                  <Text style={styles.priceValue} numberOfLines={1} ellipsizeMode="tail">
-                    {currency} {carPrice ? Math.floor(carPrice).toLocaleString() : '175,000'}
+                  <Text
+                    style={styles.priceValue}
+                    numberOfLines={1}
+                    ellipsizeMode="tail">
+                    {currency}{' '}
+                    {carPrice
+                      ? Math.floor(carPrice).toLocaleString()
+                      : '175,000'}
                   </Text>
                 </View>
               </View>
               <View style={styles.carImageContainer}>
                 {carImage ? (
                   <Image
-                    source={{ uri: carImage.uri }}
+                    source={{uri: carImage.uri}}
                     style={styles.carImage}
                     resizeMode="cover"
                   />
@@ -422,13 +444,16 @@ const EnquiryFormScreen = () => {
               </View>
             </View>
           </View>
-          
+
           {/* Form Fields */}
           <View style={styles.formContainer}>
             {/* Name Input */}
             <View style={styles.inputContainer}>
               <TextInput
-                style={[styles.baseInput, errors.name ? styles.inputError : null]}
+                style={[
+                  styles.baseInput,
+                  errors.name ? styles.inputError : null,
+                ]}
                 placeholder="Your Name"
                 placeholderTextColor="#777"
                 value={name}
@@ -438,11 +463,21 @@ const EnquiryFormScreen = () => {
                 <Text style={styles.errorText}>{errors.name}</Text>
               ) : null}
             </View>
-            
+
             {/* Email Input */}
             <View style={styles.inputContainer}>
-              <View style={[styles.baseInput, errors.email ? styles.inputError : null, styles.iconInputContainer]}>
-                <Ionicons name="mail" size={20} color="#5E366D" style={styles.inputIcon} />
+              <View
+                style={[
+                  styles.baseInput,
+                  errors.email ? styles.inputError : null,
+                  styles.iconInputContainer,
+                ]}>
+                <Ionicons
+                  name="mail"
+                  size={20}
+                  color="#5E366D"
+                  style={styles.inputIcon}
+                />
                 <TextInput
                   style={styles.iconInput}
                   placeholder="Email"
@@ -457,14 +492,24 @@ const EnquiryFormScreen = () => {
                 <Text style={styles.errorText}>{errors.email}</Text>
               ) : null}
             </View>
-            
+
             {/* Phone Input */}
             <View style={styles.inputContainer}>
-              <View style={[styles.baseInput, errors.phoneNumber ? styles.inputError : null, styles.phoneContainer]}>
+              <View
+                style={[
+                  styles.baseInput,
+                  errors.phoneNumber ? styles.inputError : null,
+                  styles.phoneContainer,
+                ]}>
                 <TouchableOpacity
                   style={styles.countryCodeButton}
                   onPress={() => setCountryPickerVisible(true)}>
-                  <Ionicons name="flag" size={20} color="#5E366D" style={styles.inputIcon} />
+                  <Ionicons
+                    name="flag"
+                    size={20}
+                    color="#5E366D"
+                    style={styles.inputIcon}
+                  />
                   <Text style={styles.countryCodeText}>{countryCode}</Text>
                   <Ionicons name="chevron-down" size={16} color="#777" />
                 </TouchableOpacity>
@@ -474,7 +519,7 @@ const EnquiryFormScreen = () => {
                   placeholderTextColor="#777"
                   keyboardType="phone-pad"
                   value={phoneNumber}
-                  onChangeText={(text) => {
+                  onChangeText={text => {
                     // Remove non-digit characters on input
                     const digitsOnly = text.replace(/\D/g, '');
                     setPhoneNumber(digitsOnly);
@@ -485,50 +530,61 @@ const EnquiryFormScreen = () => {
                 <Text style={styles.errorText}>{errors.phoneNumber}</Text>
               ) : null}
             </View>
-            
+
             {/* Auto-fill Checkbox (only if user is authenticated) */}
             {user && (
               <TouchableOpacity
                 style={styles.checkboxContainer}
                 onPress={toggleSameAsProfile}
                 activeOpacity={0.7}>
-                <View style={[
-                  styles.checkbox,
-                  sameAsProfile && { backgroundColor: '#F47B20', borderColor: '#F47B20' }
-                ]}>
+                <View
+                  style={[
+                    styles.checkbox,
+                    sameAsProfile && {
+                      backgroundColor: '#F47B20',
+                      borderColor: '#F47B20',
+                    },
+                  ]}>
                   {sameAsProfile && (
                     <Ionicons name="checkmark" size={16} color="#fff" />
                   )}
                 </View>
-                <Text style={styles.checkboxLabel}>Auto-fill same as profile</Text>
+                <Text style={styles.checkboxLabel}>
+                  Auto-fill same as profile
+                </Text>
               </TouchableOpacity>
             )}
-            
+
             {/* Country Code Picker Modal */}
             <Modal
               visible={countryPickerVisible}
               transparent={true}
               animationType="slide"
               onRequestClose={() => setCountryPickerVisible(false)}>
-              <TouchableOpacity 
-                style={styles.modalOverlay} 
+              <TouchableOpacity
+                style={styles.modalOverlay}
                 activeOpacity={1}
                 onPress={() => setCountryPickerVisible(false)}>
-                <View 
+                <View
                   style={styles.modalContent}
                   onStartShouldSetResponder={() => true}
-                  onTouchEnd={(e) => e.stopPropagation()}>
+                  onTouchEnd={e => e.stopPropagation()}>
                   <View style={styles.modalHeader}>
                     <Text style={styles.modalTitle}>Select Country Code</Text>
-                    <TouchableOpacity 
+                    <TouchableOpacity
                       onPress={() => setCountryPickerVisible(false)}
                       style={styles.closeButton}>
                       <Ionicons name="close" size={24} color="#000" />
                     </TouchableOpacity>
                   </View>
-                  
+
                   <View style={styles.searchContainer}>
-                    <Ionicons name="search" size={20} color="#777" style={styles.searchIcon} />
+                    <Ionicons
+                      name="search"
+                      size={20}
+                      color="#777"
+                      style={styles.searchIcon}
+                    />
                     <TextInput
                       style={styles.searchInput}
                       placeholder="Search country"
@@ -543,11 +599,11 @@ const EnquiryFormScreen = () => {
                       </TouchableOpacity>
                     ) : null}
                   </View>
-                  
+
                   <FlatList
                     data={filteredCountryCodes}
                     renderItem={renderCountryCodeItem}
-                    keyExtractor={(item) => item.code}
+                    keyExtractor={item => item.code}
                     style={styles.countryCodeList}
                     initialNumToRender={20}
                     maxToRenderPerBatch={20}
@@ -556,14 +612,16 @@ const EnquiryFormScreen = () => {
                     keyboardShouldPersistTaps="handled"
                     ListEmptyComponent={
                       <View style={styles.noResultsContainer}>
-                        <Text style={styles.noResultsText}>No countries found</Text>
+                        <Text style={styles.noResultsText}>
+                          No countries found
+                        </Text>
                       </View>
                     }
                   />
                 </View>
               </TouchableOpacity>
             </Modal>
-            
+
             {/* Submit Button */}
             <TouchableOpacity
               style={styles.submitButton}
@@ -576,88 +634,93 @@ const EnquiryFormScreen = () => {
               )}
             </TouchableOpacity>
           </View>
-          
+
           {/* Success Modal */}
           <Modal
             visible={successModalVisible}
             transparent={true}
             animationType="fade"
             onRequestClose={handleSuccessModalClose}>
-            <TouchableOpacity 
-              style={styles.successModalOverlay} 
+            <TouchableOpacity
+              style={styles.successModalOverlay}
               activeOpacity={1}
               onPress={handleSuccessModalClose}>
-              <View 
+              <View
                 style={styles.successModalContent}
                 onStartShouldSetResponder={() => true}
-                onTouchEnd={(e) => e.stopPropagation()}>
-                
+                onTouchEnd={e => e.stopPropagation()}>
                 {/* Close button */}
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.successModalCloseButton}
                   onPress={handleSuccessModalClose}>
                   <Ionicons name="close" size={24} color="#000" />
                 </TouchableOpacity>
-                
+
                 {/* Logo */}
-                <View style={styles.successModalLogoContainer}>
+                {/* <View style={styles.successModalLogoContainer}>
                   <View style={styles.logoContainer}>
                     <Text style={styles.logoText}>Legend</Text>
                     <View style={styles.logoBox} />
                     <Text style={styles.motorsText}>Motors</Text>
                   </View>
-                </View>
-                
+                </View> */}
+
                 {/* Thank you message */}
                 <Text style={styles.successModalTitle}>
-                  🎉 Thank you for your enquiry!
+                  🎉 Thank you for your Inquiry!
                 </Text>
-                
+
                 <Text style={styles.successModalMessage}>
-                  We've received your request, and our team will get back to you shortly.
-                  Stay tuned-We're on it!
+                  We've received your request, and our team will get back to you
+                  shortly. Stay tuned-We're on it!
                 </Text>
-                
+
                 {/* Buttons */}
                 <View style={styles.successModalButtonsContainer}>
                   <TouchableOpacity
                     style={styles.successModalButton}
                     onPress={navigateToEnquiries}>
-                    <Text style={styles.successModalButtonText}>View My Enquiries</Text>
+                    <Text style={styles.successModalButtonText}>
+                      View My Inquiries
+                    </Text>
                   </TouchableOpacity>
-                  
+
                   <TouchableOpacity
-                    style={[styles.successModalButton, styles.successModalSecondaryButton]}
+                    style={[
+                      styles.successModalButton,
+                      styles.successModalSecondaryButton,
+                    ]}
                     onPress={handleSuccessModalClose}>
-                    <Text style={styles.successModalSecondaryButtonText}>Continue Browsing</Text>
+                    <Text style={styles.successModalSecondaryButtonText}>
+                      Continue Browsing
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
             </TouchableOpacity>
           </Modal>
-          
+
           {/* Already Submitted Modal */}
           <Modal
             visible={alreadySubmittedModalVisible}
             transparent={true}
             animationType="fade"
             onRequestClose={handleAlreadySubmittedModalClose}>
-            <TouchableOpacity 
-              style={styles.successModalOverlay} 
+            <TouchableOpacity
+              style={styles.successModalOverlay}
               activeOpacity={1}
               onPress={handleAlreadySubmittedModalClose}>
-              <View 
+              <View
                 style={styles.successModalContent}
                 onStartShouldSetResponder={() => true}
-                onTouchEnd={(e) => e.stopPropagation()}>
-                
+                onTouchEnd={e => e.stopPropagation()}>
                 {/* Close button */}
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.successModalCloseButton}
                   onPress={handleAlreadySubmittedModalClose}>
                   <Ionicons name="close" size={24} color="#000" />
                 </TouchableOpacity>
-                
+
                 {/* Logo */}
                 <View style={styles.successModalLogoContainer}>
                   <View style={styles.logoContainer}>
@@ -666,29 +729,34 @@ const EnquiryFormScreen = () => {
                     <Text style={styles.motorsText}>Motors</Text>
                   </View>
                 </View>
-                
+
                 {/* Already submitted message */}
-                <Text style={styles.successModalTitle}>
-                  Already Inquired
-                </Text>
-                
+                <Text style={styles.successModalTitle}>Already Inquired</Text>
+
                 <Text style={styles.successModalMessage}>
-                  You have already submitted an inquiry for this car with this email.
-                  Our team will contact you soon with more information.
+                  You have already submitted an inquiry for this car with this
+                  email. Our team will contact you soon with more information.
                 </Text>
-                
+
                 {/* Buttons */}
                 <View style={styles.successModalButtonsContainer}>
                   <TouchableOpacity
                     style={styles.successModalButton}
                     onPress={navigateToEnquiries}>
-                    <Text style={styles.successModalButtonText}>View My Enquiries</Text>
+                    <Text style={styles.successModalButtonText}>
+                      View My Enquiries
+                    </Text>
                   </TouchableOpacity>
-                  
+
                   <TouchableOpacity
-                    style={[styles.successModalButton, styles.successModalSecondaryButton]}
+                    style={[
+                      styles.successModalButton,
+                      styles.successModalSecondaryButton,
+                    ]}
                     onPress={handleAlreadySubmittedModalClose}>
-                    <Text style={styles.successModalSecondaryButtonText}>Continue Browsing</Text>
+                    <Text style={styles.successModalSecondaryButtonText}>
+                      Continue Browsing
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -696,7 +764,7 @@ const EnquiryFormScreen = () => {
           </Modal>
         </ScrollView>
       </KeyboardAvoidingView>
-      
+
       {/* Login Prompt Modal */}
       <LoginPromptModal
         visible={loginModalVisible}
@@ -1074,4 +1142,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EnquiryFormScreen; 
+export default EnquiryFormScreen;

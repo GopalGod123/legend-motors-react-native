@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
   },
   brandItem: {
     width: 100,
-    marginRight: SPACING.md,
+    // marginRight: SPACING.md,
     borderRadius: BORDER_RADIUS.lg,
     paddingVertical: SPACING.md,
     alignItems: 'center',
