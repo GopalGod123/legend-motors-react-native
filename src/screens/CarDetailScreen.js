@@ -1765,6 +1765,14 @@ const CarDetailScreen = () => {
               { color: isDark ? '#000000' : '#FFFFFF' },
               isAlreadyInquired && styles.alreadyInquiredText
             ]}
+            onPress={() => navigation.navigate('EnquiryFormScreen', {
+              carId: id,
+              carTitle: title,
+              carImage: images[0],
+              carPrice: price,
+              currency: selectedCurrency,
+              onEnquirySubmit: handleEnquirySubmit
+            })}
           >
             {!isAuthenticated ? 'Login' : 
               isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}

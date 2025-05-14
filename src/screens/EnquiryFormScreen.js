@@ -117,30 +117,61 @@ const EnquiryFormScreen = () => {
 
     // If toggling on, fill the form with user data
     if (newState && user) {
-      setName(user.name || '');
+      setName(user.name || user.firstName || '');
       setEmail(user.email || '');
 
-      // Handle phone as in the useEffect
+      // Handle phone and country code properly
       if (user.phoneNumber) {
-        const userPhone = user.phoneNumber;
-        // If user phone already has the current country code, remove it
-        if (userPhone.startsWith(countryCode)) {
-          setPhoneNumber(userPhone.slice(countryCode.length));
-        } else {
-          // Try to extract from other country codes
-          let foundCode = false;
-          for (const country of countryCodes) {
-            if (userPhone.startsWith(country.code)) {
-              setCountryCode(country.code);
-              setPhoneNumber(userPhone.slice(country.code.length));
-              foundCode = true;
-              break;
-            }
+        let userPhone = user.phoneNumber;
+        let userDialCode = user.dialCode || user.countryCode;
+        
+        // If we have a dialCode, use it directly
+        if (userDialCode) {
+          // Make sure dialCode starts with a +
+          if (!userDialCode.startsWith('+')) {
+            userDialCode = '+' + userDialCode;
           }
-
-          // If no country code found, just use as is
-          if (!foundCode) {
-            setPhoneNumber(userPhone);
+          
+          // Set the country code
+          setCountryCode(userDialCode);
+          
+          // If phone starts with dialCode, remove it
+          if (userPhone.startsWith(userDialCode)) {
+            setPhoneNumber(userPhone.slice(userDialCode.length).trim());
+          } else if (userPhone.startsWith('+') && userDialCode.startsWith('+')) {
+            // Handle case where phone has + but doesn't match dialCode exactly
+            const dialCodeWithoutPlus = userDialCode.substring(1);
+            if (userPhone.substring(1).startsWith(dialCodeWithoutPlus)) {
+              setPhoneNumber(userPhone.substring(1 + dialCodeWithoutPlus.length).trim());
+            } else {
+              setPhoneNumber(userPhone.replace(/^\+/, '').trim());
+            }
+          } else {
+            // Just use the phone number as is
+            setPhoneNumber(userPhone.replace(/^\+/, '').trim());
+          }
+        } else {
+          // No dialCode, try to extract from the phone number
+          if (userPhone.startsWith('+')) {
+            // Try to find a matching country code
+            let foundCode = false;
+            for (const country of formattedCountryCodes) {
+              if (userPhone.startsWith(country.code)) {
+                setCountryCode(country.code);
+                setPhoneNumber(userPhone.slice(country.code.length).trim());
+                foundCode = true;
+                break;
+              }
+            }
+            
+            // If no country code found, keep the current one and use phone as is
+            if (!foundCode) {
+              // Remove the + if it exists and use the current country code
+              setPhoneNumber(userPhone.replace(/^\+/, '').trim());
+            }
+          } else {
+            // No + in phone number, just use as is with current country code
+            setPhoneNumber(userPhone.trim());
           }
         }
       }
