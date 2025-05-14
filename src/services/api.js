@@ -670,7 +670,27 @@ export const updateUserProfile = async profileData => {
     // Ensure token is synchronized before making the request
     await syncAuthToken();
 
-    const response = await api.put('/auth/user/updateProfile', profileData);
+    // Create a copy of the data to normalize
+    const normalizedData = {...profileData};
+    
+    // Handle dialCode/countryCode format
+    // The API expects dialCode field with "+" prefix
+    if (normalizedData.countryCode) {
+      // Ensure country code has "+" prefix
+      if (!normalizedData.countryCode.startsWith('+')) {
+        normalizedData.countryCode = '+' + normalizedData.countryCode;
+      }
+      
+      // Set dialCode from countryCode if needed
+      normalizedData.dialCode = normalizedData.countryCode;
+      
+      console.log('Normalized country code for API request:', normalizedData.countryCode);
+      console.log('Set dialCode for API request:', normalizedData.dialCode);
+    }
+
+    console.log('Sending profile update request with data:', JSON.stringify(normalizedData));
+    
+    const response = await api.put('/auth/user/updateProfile', normalizedData);
 
     // Check for successful response
     if (response.data && response.data.success) {
@@ -680,13 +700,38 @@ export const updateUserProfile = async profileData => {
     }
   } catch (error) {
     console.error('Error updating user profile:', error);
-    // Add more context to the error message
-    if (error.response && error.response.status === 401) {
+    
+    // Format the error response for better debugging and handling
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Error response status:', error.response.status);
+      console.error('Error response data:', JSON.stringify(error.response.data));
+      
+      return {
+        success: false,
+        status: error.response.status,
+        message: error.response.data?.message || 'Server responded with an error',
+        data: error.response.data
+      };
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received:', error.request);
+      return {
+        success: false,
+        message: 'No response received from server. Please check your connection.'
+      };
+    } else if (error.message && error.message.includes('Authentication error')) {
       throw new Error(
         'Authentication error: Please log in again to update your profile.',
       );
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      return {
+        success: false,
+        message: error.message || 'Failed to update profile'
+      };
     }
-    throw error;
   }
 };
 
@@ -1282,6 +1327,53 @@ export const submitCarEnquiry = async (enquiryData) => {
     return {
       success: false,
       msg: error.response?.data?.message || error.message || 'Failed to submit enquiry',
+    };
+  }
+};
+
+// Function to fetch country dialing codes
+export const fetchCountryCodes = async (params = {}) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 100, 
+      sortBy = 'name', 
+      order = 'asc', 
+      search = '' 
+    } = params;
+    
+    const queryParams = new URLSearchParams({
+      page,
+      limit,
+      sortBy,
+      order,
+      ...(search ? { search } : {})
+    }).toString();
+    
+    const response = await fetch(
+      `${API_BASE_URL}/country-codes/list?${queryParams}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        }
+      }
+    );
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch country codes');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching country codes:', error);
+    return { 
+      success: false, 
+      message: error.message || 'An error occurred while fetching country codes',
+      data: []
     };
   }
 };

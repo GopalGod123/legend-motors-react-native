@@ -6,6 +6,7 @@ import {WishlistProvider} from './src/context/WishlistContext';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {CurrencyLanguageProvider} from './src/context/CurrencyLanguageContext';
 import {ThemeProvider} from './src/context/ThemeContext';
+import {CountryCodesProvider} from './src/context/CountryCodesContext';
 
 const App = () => {
   return (
@@ -14,9 +15,11 @@ const App = () => {
         <ThemeProvider>
           <CurrencyLanguageProvider>
             <AuthProvider>
-              <WishlistProvider>
-                <AppNavigator />
-              </WishlistProvider>
+              <CountryCodesProvider>
+                <WishlistProvider>
+                  <AppNavigator />
+                </WishlistProvider>
+              </CountryCodesProvider>
             </AuthProvider>
           </CurrencyLanguageProvider>
         </ThemeProvider>

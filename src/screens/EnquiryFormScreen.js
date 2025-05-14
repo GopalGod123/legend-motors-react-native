@@ -21,6 +21,7 @@ import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
 import {Ionicons} from '../utils/icon';
 import {submitCarEnquiry, isAuthenticated} from '../services/api';
 import {useAuth} from '../context/AuthContext';
+import {useCountryCodes} from '../context/CountryCodesContext';
 import Logo from '../components/Logo';
 import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
@@ -28,44 +29,11 @@ import {useLoginPrompt} from '../hooks/useLoginPrompt';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-// Common country codes
-const countryCodes = [
-  {code: '+971', country: 'UAE'},
-  {code: '+966', country: 'Saudi Arabia'},
-  {code: '+974', country: 'Qatar'},
-  {code: '+973', country: 'Bahrain'},
-  {code: '+965', country: 'Kuwait'},
-  {code: '+968', country: 'Oman'},
-  {code: '+962', country: 'Jordan'},
-  {code: '+961', country: 'Lebanon'},
-  {code: '+20', country: 'Egypt'},
-  {code: '+1', country: 'USA/Canada'},
-  {code: '+44', country: 'UK'},
-  {code: '+91', country: 'India'},
-  {code: '+92', country: 'Pakistan'},
-  {code: '+63', country: 'Philippines'},
-  {code: '+234', country: 'Nigeria'},
-  {code: '+27', country: 'South Africa'},
-  {code: '+60', country: 'Malaysia'},
-  {code: '+65', country: 'Singapore'},
-  {code: '+66', country: 'Thailand'},
-  {code: '+62', country: 'Indonesia'},
-  {code: '+81', country: 'Japan'},
-  {code: '+82', country: 'South Korea'},
-  {code: '+86', country: 'China'},
-  {code: '+33', country: 'France'},
-  {code: '+49', country: 'Germany'},
-  {code: '+39', country: 'Italy'},
-  {code: '+34', country: 'Spain'},
-  {code: '+7', country: 'Russia'},
-  {code: '+55', country: 'Brazil'},
-  {code: '+52', country: 'Mexico'},
-];
-
 const EnquiryFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {user} = useAuth();
+  const {countryCodes, loading: loadingCountryCodes} = useCountryCodes();
 
   // Add the login prompt hook
   const {
@@ -102,8 +70,25 @@ const EnquiryFormScreen = () => {
   });
 
   const [countrySearch, setCountrySearch] = useState('');
-  const [filteredCountryCodes, setFilteredCountryCodes] =
-    useState(countryCodes);
+  const [filteredCountryCodes, setFilteredCountryCodes] = useState([]);
+
+  // Transform API country codes to the format expected by the component
+  const formattedCountryCodes = React.useMemo(() => {
+    if (!countryCodes || countryCodes.length === 0) return [];
+    
+    return countryCodes.map(country => ({
+      code: country.dialCode,
+      country: country.name,
+      countryCode: country.iso2,
+    }));
+  }, [countryCodes]);
+
+  useEffect(() => {
+    // Set initial filtered country codes from the API
+    if (formattedCountryCodes.length > 0) {
+      setFilteredCountryCodes(formattedCountryCodes);
+    }
+  }, [formattedCountryCodes]);
 
   // Check authentication when component mounts
   useEffect(() => {
@@ -345,19 +330,19 @@ const EnquiryFormScreen = () => {
   // Filter countries based on search
   useEffect(() => {
     if (!countrySearch) {
-      setFilteredCountryCodes(countryCodes);
+      setFilteredCountryCodes(formattedCountryCodes);
       return;
     }
 
     const searchTerm = countrySearch.toLowerCase();
-    const filtered = countryCodes.filter(
+    const filtered = formattedCountryCodes.filter(
       country =>
         country.country.toLowerCase().includes(searchTerm) ||
         country.code.includes(searchTerm),
     );
 
     setFilteredCountryCodes(filtered);
-  }, [countrySearch]);
+  }, [countrySearch, formattedCountryCodes]);
 
   // Reset country search when modal is closed
   useEffect(() => {
@@ -603,7 +588,7 @@ const EnquiryFormScreen = () => {
                   <FlatList
                     data={filteredCountryCodes}
                     renderItem={renderCountryCodeItem}
-                    keyExtractor={item => item.code}
+                    keyExtractor={item => `${item.code}-${item.countryCode}`}
                     style={styles.countryCodeList}
                     initialNumToRender={20}
                     maxToRenderPerBatch={20}

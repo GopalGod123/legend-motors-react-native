@@ -305,6 +305,22 @@ const LogoutIcon = ({color}) => {
   );
 };
 
+// Add a phone icon for better UI
+const PhoneIcon = () => {
+  const {theme} = useTheme();
+  return (
+    <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M21.97 18.33c0 .36-.08.73-.25 1.09-.17.36-.39.7-.68 1.02-.49.54-1.03.93-1.64 1.18-.6.25-1.25.38-1.95.38-1.02 0-2.11-.24-3.26-.73s-2.3-1.15-3.44-1.98c-1.14-.83-2.2-1.76-3.19-2.8-.99-1.04-1.88-2.17-2.66-3.37C4.11 12.17 3.6 11.09 3.3 10s-.37-2.13-.19-3.1c.11-.58.32-1.13.63-1.63.31-.5.76-.92 1.34-1.26.65-.4 1.34-.5 2.02-.3.29.08.54.22.76.42.22.2.4.45.57.74l1.38 2.44c.17.29.25.55.25.79 0 .24-.08.46-.22.64-.14.18-.3.32-.48.44-.18.12-.34.23-.49.35-.15.12-.22.22-.22.34.08.33.27.74.58 1.23.31.49.68.97 1.11 1.45.45.48.91.93 1.38 1.35.47.42.89.7 1.27.85.09.03.19.05.28.05.17 0 .32-.08.45-.24.13-.16.29-.32.46-.49.17-.17.35-.33.54-.49.19-.16.4-.28.62-.36.22-.08.44-.12.65-.12.24 0 .48.06.74.19l2.65 1.56c.29.16.52.36.68.61.16.25.24.52.24.81Z"
+        stroke={themeColors[theme].text}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
+
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const {user, logout} = useAuth();
@@ -314,12 +330,24 @@ const ProfileScreen = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = async (forceRefresh = false) => {
     try {
       setLoading(true);
+      // Try to refresh the token first to ensure valid authentication
+      await syncAuthToken();
+      
+      // Clear cache if force refresh is requested
+      if (forceRefresh) {
+        console.log('Force refreshing profile data');
+      }
+      
       const response = await getUserProfile();
       if (response.success) {
+        console.log('Profile data fetched successfully:', response.data);
         setUserProfile(response.data);
+      } else {
+        console.error('Failed to fetch profile data:', response.message);
+        Alert.alert('Error', 'Failed to load profile. Please try again.');
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -337,6 +365,12 @@ const ProfileScreen = () => {
             const retryResponse = await getUserProfile();
             if (retryResponse.success) {
               setUserProfile(retryResponse.data);
+            } else {
+              // If retry fails with refreshed token
+              Alert.alert(
+                'Error',
+                'Could not load your profile. Please try logging in again.',
+              );
             }
           } else {
             // If refresh fails, logout
@@ -355,20 +389,30 @@ const ProfileScreen = () => {
             [{text: 'OK', onPress: handleLogout}],
           );
         }
+      } else {
+        // Generic error handling
+        Alert.alert(
+          'Error',
+          'Failed to load profile. Please check your connection and try again.'
+        );
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Initial fetch when screen mounts
   useEffect(() => {
     fetchUserProfile();
-  }, []); // Empty dependency array since fetchUserProfile is stable
-
+  }, []); // Empty dependency array since fetchUserProfile is defined outside
+  
   // Refresh profile when screen comes into focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      fetchUserProfile();
+      // Force reload profile data when screen comes into focus
+      console.log('ProfileScreen focused - refreshing profile data');
+      setLoading(true); // Show loading indicator
+      fetchUserProfile(true); // Pass true to force a refresh
     });
     return unsubscribe;
   }, [navigation]);
@@ -432,17 +476,53 @@ const ProfileScreen = () => {
         }
       }
     }
-   
   };
 
   // Get user phone with formatting
   const getUserPhone = () => {
     if (!userProfile || !userProfile.phone) return '';
-    // Add country code if available
-    if (userProfile.countryCode) {
-      return `+${userProfile.countryCode} ${userProfile.phone}`;
+    
+    // Get clean phone digits
+    const phoneDigits = userProfile.phone.replace(/\D/g, '');
+    
+    // Use dialCode from the API response (preferred) or fallback to countryCode
+    const countryCodeValue = userProfile.dialCode || userProfile.countryCode;
+    
+    // Format with country code if available
+    if (countryCodeValue) {
+      // Make sure country code has a plus sign
+      const formattedCountryCode = countryCodeValue.startsWith('+') 
+        ? countryCodeValue 
+        : '+' + countryCodeValue;
+      
+      console.log('Profile country/dial code from API:', countryCodeValue);
+      console.log('Formatted country code for display:', formattedCountryCode);
+      
+      // Apply different formatting based on country code
+      if (formattedCountryCode === '+1') {
+        // US/Canada format: +1 XXX-XXX-XXXX
+        if (phoneDigits.length <= 3) {
+          return `${formattedCountryCode} ${phoneDigits}`;
+        } else if (phoneDigits.length <= 6) {
+          return `${formattedCountryCode} ${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3)}`;
+        } else {
+          return `${formattedCountryCode} ${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
+        }
+      } else if (formattedCountryCode === '+91') {
+        // India format: +91 XXXXX XXXXX
+        if (phoneDigits.length > 5) {
+          return `${formattedCountryCode} ${phoneDigits.slice(0, 5)} ${phoneDigits.slice(5)}`;
+        } else {
+          return `${formattedCountryCode} ${phoneDigits}`;
+        }
+      } else {
+        // Default format for other country codes
+        return `${formattedCountryCode} ${phoneDigits}`;
+      }
     }
-    return userProfile.phone;
+    
+    // If no country code, just return the phone number
+    return phoneDigits;
   };
 
   if (loading) {
@@ -484,10 +564,6 @@ const ProfileScreen = () => {
             <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
               Profile
             </Text>
-            {/* <TouchableOpacity
-              style={[styles.editIconContainer, {borderColor: themeColors[theme].border}]}> */}
-            {/* <Text style={[styles.editIconText, {color: themeColors[theme].text}]}>···</Text> */}
-            {/* </TouchableOpacity> */}
           </View>
           <View style={styles.profileInfoContainer}>
             <View style={styles.avatarContainer}>
@@ -502,13 +578,17 @@ const ProfileScreen = () => {
             <Text style={[styles.userName, {color: themeColors[theme].text}]}>
               {getUserName()}
             </Text>
-            <Text
-              style={[
-                styles.userPhone,
-                {color: isDark ? '#ffffff' : '#888888'},
-              ]}>
-              {getUserPhone()}
-            </Text>
+            
+            {/* Enhanced phone display with country code */}
+            {userProfile && userProfile.phone && (
+              <View style={styles.phoneContainer}>
+                <PhoneIcon />
+                <Text style={[styles.userPhone, {color: isDark ? '#ffffff' : '#888888', marginLeft: 8}]}>
+                  {getUserPhone()}
+                </Text>
+              </View>
+            )}
+            
             <View style={styles.menuContainer}>
               <TouchableOpacity
                 style={[
@@ -525,23 +605,7 @@ const ProfileScreen = () => {
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
-              {/* 
-              <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}>
-                <View style={styles.menuIconContainer}>
-                  <BellIcon />
-                </View>
-                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Notification</Text>
-                <ChevronIcon />
-              </TouchableOpacity> */}
-              {/* <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}>
-                <View style={styles.menuIconContainer}>
-                  <ShieldIcon />
-                </View>
-                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Security</Text>
-                <ChevronIcon />
-              </TouchableOpacity> */}
+
               <TouchableOpacity
                 style={[
                   styles.menuItem,
@@ -708,19 +772,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  editIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editIconText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: -8,
-  },
   profileInfoContainer: {
     alignItems: 'center',
     marginTop: 8,
@@ -759,9 +810,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 4,
   },
+  phoneContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(0,0,0,0.04)',
+    borderRadius: 8,
+  },
   userPhone: {
     fontSize: 14,
-    marginBottom: 16,
+    fontWeight: '500',
   },
   menuContainer: {
     width: '100%',
