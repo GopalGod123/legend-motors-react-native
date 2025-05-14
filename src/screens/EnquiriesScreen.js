@@ -143,7 +143,20 @@ const EnquiriesScreen = () => {
             {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
           ]}>
           <View style={styles.headerLogoContainer}>
-            <LegendMotorsLogo />
+            <View style={styles.headerLogoContainer}>
+              <Image
+                source={require('../assets/images/logo.png')}
+                style={[styles.logoImage, {width: 30, height: 30}]}
+                resizeMode="contain"
+              />
+              <Text
+                style={[
+                  styles.headerTitle,
+                  {color: isDark ? '#FFFFFF' : '#212121'},
+                ]}>
+                My Inquiries
+              </Text>
+            </View>
             <Text
               style={[
                 styles.headerTitle,
@@ -320,7 +333,11 @@ const EnquiriesScreen = () => {
             {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
           ]}>
           <View style={styles.headerLogoContainer}>
-            <LegendMotorsLogo />
+            <Image
+              source={require('../assets/images/logo.png')}
+              style={[styles.logoImage, {width: 30, height: 30}]}
+              resizeMode="contain"
+            />
             <Text
               style={[
                 styles.headerTitle,

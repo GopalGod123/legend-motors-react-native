@@ -672,7 +672,7 @@ const CarDetailScreen = () => {
           car.CarModel?.name || ''
         }`,
       carImage: carImageData,
-      carPrice: price,
+      carPrice: isAuthenticated ? price : null,
       currency: selectedCurrency,
       onEnquirySubmit: (success, isAlreadySubmitted) => {
         // After submission, update the local state and refresh enquiries
@@ -1000,9 +1000,9 @@ const CarDetailScreen = () => {
       : 'Car Details');
 
   // Get price
-  const price =
-    car?.CarPrices?.find((crr) => crr.currency === selectedCurrency)?.price ||
-    car.price;
+  const price = isAuthenticated ? 
+    (car?.CarPrices?.find((crr) => crr.currency === selectedCurrency)?.price || car.price) 
+    : null;
 
   return (
     <SafeAreaView
@@ -1712,32 +1712,51 @@ const CarDetailScreen = () => {
           },
         ]}
       >
-        <View style={styles.priceContainer}>
-          <Text
-            style={[
-              styles.priceLabel,
-              { color: isDark ? '#BBBBBB' : COLORS.textLight },
-            ]}
+        {!isAuthenticated ? (
+          <TouchableOpacity
+            style={styles.loginToViewPriceButton}
+            onPress={checkAuthAndShowPrompt}
           >
-            Price
-          </Text>
-          <Text
-            style={[
-              styles.priceLargeText,
-              { color: isDark ? '#FFFFFF' : colors.text },
-            ]}
-          >
-            {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
-            {price ? Math.floor(price).toLocaleString() : '175,000'}
-          </Text>
-        </View>
+            <Text style={styles.loginToViewPriceText}>
+              Login to View Price
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.priceContainer}>
+            <Text
+              style={[
+                styles.priceLabel,
+                { color: isDark ? '#BBBBBB' : COLORS.textLight },
+              ]}
+            >
+              Price
+            </Text>
+            <Text
+              style={[
+                styles.priceLargeText,
+                { color: isDark ? '#FFFFFF' : colors.text },
+              ]}
+            >
+              {price
+                ? `${selectedCurrency === 'USD' ? '$' : selectedCurrency} ${Math.floor(price).toLocaleString()}`
+                : <TouchableOpacity
+                    style={styles.loginToViewPriceButton}
+                    onPress={checkAuthAndShowPrompt}
+                  >
+                    <Text style={styles.loginToViewPriceText}>
+                      Login to View Price
+                    </Text>
+                  </TouchableOpacity>}
+            </Text>
+          </View>
+        )}
         <TouchableOpacity
           style={[
             styles.actionButton, 
             styles.inquireButton,
             isAlreadyInquired && styles.alreadyInquiredButton
           ]}
-          onPress={handleInquire}
+          onPress={!isAuthenticated ? checkAuthAndShowPrompt : handleInquire}
           disabled={isAlreadyInquired}
         >
           <Text
@@ -1747,7 +1766,8 @@ const CarDetailScreen = () => {
               isAlreadyInquired && styles.alreadyInquiredText
             ]}
           >
-            {isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
+            {!isAuthenticated ? 'Login' : 
+              isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -2055,6 +2075,7 @@ const styles = StyleSheet.create({
   priceLargeText: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
   actionButton: {
     paddingVertical: SPACING.md,
@@ -2200,6 +2221,21 @@ const styles = StyleSheet.create({
     padding: 6,
     marginTop: 0,
     marginBottom: 10,
+  },
+  loginToViewPriceButton: {
+    backgroundColor: '#FF8C00',
+    color: '#000000',
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: BORDER_RADIUS.md,
+    flex: 1,
+    marginRight: SPACING.md,
+  },
+  loginToViewPriceText: {
+    color: '#000000',
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
 
