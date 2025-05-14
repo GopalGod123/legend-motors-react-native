@@ -16,23 +16,23 @@ import {Dimensions} from 'react-native';
 import axios from 'axios';
 import {API_BASE_URL, API_KEY} from '../utils/apiConfig';
 
-const PrivacyPolicyScreen = () => {
+const CookiePolicyScreen = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
   const [loading, setLoading] = useState(true);
-  const [policyData, setPolicyData] = useState(null);
+  const [cookieData, setCookieData] = useState(null);
   const [error, setError] = useState(null);
   const windowWidth = Dimensions.get('window').width;
 
   useEffect(() => {
-    fetchPolicyData();
+    fetchCookieData();
   }, []);
 
-  const fetchPolicyData = async () => {
+  const fetchCookieData = async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${API_BASE_URL}/page/getBySlug?slug=privacy_policy&lang=en`,
+        `${API_BASE_URL}/page/getBySlug?slug=cookie_policy&lang=en`,
         {
           headers: {
             'accept': 'application/json',
@@ -42,21 +42,21 @@ const PrivacyPolicyScreen = () => {
       );
 
       if (response.data && response.data.success) {
-        setPolicyData(response.data.data);
+        setCookieData(response.data.data);
       } else {
-        setError('Failed to load privacy policy data');
+        setError('Failed to load cookie policy data');
       }
     } catch (err) {
-      console.error('Error fetching privacy policy:', err);
-      setError('An error occurred while loading the privacy policy');
+      console.error('Error fetching cookie policy:', err);
+      setError('An error occurred while loading the cookie policy');
     } finally {
       setLoading(false);
     }
   };
 
   // Find the content section
-  const contentSection = policyData?.sections?.find(
-    section => section.sectionKey === 'privacy_content',
+  const contentSection = cookieData?.sections?.find(
+    section => section.sectionKey.includes('cookie'),
   );
 
   return (
@@ -77,11 +77,11 @@ const PrivacyPolicyScreen = () => {
               </Text>
             </TouchableOpacity>
             <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
-              {policyData?.title || 'Privacy Policy'}
+              {cookieData?.title || 'Cookie Policy'}
             </Text>
           </View>
           <Text style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
-            Last Updated: {policyData?.updatedAt ? new Date(policyData.updatedAt).toDateString() : ''}
+            Last Updated: {cookieData?.updatedAt ? new Date(cookieData.updatedAt).toDateString() : ''}
           </Text>
         </View>
 
@@ -90,7 +90,7 @@ const PrivacyPolicyScreen = () => {
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={themeColors[theme].primary} />
               <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
-                Loading Privacy Policy...
+                Loading Cookie Policy...
               </Text>
             </View>
           ) : error ? (
@@ -100,7 +100,7 @@ const PrivacyPolicyScreen = () => {
               </Text>
               <TouchableOpacity 
                 style={[styles.retryButton, {backgroundColor: themeColors[theme].primary}]}
-                onPress={fetchPolicyData}>
+                onPress={fetchCookieData}>
                 <Text style={styles.retryButtonText}>Try Again</Text>
               </TouchableOpacity>
             </View>
@@ -125,7 +125,7 @@ const PrivacyPolicyScreen = () => {
             />
           ) : (
             <Text style={[styles.paragraph, {color: themeColors[theme].text}]}>
-              No privacy policy content available.
+              No cookie policy content available.
             </Text>
           )}
         </View>
@@ -207,4 +207,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PrivacyPolicyScreen; 
+export default CookiePolicyScreen; 

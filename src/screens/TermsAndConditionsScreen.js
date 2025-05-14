@@ -16,23 +16,23 @@ import {Dimensions} from 'react-native';
 import axios from 'axios';
 import {API_BASE_URL, API_KEY} from '../utils/apiConfig';
 
-const PrivacyPolicyScreen = () => {
+const TermsAndConditionsScreen = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
   const [loading, setLoading] = useState(true);
-  const [policyData, setPolicyData] = useState(null);
+  const [termsData, setTermsData] = useState(null);
   const [error, setError] = useState(null);
   const windowWidth = Dimensions.get('window').width;
 
   useEffect(() => {
-    fetchPolicyData();
+    fetchTermsData();
   }, []);
 
-  const fetchPolicyData = async () => {
+  const fetchTermsData = async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${API_BASE_URL}/page/getBySlug?slug=privacy_policy&lang=en`,
+        `${API_BASE_URL}/page/getBySlug?slug=terms_and_conditions&lang=en`,
         {
           headers: {
             'accept': 'application/json',
@@ -42,21 +42,21 @@ const PrivacyPolicyScreen = () => {
       );
 
       if (response.data && response.data.success) {
-        setPolicyData(response.data.data);
+        setTermsData(response.data.data);
       } else {
-        setError('Failed to load privacy policy data');
+        setError('Failed to load terms and conditions data');
       }
     } catch (err) {
-      console.error('Error fetching privacy policy:', err);
-      setError('An error occurred while loading the privacy policy');
+      console.error('Error fetching terms and conditions:', err);
+      setError('An error occurred while loading the terms and conditions');
     } finally {
       setLoading(false);
     }
   };
 
   // Find the content section
-  const contentSection = policyData?.sections?.find(
-    section => section.sectionKey === 'privacy_content',
+  const contentSection = termsData?.sections?.find(
+    section => section.sectionKey.includes('terms_') || section.sectionKey.includes('conditions'),
   );
 
   return (
@@ -77,11 +77,11 @@ const PrivacyPolicyScreen = () => {
               </Text>
             </TouchableOpacity>
             <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
-              {policyData?.title || 'Privacy Policy'}
+              {termsData?.title || 'Terms and Conditions'}
             </Text>
           </View>
           <Text style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
-            Last Updated: {policyData?.updatedAt ? new Date(policyData.updatedAt).toDateString() : ''}
+            Last Updated: {termsData?.updatedAt ? new Date(termsData.updatedAt).toDateString() : ''}
           </Text>
         </View>
 
@@ -90,7 +90,7 @@ const PrivacyPolicyScreen = () => {
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color={themeColors[theme].primary} />
               <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
-                Loading Privacy Policy...
+                Loading Terms and Conditions...
               </Text>
             </View>
           ) : error ? (
@@ -100,7 +100,7 @@ const PrivacyPolicyScreen = () => {
               </Text>
               <TouchableOpacity 
                 style={[styles.retryButton, {backgroundColor: themeColors[theme].primary}]}
-                onPress={fetchPolicyData}>
+                onPress={fetchTermsData}>
                 <Text style={styles.retryButtonText}>Try Again</Text>
               </TouchableOpacity>
             </View>
@@ -125,7 +125,7 @@ const PrivacyPolicyScreen = () => {
             />
           ) : (
             <Text style={[styles.paragraph, {color: themeColors[theme].text}]}>
-              No privacy policy content available.
+              No terms and conditions content available.
             </Text>
           )}
         </View>
@@ -207,4 +207,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PrivacyPolicyScreen; 
+export default TermsAndConditionsScreen; 
