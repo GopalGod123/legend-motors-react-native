@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle, useMemo, useCallback } from 'react';
 import { 
   View, 
   StyleSheet, 
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { COLORS } from '../../utils/constants';
 import CarImage from './CarImage';
+import { preloadImages } from '../../utils/ImageCacheManager';
 
 const { width } = Dimensions.get('window');
 
@@ -22,86 +23,180 @@ const CarImageCarousel = forwardRef(({
   onIndexChange
 }, ref) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
+  const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const flatListRef = useRef(null);
+  const scrollToIndexTimeoutRef = useRef(null);
+
+  // Memoize images to prevent unnecessary re-renders
+  const memoizedImages = useMemo(() => images || [], [images ? images.length : 0]);
   
-  // Expose methods to parent component
-  useImperativeHandle(ref, () => ({
-    scrollToIndex: ({ index, animated = true }) => {
-      if (flatListRef.current) {
-        flatListRef.current.scrollToIndex({ index, animated });
-        setActiveIndex(index);
+  // Preload images when they change
+  useEffect(() => {
+    if (images && images.length > 0 && !imagesPreloaded) {
+      // Preload visible and nearby images first
+      const visibleImages = images.slice(
+        Math.max(0, initialIndex - 1),
+        Math.min(images.length, initialIndex + 3)
+      );
+      
+      // Start with visible images, then do the rest
+      preloadImages(visibleImages)
+        .then(() => {
+          // Preload remaining images in the background
+          const remainingImages = images.filter(
+            (_, i) => i < initialIndex - 1 || i > initialIndex + 2
+          );
+          if (remainingImages.length > 0) {
+            return preloadImages(remainingImages);
+          }
+        })
+        .then(() => {
+          setImagesPreloaded(true);
+        })
+        .catch(err => {
+          console.log('Error preloading carousel images:', err);
+        });
+    }
+  }, [images, initialIndex, imagesPreloaded]);
+  
+  // Update scrollToIndex method to be backwards compatible with both types of parameters
+  const scrollToIndex = useCallback((indexOrOptions, maybeAnimated) => {
+    if (flatListRef.current && images && images.length > 0) {
+      try {
+        // Handle different parameter formats
+        let index;
+        let animated = true;
+        
+        if (typeof indexOrOptions === 'object' && indexOrOptions !== null) {
+          // Called with { index, animated } object
+          index = indexOrOptions.index;
+          animated = indexOrOptions.animated !== undefined ? indexOrOptions.animated : true;
+        } else {
+          // Called with (index, animated) separate parameters
+          index = indexOrOptions;
+          animated = maybeAnimated !== undefined ? maybeAnimated : true;
+        }
+        
+        if (images.length === 1) {
+          return; // No need to scroll with just one image
+        }
+        
+        if (index >= 0 && index < images.length) {
+          // Use getItemLayout for more reliable scrolling
+          flatListRef.current.scrollToIndex({
+            index,
+            animated,
+            viewPosition: 0.5,
+          });
+        }
+      } catch (error) {
+        console.log('Error scrolling to index:', error);
+        
+        // Extract the index regardless of how the function was called
+        const index = typeof indexOrOptions === 'object' ? indexOrOptions.index : indexOrOptions;
+        
+        // Fallback if scrollToIndex fails - use scrollToOffset
+        const offset = index * width;
+        flatListRef.current.scrollToOffset({
+          offset,
+          animated: true,
+        });
       }
     }
+  }, [images, width]);
+  
+  // Implement useImperativeHandle to expose methods to parent components
+  useImperativeHandle(ref, () => ({
+    scrollToIndex,
+    getCurrentIndex: () => activeIndex,
   }));
   
   // Set initial index when it changes
   useEffect(() => {
-    if (initialIndex !== activeIndex && flatListRef.current) {
-      flatListRef.current.scrollToIndex({
-        index: initialIndex,
-        animated: true,
-      });
-      setActiveIndex(initialIndex);
+    if (initialIndex !== activeIndex) {
+      scrollToIndex(initialIndex, true);
     }
-  }, [initialIndex]);
+  }, [initialIndex, scrollToIndex]);
+
+  // Clean up timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollToIndexTimeoutRef.current) {
+        clearTimeout(scrollToIndexTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Handle when scrolling ends to update the active index
-  const handleScroll = (event) => {
+  const handleScroll = useCallback((event) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(contentOffsetX / width);
-    setActiveIndex(newIndex);
-    if (onIndexChange && newIndex !== activeIndex) {
-      onIndexChange(newIndex);
-    }
-  };
-
-  // Go to a specific image
-  const goToImage = (index) => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToIndex({
-        index,
-        animated: true,
-      });
-      setActiveIndex(index);
+    
+    if (newIndex !== activeIndex && newIndex >= 0 && newIndex < memoizedImages.length) {
+      setActiveIndex(newIndex);
       if (onIndexChange) {
-        onIndexChange(index);
+        onIndexChange(newIndex);
       }
     }
-  };
+  }, [activeIndex, memoizedImages.length, onIndexChange]);
 
-  // Handle rendering each image item in the carousel
-  const renderItem = ({ item, index }) => (
-    <TouchableOpacity 
+  // Go to a specific image
+  const goToImage = useCallback((index) => {
+    scrollToIndex(index, true);
+    
+    if (onIndexChange) {
+      onIndexChange(index);
+    }
+  }, [scrollToIndex, onIndexChange]);
+
+  // Better memoization of renderItem to prevent recreation
+  const renderItem = useCallback(({ item, index }) => (
+    <TouchableOpacity
+      style={[styles.itemContainer, { width }]}
       activeOpacity={0.9}
-      style={[styles.imageContainer, { width }]}
       onPress={() => onImagePress && onImagePress(index)}
     >
-      <CarImage
-        source={item}
-        style={styles.image}
-        resizeMode="cover"
+      <CarImage 
+        source={item} 
+        style={styles.image} 
+        height={height}
+        priority="high"
       />
       
       {/* Show image index if enabled */}
       {showIndex && (
         <View style={styles.indexContainer}>
-          <Text style={styles.indexText}>{index + 1}/{images.length}</Text>
+          <Text style={styles.indexText}>{index + 1}/{memoizedImages.length}</Text>
         </View>
       )}
     </TouchableOpacity>
-  );
+  ), [width, height, onImagePress, showIndex]);
+
+  // Memoize flatlist configuration for stability
+  const listConfig = useMemo(() => ({
+    getItemLayout: (_data, index) => ({
+      length: width,
+      offset: width * index,
+      index,
+    }),
+    windowSize: 3,
+    initialNumToRender: 3,
+    maxToRenderPerBatch: 2,
+    removeClippedSubviews: true,
+    keyExtractor: (_, index) => `carousel-${index}`,
+  }), [width]);
 
   // If no images or empty array, return null
-  if (!images || images.length === 0) {
+  if (!memoizedImages || memoizedImages.length === 0) {
     return null;
   }
 
   // If only one image, just show it without carousel
-  if (images.length === 1) {
+  if (memoizedImages.length === 1) {
     return (
       <View style={[styles.container, { height }, style]}>
         <CarImage
-          source={images[0]}
+          source={memoizedImages[0]}
           style={styles.image}
           resizeMode="cover"
         />
@@ -109,40 +204,11 @@ const CarImageCarousel = forwardRef(({
     );
   }
 
-  return (
-    <View style={[styles.container, { height }, style]}>
-      <FlatList
-        ref={flatListRef}
-        data={images}
-        renderItem={renderItem}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScroll}
-        keyExtractor={(_, index) => `car_image_${index}`}
-        initialScrollIndex={initialIndex > 0 && initialIndex < images.length ? initialIndex : undefined}
-        getItemLayout={(_, index) => ({
-          length: width,
-          offset: width * index,
-          index,
-        })}
-        onScrollToIndexFailed={(info) => {
-          console.warn('Scroll to index failed:', info);
-          // Handle scroll failure, maybe with a setTimeout
-          setTimeout(() => {
-            if (flatListRef.current) {
-              flatListRef.current.scrollToOffset({
-                offset: info.index * width,
-                animated: false
-              });
-            }
-          }, 100);
-        }}
-      />
-
-      {/* Pagination dots */}
+  // Memoized dot components to prevent re-renders
+  const PaginationDots = useMemo(() => {
+    return (
       <View style={styles.paginationContainer}>
-        {images.map((_, index) => (
+        {memoizedImages.map((_, index) => (
           <TouchableOpacity
             key={`dot_${index}`}
             style={[
@@ -153,6 +219,57 @@ const CarImageCarousel = forwardRef(({
           />
         ))}
       </View>
+    );
+  }, [memoizedImages.length, activeIndex, goToImage]);
+
+  return (
+    <View style={[styles.container, { height }, style]}>
+      <FlatList
+        ref={flatListRef}
+        data={memoizedImages}
+        renderItem={renderItem}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleScroll}
+        keyExtractor={(_, index) => `carousel-${index}`}
+        getItemLayout={(_, index) => ({
+          length: width,
+          offset: width * index,
+          index,
+        })}
+        maxToRenderPerBatch={2}
+        windowSize={3}
+        initialNumToRender={3}
+        removeClippedSubviews={true}
+        onScrollToIndexFailed={(info) => {
+          // Handle scroll failure
+          console.warn('Scroll to index failed:', info);
+          
+          // Safety check for valid index range
+          const validIndex = Math.min(info.index, memoizedImages.length - 1);
+          if (validIndex < 0) return;
+          
+          // Try scrollToOffset which is less likely to fail
+          flatListRef.current?.scrollToOffset({
+            offset: validIndex * width,
+            animated: false
+          });
+          
+          // Update the active index after a delay
+          setTimeout(() => {
+            if (activeIndex !== validIndex) {
+              setActiveIndex(validIndex);
+              if (onIndexChange) {
+                onIndexChange(validIndex);
+              }
+            }
+          }, 150);
+        }}
+      />
+
+      {/* Pagination dots */}
+      {PaginationDots}
     </View>
   );
 });
@@ -163,7 +280,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     position: 'relative',
   },
-  imageContainer: {
+  itemContainer: {
     height: '100%',
   },
   image: {
@@ -219,4 +336,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CarImageCarousel; 
+export default React.memo(CarImageCarousel); 

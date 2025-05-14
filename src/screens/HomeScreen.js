@@ -25,9 +25,9 @@ import {
 import LoginPromptModal from '../components/LoginPromptModal';
 import {getCarList} from '../services/api';
 import {SPACING, COLORS} from '../utils/constants';
-import Header from 'src/components/home/Header';
-import {FilterTabs} from 'src/components/explore';
-import {useTheme} from 'src/context/ThemeContext';
+import Header from '../components/home/Header';
+import {FilterTabs} from '../components/explore';
+import {useTheme} from '../context/ThemeContext';
 
 // Memoize components that don't need frequent re-renders
 const MemoizedHeader = memo(Header);
