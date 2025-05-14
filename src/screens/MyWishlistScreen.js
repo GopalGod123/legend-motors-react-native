@@ -40,27 +40,16 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
   const carId = car.carId || car.id;
   const inWishlist = true; // Always true in the wishlist screen
 
-  // Debug car data structure
-  console.log(
-    `WishlistCard for car: ${brandName} ${modelName}, carId: ${carId}, id: ${
-      car.id
-    }, wishlistId: ${car.wishlistId || 'N/A'}`,
-  );
-
   // Function to toggle wishlist status
   const toggleWishlist = async () => {
     try {
       // Prevent action if item is already being removed
       if (isRemoving) {
-        console.log(
-          `Item is already being removed, skipping duplicate request`,
-        );
         return;
       }
 
       // Always use the car ID for removal, not the wishlist ID
       const carId = car.carId || car.id;
-      console.log(`Card requesting removal of car ID ${carId}`);
 
       // Only use the parent's onRemove function, not the context directly
       onRemove(carId);
@@ -184,13 +173,7 @@ const MyWishlistScreen = () => {
       setLoading(true);
       const response = await getWishlist();
 
-      // Debug the response structure
-      console.log('Wishlist response structure:', JSON.stringify(response));
-
       if (response.success && Array.isArray(response.data)) {
-        console.log(`Fetched ${response.data.length} wishlist items`);
-
-        // Process wishlist items to ensure they have the right format for rendering
         const processedItems = response.data.map(item => {
           // If the item has a car property, use it as the base and add necessary fields
           if (item.car) {
@@ -209,13 +192,8 @@ const MyWishlistScreen = () => {
           };
         });
 
-        console.log(
-          'Processed wishlist items:',
-          JSON.stringify(processedItems),
-        );
         setWishlistItems(processedItems);
       } else {
-        console.log('No wishlist items found or error in response');
         setWishlistItems([]);
       }
     } catch (error) {
@@ -240,9 +218,6 @@ const MyWishlistScreen = () => {
     try {
       // Check if this item is already being removed
       if (removingItems[itemId]) {
-        console.log(
-          `Item ${itemId} is already being removed, skipping duplicate request`,
-        );
         return;
       }
 
@@ -251,8 +226,6 @@ const MyWishlistScreen = () => {
       if (!isAuthorized) {
         return; // Stop here if user is not authenticated
       }
-
-      console.log(`Attempting to remove car ID ${itemId} from wishlist`);
 
       // Mark this item as being removed
       setRemovingItems(prev => ({...prev, [itemId]: true}));
@@ -264,8 +237,6 @@ const MyWishlistScreen = () => {
       const result = await removeItemFromWishlist(itemId);
 
       if (result.success) {
-        console.log(`Successfully removed car ID ${itemId} from wishlist`);
-
         // Remove from local state for immediate UI update
         setWishlistItems(prevItems => {
           return prevItems.filter(item => {

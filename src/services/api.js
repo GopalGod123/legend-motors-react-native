@@ -1021,21 +1021,21 @@ export const addToWishlist = async carId => {
     // Ensure token is synchronized before making the request
     await syncAuthToken();
 
-    console.log(`Adding car ${carId} to wishlist`);
+    // console.log(`Adding car ${carId} to wishlist`);
 
     const response = await api.post('/wishlist/create', {carId});
 
     // Log the full response for debugging
-    console.log('Wishlist add API response:', JSON.stringify(response.data));
+    // console.log('Wishlist add API response:', JSON.stringify(response.data));
 
     if (response.data && response.data.success) {
-      console.log('Successfully added car to wishlist:', response.data);
+      // console.log('Successfully added car to wishlist:', response.data);
       return response.data;
     } else {
-      console.log(
-        'API returned unsuccessful response for adding to wishlist:',
-        response.data,
-      );
+      // console.log(
+      //   'API returned unsuccessful response for adding to wishlist:',
+      //   response.data,
+      // );
       return {
         success: false,
         msg: response.data?.msg || 'Failed to add car to wishlist',
@@ -1066,9 +1066,9 @@ export const removeFromWishlist = async carId => {
     // Check if this carId is already being processed
     const key = `car_${carId}`;
     if (pendingDeletions[key]) {
-      console.log(
-        `Delete request for car ${carId} already in progress, skipping duplicate`,
-      );
+      // console.log(
+      //   `Delete request for car ${carId} already in progress, skipping duplicate`,
+      // );
       return {success: true, message: 'Request already in progress'};
     }
 
@@ -1078,16 +1078,16 @@ export const removeFromWishlist = async carId => {
     // Always use the carId, never the wishlistId
     // Convert to number if it's a string
     const numericCarId = parseInt(carId);
-    console.log(
-      `Attempting to remove car with ID: ${numericCarId} from wishlist`,
-    );
+    // console.log(
+    //   `Attempting to remove car with ID: ${numericCarId} from wishlist`,
+    // );
 
     // Use fixed userId based on API requirements
     const userId = 35; // Hardcoded from API documentation
 
     // Make sure userId is included in the URL
     const url = `${API_BASE_URL}/wishlist/delete?userId=${userId}&carId=${numericCarId}`;
-    console.log(`Making DELETE request to: ${url}`);
+    // console.log(`Making DELETE request to: ${url}`);
 
     // Use the api instance which already has the interceptor for auth tokens
     // instead of making a direct axios call. This prevents duplicate token handling.
@@ -1096,14 +1096,14 @@ export const removeFromWishlist = async carId => {
     );
 
     if (response.data && response.data.success) {
-      console.log('Successfully removed car from wishlist:', response.data);
+      // console.log('Successfully removed car from wishlist:', response.data);
       return {
         success: true,
         message: response.data.message || 'Successfully removed from wishlist',
         data: response.data.data || null,
       };
     } else {
-      console.log('API returned unsuccessful response:', response.data);
+      // console.log('API returned unsuccessful response:', response.data);
       return {
         success: false,
         msg: response.data?.msg || 'Failed to remove car from wishlist',
@@ -1113,7 +1113,7 @@ export const removeFromWishlist = async carId => {
   } catch (error) {
     // For 404 errors (already deleted), consider it a success
     if (error.response && error.response.status === 404) {
-      console.log(`Car ${carId} was not found in wishlist (already removed)`);
+      // console.log(`Car ${carId} was not found in wishlist (already removed)`);
       return {
         success: true,
         message: 'Car was already removed from wishlist',
@@ -1176,27 +1176,13 @@ export const getWishlist = async (params = {}) => {
     // Merge default with provided params
     const requestParams = {...defaultParams, ...params};
 
-    console.log('Fetching wishlist with params:', requestParams);
-
     const response = await api.get('/wishlist/list', {
       params: requestParams,
     });
 
-    // Log the full response for debugging
-    console.log('Wishlist API full response:', JSON.stringify(response.data));
-
     if (response.data && response.data.success) {
-      console.log(
-        `Successfully fetched wishlist with ${
-          response.data.data?.length || 0
-        } items`,
-      );
       return response.data;
     } else {
-      console.log(
-        'API returned unsuccessful response for wishlist:',
-        response.data,
-      );
       return {
         success: false,
         message: response.data?.message || 'Failed to fetch wishlist',
