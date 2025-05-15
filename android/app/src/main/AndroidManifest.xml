@@ -1,9 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-<!-- Required to allow the app to send events and user profile information -->
-<uses-permission android:name="android.permission.INTERNET"/>
-<!-- Recommended so that CleverTap knows when to attempt a network call -->
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Required to allow the app to send events and user profile information -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Recommended so that CleverTap knows when to attempt a network call -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
       android:name=".MainApplication"
@@ -13,21 +13,35 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme"
       android:supportsRtl="true">
+
+      <!-- CleverTap meta-data -->
       <meta-data
         android:name="CLEVERTAP_ACCOUNT_ID"
         android:value="6KK-49W-447Z"/>
       <meta-data
         android:name="CLEVERTAP_TOKEN"
         android:value="Oc4-336"/>
-
       <meta-data 
         android:name="CLEVERTAP_REGION" 
         android:value="global"/>
-         <service android:name="com.clevertap.android.sdk.pushnotification.fcm.FcmMessageListenerService"  android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
+
+      <!-- Firebase messaging service (Custom service to pass token to CleverTap) -->
+      <service
+    android:name="com.clevertap.android.sdk.pushnotification.fcm.FcmMessageListenerService"
+    android:exported="true">
+    <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+    </intent-filter>
+</service>
+      <service
+          android:name=".MyFirebaseMessagingService"
+          android:exported="false">
+          <intent-filter>
+              <action android:name="com.google.firebase.MESSAGING_EVENT" />
+          </intent-filter>
+      </service>
+
+      <!-- Main activity for the app -->
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"
@@ -40,6 +54,7 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
     </application>
-   
+
 </manifest>

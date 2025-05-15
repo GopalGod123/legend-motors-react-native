@@ -1,54 +1,75 @@
 import {useEffect} from 'react';
-import {Platform, Alert} from 'react-native';
+import {Platform, PermissionsAndroid} from 'react-native';
 import CleverTap from 'clevertap-react-native';
+import messaging from '@react-native-firebase/messaging';
 
-export default function useCleverTapNotifications() {
+export default function useCleverTapDemo() {
   useEffect(() => {
-    // Set Debug Level
+    // Enable CleverTap debug logs
     CleverTap.setDebugLevel(3);
 
-    // Register for Push Notifications (iOS)
+    // Prompt for push permission (iOS)
+    CleverTap.promptForPushPermission(true);
+
+    // Request POST_NOTIFICATIONS permission for Android 13+
+    async function requestNotificationPermission() {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        );
+        console.log(
+          'Notification permission granted:',
+          granted === PermissionsAndroid.RESULTS.GRANTED,
+        );
+      }
+    }
+
+    requestNotificationPermission();
+
+    // Register for Push (iOS only)
     if (Platform.OS === 'ios') {
       CleverTap.registerForPush();
     }
 
-    // Get CleverTap ID
+    // Get CleverTap ID (debugging)
     CleverTap.getCleverTapID((err, id) => {
       console.log('CleverTap ID:', id);
     });
 
-    // Get Push Token (Firebase or APNs)
-
-    CleverTap.onUserLogin({
-      Name: 'satyam',
-      Identity: '909090',
-      Email: 'satyam@gmail.com',
-      custom1: 20,
-    });
-    // Optional: Track App Launch
-    CleverTap.isPushPermissionGranted((err, res) => {
-      console.log('Push Permission Granted:', res);
-    });
-    CleverTap.recordEvent('App Launched');
-
-    // Handle Notification Clicks
-    const onNotificationClick = event => {
-      const data = event.nativeEvent;
-      console.log('Notification clicked:', data);
-
-      Alert.alert('Notification Clicked', JSON.stringify(data));
+    // 👉 Send Unique User Profile
+    const userProfile = {
+      Name: 'TestUser_' + Math.floor(Math.random() * 1000),
+      Identity: 'user_' + Math.floor(Math.random() * 100000), // Unique identity
+      Email: 'testuser_' + Math.floor(Math.random() * 1000) + '@example.com',
+      Phone: '+91123456789' + Math.floor(Math.random() * 10),
+      custom1: 'DemoTest',
     };
-
-    CleverTap.addListener(
-      CleverTap.CleverTapPushNotificationClicked,
-      onNotificationClick,
+    CleverTap.createNotificationChannel(
+      'sat-test', // Channel ID
+      'General Notifications', // Name
+      'General notifications from the app', // Description
+      4, // Importance (1-5)
+      true, // Show Badge
     );
+    console.log('Sending user profile to CleverTap:', userProfile);
 
-    return () => {
-      CleverTap.removeListener(
-        CleverTap.CleverTapPushNotificationClicked,
-        onNotificationClick,
-      );
-    };
+    // Push profile to CleverTap
+    CleverTap.onUserLogin(userProfile);
+
+    // ✅ Get FCM Token & Push it to CleverTap
+    async function getFCMToken() {
+      const fcmToken = await messaging().getToken();
+      console.log('FCM Token:', fcmToken);
+
+      if (fcmToken) {
+        CleverTap.setPushToken(fcmToken);
+        console.log('Push token sent to CleverTap');
+      }
+    }
+
+    getFCMToken();
+
+    // Optional: Record an event
+    CleverTap.recordEvent('Demo_User_Login', {method: 'ReactNativeTest'});
   }, []);
 }
