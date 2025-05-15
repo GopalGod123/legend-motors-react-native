@@ -25,7 +25,6 @@ import {
   onAppleButtonPressAndroid,
   onAppleButtonPressIOS,
   onGoogleButtonPress,
-  ssoApi,
 } from 'src/services/socialAuth';
 
 const LoginScreen = () => {
@@ -40,7 +39,7 @@ const LoginScreen = () => {
   const [rememberMe, setRememberMe] = useState(false);
 
   // Get authentication context
-  const {login, loading, error} = useAuth();
+  const {login, loading, error, ssoApi} = useAuth();
 
   // Effect for when coming from registration with an email
   useEffect(() => {
@@ -74,22 +73,23 @@ const LoginScreen = () => {
       } else {
         // Show specific error message from API if available
         Alert.alert(
-          'Login Failed', 
-          result.error || 'Invalid credentials. Please check your email and password.'
+          'Login Failed',
+          result.error ||
+            'Invalid credentials. Please check your email and password.',
         );
       }
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert(
-        'Login Error', 
-        'An unexpected error occurred. Please try again later.'
+        'Login Error',
+        'An unexpected error occurred. Please try again later.',
       );
     }
   };
   const handleSsoLogin = async idToken => {
     try {
       const ssoResult = await ssoApi(idToken);
-      console.log('SSO result:', ssoResult);
+      console.log('SSO result:', ssoResult, idToken);
       if (ssoResult.success) {
         navigation.reset({
           index: 0,
@@ -112,7 +112,10 @@ const LoginScreen = () => {
   };
   const handleAppleLogin = async () => {
     try {
-      const result = await onAppleButtonPressIOS();
+      const result =
+        Platform.OS === 'ios'
+          ? await onAppleButtonPressIOS()
+          : await onAppleButtonPressAndroid();
       let idToken = await result.user.getIdToken();
       console.log('Apple sign-in result:', idToken);
       handleSsoLogin(idToken);
@@ -220,16 +223,14 @@ const LoginScreen = () => {
       </View>
 
       <View style={styles.socialContainer}>
-        {Platform.OS === 'ios' && (
-          <TouchableOpacity
-            onPress={handleAppleLogin}
-            style={[styles.socialButton, isDark && styles.socialButtonDark]}>
-            <AppleIcon size={24} color={isDark ? '#FFFFFF' : '#000000'} />
-            <Text style={[styles.socialButtonText, isDark && styles.textDark]}>
-              Continue with Apple
-            </Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          onPress={handleAppleLogin}
+          style={[styles.socialButton, isDark && styles.socialButtonDark]}>
+          <AppleIcon size={24} color={isDark ? '#FFFFFF' : '#000000'} />
+          <Text style={[styles.socialButtonText, isDark && styles.textDark]}>
+            Continue with Apple
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity
           onPress={handleGoogleLogin}

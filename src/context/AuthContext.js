@@ -1,6 +1,12 @@
-import React, {createContext, useState, useContext, useEffect, useRef} from 'react';
+import React, {
+  createContext,
+  useState,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
+import api, {
   loginUser,
   logoutUser,
   isAuthenticated,
@@ -65,31 +71,33 @@ export const AuthProvider = ({children}) => {
 
         await AsyncStorage.setItem('userToken', response.token);
         await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
-        
+
         // Update the API service with the new token
         syncAuthToken();
-        
+
         // Update state
         setUser(updatedUserData);
-        
+
         // Reset retry counter on success
         refreshRetryCount.current = 0;
-        
+
         // Start a new timer for the next refresh
         startTokenRefreshTimer();
-        
+
         console.log('Token refreshed successfully');
       } else {
         throw new Error('Failed to refresh token');
       }
     } catch (error) {
       console.error('Token refresh error:', error);
-      
+
       // Retry logic
       if (refreshRetryCount.current < MAX_REFRESH_RETRIES) {
         refreshRetryCount.current += 1;
-        console.log(`Retrying token refresh (${refreshRetryCount.current}/${MAX_REFRESH_RETRIES})...`);
-        
+        console.log(
+          `Retrying token refresh (${refreshRetryCount.current}/${MAX_REFRESH_RETRIES})...`,
+        );
+
         // Try again after a short delay
         setTimeout(refreshToken, 5000);
       } else {
@@ -108,46 +116,60 @@ export const AuthProvider = ({children}) => {
         const token = await AsyncStorage.getItem('userToken');
         const authToken = await AsyncStorage.getItem('auth_token');
         const userData = await AsyncStorage.getItem('userData');
-        
+
         // Check for any valid token
         const validToken = token || authToken;
 
         if (validToken) {
           // Ensure both token locations are in sync
-          if (token && !authToken) await AsyncStorage.setItem('auth_token', token);
-          if (authToken && !token) await AsyncStorage.setItem('userToken', authToken);
-          
+          if (token && !authToken)
+            await AsyncStorage.setItem('auth_token', token);
+          if (authToken && !token)
+            await AsyncStorage.setItem('userToken', authToken);
+
           // Ensure we have userData if we have a token
           if (userData) {
             // Parse and validate userData
             try {
               const parsedUserData = JSON.parse(userData);
-              
+
               // If userData is malformed or missing token, update it
               if (!parsedUserData.token) {
                 parsedUserData.token = validToken;
-                await AsyncStorage.setItem('userData', JSON.stringify(parsedUserData));
+                await AsyncStorage.setItem(
+                  'userData',
+                  JSON.stringify(parsedUserData),
+                );
               }
-              
+
               // Update state with user data
               setUser(parsedUserData);
             } catch (parseError) {
               console.error('Error parsing userData:', parseError);
               // If userData is invalid, create a new basic one
-              const basicUserData = { token: validToken, refreshToken: validToken };
-              await AsyncStorage.setItem('userData', JSON.stringify(basicUserData));
+              const basicUserData = {
+                token: validToken,
+                refreshToken: validToken,
+              };
+              await AsyncStorage.setItem(
+                'userData',
+                JSON.stringify(basicUserData),
+              );
               setUser(basicUserData);
             }
           } else if (validToken) {
             // Create basic userData if missing
-            const basicUserData = { token: validToken, refreshToken: validToken };
-            await AsyncStorage.setItem('userData', JSON.stringify(basicUserData));
+            const basicUserData = {token: validToken, refreshToken: validToken};
+            await AsyncStorage.setItem(
+              'userData',
+              JSON.stringify(basicUserData),
+            );
             setUser(basicUserData);
           }
-          
+
           // Set token for API calls
           syncAuthToken();
-          
+
           // Start token refresh timer
           startTokenRefreshTimer();
         }
@@ -192,13 +214,13 @@ export const AuthProvider = ({children}) => {
         await AsyncStorage.setItem('userToken', response.token);
         await AsyncStorage.setItem('userData', JSON.stringify(userData));
         syncAuthToken();
-        
+
         // Update state
         setUser(userData);
-        
+
         // Start token refresh timer
         startTokenRefreshTimer();
-        
+
         return {success: true};
       } else {
         throw new Error(response.msg || 'No token received from server');
@@ -208,6 +230,52 @@ export const AuthProvider = ({children}) => {
       return {success: false, error: error.message || 'Login failed'};
     } finally {
       setLoading(false);
+    }
+  };
+
+  const ssoApi = async idToken => {
+    try {
+      const response = await api.post('auth/signin/sso', {idToken});
+      const data = response.data;
+
+      console.log('Login API DATA:', data);
+      console.log('Login API response:', response);
+
+      // Store token in AsyncStorage
+      if (data.success && data.token) {
+        // Store in both places for compatibility
+        const userData = {
+          ...response.user,
+          token: response.token,
+          refreshToken: response.refreshToken,
+        };
+        console.log('Login API response:', data);
+
+        // Save to AsyncStorage
+        await AsyncStorage.setItem('userToken', response.token);
+        await AsyncStorage.setItem('userData', JSON.stringify(userData));
+        syncAuthToken();
+
+        // Update state
+        setUser(userData);
+
+        // Start token refresh timer
+        startTokenRefreshTimer();
+        return {success: true};
+      } else {
+        throw new Error(data.msg || 'No token received from server');
+      }
+    } catch (error) {
+      console.error('API login error:', error.response?.data || error.message);
+      if (error.response) {
+        throw error.response.data || {message: 'Login failed'};
+      } else if (error.request) {
+        throw {
+          message: 'No response from server. Please check your connection.',
+        };
+      } else {
+        throw {message: error.message || 'An unknown error occurred'};
+      }
     }
   };
 
@@ -249,13 +317,13 @@ export const AuthProvider = ({children}) => {
       const userToken = await AsyncStorage.getItem('userToken');
       const userData = await AsyncStorage.getItem('userData');
       const token = authToken || userToken;
-      
+
       // If we have a token but one of the storage locations is missing, sync them
       if (token) {
         // Ensure both storage locations have the token
         if (!authToken) await AsyncStorage.setItem('auth_token', token);
         if (!userToken) await AsyncStorage.setItem('userToken', token);
-        
+
         // If we have a token but no userData, try to reconstruct basic userData
         if (!userData && token) {
           const basicUserData = {
@@ -264,10 +332,10 @@ export const AuthProvider = ({children}) => {
           };
           await AsyncStorage.setItem('userData', JSON.stringify(basicUserData));
         }
-        
+
         // Ensure the token is synchronized with API headers
         syncAuthToken();
-        
+
         return true;
       }
       return false;
@@ -291,6 +359,7 @@ export const AuthProvider = ({children}) => {
     logout,
     refreshToken: forceRefreshToken,
     isAuthenticated: checkAuthStatus,
+    ssoApi,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -23,7 +23,7 @@ export async function onAppleButtonPressAndroid() {
 
     // Return URL added to your Apple dev console. We intercept this redirect, but it must still match
     // the URL you provided to Apple. It can be an empty route on your backend as it's never called.
-    redirectUri: 'legengmotors://auth/callback',
+    redirectUri: 'https://legendmotorsglobal.com/__/auth/handler',
 
     // The type of response requested - code, id_token, or both.
     responseType: appleAuthAndroid.ResponseType.ALL,
@@ -79,36 +79,3 @@ export async function onGoogleButtonPress() {
   // Sign-in the user with the credential
   return signInWithCredential(getAuth(), googleCredential);
 }
-
-export const ssoApi = async idToken => {
-  try {
-    const response = await api.post('auth/signin/sso', {idToken});
-    const data = response.data;
-
-    console.log('Login API response:', data);
-
-    // Store token in AsyncStorage
-    if (data.success && data.token) {
-      // Store in both places for compatibility
-      await AsyncStorage.setItem('auth_token', data.token);
-      await AsyncStorage.setItem('userToken', data.token);
-
-      // Also set in headers for current session
-      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-      console.log('Auth token saved and set in headers');
-    } else {
-      console.warn('No auth token received from login API');
-    }
-
-    return data;
-  } catch (error) {
-    console.error('API login error:', error.response?.data || error.message);
-    if (error.response) {
-      throw error.response.data || {message: 'Login failed'};
-    } else if (error.request) {
-      throw {message: 'No response from server. Please check your connection.'};
-    } else {
-      throw {message: error.message || 'An unknown error occurred'};
-    }
-  }
-};
