@@ -335,12 +335,12 @@ const ProfileScreen = () => {
       setLoading(true);
       // Try to refresh the token first to ensure valid authentication
       await syncAuthToken();
-      
+
       // Clear cache if force refresh is requested
       if (forceRefresh) {
         console.log('Force refreshing profile data');
       }
-      
+
       const response = await getUserProfile();
       if (response.success) {
         console.log('Profile data fetched successfully:', response.data);
@@ -393,7 +393,7 @@ const ProfileScreen = () => {
         // Generic error handling
         Alert.alert(
           'Error',
-          'Failed to load profile. Please check your connection and try again.'
+          'Failed to load profile. Please check your connection and try again.',
         );
       }
     } finally {
@@ -405,7 +405,7 @@ const ProfileScreen = () => {
   useEffect(() => {
     fetchUserProfile();
   }, []); // Empty dependency array since fetchUserProfile is defined outside
-  
+
   // Refresh profile when screen comes into focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -475,43 +475,54 @@ const ProfileScreen = () => {
           return `https://cdn.legendmotorsglobal.com${imagePath}`;
         }
       }
+    } else {
+      return 'https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png';
     }
   };
 
   // Get user phone with formatting
   const getUserPhone = () => {
     if (!userProfile || !userProfile.phone) return '';
-    
+
     // Get clean phone digits
     const phoneDigits = userProfile.phone.replace(/\D/g, '');
-    
+
     // Use dialCode from the API response (preferred) or fallback to countryCode
     const countryCodeValue = userProfile.dialCode || userProfile.countryCode;
-    
+
     // Format with country code if available
     if (countryCodeValue) {
       // Make sure country code has a plus sign
-      const formattedCountryCode = countryCodeValue.startsWith('+') 
-        ? countryCodeValue 
+      const formattedCountryCode = countryCodeValue.startsWith('+')
+        ? countryCodeValue
         : '+' + countryCodeValue;
-      
+
       console.log('Profile country/dial code from API:', countryCodeValue);
       console.log('Formatted country code for display:', formattedCountryCode);
-      
+
       // Apply different formatting based on country code
       if (formattedCountryCode === '+1') {
         // US/Canada format: +1 XXX-XXX-XXXX
         if (phoneDigits.length <= 3) {
           return `${formattedCountryCode} ${phoneDigits}`;
         } else if (phoneDigits.length <= 6) {
-          return `${formattedCountryCode} ${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3)}`;
+          return `${formattedCountryCode} ${phoneDigits.slice(
+            0,
+            3,
+          )}-${phoneDigits.slice(3)}`;
         } else {
-          return `${formattedCountryCode} ${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
+          return `${formattedCountryCode} ${phoneDigits.slice(
+            0,
+            3,
+          )}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
         }
       } else if (formattedCountryCode === '+91') {
         // India format: +91 XXXXX XXXXX
         if (phoneDigits.length > 5) {
-          return `${formattedCountryCode} ${phoneDigits.slice(0, 5)} ${phoneDigits.slice(5)}`;
+          return `${formattedCountryCode} ${phoneDigits.slice(
+            0,
+            5,
+          )} ${phoneDigits.slice(5)}`;
         } else {
           return `${formattedCountryCode} ${phoneDigits}`;
         }
@@ -520,7 +531,7 @@ const ProfileScreen = () => {
         return `${formattedCountryCode} ${phoneDigits}`;
       }
     }
-    
+
     // If no country code, just return the phone number
     return phoneDigits;
   };
@@ -578,17 +589,21 @@ const ProfileScreen = () => {
             <Text style={[styles.userName, {color: themeColors[theme].text}]}>
               {getUserName()}
             </Text>
-            
+
             {/* Enhanced phone display with country code */}
             {userProfile && userProfile.phone && (
               <View style={styles.phoneContainer}>
                 <PhoneIcon />
-                <Text style={[styles.userPhone, {color: isDark ? '#ffffff' : '#888888', marginLeft: 8}]}>
+                <Text
+                  style={[
+                    styles.userPhone,
+                    {color: isDark ? '#ffffff' : '#888888', marginLeft: 8},
+                  ]}>
                   {getUserPhone()}
                 </Text>
               </View>
             )}
-            
+
             <View style={styles.menuContainer}>
               <TouchableOpacity
                 style={[
