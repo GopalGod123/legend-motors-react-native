@@ -5,7 +5,9 @@ import {
   Dimensions, 
   FlatList, 
   TouchableOpacity,
-  Text
+  Text,
+  Platform,
+  ScrollView
 } from 'react-native';
 import { COLORS } from '../../utils/constants';
 import CarImage from './CarImage';
@@ -26,6 +28,18 @@ const CarImageCarousel = forwardRef(({
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const flatListRef = useRef(null);
   const scrollToIndexTimeoutRef = useRef(null);
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const onViewRef = useRef(({ changed }) => {
+    if (changed[0].isViewable) {
+      const newIndex = changed[0].index;
+      if (newIndex !== activeIndex) {
+        setActiveIndex(newIndex);
+        if (onIndexChange) {
+          onIndexChange(newIndex);
+        }
+      }
+    }
+  });
 
   // Memoize images to prevent unnecessary re-renders
   const memoizedImages = useMemo(() => images || [], [images ? images.length : 0]);
@@ -82,25 +96,15 @@ const CarImageCarousel = forwardRef(({
         }
         
         if (index >= 0 && index < images.length) {
-          // Use getItemLayout for more reliable scrolling
-          flatListRef.current.scrollToIndex({
-            index,
+          // Use scrollToOffset for more reliable scrolling
+          const offset = index * width;
+          flatListRef.current.scrollToOffset({
+            offset,
             animated,
-            viewPosition: 0.5,
           });
         }
       } catch (error) {
         console.log('Error scrolling to index:', error);
-        
-        // Extract the index regardless of how the function was called
-        const index = typeof indexOrOptions === 'object' ? indexOrOptions.index : indexOrOptions;
-        
-        // Fallback if scrollToIndex fails - use scrollToOffset
-        const offset = index * width;
-        flatListRef.current.scrollToOffset({
-          offset,
-          animated: true,
-        });
       }
     }
   }, [images, width]);
@@ -143,11 +147,7 @@ const CarImageCarousel = forwardRef(({
   // Go to a specific image
   const goToImage = useCallback((index) => {
     scrollToIndex(index, true);
-    
-    if (onIndexChange) {
-      onIndexChange(index);
-    }
-  }, [scrollToIndex, onIndexChange]);
+  }, [scrollToIndex]);
 
   // Better memoization of renderItem to prevent recreation
   const renderItem = useCallback(({ item, index }) => (
@@ -161,6 +161,7 @@ const CarImageCarousel = forwardRef(({
         style={styles.image} 
         height={height}
         priority="high"
+        resizeMode="cover"
       />
       
       {/* Show image index if enabled */}
@@ -170,21 +171,7 @@ const CarImageCarousel = forwardRef(({
         </View>
       )}
     </TouchableOpacity>
-  ), [width, height, onImagePress, showIndex]);
-
-  // Memoize flatlist configuration for stability
-  const listConfig = useMemo(() => ({
-    getItemLayout: (_data, index) => ({
-      length: width,
-      offset: width * index,
-      index,
-    }),
-    windowSize: 3,
-    initialNumToRender: 3,
-    maxToRenderPerBatch: 2,
-    removeClippedSubviews: true,
-    keyExtractor: (_, index) => `carousel-${index}`,
-  }), [width]);
+  ), [width, height, onImagePress, showIndex, memoizedImages.length]);
 
   // If no images or empty array, return null
   if (!memoizedImages || memoizedImages.length === 0) {
@@ -199,6 +186,7 @@ const CarImageCarousel = forwardRef(({
           source={memoizedImages[0]}
           style={styles.image}
           resizeMode="cover"
+          height={height}
         />
       </View>
     );
@@ -232,39 +220,29 @@ const CarImageCarousel = forwardRef(({
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
-        keyExtractor={(_, index) => `carousel-${index}`}
+        onViewableItemsChanged={onViewRef.current}
+        viewabilityConfig={viewConfigRef.current}
+        decelerationRate={Platform.OS === 'ios' ? 0.992 : 0.98}
+        snapToInterval={width}
+        snapToAlignment="center"
+        disableIntervalMomentum={true}
+        bounces={false}
         getItemLayout={(_, index) => ({
           length: width,
           offset: width * index,
           index,
         })}
-        maxToRenderPerBatch={2}
-        windowSize={3}
+        maxToRenderPerBatch={3}
+        windowSize={5}
         initialNumToRender={3}
-        removeClippedSubviews={true}
+        removeClippedSubviews={Platform.OS === 'android'}
+        keyExtractor={(_, index) => `carousel-${index}`}
         onScrollToIndexFailed={(info) => {
-          // Handle scroll failure
-          console.warn('Scroll to index failed:', info);
-          
-          // Safety check for valid index range
-          const validIndex = Math.min(info.index, memoizedImages.length - 1);
-          if (validIndex < 0) return;
-          
-          // Try scrollToOffset which is less likely to fail
+          const offset = info.index * width;
           flatListRef.current?.scrollToOffset({
-            offset: validIndex * width,
+            offset,
             animated: false
           });
-          
-          // Update the active index after a delay
-          setTimeout(() => {
-            if (activeIndex !== validIndex) {
-              setActiveIndex(validIndex);
-              if (onIndexChange) {
-                onIndexChange(validIndex);
-              }
-            }
-          }, 150);
         }}
       />
 
