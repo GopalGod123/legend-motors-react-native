@@ -24,6 +24,7 @@ import {
 } from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
+import {useCountryCodes} from '../context/CountryCodesContext';
 import BackArrow from '../components/BackArrow';
 
 // Back Arrow Icon
@@ -43,25 +44,25 @@ const BackIcon = () => {
 };
 
 // Calendar Icon
-const CalendarIcon = () => (
+const CalendarIcon = ({color = '#212121'}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M8 2V5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M16 2V5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M3.5 9.09H20.5"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -70,7 +71,7 @@ const CalendarIcon = () => (
       fillRule="evenodd"
       clipRule="evenodd"
       d="M19 4.5H5C4.17157 4.5 3.5 5.17157 3.5 6V19C3.5 19.8284 4.17157 20.5 5 20.5H19C19.8284 20.5 20.5 19.8284 20.5 19V6C20.5 5.17157 19.8284 4.5 19 4.5Z"
-      stroke="#212121"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -79,18 +80,18 @@ const CalendarIcon = () => (
 );
 
 // Email Icon
-const EmailIcon = () => (
+const EmailIcon = ({color = '#7A40C6'}) => (
   <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <Path
       d="M17 21H7C4 21 2 19.5 2 16V8C2 4.5 4 3 7 3H17C20 3 22 4.5 22 8V16C22 19.5 20 21 17 21Z"
-      stroke="#7A40C6"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <Path
       d="M18.5 8.5L13.5736 12.4222C12.6941 13.1255 11.4577 13.1255 10.5781 12.4222L5.5 8.5"
-      stroke="#7A40C6"
+      stroke={color}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -115,6 +116,7 @@ const EditProfileScreen = () => {
   const navigation = useNavigation();
   const {user, logout} = useAuth();
   const {theme, isDark} = useTheme();
+  const {countryCodes, loading: loadingCountryCodes} = useCountryCodes();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -135,48 +137,26 @@ const EditProfileScreen = () => {
   // Add a ref for the ScrollView to handle dropdown scrolling
   const dropdownScrollViewRef = React.useRef(null);
 
-  // Add country/location options
-  const locationOptions = [
-    {name: 'United States', code: 'US'},
-    {name: 'United Kingdom', code: 'GB'},
-    {name: 'India', code: 'IN'},
-    {name: 'United Arab Emirates', code: 'AE'},
-    {name: 'Australia', code: 'AU'},
-    {name: 'China', code: 'CN'},
-    {name: 'Germany', code: 'DE'},
-    {name: 'France', code: 'FR'},
-    {name: 'Japan', code: 'JP'},
-    {name: 'Italy', code: 'IT'},
-    {name: 'Russia', code: 'RU'},
-    {name: 'Brazil', code: 'BR'},
-    {name: 'Mexico', code: 'MX'},
-    {name: 'South Korea', code: 'KR'},
-    {name: 'Spain', code: 'ES'},
-    {name: 'Canada', code: 'CA'},
-    {name: 'Singapore', code: 'SG'},
-    {name: 'Saudi Arabia', code: 'SA'},
-    {name: 'South Africa', code: 'ZA'},
-    {name: 'Pakistan', code: 'PK'},
-  ];
+  // Transform API country codes data to match the required format for location options
+  const locationOptions = React.useMemo(() => {
+    if (!countryCodes || countryCodes.length === 0) return [];
+    
+    return countryCodes.map(country => ({
+      name: country.name,
+      code: country.iso2,
+    }));
+  }, [countryCodes]);
 
-  // Add country code options with country codes for flags API
-  const countryCodeOptions = [
-    {code: '+1', country: 'US', countryCode: 'US'},
-    {code: '+44', country: 'UK', countryCode: 'GB'},
-    {code: '+91', country: 'IN', countryCode: 'IN'},
-    {code: '+971', country: 'UAE', countryCode: 'AE'},
-    {code: '+61', country: 'AU', countryCode: 'AU'},
-    {code: '+86', country: 'CN', countryCode: 'CN'},
-    {code: '+49', country: 'Germany', countryCode: 'DE'},
-    {code: '+33', country: 'France', countryCode: 'FR'},
-    {code: '+81', country: 'Japan', countryCode: 'JP'},
-    {code: '+39', country: 'Italy', countryCode: 'IT'},
-    {code: '+7', country: 'Russia', countryCode: 'RU'},
-    {code: '+55', country: 'Brazil', countryCode: 'BR'},
-    {code: '+52', country: 'Mexico', countryCode: 'MX'},
-    {code: '+82', country: 'South Korea', countryCode: 'KR'},
-    {code: '+34', country: 'Spain', countryCode: 'ES'},
-  ];
+  // Transform API country codes data to match the required format for country code options
+  const countryCodeOptions = React.useMemo(() => {
+    if (!countryCodes || countryCodes.length === 0) return [];
+    
+    return countryCodes.map(country => ({
+      code: country.dialCode,
+      country: country.name,
+      countryCode: country.iso2,
+    }));
+  }, [countryCodes]);
 
   useEffect(() => {
     fetchUserProfile();
@@ -202,19 +182,60 @@ const EditProfileScreen = () => {
       const response = await getUserProfile();
       if (response.success && response.data) {
         const profile = response.data;
+        console.log('Full profile data:', profile);
 
         // Format date from API format (YYYY-MM-DD) to display format (MM/DD/YYYY)
         const dateOfBirth = profile.dateOfBirth
           ? formatDateForDisplay(profile.dateOfBirth)
           : '';
 
+        // Get country code from either dialCode (preferred) or countryCode field
+        let countryCode = profile.dialCode || profile.countryCode || '1'; // Default to US
+        
+        // Format countryCode to ALWAYS include + if it doesn't already
+        if (!countryCode.startsWith('+')) {
+          countryCode = '+' + countryCode;
+        }
+        
+        console.log('Profile country/dial code from API:', profile.dialCode || profile.countryCode);
+        console.log('Formatted country code for UI:', countryCode);
+
+        // Format phone with proper display format based on countryCode
+        let formattedPhone = '';
+        if (profile.phone) {
+          // Get clean phone digits
+          const phoneDigits = profile.phone.replace(/\D/g, '');
+          
+          // Apply formatting based on country code
+          if (countryCode === '+1') {
+            // US/Canada format: XXX-XXX-XXXX
+            if (phoneDigits.length <= 3) {
+              formattedPhone = phoneDigits;
+            } else if (phoneDigits.length <= 6) {
+              formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3)}`;
+            } else {
+              formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
+            }
+          } else if (countryCode === '+91') {
+            // India format: XXXXX XXXXX
+            if (phoneDigits.length > 5) {
+              formattedPhone = `${phoneDigits.slice(0, 5)} ${phoneDigits.slice(5)}`;
+            } else {
+              formattedPhone = phoneDigits;
+            }
+          } else {
+            // Default format (no special formatting)
+            formattedPhone = phoneDigits;
+          }
+        }
+
         setFormData({
           firstName: profile.firstName || '',
           lastName: profile.lastName || '',
           dateOfBirth: dateOfBirth,
           email: profile.email || '',
-          countryCode: profile.countryCode || '+1',
-          phone: profile.phone || '',
+          countryCode: countryCode, // Always with + prefix
+          phone: formattedPhone,
           location: profile.location || '',
           gender: profile.gender || '',
           profileImage: profile.profileImage ? profile.profileImage.id : null,
@@ -332,12 +353,52 @@ const EditProfileScreen = () => {
         dateOfBirth: formatDateForApi(formData.dateOfBirth),
       };
 
-      // Remove null values to prevent API errors
-      Object.keys(updateData).forEach(
-        key => updateData[key] === null && delete updateData[key],
-      );
+      // Format the phone number properly for API
+      if (updateData.phone) {
+        // Remove any formatting (hyphens, spaces, etc.)
+        const cleanedPhone = updateData.phone.replace(/[^0-9]/g, '');
+        updateData.phone = cleanedPhone;
+      }
 
-      const response = await updateUserProfile(updateData);
+      // Ensure country code is properly formatted
+      if (updateData.countryCode) {
+        // API expects country code with "+" prefix
+        if (!updateData.countryCode.startsWith('+')) {
+          updateData.countryCode = `+${updateData.countryCode}`;
+        }
+        
+        // Set dialCode field to match countryCode for API consistency
+        updateData.dialCode = updateData.countryCode;
+      }
+
+      // Remove null, undefined, or empty values to prevent API errors
+      Object.keys(updateData).forEach(key => {
+        if (
+          updateData[key] === null || 
+          updateData[key] === undefined || 
+          updateData[key] === ''
+        ) {
+          delete updateData[key];
+        }
+      });
+
+      // Match API expected format - ensure we only send what the API expects
+      const apiCompliantData = {
+        firstName: updateData.firstName,
+        lastName: updateData.lastName,
+        email: updateData.email,
+        countryCode: updateData.countryCode,
+        dialCode: updateData.dialCode, // Include dialCode field
+        phone: updateData.phone,
+        gender: updateData.gender || undefined,
+        location: updateData.location || undefined,
+        dateOfBirth: updateData.dateOfBirth || undefined,
+        profileImage: updateData.profileImage || undefined
+      };
+
+      console.log('Updating profile with data:', JSON.stringify(apiCompliantData));
+      const response = await updateUserProfile(apiCompliantData);
+      
       if (response.success) {
         Alert.alert('Success', 'Profile updated successfully', [
           {text: 'OK', onPress: () => navigation.goBack()},
@@ -347,9 +408,16 @@ const EditProfileScreen = () => {
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-
-      // Handle authentication errors
-      if (error.message && error.message.includes('Authentication error')) {
+      
+      // Enhanced error logging
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+        
+        // Extract specific validation errors if they exist
+        const errorMessage = error.response.data?.message || 'An error occurred while updating your profile';
+        Alert.alert('Error', errorMessage);
+      } else if (error.message && error.message.includes('Authentication error')) {
         Alert.alert(
           'Authentication Error',
           'Your session has expired. Please log in again.',
@@ -483,6 +551,7 @@ const EditProfileScreen = () => {
 
     return (
       <View style={styles.phoneInputContainer}>
+        <Text style={[styles.inputLabel, {color: themeColors[theme].text}]}>Phone Number</Text>
         <View
           style={[
             styles.inputContainer,
@@ -544,57 +613,57 @@ const EditProfileScreen = () => {
             styles.dropdownPopup,
             {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
           ]}>
-          <Text
-            style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
-            Select Country Code
-          </Text>
+            <Text
+              style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
+              Select Country Code
+            </Text>
 
-          <FlatList
-            data={countryCodeOptions}
-            keyExtractor={item => item.code}
-            style={styles.countryList}
-            showsVerticalScrollIndicator={true}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={[
-                  styles.countryItem,
-                  formData.countryCode === item.code && {
-                    backgroundColor: '#F47B20',
-                  },
-                ]}
-                onPress={() => handleCountrySelect(item.code)}>
-                <View style={styles.countryInfo}>
-                  <Image
-                    source={{
-                      uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
-                    }}
-                    style={styles.flagImage}
-                    resizeMode="cover"
-                  />
-                  <Text
-                    style={[
-                      styles.countryText,
-                      {
-                        color:
-                          formData.countryCode === item.code
-                            ? '#FFFFFF'
-                            : themeColors[theme].text,
-                      },
-                    ]}>
-                    {item.code} {item.country}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+            <FlatList
+              data={countryCodeOptions}
+              keyExtractor={item => `${item.code}-${item.countryCode}`}
+              style={styles.countryList}
+              showsVerticalScrollIndicator={true}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={[
+                    styles.countryItem,
+                    formData.countryCode === item.code && {
+                      backgroundColor: '#F47B20',
+                    },
+                  ]}
+                  onPress={() => handleCountrySelect(item.code)}>
+                  <View style={styles.countryInfo}>
+                    <Image
+                      source={{
+                        uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
+                      }}
+                      style={styles.flagImage}
+                      resizeMode="cover"
+                    />
+                    <Text
+                      style={[
+                        styles.countryText,
+                        {
+                          color:
+                            formData.countryCode === item.code
+                              ? '#FFFFFF'
+                              : themeColors[theme].text,
+                        },
+                      ]}>
+                      {item.code} {item.country}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
 
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setOpenDropdown(null)}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setOpenDropdown(null)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
     );
   };
 
@@ -701,7 +770,7 @@ const EditProfileScreen = () => {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <BackArrow />
+          <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
           Edit Profile
@@ -777,7 +846,7 @@ const EditProfileScreen = () => {
                 {formData.dateOfBirth || 'Date of Birth (MM/DD/YYYY)'}
               </Text>
               <View style={styles.inputIcon}>
-                <CalendarIcon />
+                <CalendarIcon color={themeColors[theme].primary} />
               </View>
             </TouchableOpacity>
 
@@ -845,7 +914,7 @@ const EditProfileScreen = () => {
               keyboardType="email-address"
             />
             <View style={styles.inputIcon}>
-              <EmailIcon />
+              <EmailIcon color={themeColors[theme].primary} />
             </View>
           </View>
 
@@ -981,9 +1050,16 @@ const EditProfileScreen = () => {
           onPress={handleUpdate}
           disabled={updating}>
           {updating ? (
-            <ActivityIndicator size="small" color={isDark ? "#000000" : "#FFFFFF"} />
+            <ActivityIndicator
+              size="small"
+              color={isDark ? '#000000' : '#FFFFFF'}
+            />
           ) : (
-            <Text color={isDark ? "#000000" : "#FFFFFF"} style={styles.updateButtonText}>Update</Text>
+            <Text
+              color={isDark ? '#000000' : '#FFFFFF'}
+              style={styles.updateButtonText}>
+              Update
+            </Text>
           )}
         </TouchableOpacity>
       </ScrollView>
@@ -1026,9 +1102,11 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
+    paddingHorizontal: 10,
   },
   formContainer: {
     paddingVertical: 16,
+    paddingBottom: 0,
   },
   inputContainer: {
     marginBottom: 16,
@@ -1073,7 +1151,7 @@ const styles = StyleSheet.create({
     height: 55,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 120,
+    marginTop: 70,
   },
   disabledButton: {
     backgroundColor: '#F8C4A6',
@@ -1180,6 +1258,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     paddingHorizontal: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    marginBottom: 6,
+    fontWeight: '500',
   },
 });
 

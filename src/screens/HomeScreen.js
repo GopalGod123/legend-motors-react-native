@@ -25,9 +25,9 @@ import {
 import LoginPromptModal from '../components/LoginPromptModal';
 import {getCarList} from '../services/api';
 import {SPACING, COLORS} from '../utils/constants';
-import Header from 'src/components/home/Header';
-import {FilterTabs} from 'src/components/explore';
-import {useTheme} from 'src/context/ThemeContext';
+import Header from '../components/home/Header';
+import {FilterTabs} from '../components/explore';
+import {useTheme} from '../context/ThemeContext';
 
 // Memoize components that don't need frequent re-renders
 const MemoizedHeader = memo(Header);
@@ -173,33 +173,37 @@ const HomeScreen = () => {
   // Add a state to prevent multiple navigations
   const [isNavigating, setIsNavigating] = useState(false);
 
-  const handleScroll = useCallback(event => {
-    // Get current scroll position
-    const currentOffset = event.nativeEvent.contentOffset.y;
-    // Get the screen height
-    const screenHeight = event.nativeEvent.layoutMeasurement.height;
-    // Get the total content height
-    const contentHeight = event.nativeEvent.contentSize.height;
-    
-    // Check if user has scrolled to the bottom (with a small threshold)
-    const isScrolledToBottom = currentOffset + screenHeight >= contentHeight - 20;
-    
-    if (isScrolledToBottom && !isNavigating) {
-      // Set navigating flag to prevent multiple triggers
-      setIsNavigating(true);
-      
-      // Add a small delay to make the transition feel smoother
-      setTimeout(() => {
-        navigation.navigate('ExploreTab');
-        
-        // Reset the flag after a bit longer to prevent immediate re-triggering
-        // if the user navigates back to the home screen
+  const handleScroll = useCallback(
+    event => {
+      // Get current scroll position
+      const currentOffset = event.nativeEvent.contentOffset.y;
+      // Get the screen height
+      const screenHeight = event.nativeEvent.layoutMeasurement.height;
+      // Get the total content height
+      const contentHeight = event.nativeEvent.contentSize.height;
+
+      // Check if user has scrolled to the bottom (with a small threshold)
+      const isScrolledToBottom =
+        currentOffset + screenHeight >= contentHeight - 20;
+
+      if (isScrolledToBottom && !isNavigating) {
+        // Set navigating flag to prevent multiple triggers
+        setIsNavigating(true);
+
+        // Add a small delay to make the transition feel smoother
         setTimeout(() => {
-          setIsNavigating(false);
-        }, 1000);
-      }, 300);
-    }
-  }, [navigation, isNavigating]);
+          navigation.navigate('ExploreTab');
+
+          // Reset the flag after a bit longer to prevent immediate re-triggering
+          // if the user navigates back to the home screen
+          setTimeout(() => {
+            setIsNavigating(false);
+          }, 1000);
+        }, 300);
+      }
+    },
+    [navigation, isNavigating],
+  );
 
   const handleLoginPress = useCallback(() => {
     setShowLoginPrompt(false);
@@ -321,8 +325,8 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingLeft: 12,
-    paddingRight: 12,
+    paddingLeft: 4,
+    paddingRight: 4,
     paddingTop: 60,
     paddingBottom: 24,
   },

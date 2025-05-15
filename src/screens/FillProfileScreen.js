@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,23 +11,31 @@ import {
   Modal,
   Alert,
   ActivityIndicator,
+  FlatList,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
-import { Picker } from '@react-native-picker/picker';
+import {Picker} from '@react-native-picker/picker';
 import * as ImagePicker from 'react-native-image-picker';
-import { registerUser } from '../services/api';
+import {registerUser} from '../services/api';
+import {useTheme} from 'src/context/ThemeContext';
 
 const FillProfileScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { email, registrationToken } = route.params || { email: '', registrationToken: '' };
+  const {email, registrationToken} = route.params || {
+    email: '',
+    registrationToken: '',
+  };
   const [loading, setLoading] = useState(false);
-  
+  const {isDark} = useTheme();
+  const [openDropdown, setOpenDropdown] = useState(null);
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: email,
+    countryCode: '+1', // Default country code for US
     phone: '',
     location: '',
     dateOfBirth: new Date(),
@@ -35,22 +43,209 @@ const FillProfileScreen = () => {
     password: '',
     confirmPassword: '',
   });
-  
+
   const [profileImage, setProfileImage] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  
+
   const [datePickerValue, setDatePickerValue] = useState({
     day: new Date().getDate(),
     month: new Date().getMonth() + 1,
-    year: new Date().getFullYear()
+    year: new Date().getFullYear(),
   });
-  
+
+  // Add country code options with country codes for flags API
+  const countryCodeOptions = [
+    {code: '+1', country: 'US', countryCode: 'US'},
+    {code: '+44', country: 'UK', countryCode: 'GB'},
+    {code: '+91', country: 'IN', countryCode: 'IN'},
+    {code: '+971', country: 'UAE', countryCode: 'AE'},
+    {code: '+61', country: 'AU', countryCode: 'AU'},
+    {code: '+86', country: 'CN', countryCode: 'CN'},
+    {code: '+49', country: 'Germany', countryCode: 'DE'},
+    {code: '+33', country: 'France', countryCode: 'FR'},
+    {code: '+81', country: 'Japan', countryCode: 'JP'},
+    {code: '+39', country: 'Italy', countryCode: 'IT'},
+    {code: '+7', country: 'Russia', countryCode: 'RU'},
+    {code: '+55', country: 'Brazil', countryCode: 'BR'},
+    {code: '+52', country: 'Mexico', countryCode: 'MX'},
+    {code: '+82', country: 'South Korea', countryCode: 'KR'},
+    {code: '+34', country: 'Spain', countryCode: 'ES'},
+  ];
+
+  // Get country code from dial code
+  const getCountryCodeFromDialCode = dialCode => {
+    const country = countryCodeOptions.find(option => option.code === dialCode);
+    return country ? country.countryCode : 'US';
+  };
+
+  // Format the phone number as it's being entered
+  const formatPhoneNumber = text => {
+    // Remove any non-numeric characters
+    let cleaned = text.replace(/\D/g, '');
+
+    // Apply different formatting based on country code
+    if (formData.countryCode === '+1') {
+      // US format: (XXX) XXX-XXXX
+      if (cleaned.length > 0) {
+        if (cleaned.length <= 3) {
+          return cleaned;
+        } else if (cleaned.length <= 6) {
+          return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+        } else {
+          return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(
+            6,
+            10,
+          )}`;
+        }
+      }
+    } else if (formData.countryCode === '+91') {
+      // India format: XXXXX XXXXX
+      if (cleaned.length > 5) {
+        return `${cleaned.slice(0, 5)} ${cleaned.slice(5, 10)}`;
+      }
+    }
+
+    // Default format for other countries (limit to reasonable length)
+    return cleaned.slice(0, 15);
+  };
+
+  // Handle phone number input with formatting
+  const handlePhoneInput = text => {
+    const formatted = formatPhoneNumber(text);
+    setFormData(prev => ({...prev, phone: formatted}));
+  };
+
+  // Handle country code selection with appropriate phone formatting update
+  const handleCountrySelect = code => {
+    // Store current phone without formatting
+    const currentPhone = formData.phone.replace(/\D/g, '');
+
+    // Update country code
+    setFormData(prev => ({
+      ...prev,
+      countryCode: code,
+    }));
+
+    // Re-format phone number according to new country format
+    setTimeout(() => {
+      const newFormattedPhone = formatPhoneNumber(currentPhone);
+      setFormData(prev => ({
+        ...prev,
+        phone: newFormattedPhone,
+      }));
+      setOpenDropdown(null);
+    }, 100);
+  };
+
+  // Render the phone input with country code
+  const renderPhoneInput = () => {
+    const currentCountryCode = formData.countryCode;
+    const countryFlagCode = getCountryCodeFromDialCode(currentCountryCode);
+
+    return (
+      <View style={styles.phoneInputContainer}>
+        <View
+          style={[styles.phoneContainer, isDark && styles.phoneContainerDark]}>
+          <TouchableOpacity
+            style={[styles.countryCode, isDark && styles.countryCodeDark]}
+            onPress={() => setOpenDropdown('countryCode')}>
+            <Text style={[styles.countryCodeText, isDark && styles.textDark]}>
+              {currentCountryCode}
+            </Text>
+            <Image
+              source={{
+                uri: `https://flagsapi.com/${countryFlagCode}/flat/32.png`,
+              }}
+              style={styles.flagImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
+          <TextInput
+            style={[styles.phoneInput, isDark && styles.inputDark]}
+            placeholder="Phone Number *"
+            placeholderTextColor={isDark ? '#666666' : undefined}
+            value={formData.phone}
+            onChangeText={handlePhoneInput}
+            keyboardType="phone-pad"
+            maxLength={15}
+          />
+        </View>
+      </View>
+    );
+  };
+
+  // Render the dropdown options for country code
+  const renderCountryCodeDropdown = () => {
+    if (openDropdown !== 'countryCode') return null;
+
+    return (
+      <Modal
+        visible={true}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setOpenDropdown(null)}>
+        <View style={styles.modalOverlay}>
+          <View
+            style={[styles.modalContent, isDark && styles.modalContentDark]}>
+            <Text style={[styles.modalTitle, isDark && styles.textDark]}>
+              Select Country Code
+            </Text>
+
+            <FlatList
+              data={countryCodeOptions}
+              keyExtractor={item => item.code}
+              style={styles.countryList}
+              showsVerticalScrollIndicator={true}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={[
+                    styles.countryItem,
+                    formData.countryCode === item.code &&
+                      styles.selectedCountryItem,
+                  ]}
+                  onPress={() => handleCountrySelect(item.code)}>
+                  <View style={styles.countryInfo}>
+                    <Image
+                      source={{
+                        uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
+                      }}
+                      style={styles.flagImage}
+                      resizeMode="cover"
+                    />
+                    <Text
+                      style={[
+                        styles.countryText,
+                        isDark && styles.textDark,
+                        formData.countryCode === item.code &&
+                          styles.selectedCountryText,
+                      ]}>
+                      {item.code} {item.country}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setOpenDropdown(null)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
   const getDaysInMonth = (month, year) => {
     return new Date(year, month, 0).getDate();
   };
-  
-  const years = Array.from({length: 100}, (_, i) => new Date().getFullYear() - i);
+
+  const years = Array.from(
+    {length: 100},
+    (_, i) => new Date().getFullYear() - i,
+  );
   const months = [
     {value: 1, label: 'January'},
     {value: 2, label: 'February'},
@@ -65,10 +260,10 @@ const FillProfileScreen = () => {
     {value: 11, label: 'November'},
     {value: 12, label: 'December'},
   ];
-  
+
   const days = Array.from(
-    {length: getDaysInMonth(datePickerValue.month, datePickerValue.year)}, 
-    (_, i) => i + 1
+    {length: getDaysInMonth(datePickerValue.month, datePickerValue.year)},
+    (_, i) => i + 1,
   );
 
   const isFormValid = () => {
@@ -96,41 +291,46 @@ const FillProfileScreen = () => {
   };
 
   const handleImagePick = () => {
-    ImagePicker.launchImageLibrary({
-      mediaType: 'photo',
-      quality: 0.8,
-    }, (response) => {
-      if (response.didCancel) {
-        return;
-      }
-      if (response.assets && response.assets[0]) {
-        setProfileImage(response.assets[0].uri);
-      }
-    });
+    ImagePicker.launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.8,
+      },
+      response => {
+        if (response.didCancel) {
+          return;
+        }
+        if (response.assets && response.assets[0]) {
+          setProfileImage(response.assets[0].uri);
+        }
+      },
+    );
   };
 
   const handleDateChange = () => {
     setShowDateModal(false);
     const newDate = new Date(
-      datePickerValue.year, 
-      datePickerValue.month - 1, 
-      datePickerValue.day
+      datePickerValue.year,
+      datePickerValue.month - 1,
+      datePickerValue.day,
     );
-    setFormData(prev => ({ ...prev, dateOfBirth: newDate }));
+    setFormData(prev => ({...prev, dateOfBirth: newDate}));
   };
 
   const handleSubmit = async () => {
     if (!isFormValid()) return;
-    
+
     try {
       setLoading(true);
-      
+
       const formattedDate = formData.dateOfBirth.toISOString().split('T')[0];
-      
-      const formattedPhone = formData.phone.startsWith('+') ? formData.phone : `+${formData.phone}`;
-      
+
+      const formattedPhone = formData.phone.startsWith('+')
+        ? formData.phone
+        : `+${formData.phone}`;
+
       console.log('Using registration token:', registrationToken);
-      
+
       const registrationData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -140,27 +340,28 @@ const FillProfileScreen = () => {
         gender: formData.gender || null,
         email: formData.email,
         password: formData.password,
-        registrationToken: registrationToken
+        registrationToken: registrationToken,
       };
-      
+
       console.log('Registration payload:', JSON.stringify(registrationData));
-      
+
       const response = await registerUser(registrationData);
-      
+
       console.log('Registration response:', response);
-      
+
       Alert.alert(
         'Registration Successful',
         'Your account has been created successfully! Please login with your credentials.',
         [
           {
             text: 'OK',
-            onPress: () => navigation.replace('Login', { 
-              email: formData.email,
-              fromRegistration: true 
-            })
-          }
-        ]
+            onPress: () =>
+              navigation.replace('Login', {
+                email: formData.email,
+                fromRegistration: true,
+              }),
+          },
+        ],
       );
     } catch (error) {
       console.error('Registration error:', error);
@@ -170,30 +371,167 @@ const FillProfileScreen = () => {
     }
   };
 
-  const formatDate = (date) => {
+  const formatDate = date => {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
     return `${month}/${day}/${year}`;
   };
 
+  // Add location options
+  const locationOptions = [
+    {name: 'United States', code: 'US'},
+    {name: 'United Kingdom', code: 'GB'},
+    {name: 'India', code: 'IN'},
+    {name: 'United Arab Emirates', code: 'AE'},
+    {name: 'Australia', code: 'AU'},
+    {name: 'China', code: 'CN'},
+    {name: 'Germany', code: 'DE'},
+    {name: 'France', code: 'FR'},
+    {name: 'Japan', code: 'JP'},
+    {name: 'Italy', code: 'IT'},
+    {name: 'Russia', code: 'RU'},
+    {name: 'Brazil', code: 'BR'},
+    {name: 'Mexico', code: 'MX'},
+    {name: 'South Korea', code: 'KR'},
+    {name: 'Spain', code: 'ES'},
+    {name: 'Canada', code: 'CA'},
+    {name: 'Singapore', code: 'SG'},
+    {name: 'Saudi Arabia', code: 'SA'},
+    {name: 'South Africa', code: 'ZA'},
+    {name: 'Pakistan', code: 'PK'},
+  ];
+
+  // Handle location selection
+  const handleLocationSelect = location => {
+    setFormData(prev => ({...prev, location}));
+    setOpenDropdown(null);
+  };
+
+  // Render the dropdown options for location
+  const renderLocationDropdown = () => {
+    if (openDropdown !== 'location') return null;
+
+    return (
+      <Modal
+        visible={true}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setOpenDropdown(null)}>
+        <View style={styles.modalOverlay}>
+          <View
+            style={[styles.modalContent, isDark && styles.modalContentDark]}>
+            <Text style={[styles.modalTitle, isDark && styles.textDark]}>
+              Select Country
+            </Text>
+
+            <FlatList
+              data={locationOptions}
+              keyExtractor={item => item.code}
+              style={styles.countryList}
+              showsVerticalScrollIndicator={true}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={[
+                    styles.countryItem,
+                    formData.location === item.name &&
+                      styles.selectedCountryItem,
+                  ]}
+                  onPress={() => handleLocationSelect(item.name)}>
+                  <View style={styles.countryInfo}>
+                    <Image
+                      source={{
+                        uri: `https://flagsapi.com/${item.code}/flat/32.png`,
+                      }}
+                      style={styles.flagImage}
+                      resizeMode="cover"
+                    />
+                    <Text
+                      style={[
+                        styles.countryText,
+                        isDark && styles.textDark,
+                        formData.location === item.name &&
+                          styles.selectedCountryText,
+                      ]}>
+                      {item.name}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setOpenDropdown(null)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
+  };
+
+  // Render the location input
+  const renderLocationInput = () => {
+    return (
+      <View style={styles.inputContainer}>
+        <TouchableOpacity
+          style={[
+            styles.locationContainer,
+            isDark && styles.locationContainerDark,
+          ]}
+          onPress={() => setOpenDropdown('location')}>
+          <View style={styles.locationContent}>
+            {formData.location && (
+              <Image
+                source={{
+                  uri: `https://flagsapi.com/${
+                    locationOptions.find(loc => loc.name === formData.location)
+                      ?.code || 'US'
+                  }/flat/32.png`,
+                }}
+                style={styles.flagImage}
+                resizeMode="cover"
+              />
+            )}
+            <Text
+              style={[
+                styles.locationText,
+                isDark && styles.textDark,
+                !formData.location && styles.placeholderText,
+              ]}>
+              {formData.location || 'Select Country'}
+            </Text>
+          </View>
+          <Text style={[styles.inputIcon, isDark && styles.textDark]}>▼</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={isDark ? styles.containerDark : styles.container}>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <BackArrow />
+          <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Fill Your Profile</Text>
+        <Text style={[styles.headerTitle, isDark && styles.textDark]}>
+          Fill Your Profile
+        </Text>
       </View>
 
       <View style={styles.imageContainer}>
         <TouchableOpacity onPress={handleImagePick}>
           {profileImage ? (
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+            <Image source={{uri: profileImage}} style={styles.profileImage} />
           ) : (
-            <View style={styles.placeholderImage}>
+            <View
+              style={[
+                styles.placeholderImage,
+                isDark && styles.placeholderImageDark,
+              ]}>
               <Text style={styles.cameraIcon}>📷</Text>
             </View>
           )}
@@ -203,68 +541,55 @@ const FillProfileScreen = () => {
       <View style={styles.form}>
         <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDark && styles.inputDark]}
             placeholder="First Name *"
             value={formData.firstName}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, firstName: text }))}
+            onChangeText={text =>
+              setFormData(prev => ({...prev, firstName: text}))
+            }
+            placeholderTextColor={isDark ? '#666666' : undefined}
           />
         </View>
 
         <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDark && styles.inputDark]}
             placeholder="Last Name *"
             value={formData.lastName}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, lastName: text }))}
+            onChangeText={text =>
+              setFormData(prev => ({...prev, lastName: text}))
+            }
+            placeholderTextColor={isDark ? '#666666' : undefined}
           />
         </View>
 
         <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDark && styles.inputDark]}
             placeholder="Email *"
             value={formData.email}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
+            onChangeText={text => setFormData(prev => ({...prev, email: text}))}
             keyboardType="email-address"
             autoCapitalize="none"
             editable={false}
+            placeholderTextColor={isDark ? '#666666' : undefined}
           />
           <Text style={styles.inputIcon}>✉️</Text>
         </View>
 
-        <View style={styles.inputContainer}>
-          <View style={styles.phoneContainer}>
-            <Text style={styles.countryCode}>🇺🇸 +1</Text>
-            <TextInput
-              style={styles.phoneInput}
-              placeholder="Phone Number *"
-              value={formData.phone}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, phone: text }))}
-              keyboardType="phone-pad"
-            />
-          </View>
-        </View>
+        {renderPhoneInput()}
 
-        <TouchableOpacity 
-          style={styles.inputContainer}
-          onPress={() => {/* TODO: Implement location picker */}}>
-          <TextInput
-            style={styles.input}
-            placeholder="Location"
-            value={formData.location}
-            editable={false}
-          />
-          <Text style={styles.inputIcon}>📍</Text>
-        </TouchableOpacity>
+        {renderLocationInput()}
 
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.inputContainer}
           onPress={() => setShowDateModal(true)}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDark && styles.inputDark]}
             placeholder="Date of Birth"
             value={formatDate(formData.dateOfBirth)}
             editable={false}
+            placeholderTextColor={isDark ? '#666666' : undefined}
           />
           <Text style={styles.inputIcon}>📅</Text>
         </TouchableOpacity>
@@ -272,41 +597,71 @@ const FillProfileScreen = () => {
         <View style={styles.inputContainer}>
           <Picker
             selectedValue={formData.gender}
-            style={styles.input}
-            onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}>
-            <Picker.Item label="Select Gender" value="" />
-            <Picker.Item label="Male" value="Male" />
-            <Picker.Item label="Female" value="Female" />
-            <Picker.Item label="Other" value="Other" />
+            style={[styles.input, isDark && styles.inputDark]}
+            onValueChange={value =>
+              setFormData(prev => ({...prev, gender: value}))
+            }
+            dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+            <Picker.Item
+              label="Select Gender"
+              value=""
+              color={isDark ? '#FFFFFF' : '#000000'}
+            />
+            <Picker.Item
+              label="Male"
+              value="Male"
+              color={isDark ? '#FFFFFF' : '#000000'}
+            />
+            <Picker.Item
+              label="Female"
+              value="Female"
+              color={isDark ? '#FFFFFF' : '#000000'}
+            />
+            <Picker.Item
+              label="Other"
+              value="Other"
+              color={isDark ? '#FFFFFF' : '#000000'}
+            />
           </Picker>
         </View>
-        
+
         <View style={styles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={[styles.input, isDark && styles.inputDark]}
             placeholder="Password *"
             value={formData.password}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, password: text }))}
+            onChangeText={text =>
+              setFormData(prev => ({...prev, password: text}))
+            }
             secureTextEntry
-          />
-        </View>
-        
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm Password *"
-            value={formData.confirmPassword}
-            onChangeText={(text) => setFormData(prev => ({ ...prev, confirmPassword: text }))}
-            secureTextEntry
+            placeholderTextColor={isDark ? '#666666' : undefined}
           />
         </View>
 
-        <TouchableOpacity 
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={[styles.input, isDark && styles.inputDark]}
+            placeholder="Confirm Password *"
+            value={formData.confirmPassword}
+            onChangeText={text =>
+              setFormData(prev => ({...prev, confirmPassword: text}))
+            }
+            secureTextEntry
+            placeholderTextColor={isDark ? '#666666' : undefined}
+          />
+        </View>
+
+        <TouchableOpacity
           style={[
-            styles.continueButton, 
-            (formData.firstName && formData.lastName && formData.email && formData.password && formData.confirmPassword) 
-              ? styles.activeButton : {}
-          ]} 
+            styles.continueButton,
+            formData.firstName &&
+            formData.lastName &&
+            formData.email &&
+            formData.password &&
+            formData.confirmPassword
+              ? styles.activeButton
+              : {},
+          ]}
           onPress={handleSubmit}
           disabled={loading}>
           {loading ? (
@@ -317,65 +672,97 @@ const FillProfileScreen = () => {
         </TouchableOpacity>
       </View>
 
+      {renderCountryCodeDropdown()}
+      {renderLocationDropdown()}
+
       <Modal
         visible={showDateModal}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setShowDateModal(false)}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View
+            style={[styles.modalContent, isDark && styles.modalContentDark]}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Date of Birth</Text>
+              <Text style={[styles.modalTitle, isDark && styles.textDark]}>
+                Select Date of Birth
+              </Text>
               <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                <Text style={styles.closeButton}>✕</Text>
+                <Text style={[styles.closeButton, isDark && styles.textDark]}>
+                  ✕
+                </Text>
               </TouchableOpacity>
             </View>
-            
+
             <View style={styles.datePickerContainer}>
               <View style={styles.pickerColumn}>
-                <Text style={styles.pickerLabel}>Month</Text>
+                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                  Month
+                </Text>
                 <Picker
                   selectedValue={datePickerValue.month}
-                  style={styles.picker}
-                  onValueChange={(value) => 
+                  style={[styles.picker, isDark && styles.pickerDark]}
+                  onValueChange={value =>
                     setDatePickerValue(prev => ({...prev, month: value}))
-                  }>
+                  }
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
                   {months.map(month => (
-                    <Picker.Item key={month.value} label={month.label} value={month.value} />
+                    <Picker.Item
+                      key={month.value}
+                      label={month.label}
+                      value={month.value}
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
                   ))}
                 </Picker>
               </View>
-              
+
               <View style={styles.pickerColumn}>
-                <Text style={styles.pickerLabel}>Day</Text>
+                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                  Day
+                </Text>
                 <Picker
                   selectedValue={datePickerValue.day}
-                  style={styles.picker}
-                  onValueChange={(value) => 
+                  style={[styles.picker, isDark && styles.pickerDark]}
+                  onValueChange={value =>
                     setDatePickerValue(prev => ({...prev, day: value}))
-                  }>
+                  }
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
                   {days.map(day => (
-                    <Picker.Item key={day} label={String(day)} value={day} />
+                    <Picker.Item
+                      key={day}
+                      label={String(day)}
+                      value={day}
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
                   ))}
                 </Picker>
               </View>
-              
+
               <View style={styles.pickerColumn}>
-                <Text style={styles.pickerLabel}>Year</Text>
+                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                  Year
+                </Text>
                 <Picker
                   selectedValue={datePickerValue.year}
-                  style={styles.picker}
-                  onValueChange={(value) => 
+                  style={[styles.picker, isDark && styles.pickerDark]}
+                  onValueChange={value =>
                     setDatePickerValue(prev => ({...prev, year: value}))
-                  }>
+                  }
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
                   {years.map(year => (
-                    <Picker.Item key={year} label={String(year)} value={year} />
+                    <Picker.Item
+                      key={year}
+                      label={String(year)}
+                      value={year}
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
                   ))}
                 </Picker>
               </View>
             </View>
-            
-            <TouchableOpacity 
+
+            <TouchableOpacity
               style={styles.confirmButton}
               onPress={handleDateChange}>
               <Text style={styles.confirmButtonText}>Confirm</Text>
@@ -391,6 +778,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+  },
+  containerDark: {
+    flex: 1,
+    backgroundColor: '#1A1A1A',
   },
   header: {
     flexDirection: 'row',
@@ -409,6 +800,9 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginLeft: 10,
   },
+  textDark: {
+    color: '#FFFFFF',
+  },
   imageContainer: {
     alignItems: 'center',
     marginVertical: 20,
@@ -425,6 +819,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  placeholderImageDark: {
+    backgroundColor: '#000000',
   },
   cameraIcon: {
     fontSize: 40,
@@ -445,6 +842,14 @@ const styles = StyleSheet.create({
     color: '#333333',
     backgroundColor: '#FFFFFF',
   },
+  inputDark: {
+    backgroundColor: '#000000',
+    borderColor: '#333333',
+    color: '#FFFFFF',
+  },
+  phoneInputContainer: {
+    marginBottom: 16,
+  },
   phoneContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -453,11 +858,30 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
+  phoneContainerDark: {
+    borderColor: '#333333',
+  },
   countryCode: {
     padding: 12,
     borderRightWidth: 1,
     borderRightColor: '#E0E0E0',
     backgroundColor: '#F5F5F5',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  countryCodeDark: {
+    borderRightColor: '#333333',
+    backgroundColor: '#000000',
+  },
+  countryCodeText: {
+    marginRight: 8,
+    fontSize: 16,
+    color: '#333333',
+  },
+  flagImage: {
+    width: 24,
+    height: 16,
+    borderRadius: 2,
   },
   phoneInput: {
     flex: 1,
@@ -493,10 +917,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    width: '90%',
+    width: '80%',
+    maxHeight: '70%',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
+  },
+  modalContentDark: {
+    backgroundColor: '#1A1A1A',
   },
   modalHeader: {
     flexDirection: 'row',
@@ -508,6 +936,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#333333',
+    marginBottom: 20,
+    textAlign: 'center',
   },
   closeButton: {
     fontSize: 18,
@@ -530,6 +960,9 @@ const styles = StyleSheet.create({
   picker: {
     height: 150,
   },
+  pickerDark: {
+    color: '#FFFFFF',
+  },
   confirmButton: {
     backgroundColor: '#F4821F',
     padding: 15,
@@ -542,6 +975,63 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  countryList: {
+    maxHeight: 300,
+  },
+  countryItem: {
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  selectedCountryItem: {
+    backgroundColor: '#F4821F',
+  },
+  countryInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  countryText: {
+    fontSize: 16,
+    color: '#333333',
+  },
+  selectedCountryText: {
+    color: '#FFFFFF',
+  },
+  closeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#FFFFFF',
+  },
+  locationContainerDark: {
+    borderColor: '#333333',
+    backgroundColor: '#000000',
+  },
+  locationContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  locationText: {
+    fontSize: 16,
+    color: '#333333',
+    marginLeft: 10,
+  },
+  placeholderText: {
+    color: '#666666',
+  },
 });
 
-export default FillProfileScreen; 
+export default FillProfileScreen;

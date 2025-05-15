@@ -20,6 +20,19 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.legendmotors.google</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.789807190580-bcbo9v2phpgjh8lnbfl6emqaemjijmsm</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CleverTapAccountID</key>
@@ -37,10 +50,10 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to upload your profile picture</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need access to your location to show you the nearest dealers</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to upload your profile picture</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>AntDesign.ttf</string>

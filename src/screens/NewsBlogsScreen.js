@@ -132,9 +132,9 @@ const NewsBlogsScreen = () => {
               style={styles.cardImage}
               resizeMode="cover"
             />
-            <View style={styles.numberOverlay}>
+            {/* <View style={styles.numberOverlay}>
               <Text style={styles.numberText}>{index + 1}</Text>
-            </View>
+            </View> */}
             <View style={styles.readTimeContainer}>
               <Text style={styles.readTimeText}>2 min read</Text>
             </View>
@@ -211,9 +211,9 @@ const NewsBlogsScreen = () => {
                 style={styles.cardImage}
                 resizeMode="cover"
               />
-              <View style={styles.numberOverlay}>
+              {/* <View style={styles.numberOverlay}>
                 <Text style={styles.numberText}>1</Text>
-              </View>
+              </View> */}
               <View style={styles.readTimeContainer}>
                 <Text style={styles.readTimeText}>2 min read</Text>
               </View>
@@ -567,6 +567,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    paddingHorizontal: 10,
   },
   emptyContainer: {
     padding: 40,

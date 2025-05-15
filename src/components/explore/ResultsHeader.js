@@ -1,49 +1,69 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
-import { useTheme, themeColors } from '../../context/ThemeContext';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  COLORS,
+  SPACING,
+  FONT_SIZES,
+  BORDER_RADIUS,
+} from '../../utils/constants';
+import {useTheme, themeColors} from '../../context/ThemeContext';
 
-const ResultsHeader = ({ 
-  totalCars, 
-  searchQuery = '', 
-  isViewingSpecificCar = false, 
-  carId = '', 
-  filteredBySearch = false, 
-  hasFilters = false, 
-  onClearFilters 
+const ResultsHeader = ({
+  totalCars,
+  searchQuery = '',
+  isViewingSpecificCar = false,
+  carId = '',
+  filteredBySearch = false,
+  hasFilters = false,
+  onClearFilters,
 }) => {
-  const { isDark, theme } = useTheme();
+  const {isDark, theme} = useTheme();
 
   // Format number with commas
-  const formatNumber = (num) => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const formatNumber = num => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
   // Determine the appropriate text to display
   const getResultsText = () => {
     if (isViewingSpecificCar) {
       return (
-        <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>
+        <Text
+          style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
           Viewing car details (ID: {carId || 'unknown'})
         </Text>
       );
     } else if (filteredBySearch && searchQuery) {
       return (
         <View style={styles.searchResultsContainer}>
-          <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>Results for "</Text>
+          <Text
+            style={[
+              styles.resultsText,
+              {color: isDark ? '#FFFFFF' : '#000000'},
+            ]}>
+            Results for "
+          </Text>
           <Text style={styles.searchQueryText}>{searchQuery}</Text>
-          <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>"</Text>
+          <Text
+            style={[
+              styles.resultsText,
+              {color: isDark ? '#FFFFFF' : '#000000'},
+            ]}>
+            "
+          </Text>
         </View>
       );
     } else if (hasFilters) {
       return (
-        <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>
+        <Text
+          style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
           Showing {totalCars} cars
         </Text>
       );
     } else {
       return (
-        <Text style={[styles.resultsText, { color: isDark ? '#FFFFFF' : '#000000' }]}>
+        <Text
+          style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
           Total: {totalCars} cars
         </Text>
       );
@@ -62,19 +82,20 @@ const ResultsHeader = ({
   };
 
   return (
-    <View style={[styles.resultsHeader, { borderBottomColor: isDark ? '#444444' : '#F0F0F0' }]}>
-      <View style={styles.resultTextContainer}>
-        {getResultsText()}
-      </View>
-      
+    <View
+      style={[
+        styles.resultsHeader,
+        {borderBottomColor: isDark ? '#444444' : '#F0F0F0'},
+      ]}>
+      <View style={styles.resultTextContainer}>{getResultsText()}</View>
+
       <View style={styles.rightContainer}>
         {getCountText()}
-        
+
         {!isViewingSpecificCar && (hasFilters || filteredBySearch) && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.clearFiltersButton}
-            onPress={onClearFilters}
-          >
+            onPress={onClearFilters}>
             <Text style={styles.clearFiltersText}>Clear</Text>
           </TouchableOpacity>
         )}
@@ -124,7 +145,7 @@ const styles = StyleSheet.create({
   clearFiltersButton: {
     paddingVertical: SPACING.xs,
     paddingHorizontal: SPACING.md,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: COLORS.primary,
     borderRadius: BORDER_RADIUS.sm,
   },
   clearFiltersText: {
@@ -134,4 +155,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ResultsHeader; 
+export default ResultsHeader;

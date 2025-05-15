@@ -27,7 +27,7 @@ import CarCard from '../explore/CarCard';
 import {useTheme} from 'src/context/ThemeContext';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import LoginPromptModal from '../../components/LoginPromptModal';
-import { useLoginPrompt } from '../../hooks/useLoginPrompt';
+import {useLoginPrompt} from '../../hooks/useLoginPrompt';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -48,7 +48,11 @@ const PopularCarCard = memo(
     let fallbackImage = require('./HotDealsCar.png');
 
     // First try CarImages array
-    if (item.CarImages && Array.isArray(item.CarImages) && item.CarImages.length > 0) {
+    if (
+      item.CarImages &&
+      Array.isArray(item.CarImages) &&
+      item.CarImages.length > 0
+    ) {
       const firstImage = item.CarImages[0];
       if (firstImage.FileSystem) {
         const path =
@@ -60,15 +64,21 @@ const PopularCarCard = memo(
           imageUrl = {uri: `https://cdn.legendmotorsglobal.com${path}`};
         }
       }
-    } 
+    }
     // Then try images array
-    else if (item.images && Array.isArray(item.images) && item.images.length > 0) {
+    else if (
+      item.images &&
+      Array.isArray(item.images) &&
+      item.images.length > 0
+    ) {
       const firstImage = item.images[0];
-      imageUrl = typeof firstImage === 'string' ? {uri: firstImage} : firstImage;
+      imageUrl =
+        typeof firstImage === 'string' ? {uri: firstImage} : firstImage;
     }
     // Finally try image property
     else if (item.image) {
-      imageUrl = typeof item.image === 'string' ? {uri: item.image} : item.image;
+      imageUrl =
+        typeof item.image === 'string' ? {uri: item.image} : item.image;
     }
 
     // If still no valid image, use the fallback
@@ -88,9 +98,9 @@ const PopularCarCard = memo(
     const price = item.price || item.Price || 750000;
 
     // Calculate icon color based on dark mode
-    const iconColor = isDarkMode ? "#FFFFFF" : "#8A2BE2";
-    const specTextColor = isDarkMode ? "#FFFFFF" : "#666";
-    const specItemBgColor = isDarkMode ? "#333333" : "#F0E6FA";
+    const iconColor = isDarkMode ? '#FFFFFF' : '#8A2BE2';
+    const specTextColor = isDarkMode ? '#FFFFFF' : '#666';
+    const specItemBgColor = isDarkMode ? '#333333' : '#F0E6FA';
 
     const handleImageError = () => {
       console.log('Image load error for car:', item.id);
@@ -138,13 +148,19 @@ const PopularCarCard = memo(
 
           <View style={styles.specRow}>
             <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
-              <MaterialCommunityIcons name="engine" size={16} color={iconColor} />
+              <MaterialCommunityIcons
+                name="engine"
+                size={16}
+                color={iconColor}
+              />
               <Text style={[styles.specText, {color: specTextColor}]}>ltr</Text>
             </View>
 
             <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
               <Ionicons name="flash" size={16} color={iconColor} />
-              <Text style={[styles.specText, {color: specTextColor}]}>{fuelType}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>
+                {fuelType}
+              </Text>
             </View>
 
             <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
@@ -153,7 +169,9 @@ const PopularCarCard = memo(
                 size={16}
                 color={iconColor}
               />
-              <Text style={[styles.specText, {color: specTextColor}]}>{transmission}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>
+                {transmission}
+              </Text>
             </View>
 
             <View style={[styles.specItem, {backgroundColor: specItemBgColor}]}>
@@ -162,7 +180,9 @@ const PopularCarCard = memo(
                 size={16}
                 color={iconColor}
               />
-              <Text style={[styles.specText, {color: specTextColor}]}>{region}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>
+                {region}
+              </Text>
             </View>
           </View>
 
@@ -173,12 +193,17 @@ const PopularCarCard = memo(
                 size={16}
                 color={iconColor}
               />
-              <Text style={[styles.specText, {color: specTextColor}]}>{steeringType}</Text>
+              <Text style={[styles.specText, {color: specTextColor}]}>
+                {steeringType}
+              </Text>
             </View>
           </View>
 
           <View style={styles.priceRow}>
-            <Text style={styles.priceText}>{selectedCurrency === 'USD' ? '$' : selectedCurrency} {parseInt(price).toLocaleString()}</Text>
+            <Text style={styles.priceText}>
+              {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
+              {parseInt(price).toLocaleString()}
+            </Text>
 
             <View style={styles.actionButtons}>
               <TouchableOpacity
@@ -228,7 +253,7 @@ const MostPopularCars = () => {
     loginModalVisible,
     hideLoginPrompt,
     navigateToLogin,
-    checkAuthAndShowPrompt
+    checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
   // Use a ref to avoid making API calls if component unmounts
@@ -269,14 +294,16 @@ const MostPopularCars = () => {
         Array.isArray(car.images) &&
         car.images.length > 0
       ) {
-        processedImages = car.images.map(image => {
-          if (typeof image === 'string') {
-            return {uri: image};
-          } else if (image && image.uri) {
-            return image;
-          }
-          return null;
-        }).filter(img => img !== null);
+        processedImages = car.images
+          .map(image => {
+            if (typeof image === 'string') {
+              return {uri: image};
+            } else if (image && image.uri) {
+              return image;
+            }
+            return null;
+          })
+          .filter(img => img !== null);
       } else if (
         car.Images &&
         Array.isArray(car.Images) &&
@@ -306,20 +333,18 @@ const MostPopularCars = () => {
       car.bodyType =
         car?.SpecificationValues?.find(a => a.Specification?.key == 'body_type')
           ?.name ?? 'SUV';
-      car.fuelType =
-        car?.SpecificationValues?.find(a => a.Specification?.key == 'fuel_type')
-          ?.name ?? 'Electric';
-      car.transmissionType =
-        car?.SpecificationValues?.find(
-          a => a.Specification?.key == 'transmission',
-        )?.name ?? 'Automatic';
-      car.steeringType =
-        car?.SpecificationValues?.find(a => a.Specification?.key == 'steering')
-          ?.name ?? 'Left hand drive';
-      car.region =
-        car?.SpecificationValues?.find(
-          a => a.Specification?.key == 'regional_specification',
-        )?.name ?? 'China';
+      car.fuelType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'fuel_type',
+      )?.name;
+      car.transmissionType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'transmission',
+      )?.name;
+      car.steeringType = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'steering',
+      )?.name;
+      car.region = car?.SpecificationValues?.find(
+        a => a.Specification?.key == 'regional_specification',
+      )?.name;
 
       // Create a normalized car object with consistent property names
       const processedCar = {
@@ -389,7 +414,7 @@ const MostPopularCars = () => {
     navigation.navigate('ExploreTab', {
       filters: {
         specifications: {
-          tags: [1]  // Filter for Popular tag
+          tags: [1], // Filter for Popular tag
         },
         brands: [],
         brandIds: [],
@@ -398,8 +423,8 @@ const MostPopularCars = () => {
         trims: [],
         trimIds: [],
         years: [],
-        yearIds: []
-      }
+        yearIds: [],
+      },
     });
   };
 
@@ -417,7 +442,7 @@ const MostPopularCars = () => {
       } else {
         result = await addItemToWishlist(carId);
       }
-      
+
       // If operation failed but not because of auth (since we already checked auth)
       if (!result.success && !result.requiresAuth) {
         console.error('Wishlist operation failed');
@@ -550,7 +575,8 @@ const MostPopularCars = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: SPACING.xl,
+    // marginVertical: SPACING.xl,
+    // marginTop: SPACING.md,
   },
   header: {
     flexDirection: 'row',

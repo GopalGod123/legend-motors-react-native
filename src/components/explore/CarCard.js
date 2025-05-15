@@ -37,7 +37,7 @@ const CarCard = memo(
     const {theme, isDark} = useTheme();
     const {selectedCurrency} = useCurrencyLanguage();
     const {showLoginPrompt} = useLoginPrompt();
-    
+
     // Use provided isDarkMode prop if available, otherwise use the theme context
     const effectiveDarkMode = isDarkMode !== undefined ? isDarkMode : isDark;
 
@@ -48,11 +48,11 @@ const CarCard = memo(
     const additionalInfo = item.additionalInfo || '';
 
     // Use pre-computed values whenever possible
-    const bodyType = item.bodyType || 'SUV';
-    const fuelType = item.fuelType || 'Electric';
-    const transmission = item.transmissionType || 'Automatic';
-    const region = item.region || 'China';
-    const steeringType = item.steeringType || 'Left hand drive';
+    const bodyType = item?.bodyType;
+    const fuelType = item?.fuelType;
+    const transmission = item?.transmissionType;
+    const region = item?.region;
+    const steeringType = item?.steeringType;
 
     // Prepare images - only use first image initially for faster loading
     let imageUrls = [];
@@ -166,7 +166,10 @@ const CarCard = memo(
           </View>
 
           <Text
-            style={[styles.carTitle, {color: effectiveDarkMode ? '#FFFFFF' : '#000000'}]}
+            style={[
+              styles.carTitle,
+              {color: effectiveDarkMode ? '#FFFFFF' : '#000000'},
+            ]}
             numberOfLines={2}
             ellipsizeMode="tail">
             {carTitle}
@@ -174,103 +177,122 @@ const CarCard = memo(
 
           {/* First row with 3 icons */}
           <View style={styles.specRow}>
-            <View
-              style={[
-                styles.specItem,
-                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
-              ]}>
-              <Image
-                source={require('./icon_assets/ltr.png')}
-                style={{width: 16, height: 16}}
-                resizeMode="contain"
-              />
-              <Text
+            {item?.engineSize ? (
+              <View
                 style={[
-                  styles.specText,
-                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  styles.specItem,
+                  {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
                 ]}>
-                ltr
-              </Text>
-            </View>
+                <Image
+                  source={require('./icon_assets/ltr.png')}
+                  style={{width: 16, height: 16}}
+                  resizeMode="contain"
+                  tintColor={effectiveDarkMode ? '#FFFFFF' : '#5E366D'}
+                />
 
-            <View
-              style={[
-                styles.specItem,
-                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
-              ]}>
-              <Image
-                source={require('./icon_assets/electric.png')}
-                style={{width: 16, height: 16}}
-                resizeMode="contain"
-              />
-              <Text
-                style={[
-                  styles.specText,
-                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
-                ]}>
-                {fuelType}
-              </Text>
-            </View>
+                <Text
+                  style={[
+                    styles.specText,
+                    {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  ]}>
+                  {item?.engineSize}
+                </Text>
+              </View>
+            ) : null}
 
-            <View
-              style={[
-                styles.specItem,
-                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
-              ]}>
-              <Image
-                source={require('./icon_assets/Automatic.png')}
-                style={{width: 16, height: 16}}
-                resizeMode="contain"
-              />
-              <Text
+            {fuelType ? (
+              <View
                 style={[
-                  styles.specText,
-                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  styles.specItem,
+                  {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
                 ]}>
-                {transmission}
-              </Text>
-            </View>
+                <Image
+                  source={require('./icon_assets/electric.png')}
+                  style={{
+                    width: 16,
+                    height: 16,
+                  }}
+                  resizeMode="contain"
+                  tintColor={effectiveDarkMode ? '#FFFFFF' : '#5E366D'}
+                />
+                <Text
+                  style={[
+                    styles.specText,
+                    {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  ]}>
+                  {fuelType}
+                </Text>
+              </View>
+            ) : null}
+
+            {transmission ? (
+              <View
+                style={[
+                  styles.specItem,
+                  {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
+                ]}>
+                <Image
+                  source={require('./icon_assets/Automatic.png')}
+                  style={{width: 16, height: 16}}
+                  resizeMode="contain"
+                  tintColor={effectiveDarkMode ? '#FFFFFF' : '#5E366D'}
+                />
+                <Text
+                  style={[
+                    styles.specText,
+                    {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  ]}>
+                  {transmission}
+                </Text>
+              </View>
+            ) : null}
           </View>
 
           {/* Second row with 2 icons */}
           <View style={styles.specRow}>
-            <View
-              style={[
-                styles.specItem,
-                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
-              ]}>
-              <Image
-                source={require('./icon_assets/country.png')}
-                style={{width: 16, height: 16}}
-                resizeMode="contain"
-              />
-              <Text
+            {region ? (
+              <View
                 style={[
-                  styles.specText,
-                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  styles.specItem,
+                  {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
                 ]}>
-                {region}
-              </Text>
-            </View>
+                <Image
+                  source={require('./icon_assets/country.png')}
+                  style={{width: 16, height: 16}}
+                  resizeMode="contain"
+                  tintColor={effectiveDarkMode ? '#FFFFFF' : '#5E366D'}
+                />
+                <Text
+                  style={[
+                    styles.specText,
+                    {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  ]}>
+                  {region}
+                </Text>
+              </View>
+            ) : null}
 
-            <View
-              style={[
-                styles.specItem,
-                {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
-              ]}>
-              <Image
-                source={require('./icon_assets/Steering.png')}
-                style={{width: 16, height: 16}}
-                resizeMode="contain"
-              />
-              <Text
+            {steeringType ? (
+              <View
                 style={[
-                  styles.specText,
-                  {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  styles.specItem,
+                  {backgroundColor: effectiveDarkMode ? '#3D3D3D' : '#E9E5EB'},
                 ]}>
-                {steeringType}
-              </Text>
-            </View>
+                <Image
+                  source={require('./icon_assets/Steering.png')}
+                  style={{width: 16, height: 16}}
+                  resizeMode="contain"
+                  tintColor={effectiveDarkMode ? '#FFFFFF' : '#5E366D'}
+                />
+                <Text
+                  style={[
+                    styles.specText,
+                    {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
+                  ]}>
+                  {steeringType}
+                </Text>
+              </View>
+            ) : null}
           </View>
 
           <View style={styles.priceRow}>
@@ -280,7 +302,8 @@ const CarCard = memo(
                   styles.priceText,
                   {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
                 ]}>
-                {selectedCurrency === 'USD' ? '$' : selectedCurrency} {parseInt(price).toLocaleString()}
+                {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
+                {parseInt(price).toLocaleString()}
               </Text>
             ) : (
               <TouchableOpacity
@@ -291,7 +314,7 @@ const CarCard = memo(
                   borderRadius: BORDER_RADIUS.md,
                 }}
                 onPress={() => {
-                  showLoginPrompt();
+                  navigation.navigate('Login');
                 }}>
                 <Text style={{color: COLORS.white}}>Login to view price</Text>
               </TouchableOpacity>
@@ -374,14 +397,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     // overflow: 'hidden',
-    marginBottom: 20,
+    marginBottom: 10,
   },
   imageContainer: {
     width: '100%',
     height: 200,
     backgroundColor: '#ffffff',
-    borderTopEndRadius: BORDER_RADIUS.lg,
-    borderTopStartRadius: BORDER_RADIUS.lg,
+    borderTopEndRadius: 10,
+    borderTopStartRadius: 10,
     overflow: 'hidden',
   },
   carImage: {

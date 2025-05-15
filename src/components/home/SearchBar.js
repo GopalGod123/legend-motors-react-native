@@ -157,7 +157,7 @@ const SearchBar = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 10,
-    marginBottom: SPACING.xl,
+    marginBottom: SPACING.sm,
   },
   searchSection: {
     flexDirection: 'row',
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     borderRightColor: '#9E86A7',
   },
   filterButtonDark: {
-    backgroundColor: '#312836',
+    backgroundColor: '#6D3E7E',
     borderRightColor: '#6D3E7E',
   },
   filterText: {

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import {
   View,
   Text,
@@ -15,25 +15,28 @@ import {
   Share,
   useWindowDimensions,
   Alert,
+  Platform,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import {getCarByIdOrSlug} from '../services/api';
-import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
-import {CarImage, CarImageCarousel} from '../components/common';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { getCarByIdOrSlug, getUserEnquiries } from '../services/api';
+import { COLORS, SPACING, FONT_SIZES, BORDER_RADIUS } from '../utils/constants';
+import { CarImage, CarImageCarousel } from '../components/common';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {AntDesign, Ionicons} from '../utils/icon';
-import {Svg, Mask, G, Path, Rect} from 'react-native-svg';
-import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
-import {useWishlist} from '../context/WishlistContext';
+import { AntDesign, Ionicons } from '../utils/icon';
+import { Svg, Mask, G, Path, Rect } from 'react-native-svg';
+import { useCurrencyLanguage } from '../context/CurrencyLanguageContext';
+import { useWishlist } from '../context/WishlistContext';
 import RenderHtml from 'react-native-render-html';
-import {useAuth} from '../context/AuthContext';
-import {useTheme, themeColors} from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
+import { useTheme, themeColors } from '../context/ThemeContext';
 import {
   extractColorsFromSlug,
   createColorMatchFunction,
 } from '../utils/colorUtils';
 import LoginPromptModal from '../components/LoginPromptModal';
 import { useLoginPrompt } from '../hooks/useLoginPrompt';
+import ThumbImage from '../components/common/ThumbImage';
+import { preloadImages } from '../utils/ImageCacheManager';
 
 // Import custom icons
 const LtrIcon = require('../components/explore/icon_assets/ltr.png');
@@ -42,10 +45,10 @@ const AutomaticIcon = require('../components/explore/icon_assets/Automatic.png')
 const CountryIcon = require('../components/explore/icon_assets/country.png');
 const SteeringIcon = require('../components/explore/icon_assets/Steering.png');
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 // Helper function to convert color names to hex color codes
-const getColorHex = colorName => {
+const getColorHex = (colorName) => {
   const colorMap = {
     white: '#FFFFFF',
     black: '#000000',
@@ -82,7 +85,7 @@ const getColorHex = colorName => {
 };
 
 // Helper function to determine if a color is dark (for text contrast)
-const isColorDark = hexColor => {
+const isColorDark = (hexColor) => {
   // Handle invalid input
   if (!hexColor || typeof hexColor !== 'string' || !hexColor.startsWith('#')) {
     return false;
@@ -112,13 +115,119 @@ const isColorDark = hexColor => {
   return luminance < 0.5;
 };
 
+// Update ThumbnailList component to match timing with the main auto-scroll
+const ThumbnailList = memo(({ 
+  images, 
+  selectedIndex, 
+  onSelectImage, 
+  carouselRef,
+  listRef,
+  setAutoScrolling,
+  autoScrollTimerRef
+}) => {
+  const logRender = useRef(0);
+  
+  // Memoize images data to avoid re-renders
+  const memoizedImages = useMemo(() => images || [], [images ? images.length : 0]);
+  
+  // Log thumbnail list renders for monitoring performance
+  useEffect(() => {
+    logRender.current += 1;
+    console.log(`ThumbnailList component rendered ${logRender.current} times`);
+  }, []);
+  
+  // Force scroll to the selected index when it changes
+  useEffect(() => {
+    if (listRef && listRef.current && selectedIndex >= 0) {
+      const offset = Math.max(0, selectedIndex * 94 - 94); // 94 is item width + margins
+      listRef.current.scrollToOffset({
+        offset,
+        animated: true
+      });
+    }
+  }, [selectedIndex, listRef]);
+  
+  // Create a memoized render function with selected state dependency
+  const renderThumbnailItem = useCallback(({ item, index }) => {
+    // Determine if this thumbnail is the selected one
+    const isSelected = selectedIndex === index;
+    
+    return (
+      <TouchableOpacity
+        style={[
+          styles.thumbnailItem,
+          isSelected ? styles.thumbnailItemSelected : null,
+        ]}
+        onPress={() => {
+          // Update selected index
+          onSelectImage(index);
+          
+          // Temporarily pause auto-scrolling
+          setAutoScrolling(false);
+          
+          // Manually scroll the carousel
+          if (carouselRef.current) {
+            carouselRef.current.scrollToIndex({
+              index: index,
+              animated: true
+            });
+          }
+          
+          // Resume auto-scrolling after 5 seconds (matching main handler)
+          clearTimeout(autoScrollTimerRef.current);
+          autoScrollTimerRef.current = setTimeout(() => {
+            setAutoScrolling(true);
+          }, 5000);
+        }}
+      >
+        <ThumbImage
+          source={item}
+          style={styles.thumbnailImage}
+          resizeMode="cover"
+          selected={isSelected}
+        />
+      </TouchableOpacity>
+    );
+  }, [selectedIndex, onSelectImage, setAutoScrolling, carouselRef, autoScrollTimerRef]);
+  
+  // No need to render if no images
+  if (!memoizedImages || memoizedImages.length <= 1) return null;
+  
+  return (
+    <View style={styles.thumbnailsContainer}>
+      <FlatList
+        ref={listRef}
+        data={memoizedImages}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(_, index) => `thumbnail-${index}`}
+        contentContainerStyle={styles.thumbnailsContent}
+        onScrollBeginDrag={() => setAutoScrolling(false)}
+        getItemLayout={(data, index) => ({
+          length: 94,
+          offset: 94 * index,
+          index,
+        })}
+        initialNumToRender={5}
+        maxToRenderPerBatch={3}
+        windowSize={5}
+        removeClippedSubviews={true}
+        renderItem={renderThumbnailItem}
+        onScrollToIndexFailed={(info) => {
+          console.warn('Failed to scroll to index', info.index, info.highestMeasuredFrameIndex);
+        }}
+      />
+    </View>
+  );
+});
+
 const CarDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const {carId, lang = 'en'} = route.params || {};
-  const {selectedCurrency} = useCurrencyLanguage();
-  const {user, isAuthenticated} = useAuth();
-  const {theme, isDark} = useTheme();
+  const { carId, lang = 'en' } = route.params || {};
+  const { selectedCurrency } = useCurrencyLanguage();
+  const { user, isAuthenticated } = useAuth();
+  const { theme, isDark } = useTheme();
   const colors = themeColors[theme];
   const {
     isInWishlist,
@@ -126,8 +235,9 @@ const CarDetailScreen = () => {
     removeItemFromWishlist,
     fetchWishlistItems,
   } = useWishlist();
-  const {width} = useWindowDimensions();
+  const { width } = useWindowDimensions();
 
+  // State declarations
   const [loading, setLoading] = useState(true);
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
@@ -137,8 +247,23 @@ const CarDetailScreen = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [processingWishlist, setProcessingWishlist] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isAlreadyInquired, setIsAlreadyInquired] = useState(false);
+  const [userEnquiries, setUserEnquiries] = useState([]);
+  const [autoScrolling, setAutoScrolling] = useState(true);
+  const [imagesPreloaded, setImagesPreloaded] = useState(false);
+  const [autoScrollRaf, setAutoScrollRaf] = useState(null);
+  
+  // Refs declarations
   const carouselRef = useRef(null);
-
+  const thumbnailsListRef = useRef(null);
+  const bottomThumbnailsListRef = useRef(null);
+  const autoScrollTimerRef = useRef(null);
+  const thumbnailRenderCount = useRef(0);
+  // Add these refs for use in the auto-scrolling effect
+  const autoScrollingRef = useRef(autoScrolling);
+  const selectedImageIndexRef = useRef(selectedImageIndex);
+  const activeTabRef = useRef(activeTab);
+  
   // Add state for managing accordion open/close state
   const [expandedAccordions, setExpandedAccordions] = useState({
     interior_feature: false,
@@ -153,12 +278,12 @@ const CarDetailScreen = () => {
     loginModalVisible,
     hideLoginPrompt,
     navigateToLogin,
-    checkAuthAndShowPrompt
+    checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
   // Function to toggle accordion state
-  const toggleAccordion = category => {
-    setExpandedAccordions(prev => ({
+  const toggleAccordion = (category) => {
+    setExpandedAccordions((prev) => ({
       ...prev,
       [category]: !prev[category],
     }));
@@ -167,6 +292,18 @@ const CarDetailScreen = () => {
   useEffect(() => {
     fetchCarDetails();
   }, [carId]);
+
+  useEffect(() => {
+    // Fetch user's enquiries if user is authenticated
+    if (isAuthenticated && user) {
+      fetchUserEnquiries();
+    }
+  }, [isAuthenticated, user]);
+
+  useEffect(() => {
+    // Check if car is in the user's enquiries list
+    checkIfAlreadyInquired();
+  }, [car, userEnquiries]);
 
   useEffect(() => {
     // Extract colors when car data changes
@@ -190,6 +327,193 @@ const CarDetailScreen = () => {
       setIsFavorite(favoriteStatus);
     }
   }, [car, isInWishlist]);
+
+  // Effect to preload images when car data changes
+  useEffect(() => {
+    if (car && !imagesPreloaded) {
+      const allImages = getAllImages();
+      
+      // First preload all main carousel images
+      preloadImages(allImages).then(() => {
+        console.log('All main images preloaded');
+        setImagesPreloaded(true);
+      });
+    }
+  }, [car]);
+
+  // Fix the auto-scrolling implementation to ensure proper function definition and access
+  useEffect(() => {
+    // Update refs when the state changes
+    autoScrollingRef.current = autoScrolling;
+    selectedImageIndexRef.current = selectedImageIndex;
+    activeTabRef.current = activeTab;
+    
+    // Only set up the auto-scroll when mounting or when autoScrolling changes
+    if (autoScrollingRef.current && memoizedCarImages && memoizedCarImages.length > 1) {
+      // Clear any existing RAF
+      if (autoScrollRaf) {
+        cancelAnimationFrame(autoScrollRaf);
+      }
+      
+      // Use a variable outside the RAF function to track time
+      let lastScrollTime = Date.now();
+      const scrollInterval = 3500; // 3.5 seconds - slightly longer for better UX
+      
+      // Define the performAutoScroll function first before using it
+      const performAutoScroll = () => {
+        // Check if we should still be auto-scrolling
+        if (!autoScrollingRef.current) {
+          return; // Exit the RAF loop if auto-scrolling is off
+        }
+        
+        const now = Date.now();
+        const elapsed = now - lastScrollTime;
+        
+        if (elapsed >= scrollInterval) {
+          // Make sure we're within bounds
+          if (memoizedCarImages && memoizedCarImages.length > 0) {
+            const maxIndex = memoizedCarImages.length - 1;
+            // Calculate next index
+            const currentIndex = selectedImageIndexRef.current;
+            const nextIndex = (currentIndex + 1) % memoizedCarImages.length;
+            
+            // Only proceed if index is valid
+            if (nextIndex >= 0 && nextIndex <= maxIndex) {
+              // Update the selected image index directly, avoiding setState in the RAF
+              selectedImageIndexRef.current = nextIndex;
+              
+              // Use a timeout to batch state updates outside the RAF loop
+              setTimeout(() => {
+                // Only update state if still auto-scrolling
+                if (autoScrollingRef.current) {
+                  setSelectedImageIndex(nextIndex);
+                  
+                  // Scroll main carousel if ref is available
+                  if (carouselRef.current) {
+                    try {
+                      // Use the proper parameter format for scrollToIndex
+                      carouselRef.current.scrollToIndex({
+                        index: nextIndex,
+                        animated: true
+                      });
+                    } catch (error) {
+                      console.log('Error scrolling carousel:', error);
+                    }
+                  }
+                  
+                  // If we've reached the end, switch tabs with delay
+                  if (nextIndex === 0) {
+                    // Use timeout to avoid state updates in the same tick
+                    setTimeout(() => {
+                      const currentTab = activeTabRef.current;
+                      if (currentTab === 'exterior') {
+                        setActiveTab('interior');
+                      } else if (currentTab === 'interior') {
+                        setActiveTab('exterior');
+                      }
+                    }, 100);
+                  }
+                }
+              }, 0);
+              
+              lastScrollTime = now;
+            }
+          }
+        }
+        
+        // Continue the animation loop with the same function reference
+        if (autoScrollingRef.current) {
+          const nextRaf = requestAnimationFrame(performAutoScroll);
+          setAutoScrollRaf(nextRaf);
+        }
+      };
+      
+      // Start the auto-scroll loop with the initial call
+      const initialRaf = requestAnimationFrame(performAutoScroll);
+      setAutoScrollRaf(initialRaf);
+      
+      // Cleanup function
+      return () => {
+        if (autoScrollRaf) {
+          cancelAnimationFrame(autoScrollRaf);
+        }
+      };
+    }
+    
+    // Return a cleanup function even if we didn't set up auto-scrolling
+    return () => {
+      if (autoScrollRaf) {
+        cancelAnimationFrame(autoScrollRaf);
+      }
+    };
+  }, [autoScrolling, memoizedCarImages, carouselRef]);
+
+  // Add an effect to handle tab changes
+  useEffect(() => {
+    console.log(`Tab changed to: ${activeTab}, resetting index to 0`);
+    
+    // Reset the selected image index when tab changes
+    setSelectedImageIndex(0);
+    
+    // Wait for next render cycle before scrolling the carousel to index 0
+    setTimeout(() => {
+      if (carouselRef.current) {
+        carouselRef.current.scrollToIndex({
+          index: 0,
+          animated: true
+        });
+      }
+      
+      // Reset both thumbnail lists scroll position
+      if (thumbnailsListRef.current) {
+        thumbnailsListRef.current.scrollToOffset({ offset: 0, animated: true });
+      }
+      
+      if (bottomThumbnailsListRef.current) {
+        bottomThumbnailsListRef.current.scrollToOffset({ offset: 0, animated: true });
+      }
+    }, 50);
+    
+    // Ensure auto-scrolling is active when switching tabs
+    setAutoScrolling(true);
+  }, [activeTab]);
+
+  // Update the handleImagePress function
+  const handleImagePress = (index) => {
+    // If an index is provided, update the selected index
+    if (typeof index === 'number') {
+      setSelectedImageIndex(index);
+    }
+    
+    // Pause auto-scrolling temporarily
+    setAutoScrolling(false);
+    
+    // Clear any existing RAF to stop current auto-scrolling
+    if (autoScrollRaf) {
+      cancelAnimationFrame(autoScrollRaf);
+    }
+    
+    // Resume auto-scrolling after a delay
+    clearTimeout(autoScrollTimerRef.current);
+    autoScrollTimerRef.current = setTimeout(() => {
+      setAutoScrolling(true);
+    }, 5000); // 5 seconds pause when user interacts
+  };
+
+  // In the cleanup function for the component
+  useEffect(() => {
+    return () => {
+      // Cleanup auto-scroll RAF when component unmounts
+      if (autoScrollRaf) {
+        cancelAnimationFrame(autoScrollRaf);
+      }
+      
+      // Clear any pending timeouts
+      if (autoScrollTimerRef.current) {
+        clearTimeout(autoScrollTimerRef.current);
+      }
+    };
+  }, []);
 
   // Function to handle viewing similar color cars
   const handleViewSimilarColorCars = () => {
@@ -240,7 +564,7 @@ const CarDetailScreen = () => {
         if (attempts > 1) {
           console.log(`Retry attempt ${attempts} for car ID: ${carId}`);
           // Short delay before retrying
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
 
         try {
@@ -257,7 +581,7 @@ const CarDetailScreen = () => {
       } else {
         console.log(
           'Failed to fetch car details:',
-          response?.message || 'Unknown error',
+          response?.message || 'Unknown error'
         );
         setError(response?.message || 'Failed to fetch car details');
       }
@@ -269,8 +593,37 @@ const CarDetailScreen = () => {
     }
   };
 
+  const fetchUserEnquiries = async () => {
+    try {
+      const response = await getUserEnquiries();
+      if (response.success && Array.isArray(response.data)) {
+        setUserEnquiries(response.data);
+        console.log('Fetched user enquiries:', response.data.length);
+      } else {
+        console.error('Failed to fetch user enquiries:', response.message || 'Unknown error');
+      }
+    } catch (error) {
+      console.error('Error fetching user enquiries:', error);
+    }
+  };
+
   const goBack = () => {
     navigation.goBack();
+  };
+
+  const checkIfAlreadyInquired = () => {
+    // Check if the current car ID is in the user's enquiries
+    if (car && car.id && userEnquiries.length > 0) {
+      // Find if this car is in the user's enquiries
+      const hasInquired = userEnquiries.some(inquiry => {
+        // Check both direct carId and car.id property inside nested car object
+        return (inquiry.carId === car.id) || 
+               (inquiry.car && inquiry.car.id === car.id);
+      });
+      
+      console.log(`Car ${car.id} already inquired status:`, hasInquired);
+      setIsAlreadyInquired(hasInquired);
+    }
   };
 
   const handleInquire = async () => {
@@ -279,29 +632,60 @@ const CarDetailScreen = () => {
       console.error('Cannot navigate to enquiry form: No car data available');
       return;
     }
-    
+
     // Check if user is authenticated first
     const isAuthorized = await checkAuthAndShowPrompt();
     if (!isAuthorized) {
       return; // Stop here if user is not authenticated
     }
-    
+
+    // If already inquired, show a message instead of navigating
+    if (isAlreadyInquired) {
+      Alert.alert(
+        'Already Inquired',
+        'You have already submitted an inquiry for this car. Check your inquiries for updates.',
+        [
+          {
+            text: 'View My Inquiries',
+            onPress: () => navigation.navigate('Main', { screen: 'EnquiriesTab' }),
+          },
+          {
+            text: 'OK',
+            style: 'cancel',
+          },
+        ]
+      );
+      return;
+    }
+
     console.log('Navigating to enquiry form with car ID:', car.id);
-    
+
     // Ensure we're passing a valid carId and image
-    const carImageData = carImages && carImages.length > 0 ? carImages[0] : null;
-    
+    const carImageData =
+      carImages && carImages.length > 0 ? carImages[0] : null;
+
     navigation.navigate('EnquiryFormScreen', {
       carId: car.id, // Ensure this is a valid car ID
-      carTitle: title || `${car.Year?.year || ''} ${car.Brand?.name || ''} ${car.CarModel?.name || ''}`,
+      carTitle:
+        title ||
+        `${car.Year?.year || ''} ${car.Brand?.name || ''} ${
+          car.CarModel?.name || ''
+        }`,
       carImage: carImageData,
-      carPrice: price,
+      carPrice: isAuthenticated ? price : null,
       currency: selectedCurrency,
+      onEnquirySubmit: (success, isAlreadySubmitted) => {
+        // After submission, update the local state and refresh enquiries
+        if (success || isAlreadySubmitted) {
+          setIsAlreadyInquired(true);
+          fetchUserEnquiries();
+        }
+      }
     });
   };
 
   const toggleFavorite = async () => {
-    try {
+    try {thumbnailImageSelected
       if (!car) {
         console.log('Cannot toggle favorite: No car data available');
         return;
@@ -315,7 +699,7 @@ const CarDetailScreen = () => {
 
       setProcessingWishlist(true);
       console.log(
-        `Toggling favorite for car ID: ${car.id}, current status: ${isFavorite}`,
+        `Toggling favorite for car ID: ${car.id}, current status: ${isFavorite}`
       );
 
       let result;
@@ -357,13 +741,13 @@ const CarDetailScreen = () => {
     }
   };
 
-  const getImagesByType = type => {
+  const getImagesByType = (type) => {
     if (!car || !car.CarImages || !Array.isArray(car.CarImages)) {
       return [];
     }
 
-    return car.CarImages.filter(img => img.type === type)
-      .map(img => {
+    return car.CarImages.filter((img) => img.type === type)
+      .map((img) => {
         if (img.FileSystem && img.FileSystem.path) {
           return {
             uri: `https://cdn.legendmotorsglobal.com${img.FileSystem.path}`,
@@ -376,7 +760,7 @@ const CarDetailScreen = () => {
         }
         return null;
       })
-      .filter(img => img !== null);
+      .filter((img) => img !== null);
   };
 
   const getAllImages = () => {
@@ -390,6 +774,9 @@ const CarDetailScreen = () => {
     return highlightImages;
   };
 
+  // Memoize carImages to ensure stable reference
+  const memoizedCarImages = useMemo(() => getAllImages(), [car, activeTab]);
+
   const renderSpecification = (label, value) => {
     if (!value) return null;
 
@@ -401,17 +788,18 @@ const CarDetailScreen = () => {
     );
   };
 
-  const renderFeatureItem = ({item}) => (
+  const renderFeatureItem = ({ item }) => (
     <View
       style={styles.featureItem}
-      key={`feature-${item.id || Math.random().toString()}`}>
+      key={`feature-${item.id || Math.random().toString()}`}
+    >
       <Icon name="check-circle" size={20} color={COLORS.primary} />
       <Text style={styles.featureText}>{item.name}</Text>
     </View>
   );
 
   // Group features by category
-  const groupFeaturesByCategory = features => {
+  const groupFeaturesByCategory = (features) => {
     return features.reduce((acc, feature) => {
       const category = feature.Feature?.key || 'other';
       if (!acc[category]) {
@@ -422,25 +810,118 @@ const CarDetailScreen = () => {
     }, {});
   };
 
+  // Add logging effect to check brochure data when car data changes
+  useEffect(() => {
+    if (car) {
+      console.log('Car data loaded, checking for brochure file:');
+      if (car.brochureFile) {
+        console.log('Brochure file found:', car.brochureFile);
+      } else if (car.brochureid) {
+        console.log('Brochure ID found:', car.brochureid);
+      } else {
+        console.log('No brochure file or ID found in car data');
+        // Look for other possible brochure fields
+        const carString = JSON.stringify(car);
+        if (carString.includes('brochure')) {
+          console.log('Found possible brochure reference in car data:', 
+            Object.keys(car).filter(key => key.toLowerCase().includes('brochure')));
+        }
+      }
+    }
+  }, [car]);
+
+  // Update function to handle brochure download/view
+  const handleBrochureView = async () => {
+    try {
+      // Check if the car has a brochure file
+      const brochureData = car?.brochureFile || (car?.brochureid ? { path: car.brochureid } : null);
+      
+      // Log what we found
+      console.log('Attempting to open brochure with data:', brochureData);
+      
+      if (brochureData && brochureData.path) {
+        // Construct the full URL to the brochure
+        const brochureUrl = `https://cdn.legendmotorsglobal.com${brochureData.path}`;
+        console.log('Opening brochure URL in browser:', brochureUrl);
+        
+        // Simple direct opening in browser for all platforms
+        const canOpen = await Linking.canOpenURL(brochureUrl);
+        if (canOpen) {
+          // Open directly in the browser
+          await Linking.openURL(brochureUrl);
+        } else {
+          throw new Error('Cannot open URL in browser');
+        }
+      } else {
+        // If no brochure is available, show an alert to the user
+        console.log('No brochure data found in car object:', car);
+        Alert.alert(
+          'Brochure Not Available',
+          'The brochure for this car is not available at the moment.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error opening brochure:', error);
+      
+      
+      // Show a more descriptive error message with alternative
+      Alert.alert(
+        'Cannot Open PDF',
+        'Unable to open the brochure in browser. Would you like to copy the URL instead?',
+        [
+          {
+            text: 'Open PDF',
+            onPress: () => {
+              const brochureData = car?.brochureFile || (car?.brochureid ? { path: car.brochureid } : null);
+              if (brochureData && brochureData.path) {
+                const url = `https://cdn.legendmotorsglobal.com${brochureData.path}`;
+                Share.share({
+                  message: url,
+                  title: 'Car Brochure URL'
+                });
+              }
+            }
+          },
+          { text: 'Cancel', style: 'cancel' }
+        ]
+      );
+    }
+  }; 
+
   if (loading) {
     return (
-      <SafeAreaView style={[styles.loadingContainer, {backgroundColor: isDark ? '#333333' : colors.background}]}>
+      <SafeAreaView
+        style={[
+          styles.loadingContainer,
+          { backgroundColor: isDark ? '#333333' : colors.background },
+        ]}
+      >
         <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={[styles.loadingText, {color: colors.text}]}>Loading car details...</Text>
+        <Text style={[styles.loadingText, { color: colors.text }]}>
+          Loading car details...
+        </Text>
       </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView style={[styles.errorContainer, {backgroundColor: isDark ? '#333333' : colors.background}]}>
+      <SafeAreaView
+        style={[
+          styles.errorContainer,
+          { backgroundColor: isDark ? '#333333' : colors.background },
+        ]}
+      >
         <Icon name="error-outline" size={50} color={COLORS.error} />
-        <Text style={[styles.errorText, {color: colors.text}]}>{error}</Text>
+        <Text style={[styles.errorText, { color: colors.text }]}>{error}</Text>
         <TouchableOpacity style={styles.reloadButton} onPress={fetchCarDetails}>
           <Text style={styles.reloadButtonText}>Try Again</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={[styles.backButtonText, {color: colors.primary}]}>Go Back</Text>
+          <Text style={[styles.backButtonText, { color: colors.primary }]}>
+            Go Back
+          </Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -448,11 +929,20 @@ const CarDetailScreen = () => {
 
   if (!car) {
     return (
-      <SafeAreaView style={[styles.errorContainer, {backgroundColor: isDark ? '#333333' : colors.background}]}>
+      <SafeAreaView
+        style={[
+          styles.errorContainer,
+          { backgroundColor: isDark ? '#333333' : colors.background },
+        ]}
+      >
         <Icon name="no-photography" size={50} color={colors.text} />
-        <Text style={[styles.errorText, {color: colors.text}]}>Car not found</Text>
+        <Text style={[styles.errorText, { color: colors.text }]}>
+          Car not found
+        </Text>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
-          <Text style={[styles.backButtonText, {color: colors.primary}]}>Go Back</Text>
+          <Text style={[styles.backButtonText, { color: colors.primary }]}>
+            Go Back
+          </Text>
         </TouchableOpacity>
       </SafeAreaView>
     );
@@ -483,20 +973,21 @@ const CarDetailScreen = () => {
   // Extract data for the CarCard style display
   const additionalInfo = car.additionalInfo || '';
   const bodyType =
-    car.SpecificationValues?.find(a => a.Specification?.key === 'body_type')
+    car.SpecificationValues?.find((a) => a.Specification?.key === 'body_type')
       ?.name || 'SUV';
   const fuelType =
-    car.SpecificationValues?.find(a => a.Specification?.key === 'fuel_type')
+    car.SpecificationValues?.find((a) => a.Specification?.key === 'fuel_type')
       ?.name || 'Electric';
   const transmission =
-    car.SpecificationValues?.find(a => a.Specification?.key === 'transmission')
-      ?.name || 'Automatic';
+    car.SpecificationValues?.find(
+      (a) => a.Specification?.key === 'transmission'
+    )?.name || 'Automatic';
   const region =
     car.SpecificationValues?.find(
-      a => a.Specification?.key === 'regional_specification',
+      (a) => a.Specification?.key === 'regional_specification'
     )?.name || 'China';
   const steeringType =
-    car.SpecificationValues?.find(a => a.Specification?.key === 'steering')
+    car.SpecificationValues?.find((a) => a.Specification?.key === 'steering')
       ?.name || 'Left hand drive';
 
   // Prepare car title
@@ -508,50 +999,81 @@ const CarDetailScreen = () => {
         }`
       : 'Car Details');
 
-  // Get car images
-  const carImages = getAllImages();
-
   // Get price
-  const price =
-    car?.CarPrices?.find(crr => crr.currency === selectedCurrency)?.price ||
-    car.price;
+  const price = isAuthenticated ? 
+    (car?.CarPrices?.find((crr) => crr.currency === selectedCurrency)?.price || car.price) 
+    : null;
 
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#333333" : colors.background} />
+    <SafeAreaView
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? '#333333' : '#FFFFFF' },
+      ]}
+    >
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#333333' : colors.background}
+      />
 
       {/* Header with back button */}
-      <View style={[styles.header, {backgroundColor: isDark ? '#333333' : colors.background}]}>
+      <View
+        style={[
+          styles.header,
+          { backgroundColor: isDark ? '#333333' : colors.background },
+        ]}
+      >
         <TouchableOpacity onPress={goBack} style={styles.backButtonSmall}>
           <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, {color: colors.text}]}>Car Details</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          Car Details
+        </Text>
         <View style={styles.headerRightPlaceholder} />
       </View>
 
       <ScrollView
-        style={[styles.scrollContainer, {backgroundColor: isDark ? '#333333' : colors.background}]}
+        style={[
+          styles.scrollContainer,
+          { backgroundColor: isDark ? '#333333' : colors.background },
+        ]}
         contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         {/* Action buttons at the top */}
 
         {/* CarCard-style display */}
-        <View style={[styles.cardContainer, {backgroundColor: isDark ? '#333333' : colors.card}]}>
+        <View
+          style={[
+            styles.cardContainer,
+            { backgroundColor: isDark ? '#333333' : colors.card },
+          ]}
+        >
           <View style={styles.imageContainer}>
             {/* Tabs for exterior/interior */}
-            <View style={[styles.galleryTabs, {backgroundColor: isDark ? '#333333' : colors.card, borderBottomColor: isDark ? '#444444' : '#EEEEEE'}]}>
+            <View
+              style={[
+                styles.galleryTabs,
+                {
+                  backgroundColor: isDark ? '#333333' : colors.card,
+                  borderBottomColor: isDark ? '#444444' : '#EEEEEE',
+                },
+              ]}
+            >
               <TouchableOpacity
                 style={[
                   styles.galleryTab,
                   activeTab === 'exterior' && styles.activeGalleryTab,
                 ]}
-                onPress={() => setActiveTab('exterior')}>
+                onPress={() => setActiveTab('exterior')}
+              >
                 <Text
                   style={[
                     styles.galleryTabText,
-                    {color: isDark ? '#AAAAAA' : '#757575'},
+                    { color: isDark ? '#AAAAAA' : '#757575' },
                     activeTab === 'exterior' && styles.activeGalleryTabText,
-                  ]}>
+                  ]}
+                >
                   Exterior
                 </Text>
               </TouchableOpacity>
@@ -560,69 +1082,80 @@ const CarDetailScreen = () => {
                   styles.galleryTab,
                   activeTab === 'interior' && styles.activeGalleryTab,
                 ]}
-                onPress={() => setActiveTab('interior')}>
+                onPress={() => setActiveTab('interior')}
+              >
                 <Text
                   style={[
                     styles.galleryTabText,
-                    {color: isDark ? '#AAAAAA' : '#757575'},
+                    { color: isDark ? '#AAAAAA' : '#757575' },
                     activeTab === 'interior' && styles.activeGalleryTabText,
-                  ]}>
+                  ]}
+                >
                   Interior
                 </Text>
               </TouchableOpacity>
             </View>
 
-            <CarImageCarousel
-              images={carImages}
-              style={styles.carImage}
-              height={220}
-              onImagePress={() => {}}
-              ref={carouselRef}
-              initialIndex={selectedImageIndex}
-              onIndexChange={(index) => setSelectedImageIndex(index)}
-            />
-            
-            {/* Thumbnails Gallery */}
-            {carImages.length > 1 && (
-              <View style={styles.thumbnailsContainer}>
-                <FlatList
-                  data={carImages}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  keyExtractor={(item, index) => `thumbnail-${index}`}
-                  contentContainerStyle={styles.thumbnailsContent}
-                  renderItem={({item, index}) => (
-                    <TouchableOpacity
-                      style={[
-                        styles.thumbnailItem,
-                        selectedImageIndex === index && styles.thumbnailItemSelected,
-                      ]}
-                      onPress={() => {
+            {/* Update the UI component with ThumbnailList */}
+            {memoizedCarImages && memoizedCarImages.length > 0 && (
+              <>
+                <View style={styles.imageCarouselContainer}>
+                  <CarImageCarousel
+                    ref={carouselRef}
+                    images={memoizedCarImages}
+                    height={240}
+                    style={styles.carImage}
+                    onImagePress={handleImagePress}
+                    initialIndex={selectedImageIndex}
+                    onIndexChange={(index) => {
+                      if (index !== selectedImageIndex) {
+                        // Only update if there's an actual change
                         setSelectedImageIndex(index);
-                        if (carouselRef.current) {
-                          carouselRef.current.scrollToIndex({
-                            index,
-                            animated: true,
-                          });
-                        }
-                      }}>
-                      <CarImage
-                        source={item}
-                        style={styles.thumbnailImage}
-                        resizeMode="cover"
-                      />
-                    </TouchableOpacity>
-                  )}
+                      }
+                    }}
+                    showIndex={true}
+                  />
+                </View>
+                
+                {/* Use the optimized ThumbnailList component with all required props */}
+                <ThumbnailList
+                  images={memoizedCarImages}
+                  selectedIndex={selectedImageIndex}
+                  onSelectImage={setSelectedImageIndex}
+                  carouselRef={carouselRef}
+                  listRef={thumbnailsListRef}
+                  setAutoScrolling={setAutoScrolling}
+                  autoScrollTimerRef={autoScrollTimerRef}
                 />
-              </View>
+              </>
             )}
           </View>
+          
+          {/* Add back the bottom thumbnail list with improved styling */}
+          <View style={styles.bottomThumbnailContainer}> 
+            <ThumbnailList
+              images={memoizedCarImages}
+              selectedIndex={selectedImageIndex}
+              onSelectImage={setSelectedImageIndex}
+              carouselRef={carouselRef}
+              listRef={bottomThumbnailsListRef}
+              setAutoScrolling={setAutoScrolling}
+              autoScrollTimerRef={autoScrollTimerRef}
+            />
+          </View>
 
-          <View style={[styles.cardContent, {backgroundColor: isDark ? '#333333' : colors.card}]}>
+          <View
+            style={[
+              styles.cardContent,
+              { backgroundColor: isDark ? '#333333' : colors.card },
+            ]}
+          >
+           
             <Text
-              style={[styles.carTitle, {color: colors.text}]}
+              style={[styles.carTitle, { color: colors.text }]}
               numberOfLines={2}
-              ellipsizeMode="tail">
+              ellipsizeMode="tail"
+            >
               {carTitle}
             </Text>
             {/* Top row with condition badge and action buttons */}
@@ -646,7 +1179,8 @@ const CarDetailScreen = () => {
                 <TouchableOpacity
                   style={styles.actionIconButton}
                   onPress={toggleFavorite}
-                  disabled={processingWishlist}>
+                  disabled={processingWishlist}
+                >
                   {processingWishlist ? (
                     <ActivityIndicator size="small" color="#FF8C00" />
                   ) : isFavorite ? (
@@ -658,21 +1192,19 @@ const CarDetailScreen = () => {
 
                 <TouchableOpacity
                   style={styles.actionIconButton}
-                  onPress={() => {
-                    // Handle download functionality
-                    if (car.brochureFile?.path) {
-                      alert('Downloading brochure...');
-                      // Implement actual download logic here
-                    } else {
-                      alert('No brochure available for download');
-                    }
-                  }}>
-                  <Ionicons name="download-outline" size={24} color={colors.text} />
+                  onPress={handleBrochureView}
+                >
+                  <Ionicons
+                    name="download-outline"
+                    size={24}
+                    color={colors.text}
+                  />
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.actionIconButton}
-                  onPress={handleShare}>
+                  onPress={handleShare}
+                >
                   <Ionicons name="share-social" size={24} color={colors.text} />
                 </TouchableOpacity>
               </View>
@@ -680,69 +1212,105 @@ const CarDetailScreen = () => {
 
             {/* Specs pills in rows, using the design from the image */}
             <View style={styles.specsContainer}>
-              <View style={[styles.specPill, {backgroundColor: isDark ? '#231C26' : '#E9E5EB'}]}>
-                <Image 
-                  source={LtrIcon} 
-                  style={[styles.specIcon, isDark && styles.specIconDark]} 
-                  resizeMode="contain" 
+              <View
+                style={[
+                  styles.specPill,
+                  { backgroundColor: isDark ? '#231C26' : '#E9E5EB' },
+                ]}
+              >
+                <Image
+                  source={LtrIcon}
+                  style={[styles.specIcon, isDark && styles.specIconDark]}
+                  resizeMode="contain"
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={[styles.specPillText, {color: colors.text}]}>
-                  {specifications.find(spec => spec.Specification?.key === 'drive_type')?.name || 'ltr'}
+                <Text style={[styles.specPillText, { color: colors.text }]}>
+                  {specifications.find(
+                    (spec) => spec.Specification?.key === 'drive_type'
+                  )?.name || 'ltr'}
                 </Text>
               </View>
 
-              <View style={[styles.specPill, {backgroundColor: isDark ? '#231C26' : '#E9E5EB'}]}>
-                <Image 
-                  source={ElectricIcon} 
-                  style={[styles.specIcon, isDark && styles.specIconDark]} 
-                  resizeMode="contain" 
+              <View
+                style={[
+                  styles.specPill,
+                  { backgroundColor: isDark ? '#231C26' : '#E9E5EB' },
+                ]}
+              >
+                <Image
+                  source={ElectricIcon}
+                  style={[styles.specIcon, isDark && styles.specIconDark]}
+                  resizeMode="contain"
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={[styles.specPillText, {color: colors.text}]}>
-                  {specifications.find(spec => spec.Specification?.key === 'fuel_type')?.name || fuelType}
+                <Text style={[styles.specPillText, { color: colors.text }]}>
+                  {specifications.find(
+                    (spec) => spec.Specification?.key === 'fuel_type'
+                  )?.name || fuelType}
                 </Text>
               </View>
 
-              <View style={[styles.specPill, {backgroundColor: isDark ? '#231C26' : '#E9E5EB'}]}>
-                <Image 
-                  source={AutomaticIcon} 
-                  style={[styles.specIcon, isDark && styles.specIconDark]} 
-                  resizeMode="contain" 
+              <View
+                style={[
+                  styles.specPill,
+                  { backgroundColor: isDark ? '#231C26' : '#E9E5EB' },
+                ]}
+              >
+                <Image
+                  source={AutomaticIcon}
+                  style={[styles.specIcon, isDark && styles.specIconDark]}
+                  resizeMode="contain"
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={[styles.specPillText, {color: colors.text}]}>
-                  {specifications.find(spec => spec.Specification?.key === 'transmission')?.name || transmission}
+                <Text style={[styles.specPillText, { color: colors.text }]}>
+                  {specifications.find(
+                    (spec) => spec.Specification?.key === 'transmission'
+                  )?.name || transmission}
                 </Text>
               </View>
 
-              <View style={[styles.specPill, {backgroundColor: isDark ? '#231C26' : '#E9E5EB'}]}>
-                <Image 
-                  source={CountryIcon} 
-                  style={[styles.specIcon, isDark && styles.specIconDark]} 
-                  resizeMode="contain" 
+              <View
+                style={[
+                  styles.specPill,
+                  { backgroundColor: isDark ? '#231C26' : '#E9E5EB' },
+                ]}
+              >
+                <Image
+                  source={CountryIcon}
+                  style={[styles.specIcon, isDark && styles.specIconDark]}
+                  resizeMode="contain"
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={[styles.specPillText, {color: colors.text}]}>
-                  {specifications.find(spec => spec.Specification?.key === 'regional_specification')?.name || region}
+                <Text style={[styles.specPillText, { color: colors.text }]}>
+                  {specifications.find(
+                    (spec) =>
+                      spec.Specification?.key === 'regional_specification'
+                  )?.name || region}
                 </Text>
               </View>
-              
-              <View style={[styles.specPill, {backgroundColor: isDark ? '#231C26' : '#E9E5EB'}]}>
-                <Image 
-                  source={SteeringIcon} 
-                  style={[styles.specIcon, isDark && styles.specIconDark]} 
-                  resizeMode="contain" 
+
+              <View
+                style={[
+                  styles.specPill,
+                  { backgroundColor: isDark ? '#231C26' : '#E9E5EB' },
+                ]}
+              >
+                <Image
+                  source={SteeringIcon}
+                  style={[styles.specIcon, isDark && styles.specIconDark]}
+                  resizeMode="contain"
                   tintColor={isDark ? '#FFFFFF' : undefined}
                 />
-                <Text style={[styles.specPillText, {color: colors.text}]}>
-                  {specifications.find(spec => spec.Specification?.key === 'steering')?.name || steeringType}
+                <Text style={[styles.specPillText, { color: colors.text }]}>
+                  {specifications.find(
+                    (spec) => spec.Specification?.key === 'steering'
+                  )?.name || steeringType}
                 </Text>
               </View>
             </View>
 
             {/* Action buttons */}
-            <View style={styles.priceRow}>
+            {/* <View style={styles.priceRow}>
               {price ? (
                 <Text style={styles.priceText}>
                   {selectedCurrency === 'USD' ? '$' : selectedCurrency} {Math.floor(price).toLocaleString()}
@@ -750,81 +1318,176 @@ const CarDetailScreen = () => {
               ) : (
                 <Text style={styles.priceText}>Price on Request</Text>
               )}
-            </View>
+            </View> */}
           </View>
         </View>
 
-        {/* Car Overview Section */}  
-        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background, borderBottomWidth: 0}]}>
-          <Text style={[styles.sectionTitle, {color: colors.text}]}>Car Overview</Text>
+        {/* Car Overview Section */}
+        <View
+          style={[
+            styles.sectionContainer,
+            {
+              backgroundColor: isDark ? '#333333' : colors.background,
+              borderBottomWidth: 0,
+              marginTop: -30,
+              paddingBottom: 0,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: colors.text, marginBottom: 0 },
+            ]}
+          >
+            Car Overview
+          </Text>
 
-          <View style={[styles.overviewList, {backgroundColor: isDark ? '#ffffff' : '#FFFFFF', borderRadius: 8}]}>
+          <View
+            style={[
+              styles.overviewList,
+              {
+                backgroundColor: isDark ? 'transparent' : '#FFFFFF',
+                borderRadius: 8,
+              },
+            ]}
+          >
             {/* Condition */}
-            <View style={[styles.overviewItem, {borderBottomWidth: 0}]}>
+            <View style={[styles.overviewItem, { borderBottomWidth: 0 }]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="directions-car" size={22} color={isDark ? '#9E9E9E' : '#9E9E9E'} />
+                <Icon
+                  name="directions-car"
+                  size={22}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
+                />
               </View>
-              <Text style={[styles.overviewLabel, {color: isDark ? '#757575' : '#757575'}]}>Condition:</Text>
-              <Text style={[styles.overviewValue, {color: '#6f4a8e'}]}>{car.condition || 'New'}</Text>
+              <Text
+                style={[
+                  styles.overviewLabel,
+                  { color: isDark ? '#FF8C00' : '#757575' },
+                ]}
+              >
+                Condition:
+              </Text>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
+                {car.condition || 'New'}
+              </Text>
             </View>
 
             {/* Cylinders */}
-            <View style={[styles.overviewItem, {borderBottomWidth: 0}]}>
+            <View style={[styles.overviewItem, { borderBottomWidth: 0 }]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="settings" size={22} color={isDark ? '#9E9E9E' : '#9E9E9E'} />
+                <Icon
+                  name="settings"
+                  size={22}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
+                />
               </View>
-              <Text style={[styles.overviewLabel, {color: isDark ? '#757575' : '#757575'}]}>Cylinders:</Text>
-              <Text style={[styles.overviewValue, {color: '#6f4a8e'}]}>
+              <Text
+                style={[
+                  styles.overviewLabel,
+                  { color: isDark ? '#FF8C00' : '#757575' },
+                ]}
+              >
+                Cylinders:
+              </Text>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {specifications.find(
-                  spec => spec.Specification?.key === 'cylinders',
+                  (spec) => spec.Specification?.key === 'cylinders'
                 )?.name || '4 Cylinders'}
               </Text>
             </View>
 
             {/* Fuel Type */}
-            <View style={[styles.overviewItem, {borderBottomWidth: 0}]}>
+            <View style={[styles.overviewItem, { borderBottomWidth: 0 }]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="local-gas-station" size={22} color={isDark ? '#9E9E9E' : '#9E9E9E'} />
+                <Icon
+                  name="local-gas-station"
+                  size={22}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
+                />
               </View>
-              <Text style={[styles.overviewLabel, {color: isDark ? '#757575' : '#757575'}]}>Fuel Type:</Text>
-              <Text style={[styles.overviewValue, {color: '#6f4a8e'}]}>
+              <Text
+                style={[
+                  styles.overviewLabel,
+                  { color: isDark ? '#FF8C00' : '#757575' },
+                ]}
+              >
+                Fuel Type:
+              </Text>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {specifications.find(
-                  spec => spec.Specification?.key === 'fuel_type',
+                  (spec) => spec.Specification?.key === 'fuel_type'
                 )?.name || fuelType}
               </Text>
             </View>
 
             {/* Built Year */}
-            <View style={[styles.overviewItem, {borderBottomWidth: 0}]}>
+            <View style={[styles.overviewItem, { borderBottomWidth: 0 }]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="event" size={22} color={isDark ? '#9E9E9E' : '#9E9E9E'} />
+                <Icon
+                  name="event"
+                  size={22}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
+                />
               </View>
-              <Text style={[styles.overviewLabel, {color: isDark ? '#757575' : '#757575'}]}>Built Year:</Text>
-              <Text style={[styles.overviewValue, {color: '#6f4a8e'}]}>{year || '2025'}</Text>
+              <Text
+                style={[
+                  styles.overviewLabel,
+                  { color: isDark ? '#FF8C00' : '#757575' },
+                ]}
+              >
+                Built Year:
+              </Text>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
+                {year || '2025'}
+              </Text>
             </View>
 
             {/* Transmission */}
-            <View style={[styles.overviewItem, {borderBottomWidth: 0}]}>
+            <View style={[styles.overviewItem, { borderBottomWidth: 0 }]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="transform" size={22} color={isDark ? '#9E9E9E' : '#9E9E9E'} />
+                <Icon
+                  name="transform"
+                  size={22}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
+                />
               </View>
-              <Text style={[styles.overviewLabel, {color: isDark ? '#757575' : '#757575'}]}>Transmission:</Text>
-              <Text style={[styles.overviewValue, {color: '#6f4a8e'}]}>
+              <Text
+                style={[
+                  styles.overviewLabel,
+                  { color: isDark ? '#FF8C00' : '#757575' },
+                ]}
+              >
+                Transmission:
+              </Text>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {specifications.find(
-                  spec => spec.Specification?.key === 'transmission',
+                  (spec) => spec.Specification?.key === 'transmission'
                 )?.name || transmission}
               </Text>
             </View>
 
             {/* Color */}
-            <View style={[styles.overviewItem, {borderBottomWidth: 0}]}>
+            <View style={[styles.overviewItem, { borderBottomWidth: 0 }]}>
               <View style={styles.overviewIconContainer}>
-                <Icon name="palette" size={22} color={isDark ? '#9E9E9E' : '#9E9E9E'} />
+                <Icon
+                  name="palette"
+                  size={22}
+                  color={isDark ? '#FF8C00' : '#9E9E9E'}
+                />
               </View>
-              <Text style={[styles.overviewLabel, {color: isDark ? '#757575' : '#757575'}]}>Color:</Text>
-              <Text style={[styles.overviewValue, {color: '#6f4a8e'}]}>
+              <Text
+                style={[
+                  styles.overviewLabel,
+                  { color: isDark ? '#FF8C00' : '#757575' },
+                ]}
+              >
+                Color:
+              </Text>
+              <Text style={[styles.overviewValue, { color: isDark ? '#FFFFFF' : '#6f4a8e' }]}>
                 {specifications.find(
-                  spec => spec.Specification?.key === 'exterior_color',
+                  (spec) => spec.Specification?.key === 'exterior_color'
                 )?.name || 'White'}
               </Text>
             </View>
@@ -832,23 +1495,46 @@ const CarDetailScreen = () => {
         </View>
 
         {/* Features Section - Redesigned with accordion categories */}
-        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background, marginTop: 0}]}>
-          <Text style={[styles.sectionTitle, {color: colors.text}]}>Features</Text>
+        <View
+          style={[
+            styles.sectionContainer,
+            {
+              backgroundColor: isDark ? '#333333' : colors.background,
+              marginTop: 0,
+            },
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Features
+          </Text>
 
           {/* Main features grid - two column layout showing some top features */}
-          <View style={[styles.featuresGrid, {backgroundColor: isDark ? '#ffffff' : '#FFFFFF'}]}>
+          <View
+            style={[
+              styles.featuresGrid,
+              { backgroundColor: isDark ? 'transparent' : '#FFFFFF' },
+            ]}
+          >
             {/* Column 1 */}
             <View style={styles.featuresColumn}>
               {features
                 .slice(0, Math.min(6, features.length / 2))
-                .map(feature => (
+                .map((feature) => (
                   <View
                     key={`feature-highlight-${
                       feature.id || Math.random().toString()
                     }`}
-                    style={styles.featureItem}>
+                    style={styles.featureItem}
+                  >
                     <Icon name="check-circle" size={20} color="#8BC34A" />
-                    <Text style={[styles.featureText, {color: isDark ? '#000000' : colors.text}]}>{feature.name}</Text>
+                    <Text
+                      style={[
+                        styles.featureText,
+                        { color: isDark ? '#ffffff' : colors.text },
+                      ]}
+                    >
+                      {feature.name}
+                    </Text>
                   </View>
                 ))}
             </View>
@@ -858,16 +1544,24 @@ const CarDetailScreen = () => {
               {features
                 .slice(
                   Math.min(6, features.length / 2),
-                  Math.min(12, features.length),
+                  Math.min(12, features.length)
                 )
-                .map(feature => (
+                .map((feature) => (
                   <View
                     key={`feature-highlight-${
                       feature.id || Math.random().toString()
                     }`}
-                    style={styles.featureItem}>
+                    style={styles.featureItem}
+                  >
                     <Icon name="check-circle" size={20} color="#8BC34A" />
-                    <Text style={[styles.featureText, {color: isDark ? '#000000' : colors.text}]}>{feature.name}</Text>
+                    <Text
+                      style={[
+                        styles.featureText,
+                        { color: isDark ? '#ffffff' : colors.text },
+                      ]}
+                    >
+                      {feature.name}
+                    </Text>
                   </View>
                 ))}
             </View>
@@ -886,34 +1580,60 @@ const CarDetailScreen = () => {
                 if (categoryFeatures.length === 0) return null;
 
                 return (
-                  <View key={`accordion-${category}`} style={{
-                    backgroundColor: 'transparent', 
-                    borderRadius: 8, 
-                    marginBottom: 8,
-                    borderBottomWidth: 0.5,
-                    borderBottomColor: isDark ? '#444444' : '#E0E0E0'
-                  }}>
+                  <View
+                    key={`accordion-${category}`}
+                    style={{
+                      backgroundColor: 'transparent',
+                    }}
+                  >
                     <TouchableOpacity
                       style={[
                         styles.accordionHeader,
-                        {borderBottomColor: isDark ? '#333333' : '#F0F0F0'},
-                        expandedAccordions[category]
+                        { borderBottomColor: isDark ? '#333333' : '#F0F0F0' },
+                        expandedAccordions[category],
                       ]}
-                      onPress={() => toggleAccordion(category)}>
-                      <Text style={[styles.accordionTitle, {color: colors.text}]}>
+                      onPress={() => toggleAccordion(category)}
+                    >
+                      <Text
+                        style={[
+                          styles.accordionTitle,
+                          {
+                            color: expandedAccordions[category]
+                              ? COLORS.primary
+                              : colors.text,
+                          },
+                        ]}
+                      >
                         {categoryDisplayName}
                       </Text>
                       <Icon
                         name={expandedAccordions[category] ? 'remove' : 'add'}
                         size={24}
-                        color="#5E366D"
+                        color={
+                          expandedAccordions[category]
+                            ? COLORS.primary
+                            : '#AAAAAA'
+                        }
                       />
                     </TouchableOpacity>
 
                     {/* Accordion Content */}
                     {expandedAccordions[category] && (
-                      <View style={[styles.accordionContent, {backgroundColor: 'transparent', borderBottomColor: isDark ? '#333333' : '#F0F0F0'}]}>
-                        <Text style={[styles.accordionFeatureText, {color: colors.text}]}>
+                      <View
+                        style={[
+                          styles.accordionContent,
+                          {
+                            backgroundColor: 'transparent',
+                            borderBottomColor: isDark ? '#333333' : '#F0F0F0',
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.accordionFeatureText,
+                            { color: colors.text },
+                          ]}
+                        >
                           {categoryFeatures.map((feature, index) => (
                             <React.Fragment key={`feature-text-${feature.id}`}>
                               {feature.name}
@@ -925,29 +1645,57 @@ const CarDetailScreen = () => {
                     )}
                   </View>
                 );
-              },
+              }
             )}
           </View>
         </View>
 
         {/* Description Section */}
-        <View style={[styles.sectionContainer, {backgroundColor: isDark ? '#333333' : colors.background}]}>
-          <Text style={[styles.sectionTitle, {color: colors.text}]}>Description</Text>
+        <View
+          style={[
+            styles.sectionContainer,
+            { backgroundColor: isDark ? '#333333' : colors.background },
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>
+            Description
+          </Text>
           {car.description ? (
             <View style={styles.descriptionContainer}>
               <RenderHtml
                 contentWidth={width - SPACING.md * 2}
-                source={{html: car.description}}
+                source={{ html: car.description }}
                 tagsStyles={{
-                  p: {color: isDark ? '#FFFFFF' : '#000000', fontSize: FONT_SIZES.sm, lineHeight: 22, marginBottom: 10, marginLeft: 15},
-                  strong: {fontWeight: 'bold', color: isDark ? '#FFFFFF' : '#000000'},
-                  li: {color: isDark ? '#FFFFFF' : '#000000', fontSize: FONT_SIZES.sm, lineHeight: 22, marginBottom: 5, paddingLeft: 5, marginLeft: 15},
-                  ul: {marginTop: 5, marginBottom: 5, marginLeft: 15},
+                  p: {
+                    color: isDark ? '#FFFFFF' : '#000000',
+                    fontSize: FONT_SIZES.sm,
+                    lineHeight: 22,
+                    marginBottom: 10,
+                    marginLeft: 15,
+                  },
+                  strong: {
+                    fontWeight: 'bold',
+                    color: isDark ? '#FFFFFF' : '#000000',
+                  },
+                  li: {
+                    color: isDark ? '#FFFFFF' : '#000000',
+                    fontSize: FONT_SIZES.sm,
+                    lineHeight: 22,
+                    marginBottom: 5,
+                    paddingLeft: 5,
+                    marginLeft: 15,
+                  },
+                  ul: { marginTop: 5, marginBottom: 5, marginLeft: 15 },
                 }}
               />
             </View>
           ) : (
-            <Text style={[styles.noDescriptionText, {color: isDark ? '#FFFFFF' : '#000000', marginLeft: 15}]}>
+            <Text
+              style={[
+                styles.noDescriptionText,
+                { color: isDark ? '#FFFFFF' : '#000000', marginLeft: 15 },
+              ]}
+            >
               No description available
             </Text>
           )}
@@ -955,21 +1703,81 @@ const CarDetailScreen = () => {
       </ScrollView>
 
       {/* Bottom Action Bar */}
-      <View style={[styles.actionBar, {
-        backgroundColor: isDark ? '#333333' : colors.background,
-        borderTopColor: isDark ? '#444444' : colors.border
-      }]}>
-        <View style={styles.priceContainer}>
-          <Text style={[styles.priceLabel, {color: isDark ? '#BBBBBB' : COLORS.textLight}]}>Price</Text>
-          <Text style={[styles.priceLargeText, {color: isDark ? '#FFFFFF' : colors.text}]}>
-            {selectedCurrency === 'USD' ? '$' : selectedCurrency} {price ? Math.floor(price).toLocaleString() : '175,000'}
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={[styles.actionButton, styles.inquireButton]}
-          onPress={handleInquire}>
-            <Text style={[styles.inquireButtonText, {color: isDark ? '#000000' : '#FFFFFF'}]}>Inquire Now</Text>
+      <View
+        style={[
+          styles.actionBar,
+          {
+            backgroundColor: isDark ? '#444444' : colors.background,
+            borderTopColor: isDark ? '#444444' : colors.border,
+          },
+        ]}
+      >
+        {!isAuthenticated ? (
+          <TouchableOpacity
+            style={styles.loginToViewPriceButton}
+            onPress={checkAuthAndShowPrompt}
+          >
+            <Text style={styles.loginToViewPriceText}>
+              Login to View Price
+            </Text>
           </TouchableOpacity>
+        ) : (
+          <View style={styles.priceContainer}>
+            <Text
+              style={[
+                styles.priceLabel,
+                { color: isDark ? '#BBBBBB' : COLORS.textLight },
+              ]}
+            >
+              Price
+            </Text>
+            <Text
+              style={[
+                styles.priceLargeText,
+                { color: isDark ? '#FFFFFF' : colors.text },
+              ]}
+            >
+              {price
+                ? `${selectedCurrency === 'USD' ? '$' : selectedCurrency} ${Math.floor(price).toLocaleString()}`
+                : <TouchableOpacity
+                    style={styles.loginToViewPriceButton}
+                    onPress={checkAuthAndShowPrompt}
+                  >
+                    <Text style={styles.loginToViewPriceText}>
+                      Login to View Price
+                    </Text>
+                  </TouchableOpacity>}
+            </Text>
+          </View>
+        )}
+        <TouchableOpacity
+          style={[
+            styles.actionButton, 
+            styles.inquireButton,
+            isAlreadyInquired && styles.alreadyInquiredButton
+          ]}
+          onPress={!isAuthenticated ? checkAuthAndShowPrompt : handleInquire}
+          disabled={isAlreadyInquired}
+        >
+          <Text
+            style={[
+              styles.inquireButtonText,
+              { color: isDark ? '#000000' : '#FFFFFF' },
+              isAlreadyInquired && styles.alreadyInquiredText
+            ]}
+            onPress={() => navigation.navigate('EnquiryFormScreen', {
+              carId: id,
+              carTitle: title,
+              carImage: images[0],
+              carPrice: price,
+              currency: selectedCurrency,
+              onEnquirySubmit: handleEnquirySubmit
+            })}
+          >
+            {!isAuthenticated ? 'Login' : 
+              isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {/* Add the LoginPromptModal */}
@@ -1042,14 +1850,14 @@ const styles = StyleSheet.create({
   },
   activeGalleryTab: {
     borderBottomWidth: 3,
-    borderBottomColor: '#5E366D',
+    borderBottomColor: '#FF8C00',
   },
   galleryTabText: {
     fontSize: 14,
     fontWeight: '500',
   },
   activeGalleryTabText: {
-    color: '#5E366D',
+    color: '#FF8C00',
     fontWeight: '600',
   },
   carImage: {
@@ -1154,7 +1962,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     paddingTop: 12,
     paddingBottom: 12,
-    borderBottomWidth: 1,
     marginBottom: 0,
   },
   sectionTitle: {
@@ -1223,12 +2030,12 @@ const styles = StyleSheet.create({
   },
   descriptionContainer: {
     marginTop: SPACING.xs,
-    paddingHorizontal: 10,
+    paddingHorizontal: 25,
   },
   descriptionText: {
     fontSize: FONT_SIZES.sm,
     lineHeight: 10,
-    marginLeft:20
+    marginLeft: 20,
   },
   descriptionParagraph: {
     fontSize: FONT_SIZES.sm,
@@ -1276,6 +2083,7 @@ const styles = StyleSheet.create({
   priceLargeText: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
   actionButton: {
     paddingVertical: SPACING.md,
@@ -1291,10 +2099,16 @@ const styles = StyleSheet.create({
     width: 250,
     borderRadius: 8,
   },
+  alreadyInquiredButton: {
+    backgroundColor: '#AAAAAA',
+  },
   inquireButtonText: {
     color: '#FFFFFF',
     fontSize: FONT_SIZES.md,
     fontWeight: '600',
+  },
+  alreadyInquiredText: {
+    color: '#FFFFFF',
   },
   loadingContainer: {
     flex: 1,
@@ -1354,15 +2168,16 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   accordionTitle: {
-    fontSize: FONT_SIZES.md,
+    fontSize: FONT_SIZES.lg,
     fontWeight: '500',
     textTransform: 'capitalize',
   },
   accordionContent: {
     paddingVertical: 2,
-    paddingHorizontal: 5,
-    borderBottomWidth: 1,
+    paddingHorizontal: 20,
+    fontSize: FONT_SIZES.md,
     backgroundColor: 'transparent',
+    borderBottomWidth: 1,
   },
   accordionFeatureText: {
     fontSize: 15,
@@ -1372,9 +2187,6 @@ const styles = StyleSheet.create({
   thumbnailsContainer: {
     width: '100%',
     padding: 6,
-    backgroundColor: '#1E1E1E',
-    borderWidth: 1,
-    borderColor: '#1E90FF',
     marginTop: 0,
     marginBottom: 10,
   },
@@ -1386,19 +2198,52 @@ const styles = StyleSheet.create({
   thumbnailItem: {
     width: 90,
     height: 70,
+    borderRadius: 12,
     marginHorizontal: 2,
-    borderRadius: 0,
     overflow: 'hidden',
     borderWidth: 0,
   },
   thumbnailItemSelected: {
     borderWidth: 2,
-    borderColor: '#1E90FF',
+    borderColor: '#FF8C00', // Orange border for selected thumbnail
   },
   thumbnailImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 0,
+    borderRadius: 12,
+  },
+  imageCarouselContainer: {
+    width: '100%',
+    height: 240,
+    marginBottom: 10,
+  },
+  carouselStyle: {
+    width: '100%',
+    height: '100%',
+  },
+  thumbnailImageSelected: {
+    opacity: 1.0, // Ensure selected thumbnail has full opacity
+  },
+  bottomThumbnailContainer: {
+    width: '100%',
+    padding: 6,
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  loginToViewPriceButton: {
+    backgroundColor: '#FF8C00',
+    color: '#000000',
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: BORDER_RADIUS.md,
+    flex: 1,
+    marginRight: SPACING.md,
+  },
+  loginToViewPriceText: {
+    color: '#000000',
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
 

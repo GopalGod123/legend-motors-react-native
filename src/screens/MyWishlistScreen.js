@@ -19,16 +19,20 @@ import {COLORS, SPACING, FONT_SIZES} from '../utils/constants';
 import {CarImage} from '../components/common';
 import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 // Car card component for wishlist items
 const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
   // Extract data from the car object
+  const {selectedCurrency} = useCurrencyLanguage();
+  const {theme, isDark} = useTheme();
   const brandName = car.Brand?.name || car.brand || '';
   const modelName = car.CarModel?.name || car.model || '';
   const year = car.Year?.year || car.year || '';
-  const price =
-    car.price ||
-    (car.CarPrices && car.CarPrices.length > 0 ? car.CarPrices[0].price : 0);
+  const price = car?.CarPrices?.find(
+    crr => crr.currency === selectedCurrency,
+  )?.price;
   const category = car.Tags && car.Tags.length > 0 ? car.Tags[0].name : '';
   const additionalInfo = car.additionalInfo || '';
 
@@ -36,27 +40,16 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
   const carId = car.carId || car.id;
   const inWishlist = true; // Always true in the wishlist screen
 
-  // Debug car data structure
-  console.log(
-    `WishlistCard for car: ${brandName} ${modelName}, carId: ${carId}, id: ${
-      car.id
-    }, wishlistId: ${car.wishlistId || 'N/A'}`,
-  );
-
   // Function to toggle wishlist status
   const toggleWishlist = async () => {
     try {
       // Prevent action if item is already being removed
       if (isRemoving) {
-        console.log(
-          `Item is already being removed, skipping duplicate request`,
-        );
         return;
       }
 
       // Always use the car ID for removal, not the wishlist ID
       const carId = car.carId || car.id;
-      console.log(`Card requesting removal of car ID ${carId}`);
 
       // Only use the parent's onRemove function, not the context directly
       onRemove(carId);
@@ -77,9 +70,19 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
       : require('../components/home/HotDealsCar.png');
 
   return (
-    <TouchableOpacity style={styles.carCard} onPress={() => onPress(car)}>
-      <View style={styles.cardBorder}>
-        <View style={styles.imageContainer}>
+    <TouchableOpacity
+      style={[
+        styles.carCard,
+        {backgroundColor: isDark ? '#000000' : '#FFFFFF'},
+      ]}
+      onPress={() => onPress(car)}>
+      <View
+        style={[styles.cardBorder, {borderColor: themeColors[theme].border}]}>
+        <View
+          style={[
+            styles.imageContainer,
+            {backgroundColor: isDark ? '#000000' : '#FFFFFF'},
+          ]}>
           <CarImage
             source={imageUrl}
             style={styles.carImage}
@@ -93,13 +96,20 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
         </View>
 
         <View style={styles.cardContent}>
-          <Text style={styles.carTitle}>
+          <Text style={[styles.carTitle, {color: themeColors[theme].text}]}>
             {`${year} ${brandName} ${modelName}`.trim()}
           </Text>
           {additionalInfo && (
-            <Text style={styles.additionalInfo}>{additionalInfo}</Text>
+            <Text
+              style={[styles.additionalInfo, {color: themeColors[theme].text}]}>
+              {additionalInfo}
+            </Text>
           )}
-          <Text style={styles.priceText}>$ {price.toLocaleString()}</Text>
+          <Text
+            style={[styles.priceText, {color: themeColors[theme].secondary}]}>
+            {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
+            {parseInt(price).toLocaleString()}
+          </Text>
 
           <View style={styles.actionButtons}>
             <TouchableOpacity
@@ -107,16 +117,31 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
               onPress={toggleWishlist}
               disabled={isRemoving}>
               {isRemoving ? (
-                <ActivityIndicator size="small" color="#FF8C00" />
+                <ActivityIndicator
+                  size="small"
+                  color={themeColors[theme].primary}
+                />
               ) : inWishlist ? (
-                <AntDesign name="heart" size={24} color="#FF8C00" />
+                <AntDesign
+                  name="heart"
+                  size={24}
+                  color={themeColors[theme].primary}
+                />
               ) : (
-                <AntDesign name="hearto" size={24} color="#FF8C00" />
+                <AntDesign
+                  name="hearto"
+                  size={24}
+                  color={themeColors[theme].primary}
+                />
               )}
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.shareButton}>
-              <Ionicons name="share-social-outline" size={24} color="#777" />
+              <Ionicons
+                name="share-social-outline"
+                size={24}
+                color={themeColors[theme].text}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -134,11 +159,12 @@ const MyWishlistScreen = () => {
   const {user} = useAuth();
   const {removeItemFromWishlist, fetchWishlistItems: contextFetchWishlist} =
     useWishlist();
+  const {theme, isDark} = useTheme();
   const {
     loginModalVisible,
     hideLoginPrompt,
     navigateToLogin,
-    checkAuthAndShowPrompt
+    checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
   // Fetch wishlist data
@@ -147,13 +173,7 @@ const MyWishlistScreen = () => {
       setLoading(true);
       const response = await getWishlist();
 
-      // Debug the response structure
-      console.log('Wishlist response structure:', JSON.stringify(response));
-
       if (response.success && Array.isArray(response.data)) {
-        console.log(`Fetched ${response.data.length} wishlist items`);
-
-        // Process wishlist items to ensure they have the right format for rendering
         const processedItems = response.data.map(item => {
           // If the item has a car property, use it as the base and add necessary fields
           if (item.car) {
@@ -172,13 +192,8 @@ const MyWishlistScreen = () => {
           };
         });
 
-        console.log(
-          'Processed wishlist items:',
-          JSON.stringify(processedItems),
-        );
         setWishlistItems(processedItems);
       } else {
-        console.log('No wishlist items found or error in response');
         setWishlistItems([]);
       }
     } catch (error) {
@@ -203,9 +218,6 @@ const MyWishlistScreen = () => {
     try {
       // Check if this item is already being removed
       if (removingItems[itemId]) {
-        console.log(
-          `Item ${itemId} is already being removed, skipping duplicate request`,
-        );
         return;
       }
 
@@ -214,8 +226,6 @@ const MyWishlistScreen = () => {
       if (!isAuthorized) {
         return; // Stop here if user is not authenticated
       }
-
-      console.log(`Attempting to remove car ID ${itemId} from wishlist`);
 
       // Mark this item as being removed
       setRemovingItems(prev => ({...prev, [itemId]: true}));
@@ -227,8 +237,6 @@ const MyWishlistScreen = () => {
       const result = await removeItemFromWishlist(itemId);
 
       if (result.success) {
-        console.log(`Successfully removed car ID ${itemId} from wishlist`);
-
         // Remove from local state for immediate UI update
         setWishlistItems(prevItems => {
           return prevItems.filter(item => {
@@ -271,12 +279,23 @@ const MyWishlistScreen = () => {
   // Render empty state
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name="heart-outline" size={80} color={COLORS.textLight} />
-      <Text style={styles.emptyText}>Your wishlist is empty</Text>
-      <Text style={styles.emptySubtext}>Cars you love will appear here</Text>
+      <Ionicons
+        name="heart-outline"
+        size={80}
+        color={themeColors[theme].text}
+      />
+      <Text style={[styles.emptyText, {color: themeColors[theme].text}]}>
+        Your wishlist is empty
+      </Text>
+      <Text style={[styles.emptySubtext, {color: themeColors[theme].text}]}>
+        Cars you love will appear here
+      </Text>
       <TouchableOpacity
-        style={styles.exploreButton}
-        onPress={() => navigation.navigate('Main', { screen: 'ExploreTab' })}>
+        style={[
+          styles.exploreButton,
+          {backgroundColor: themeColors[theme].primary},
+        ]}
+        onPress={() => navigation.navigate('Main', {screen: 'ExploreTab'})}>
         <Text style={styles.exploreButtonText}>Explore Cars</Text>
       </TouchableOpacity>
     </View>
@@ -293,16 +312,30 @@ const MyWishlistScreen = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
+      ]}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#2D2D2D' : themeColors[theme].background}
+      />
 
-      <View style={styles.header}>
+      <View
+        style={[styles.header, {borderBottomColor: themeColors[theme].border}]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} color={COLORS.textDark} />
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={themeColors[theme].text}
+          />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Wishlist</Text>
+        <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+          My Wishlist
+        </Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -310,7 +343,7 @@ const MyWishlistScreen = () => {
         <ActivityIndicator
           style={styles.loader}
           size="large"
-          color={COLORS.primary}
+          color={themeColors[theme].primary}
         />
       ) : (
         <FlatList
@@ -337,7 +370,6 @@ const MyWishlistScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
@@ -346,7 +378,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.lg,
     paddingVertical: SPACING.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
   },
   backButton: {
     padding: SPACING.sm,
@@ -354,7 +385,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
-    color: COLORS.textDark,
   },
   placeholder: {
     width: 40,
@@ -372,7 +402,6 @@ const styles = StyleSheet.create({
   carCard: {
     marginBottom: SPACING.lg,
     borderRadius: 10,
-    backgroundColor: '#FFFFFF',
     shadowColor: '#000',
     shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
@@ -381,14 +410,12 @@ const styles = StyleSheet.create({
   },
   cardBorder: {
     borderWidth: 1,
-    borderColor: '#F0F0F0',
     borderRadius: 10,
     overflow: 'hidden',
   },
   imageContainer: {
     width: '100%',
     height: 180,
-    backgroundColor: '#FFFFFF',
     position: 'relative',
   },
   carImage: {
@@ -413,27 +440,25 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     padding: 15,
-    marginTop:40
+    marginTop: 40,
   },
   carTitle: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#000',
     marginBottom: 5,
-    marginTop:10
+    marginTop: 10,
   },
   additionalInfo: {
     fontSize: 14,
-    color: '#666',
     marginBottom: 8,
-    marginTop:10
+    marginTop: 10,
   },
   priceText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#8A2BE2',
+    color: '#5E366D',
     marginBottom: 10,
-    marginTop:10
+    marginTop: 10,
   },
   actionButtons: {
     flexDirection: 'row',
@@ -455,12 +480,10 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
-    color: COLORS.textDark,
     marginTop: SPACING.lg,
   },
   emptySubtext: {
     fontSize: FONT_SIZES.md,
-    color: COLORS.textMedium,
     marginTop: SPACING.sm,
     marginBottom: SPACING.xl,
     textAlign: 'center',

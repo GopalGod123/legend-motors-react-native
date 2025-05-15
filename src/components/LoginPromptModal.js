@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -9,34 +9,35 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
-import { useAuth } from '../context/AuthContext';
+import Svg, {Path, Circle} from 'react-native-svg';
+import {useAuth} from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useTheme} from '../context/ThemeContext';
 
 // Use SVG for the lock icon to avoid image loading issues
 const LockIcon = () => (
   <Image
     source={require('./icons/promptModel.png')}
-    style={{ width: 80, height: 80 }}
+    style={{width: 80, height: 80}}
     resizeMode="contain"
   />
 );
 
-
 const PROMPT_SHOWN_KEY = 'login_prompt_dismissed';
 
-const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
-  const { isAuthenticated, user } = useAuth();
+const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
+  const {isAuthenticated, user} = useAuth();
+  const {isDark} = useTheme();
   const [shouldShowModal, setShouldShowModal] = useState(false);
   const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
-  
+
   // First check AsyncStorage to see if user has previously dismissed the modal
   useEffect(() => {
     const checkPromptDismissed = async () => {
       try {
         const promptDismissed = await AsyncStorage.getItem(PROMPT_SHOWN_KEY);
         setHasCheckedStorage(true);
-        
+
         if (promptDismissed === 'true') {
           // User has previously dismissed the modal
           console.log('User has previously dismissed login prompt');
@@ -47,21 +48,21 @@ const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
         setHasCheckedStorage(true);
       }
     };
-    
+
     if (visible) {
       checkPromptDismissed();
     }
   }, [visible, onClose]);
-  
+
   // Then check authentication status
   useEffect(() => {
     if (!hasCheckedStorage) return;
-    
+
     const checkAuthAndSetModal = async () => {
       try {
         const isUserAuthenticated = await isAuthenticated();
         setShouldShowModal(visible && !isUserAuthenticated);
-        
+
         // If user is already logged in, close the modal automatically
         if (isUserAuthenticated && visible) {
           console.log('User is already logged in, not showing login prompt');
@@ -72,10 +73,10 @@ const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
         setShouldShowModal(false);
       }
     };
-    
+
     checkAuthAndSetModal();
   }, [visible, isAuthenticated, user, hasCheckedStorage, onClose]);
-  
+
   // If user is logged in or modal shouldn't be shown, don't render it
   if (!shouldShowModal) {
     return null;
@@ -89,7 +90,7 @@ const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
     } catch (error) {
       console.error('Error saving prompt dismissed status:', error);
     }
-    
+
     // Close the modal
     onClose();
   };
@@ -103,13 +104,19 @@ const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
       onRequestClose={handleDismiss}>
       <View style={styles.container}>
         <Pressable style={styles.overlay} onPress={handleDismiss} />
-        
-        <View style={styles.modalContent}>
+
+        <View style={[styles.modalContent, isDark && styles.modalContentDark]}>
           <TouchableOpacity
             style={styles.closeButton}
             onPress={handleDismiss}
-            hitSlop={{ top: 15, right: 15, bottom: 15, left: 15 }}>
-            <Text style={styles.closeButtonText}>×</Text>
+            hitSlop={{top: 15, right: 15, bottom: 15, left: 15}}>
+            <Text
+              style={[
+                styles.closeButtonText,
+                isDark && styles.closeButtonTextDark,
+              ]}>
+              ×
+            </Text>
           </TouchableOpacity>
 
           <View style={styles.modalBody}>
@@ -117,14 +124,15 @@ const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
               <LockIcon />
             </View>
 
-            <Text style={styles.title}>Login page</Text>
-            <Text style={styles.description}>
+            <Text style={[styles.title, isDark && styles.titleDark]}>
+              Login page
+            </Text>
+            <Text
+              style={[styles.description, isDark && styles.descriptionDark]}>
               Log in or register to access exclusive features and deals!
             </Text>
 
-            <TouchableOpacity
-              style={styles.loginButton}
-              onPress={onLoginPress}>
+            <TouchableOpacity style={styles.loginButton} onPress={onLoginPress}>
               <Text style={styles.loginButtonText}>Login / Register</Text>
             </TouchableOpacity>
           </View>
@@ -134,7 +142,7 @@ const LoginPromptModal = ({ visible, onClose, onLoginPress }) => {
   );
 };
 
-const { width, height } = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   container: {
@@ -149,9 +157,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    position: 'absolute',
-    top: 278,
-    left: 44,
     width: 340,
     height: 373,
     backgroundColor: '#FFFFFF',
@@ -159,9 +164,12 @@ const styles = StyleSheet.create({
     padding: 24,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  modalContentDark: {
+    backgroundColor: '#2D2D2D',
   },
   modalBody: {
     flex: 1,
@@ -183,6 +191,9 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#666666',
     fontWeight: '600',
+  },
+  closeButtonTextDark: {
+    color: '#FFFFFF',
   },
   iconRow: {
     flexDirection: 'row',
@@ -212,12 +223,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
+  titleDark: {
+    color: '#FFFFFF',
+  },
   description: {
     fontSize: 16,
     color: '#666666',
     textAlign: 'center',
     marginBottom: 32,
     paddingHorizontal: 16,
+  },
+  descriptionDark: {
+    color: '#CCCCCC',
   },
   loginButton: {
     backgroundColor: '#F4821F',
@@ -235,4 +252,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginPromptModal; 
+export default LoginPromptModal;

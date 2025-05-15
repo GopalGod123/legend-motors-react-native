@@ -6,7 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import {HatchbackIcon, SedanIcon, SUVIcon} from '../icons';
+import {BodyTypeIcon, HatchbackIcon, SedanIcon, SUVIcon} from '../icons';
 import {useTheme} from 'src/context/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
 
@@ -29,22 +29,92 @@ const BodyTypeItem = ({icon, title, isDark, onPress}) => {
 
 const BodyTypeSearch = () => {
   const bodyTypes = [
-    {id: 53, title: 'Hatchback', icon: <HatchbackIcon width={60} height={40} />},
-    {id: 49, title: 'Sedan', icon: <SedanIcon width={60} height={40} />},
-    {id: 51, title: 'SUV', icon: <SUVIcon width={60} height={40} />},
-    {id: 56, title: 'VAN', icon: <SUVIcon width={60} height={40} />},
-    {id: 52, title: 'Crossover', icon: <HatchbackIcon width={60} height={40} />},
-    {id: 55, title: 'Pickup Truck', icon: <SedanIcon width={60} height={40} />},
-    {id: 58, title: 'Convertible', icon: <SUVIcon width={60} height={40} />},
+    {
+      id: 53,
+      title: 'Hatchback',
+      icon: (
+        <BodyTypeIcon
+          img={require('./icons-body-type/hatchback.png')}
+          width={100}
+          height={70}
+        />
+      ),
+    },
+    {
+      id: 49,
+      title: 'Sedan',
+      icon: (
+        <BodyTypeIcon
+          width={100}
+          height={70}
+          img={require('./icons-body-type/sedan.png')}
+        />
+      ),
+    },
+    {
+      id: 51,
+      title: 'SUV',
+      icon: (
+        <BodyTypeIcon
+          width={100}
+          height={70}
+          img={require('./icons-body-type/suv.png')}
+        />
+      ),
+    },
+    {
+      id: 56,
+      title: 'VAN',
+      icon: (
+        <BodyTypeIcon
+          width={100}
+          height={70}
+          img={require('./icons-body-type/Van.png')}
+        />
+      ),
+    },
+    {
+      id: 52,
+      title: 'Crossover',
+      icon: (
+        <BodyTypeIcon
+          width={100}
+          height={70}
+          img={require('./icons-body-type/crossover.png')}
+        />
+      ),
+    },
+    {
+      id: 55,
+      title: 'Pickup Truck',
+      icon: (
+        <BodyTypeIcon
+          width={100}
+          height={70}
+          img={require('./icons-body-type/PickupTruck.png')}
+        />
+      ),
+    },
+    {
+      id: 58,
+      title: 'Convertible',
+      icon: (
+        <BodyTypeIcon
+          width={100}
+          height={70}
+          img={require('./icons-body-type/Convertible.png')}
+        />
+      ),
+    },
   ];
   const {isDark} = useTheme();
   const navigation = useNavigation();
 
-  const handleBodyTypePress = (id) => {
+  const handleBodyTypePress = id => {
     navigation.navigate('ExploreTab', {
       filters: {
         specifications: {
-          body_type: [id]
+          body_type: [id],
         },
         brands: [],
         brandIds: [],
@@ -53,8 +123,8 @@ const BodyTypeSearch = () => {
         trims: [],
         trimIds: [],
         years: [],
-        yearIds: []
-      }
+        yearIds: [],
+      },
     });
   };
 
@@ -124,7 +194,7 @@ const styles = StyleSheet.create({
     width: 91,
     marginRight: 12,
     alignItems: 'center',
-    marginLeft:10
+    marginLeft: 10,
   },
   imageContainer: {
     width: 100,
@@ -146,4 +216,3 @@ const styles = StyleSheet.create({
 });
 
 export default BodyTypeSearch;
-

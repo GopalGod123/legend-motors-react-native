@@ -670,7 +670,27 @@ export const updateUserProfile = async profileData => {
     // Ensure token is synchronized before making the request
     await syncAuthToken();
 
-    const response = await api.put('/auth/user/updateProfile', profileData);
+    // Create a copy of the data to normalize
+    const normalizedData = {...profileData};
+    
+    // Handle dialCode/countryCode format
+    // The API expects dialCode field with "+" prefix
+    if (normalizedData.countryCode) {
+      // Ensure country code has "+" prefix
+      if (!normalizedData.countryCode.startsWith('+')) {
+        normalizedData.countryCode = '+' + normalizedData.countryCode;
+      }
+      
+      // Set dialCode from countryCode if needed
+      normalizedData.dialCode = normalizedData.countryCode;
+      
+      console.log('Normalized country code for API request:', normalizedData.countryCode);
+      console.log('Set dialCode for API request:', normalizedData.dialCode);
+    }
+
+    console.log('Sending profile update request with data:', JSON.stringify(normalizedData));
+    
+    const response = await api.put('/auth/user/updateProfile', normalizedData);
 
     // Check for successful response
     if (response.data && response.data.success) {
@@ -680,13 +700,38 @@ export const updateUserProfile = async profileData => {
     }
   } catch (error) {
     console.error('Error updating user profile:', error);
-    // Add more context to the error message
-    if (error.response && error.response.status === 401) {
+    
+    // Format the error response for better debugging and handling
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Error response status:', error.response.status);
+      console.error('Error response data:', JSON.stringify(error.response.data));
+      
+      return {
+        success: false,
+        status: error.response.status,
+        message: error.response.data?.message || 'Server responded with an error',
+        data: error.response.data
+      };
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received:', error.request);
+      return {
+        success: false,
+        message: 'No response received from server. Please check your connection.'
+      };
+    } else if (error.message && error.message.includes('Authentication error')) {
       throw new Error(
         'Authentication error: Please log in again to update your profile.',
       );
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      return {
+        success: false,
+        message: error.message || 'Failed to update profile'
+      };
     }
-    throw error;
   }
 };
 
@@ -1021,21 +1066,21 @@ export const addToWishlist = async carId => {
     // Ensure token is synchronized before making the request
     await syncAuthToken();
 
-    console.log(`Adding car ${carId} to wishlist`);
+    // console.log(`Adding car ${carId} to wishlist`);
 
     const response = await api.post('/wishlist/create', {carId});
 
     // Log the full response for debugging
-    console.log('Wishlist add API response:', JSON.stringify(response.data));
+    // console.log('Wishlist add API response:', JSON.stringify(response.data));
 
     if (response.data && response.data.success) {
-      console.log('Successfully added car to wishlist:', response.data);
+      // console.log('Successfully added car to wishlist:', response.data);
       return response.data;
     } else {
-      console.log(
-        'API returned unsuccessful response for adding to wishlist:',
-        response.data,
-      );
+      // console.log(
+      //   'API returned unsuccessful response for adding to wishlist:',
+      //   response.data,
+      // );
       return {
         success: false,
         msg: response.data?.msg || 'Failed to add car to wishlist',
@@ -1066,9 +1111,9 @@ export const removeFromWishlist = async carId => {
     // Check if this carId is already being processed
     const key = `car_${carId}`;
     if (pendingDeletions[key]) {
-      console.log(
-        `Delete request for car ${carId} already in progress, skipping duplicate`,
-      );
+      // console.log(
+      //   `Delete request for car ${carId} already in progress, skipping duplicate`,
+      // );
       return {success: true, message: 'Request already in progress'};
     }
 
@@ -1078,16 +1123,16 @@ export const removeFromWishlist = async carId => {
     // Always use the carId, never the wishlistId
     // Convert to number if it's a string
     const numericCarId = parseInt(carId);
-    console.log(
-      `Attempting to remove car with ID: ${numericCarId} from wishlist`,
-    );
+    // console.log(
+    //   `Attempting to remove car with ID: ${numericCarId} from wishlist`,
+    // );
 
     // Use fixed userId based on API requirements
     const userId = 35; // Hardcoded from API documentation
 
     // Make sure userId is included in the URL
     const url = `${API_BASE_URL}/wishlist/delete?userId=${userId}&carId=${numericCarId}`;
-    console.log(`Making DELETE request to: ${url}`);
+    // console.log(`Making DELETE request to: ${url}`);
 
     // Use the api instance which already has the interceptor for auth tokens
     // instead of making a direct axios call. This prevents duplicate token handling.
@@ -1096,14 +1141,14 @@ export const removeFromWishlist = async carId => {
     );
 
     if (response.data && response.data.success) {
-      console.log('Successfully removed car from wishlist:', response.data);
+      // console.log('Successfully removed car from wishlist:', response.data);
       return {
         success: true,
         message: response.data.message || 'Successfully removed from wishlist',
         data: response.data.data || null,
       };
     } else {
-      console.log('API returned unsuccessful response:', response.data);
+      // console.log('API returned unsuccessful response:', response.data);
       return {
         success: false,
         msg: response.data?.msg || 'Failed to remove car from wishlist',
@@ -1113,7 +1158,7 @@ export const removeFromWishlist = async carId => {
   } catch (error) {
     // For 404 errors (already deleted), consider it a success
     if (error.response && error.response.status === 404) {
-      console.log(`Car ${carId} was not found in wishlist (already removed)`);
+      // console.log(`Car ${carId} was not found in wishlist (already removed)`);
       return {
         success: true,
         message: 'Car was already removed from wishlist',
@@ -1176,27 +1221,13 @@ export const getWishlist = async (params = {}) => {
     // Merge default with provided params
     const requestParams = {...defaultParams, ...params};
 
-    console.log('Fetching wishlist with params:', requestParams);
-
     const response = await api.get('/wishlist/list', {
       params: requestParams,
     });
 
-    // Log the full response for debugging
-    console.log('Wishlist API full response:', JSON.stringify(response.data));
-
     if (response.data && response.data.success) {
-      console.log(
-        `Successfully fetched wishlist with ${
-          response.data.data?.length || 0
-        } items`,
-      );
       return response.data;
     } else {
-      console.log(
-        'API returned unsuccessful response for wishlist:',
-        response.data,
-      );
       return {
         success: false,
         message: response.data?.message || 'Failed to fetch wishlist',
@@ -1296,6 +1327,53 @@ export const submitCarEnquiry = async (enquiryData) => {
     return {
       success: false,
       msg: error.response?.data?.message || error.message || 'Failed to submit enquiry',
+    };
+  }
+};
+
+// Function to fetch country dialing codes
+export const fetchCountryCodes = async (params = {}) => {
+  try {
+    const { 
+      page = 1, 
+      limit = 100, 
+      sortBy = 'name', 
+      order = 'asc', 
+      search = '' 
+    } = params;
+    
+    const queryParams = new URLSearchParams({
+      page,
+      limit,
+      sortBy,
+      order,
+      ...(search ? { search } : {})
+    }).toString();
+    
+    const response = await fetch(
+      `${API_BASE_URL}/country-codes/list?${queryParams}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY
+        }
+      }
+    );
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to fetch country codes');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching country codes:', error);
+    return { 
+      success: false, 
+      message: error.message || 'An error occurred while fetching country codes',
+      data: []
     };
   }
 };

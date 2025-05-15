@@ -1,28 +1,41 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { SPACING, FONT_SIZES, BORDER_RADIUS } from '../../utils/constants';
-import { useTheme } from '../../context/ThemeContext';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {
+  SPACING,
+  FONT_SIZES,
+  BORDER_RADIUS,
+  COLORS,
+} from '../../utils/constants';
+import {useTheme} from '../../context/ThemeContext';
 
-const EmptyState = ({ onClearFilters, brandName }) => {
-  const { theme, isDark } = useTheme();
-  
-  const message = brandName 
-    ? `No cars available for ${brandName}.` 
+const EmptyState = ({onClearFilters, brandName}) => {
+  const {theme, isDark} = useTheme();
+
+  const message = brandName
+    ? `No cars available for ${brandName}.`
     : 'No cars match your current filter criteria.';
-  
+
   return (
-    <View style={[styles.emptyContainer, { backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF' }]}>
-      <Text style={[styles.emptyTitle, { color: isDark ? '#FFFFFF' : '#000000' }]}>
+    <View
+      style={[
+        styles.emptyContainer,
+        {backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF'},
+      ]}>
+      <Text
+        style={[styles.emptyTitle, {color: isDark ? '#FFFFFF' : '#000000'}]}>
         No Cars Found
       </Text>
-      <Text style={[styles.emptyDescription, { color: isDark ? '#CCCCCC' : '#757575' }]}>
-        {message}
-        {' '}Try adjusting your filters or clear them to see all available cars.
+      <Text
+        style={[
+          styles.emptyDescription,
+          {color: isDark ? '#CCCCCC' : '#757575'},
+        ]}>
+        {message} Try adjusting your filters or clear them to see all available
+        cars.
       </Text>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={styles.clearFiltersButtonLarge}
-        onPress={onClearFilters}
-      >
+        onPress={onClearFilters}>
         <Text style={styles.clearFiltersText}>Clear All Filters</Text>
       </TouchableOpacity>
     </View>
@@ -48,7 +61,7 @@ const styles = StyleSheet.create({
   },
   clearFiltersButtonLarge: {
     padding: SPACING.md,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: COLORS.primary,
     borderRadius: BORDER_RADIUS.md,
   },
   clearFiltersText: {
@@ -58,4 +71,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default EmptyState; 
+export default EmptyState;

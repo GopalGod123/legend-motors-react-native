@@ -228,20 +228,18 @@ const processCar = car => {
     car.bodyType =
       car?.SpecificationValues?.find(a => a.Specification?.key == 'body_type')
         ?.name ?? 'SUV';
-    car.fuelType =
-      car?.SpecificationValues?.find(a => a.Specification?.key == 'fuel_type')
-        ?.name ?? 'Electric';
-    car.transmissionType =
-      car?.SpecificationValues?.find(
-        a => a.Specification?.key == 'transmission',
-      )?.name ?? 'Automatic';
-    car.steeringType =
-      car?.SpecificationValues?.find(a => a.Specification?.key == 'steering')
-        ?.name ?? 'Left hand drive';
-    car.region =
-      car?.SpecificationValues?.find(
-        a => a.Specification?.key == 'regional_specification',
-      )?.name ?? 'China';
+    car.fuelType = car?.SpecificationValues?.find(
+      a => a.Specification?.key == 'fuel_type',
+    )?.name;
+    car.transmissionType = car?.SpecificationValues?.find(
+      a => a.Specification?.key == 'transmission',
+    )?.name;
+    car.steeringType = car?.SpecificationValues?.find(
+      a => a.Specification?.key == 'steering',
+    )?.name;
+    car.region = car?.SpecificationValues?.find(
+      a => a.Specification?.key == 'regional_specification',
+    )?.name;
 
     // Create a normalized car object with consistent property names
     const processedCar = {
@@ -1608,10 +1606,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    padding: 18, // Default color, will be overridden
+    padding: 8, // Default color, will be overridden
   },
   carsList: {
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.sm,
     paddingBottom: SPACING.xl,
     flexGrow: 1,
     minHeight: 300,

@@ -26,10 +26,12 @@ const {width} = Dimensions.get('window');
 // Custom Logo component to replace the missing icon
 const LegendMotorsLogo = () => {
   const {isDark} = useTheme();
-  
+
   return (
     <View style={styles.logoContainer}>
-      <Text style={[styles.logoText, {color: isDark ? '#FFFFFF' : '#212121'}]}>Legend</Text>
+      <Text style={[styles.logoText, {color: isDark ? '#FFFFFF' : '#212121'}]}>
+        Legend
+      </Text>
       <View style={styles.logoBox} />
       <Text style={styles.motorsText}>Motors</Text>
     </View>
@@ -51,7 +53,7 @@ const EnquiriesScreen = () => {
   useFocusEffect(
     useCallback(() => {
       checkAuthAndFetchEnquiries();
-    }, [user])
+    }, [user]),
   );
 
   const checkAuthAndFetchEnquiries = async () => {
@@ -107,40 +109,82 @@ const EnquiriesScreen = () => {
   const handleViewCar = enquiry => {
     // From the API response, we can see the car info is in the 'car' property
     const car = enquiry.car || {};
-    
+
     // Get the car ID from either the car object or the enquiry itself
     const carId = car.id || enquiry.carId || enquiry.id || null;
-    
+
     if (!carId) {
       console.error('Cannot navigate to car details: No car ID available');
       return;
     }
-    
+
     console.log('Navigating to car details with carId:', carId);
-    
+
     // Navigate directly to the CarDetailScreen in the root navigator
     // Not through the nested tab navigation
-    navigation.navigate('CarDetailScreen', { carId });
+    navigation.navigate('CarDetailScreen', {carId});
   };
 
   // Loading state
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
-        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
-        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? '#000000' : '#FFFFFF'},
+        ]}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor={isDark ? '#000000' : '#FFFFFF'}
+        />
+        <View
+          style={[
+            styles.header,
+            {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
+          ]}>
           <View style={styles.headerLogoContainer}>
-            <LegendMotorsLogo />
-            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
+            <View style={styles.headerLogoContainer}>
+              <Image
+                source={require('../assets/images/logo.png')}
+                style={[styles.logoImage, {width: 30, height: 30}]}
+                resizeMode="contain"
+              />
+              <Text
+                style={[
+                  styles.headerTitle,
+                  {color: isDark ? '#FFFFFF' : '#212121'},
+                ]}>
+                My Inquiries
+              </Text>
+            </View>
+            <Text
+              style={[
+                styles.headerTitle,
+                {color: isDark ? '#FFFFFF' : '#212121'},
+              ]}>
+              My Inquiries
+            </Text>
           </View>
-          
-          <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ExploreTab')}
+            style={styles.searchButton}>
+            <Ionicons
+              name="search"
+              size={24}
+              color={isDark ? '#FFFFFF' : '#000000'}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={[styles.loadingText, {color: isDark ? '#CCCCCC' : '#757575'}]}>Loading enquiries...</Text>
+          <Text
+            style={[
+              styles.loadingText,
+              {color: isDark ? '#CCCCCC' : '#757575'},
+            ]}>
+            Loading enquiries...
+          </Text>
         </View>
       </SafeAreaView>
     );
@@ -149,20 +193,46 @@ const EnquiriesScreen = () => {
   // Error state
   if (error) {
     return (
-      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
-        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
-        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? '#000000' : '#FFFFFF'},
+        ]}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor={isDark ? '#000000' : '#FFFFFF'}
+        />
+        <View
+          style={[
+            styles.header,
+            {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
+          ]}>
           <View style={styles.headerLogoContainer}>
-            <LegendMotorsLogo />
-            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
+            {/* <LegendMotorsLogo /> */}
+            <Text
+              style={[
+                styles.headerTitle,
+                {color: isDark ? '#FFFFFF' : '#212121'},
+              ]}>
+              My Inquiries
+            </Text>
           </View>
-          
-          <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ExploreTab')}
+            style={styles.searchButton}>
+            <Ionicons
+              name="search"
+              size={24}
+              color={isDark ? '#FFFFFF' : '#000000'}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.errorContainer}>
-          <Text style={[styles.errorText, {color: isDark ? '#FF453A' : '#FF3B30'}]}>{error}</Text>
+          <Text
+            style={[styles.errorText, {color: isDark ? '#FF453A' : '#FF3B30'}]}>
+            {error}
+          </Text>
           <TouchableOpacity
             style={styles.retryButton}
             onPress={checkAuthAndFetchEnquiries}>
@@ -176,16 +246,39 @@ const EnquiriesScreen = () => {
   // Not authenticated state - show login prompt
   if (!isUserAuthenticated) {
     return (
-      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
-        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
-        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? '#000000' : '#FFFFFF'},
+        ]}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor={isDark ? '#000000' : '#FFFFFF'}
+        />
+        <View
+          style={[
+            styles.header,
+            {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
+          ]}>
           <View style={styles.headerLogoContainer}>
-            <LegendMotorsLogo />
-            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
+            {/* <LegendMotorsLogo /> */}
+            <Text
+              style={[
+                styles.headerTitle,
+                {color: isDark ? '#FFFFFF' : '#212121'},
+              ]}>
+              My Inquiries
+            </Text>
           </View>
-          
-          <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ExploreTab')}
+            style={styles.searchButton}>
+            <Ionicons
+              name="search"
+              size={24}
+              color={isDark ? '#FFFFFF' : '#000000'}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.loginContainer}>
@@ -196,15 +289,25 @@ const EnquiriesScreen = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={[styles.noEnquiriesTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>No Enquiries found</Text>
-          <Text style={[styles.loginPromptText, {color: isDark ? '#CCCCCC' : '#757575'}]}>
-            Login/Register to track all your enquiries in one place hassle free.
+          <Text
+            style={[
+              styles.noEnquiriesTitle,
+              {color: isDark ? '#FFFFFF' : '#212121'},
+            ]}>
+            No Inquiries found
+          </Text>
+          <Text
+            style={[
+              styles.loginPromptText,
+              {color: isDark ? '#CCCCCC' : '#757575'},
+            ]}>
+            Login/Register to track all your inquiries in one place hassle free.
           </Text>
           <TouchableOpacity
             style={styles.loginButton}
             onPress={handleLoginPress}>
             <Text style={styles.loginButtonText}>
-              Login/Register to Enquire
+              Login/Register to Inquire
             </Text>
           </TouchableOpacity>
         </View>
@@ -215,16 +318,43 @@ const EnquiriesScreen = () => {
   // Authenticated but no enquiries
   if (enquiries.length === 0) {
     return (
-      <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#000000' : '#FFFFFF'}]}>
-        <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
-        <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? '#000000' : '#FFFFFF'},
+        ]}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor={isDark ? '#000000' : '#FFFFFF'}
+        />
+        <View
+          style={[
+            styles.header,
+            {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
+          ]}>
           <View style={styles.headerLogoContainer}>
-            <LegendMotorsLogo />
-            <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>My Inquiries</Text>
+            <Image
+              source={require('../assets/images/logo.png')}
+              style={[styles.logoImage, {width: 30, height: 30}]}
+              resizeMode="contain"
+            />
+            <Text
+              style={[
+                styles.headerTitle,
+                {color: isDark ? '#FFFFFF' : '#212121'},
+              ]}>
+              My Inquiries
+            </Text>
           </View>
-          
-          <TouchableOpacity style={styles.searchButton}>
-            <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ExploreTab')}
+            style={styles.searchButton}>
+            <Ionicons
+              name="search"
+              size={24}
+              color={isDark ? '#FFFFFF' : '#000000'}
+            />
           </TouchableOpacity>
         </View>
         <View style={styles.emptyContainer}>
@@ -235,10 +365,17 @@ const EnquiriesScreen = () => {
               resizeMode="contain"
             />
           </View>
-          <Text style={[styles.noEnquiriesTitle, {color: isDark ? '#FFFFFF' : '#212121'}]}>No Enquiries yet</Text>
-          <Text style={[styles.emptyText, {color: isDark ? '#CCCCCC' : '#757575'}]}>
-            You haven't made any enquiries yet. Start exploring cars and submit
-            enquiries.
+          <Text
+            style={[
+              styles.noEnquiriesTitle,
+              {color: isDark ? '#FFFFFF' : '#212121'},
+            ]}>
+            No Inquiries yet
+          </Text>
+          <Text
+            style={[styles.emptyText, {color: isDark ? '#CCCCCC' : '#757575'}]}>
+            You haven't made any inquiries yet. Start exploring cars and submit
+            inquiries.
           </Text>
           <TouchableOpacity
             style={styles.exploreButton}
@@ -252,29 +389,52 @@ const EnquiriesScreen = () => {
 
   // Render list of enquiries - updated to match the Figma design
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'}]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} backgroundColor={isDark ? "#000000" : "#FFFFFF"} />
-      <View style={[styles.header, {borderBottomColor: isDark ? '#333333' : '#EEEEEE'}]}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+      ]}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={isDark ? '#000000' : '#FFFFFF'}
+      />
+      <View
+        style={[
+          styles.header,
+          {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
+        ]}>
         {/* Add Legend Motors logo next to title */}
         <View style={styles.headerLogoContainer}>
           <Image
             source={require('../assets/images/logo.png')}
-            style={[styles.logoImage, { width: 30, height: 30 }]}
+            style={[styles.logoImage, {width: 30, height: 30}]}
             resizeMode="contain"
           />
-          <Text style={[styles.headerTitle, { 
-            fontFamily: 'Effra Medium',
-            fontWeight: '400',
-            fontSize: 24,
-            lineHeight: 24 * 1.2, // 120% of font size
-            letterSpacing: 0,
-            color: isDark ? '#FFFFFF' : '#212121'
-          }]}>My Inquiries</Text>
+          <Text
+            style={[
+              styles.headerTitle,
+              {
+                fontFamily: 'Effra Medium',
+                fontWeight: '400',
+                fontSize: 24,
+                lineHeight: 24 * 1.2, // 120% of font size
+                letterSpacing: 0,
+                color: isDark ? '#FFFFFF' : '#212121',
+              },
+            ]}>
+            My Inquiries
+          </Text>
         </View>
-        
+
         {/* Add search icon */}
-        <TouchableOpacity style={styles.searchButton}>
-          <Ionicons name="search" size={24} color={isDark ? "#FFFFFF" : "#000000"} />
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ExploreTab')}
+          style={styles.searchButton}>
+          <Ionicons
+            name="search"
+            size={24}
+            color={isDark ? '#FFFFFF' : '#000000'}
+          />
         </TouchableOpacity>
       </View>
 
@@ -284,7 +444,7 @@ const EnquiriesScreen = () => {
         renderItem={({item}) => {
           // The API response shows car details are in a nested 'car' object
           const car = item.car || {};
-          
+
           // Process car data to ensure consistent access
           const processedCar = {
             id: car.id || item.id || item.carId || null,
@@ -293,19 +453,34 @@ const EnquiriesScreen = () => {
             trim: car.trim || item.trim || '',
             image: car.image || null,
           };
-          
+
           // Extract price from the car prices array
           const prices = car.prices || [];
-          const price = prices.find(
-            p => p.currency === selectedCurrency
-          )?.price || car.price || item.price || 0;
-          
+          const price =
+            prices.find(p => p.currency === selectedCurrency)?.price ||
+            car.price ||
+            item.price ||
+            0;
+
           return (
-            <View style={[styles.cardContainer, {backgroundColor: isDark ? '#0D0D0D' : 'transparent'}]}>
-              <View style={[styles.carImageContainer, {borderColor: isDark ? '#0D0D0D' : '#E0E0E0', backgroundColor: isDark ? '#0D0D0D' : '#f5f5f5'}]}>
+            <View
+              style={[
+                styles.cardContainer,
+                {backgroundColor: isDark ? '#0D0D0D' : 'transparent'},
+              ]}>
+              <View
+                style={[
+                  styles.carImageContainer,
+                  {
+                    borderColor: isDark ? '#0D0D0D' : '#E0E0E0',
+                    backgroundColor: isDark ? '#0D0D0D' : '#f5f5f5',
+                  },
+                ]}>
                 {processedCar.image ? (
                   <Image
-                    source={{ uri: `https://cdn.legendmotorsglobal.com${processedCar.image}` }}
+                    source={{
+                      uri: `https://cdn.legendmotorsglobal.com${processedCar.image}`,
+                    }}
                     style={styles.carImage}
                     resizeMode="cover"
                   />
@@ -317,20 +492,36 @@ const EnquiriesScreen = () => {
                   />
                 )}
               </View>
-              
+
               <View style={styles.carDetailsContainer}>
-                <Text style={[styles.carTitle, {color: isDark ? '#FFFFFF' : '#0D0D0D'}]}>
-                  {car.additionalInfo || `${processedCar.brand} ${processedCar.model} ${processedCar.trim}`}
+                <Text
+                  style={[
+                    styles.carTitle,
+                    {color: isDark ? '#FFFFFF' : '#0D0D0D'},
+                  ]}>
+                  {car.additionalInfo ||
+                    `${processedCar.brand} ${processedCar.model} ${processedCar.trim}`}
                 </Text>
-                
+
                 <View style={styles.priceButtonContainer}>
-                  <Text style={[styles.priceText, {color: isDark ? '#ffffff' : '#0D0D0D'}]}>
-                    {selectedCurrency === 'AED' ? 'AED' : '$'} {Number(price).toLocaleString()}
+                  <Text
+                    style={[
+                      styles.priceText,
+                      {color: isDark ? '#ffffff' : '#0D0D0D'},
+                    ]}>
+                    {selectedCurrency === 'AED' ? 'AED' : '$'}{' '}
+                    {Number(price).toLocaleString()}
                   </Text>
                   <TouchableOpacity
                     style={styles.viewButton}
                     onPress={() => handleViewCar(item)}>
-                    <Text style={[styles.viewButtonText, {color:isDark ? '#000' : '#ffff'}]}>View Car</Text>
+                    <Text
+                      style={[
+                        styles.viewButtonText,
+                        {color: isDark ? '#000' : '#ffff'},
+                      ]}>
+                      View Car
+                    </Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -340,10 +531,10 @@ const EnquiriesScreen = () => {
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl 
-            refreshing={refreshing} 
+          <RefreshControl
+            refreshing={refreshing}
             onRefresh={onRefresh}
-            tintColor={isDark ? '#FFFFFF' : '#000000'} 
+            tintColor={isDark ? '#FFFFFF' : '#000000'}
           />
         }
       />
@@ -355,7 +546,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    padding:24
+    padding: 24,
   },
   header: {
     flexDirection: 'row',
@@ -405,8 +596,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: 15,
-    paddingTop:20,
-    borderRadius:32
+    paddingTop: 20,
+    borderRadius: 32,
   },
   carImageContainer: {
     width: 104,

@@ -48,8 +48,6 @@ const SettingsScreen = () => {
 
   const navigateToPrivacyPolicy = () => {
     console.log('Attempting to navigate to TestNavigation screen');
-    Alert.alert('Navigation', 'Attempting to navigate to TestNavigation screen');
-    
     // Navigate to the test screen first
     navigation.navigate('TestNavigation');
   };
@@ -67,7 +65,7 @@ const SettingsScreen = () => {
         <Button 
           title="Test Privacy Policy Navigation" 
           onPress={navigateToPrivacyPolicy} 
-          color="#F47B20"
+          color={isDark ? '#FFFFFF' : "#F47B20"}
         />
       </View>
       
@@ -94,7 +92,7 @@ const SettingsScreen = () => {
               <Text
                 style={[
                   styles.userEmail,
-                  {color: themeColors[theme].textSecondary},
+                  {color: isDark ? '#FFFFFF' : themeColors[theme].textSecondary},
                 ]}>
                 {user?.email || ''}
               </Text>
@@ -119,7 +117,7 @@ const SettingsScreen = () => {
             <Text
               style={[
                 styles.menuItemValue,
-                {color: themeColors[theme].primary},
+                {color: isDark ? '#FFFFFF' : themeColors[theme].primary},
               ]}>
               English
             </Text>
@@ -137,7 +135,7 @@ const SettingsScreen = () => {
             <Text
               style={[
                 styles.menuItemValue,
-                {color: themeColors[theme].primary},
+                {color: isDark ? '#FFFFFF' : themeColors[theme].primary},
               ]}>
               On
             </Text>
@@ -194,7 +192,7 @@ const SettingsScreen = () => {
             {backgroundColor: themeColors[theme].error},
           ]}
           onPress={handleLogout}>
-          <Text style={styles.logoutButtonText}>Log Out</Text>
+          <Text style={[styles.logoutButtonText, {color: '#FFFFFF'}]}>Log Out</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>

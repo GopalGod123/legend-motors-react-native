@@ -10,10 +10,13 @@
     "test": "jest"
   },
   "dependencies": {
+    "@invertase/react-native-apple-authentication": "^2.4.1",
     "@react-native-async-storage/async-storage": "^2.1.2",
     "@react-native-community/datetimepicker": "8.3.0",
     "@react-native-firebase/app": "^22.2.0",
     "@react-native-firebase/messaging": "^22.2.0",
+    "@react-native-firebase/auth": "^22.2.0",
+    "@react-native-google-signin/google-signin": "^14.0.0",
     "@react-native-picker/picker": "2.11.0",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/native": "^7.1.6",
@@ -27,6 +30,7 @@
     "react-native": "0.79.2",
     "react-native-dotenv": "^3.4.11",
     "react-native-gesture-handler": "^2.25.0",
+    "react-native-get-random-values": "^1.11.0",
     "react-native-image-picker": "^8.2.0",
     "react-native-range-slider": "^0.1.2",
     "react-native-reanimated": "^3.17.5",
@@ -38,7 +42,8 @@
     "react-native-webview": "^13.13.5",
     "react-redux": "^9.2.0",
     "redux-persist": "^6.0.0",
-    "rn-range-slider": "^2.2.2"
+    "rn-range-slider": "^2.2.2",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

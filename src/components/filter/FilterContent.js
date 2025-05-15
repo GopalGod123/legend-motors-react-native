@@ -40,7 +40,7 @@ const FilterContent = ({
         <Ionicons
           name={iconName}
           size={20}
-          color={isDark ? '#CCCCCC' : '#666666'}
+          color={isDark ? '#FFFFFF' : '#666666'}
           style={{marginRight: 10}}
         />
       );

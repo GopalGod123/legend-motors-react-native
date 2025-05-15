@@ -82,7 +82,7 @@ const FilterScreen = ({route, navigation}) => {
     {id: 'color', label: 'Color'},
     {id: 'interiorColor', label: 'Interior Color'},
     {id: 'wheelSize', label: 'Wheel Size'},
-    {id: 'regionalSpec', label: 'Regional Specification'},
+    {id: 'regionalSpec', label: 'Regional Spec'},
     {id: 'steeringSide', label: 'Steering Side'},
     {id: 'seats', label: 'Seats'},
     {id: 'doors', label: 'Doors'},
