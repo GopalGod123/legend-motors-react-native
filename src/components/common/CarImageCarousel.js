@@ -28,11 +28,11 @@ const CarImageCarousel = forwardRef(({
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const flatListRef = useRef(null);
   const scrollToIndexTimeoutRef = useRef(null);
-  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
+  const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50, itemVisiblePercentThreshold: 50 });
   const onViewRef = useRef(({ changed }) => {
-    if (changed[0].isViewable) {
+    if (changed && changed.length > 0 && changed[0].isViewable) {
       const newIndex = changed[0].index;
-      if (newIndex !== activeIndex) {
+      if (newIndex !== activeIndex && newIndex !== undefined) {
         setActiveIndex(newIndex);
         if (onIndexChange) {
           onIndexChange(newIndex);
@@ -42,7 +42,7 @@ const CarImageCarousel = forwardRef(({
   });
 
   // Memoize images to prevent unnecessary re-renders
-  const memoizedImages = useMemo(() => images || [], [images ? images.length : 0]);
+  const memoizedImages = useMemo(() => images || [], [images ? JSON.stringify(images) : 0]);
   
   // Preload images when they change
   useEffect(() => {
@@ -73,38 +73,42 @@ const CarImageCarousel = forwardRef(({
     }
   }, [images, initialIndex, imagesPreloaded]);
   
-  // Update scrollToIndex method to be backwards compatible with both types of parameters
-  const scrollToIndex = useCallback((indexOrOptions, maybeAnimated) => {
-    if (flatListRef.current && images && images.length > 0) {
-      try {
-        // Handle different parameter formats
-        let index;
-        let animated = true;
-        
-        if (typeof indexOrOptions === 'object' && indexOrOptions !== null) {
-          // Called with { index, animated } object
-          index = indexOrOptions.index;
-          animated = indexOrOptions.animated !== undefined ? indexOrOptions.animated : true;
-        } else {
-          // Called with (index, animated) separate parameters
-          index = indexOrOptions;
-          animated = maybeAnimated !== undefined ? maybeAnimated : true;
-        }
-        
-        if (images.length === 1) {
-          return; // No need to scroll with just one image
-        }
-        
-        if (index >= 0 && index < images.length) {
-          // Use scrollToOffset for more reliable scrolling
-          const offset = index * width;
-          flatListRef.current.scrollToOffset({
-            offset,
-            animated,
-          });
-        }
-      } catch (error) {
-        console.log('Error scrolling to index:', error);
+  // Simplify scrollToIndex method for better reliability
+  const scrollToIndex = useCallback((index, animated = true) => {
+    if (!flatListRef.current || !images || images.length === 0) return;
+    
+    try {
+      // Handle index type validation
+      const targetIndex = typeof index === 'object' ? index.index : index;
+      const isAnimated = typeof index === 'object' ? 
+        (index.animated !== undefined ? index.animated : true) : 
+        animated;
+      
+      if (images.length === 1) return; // No need to scroll with just one image
+      
+      if (targetIndex >= 0 && targetIndex < images.length) {
+        // Direct offset calculation for more reliable scrolling
+        const offset = targetIndex * width;
+        flatListRef.current.scrollToOffset({
+          offset,
+          animated: isAnimated
+        });
+      }
+    } catch (error) {
+      console.log('Error in scrollToIndex:', error);
+      
+      // Fallback for scrolling failures
+      if (typeof index === 'number' && index >= 0 && index < images.length) {
+        setTimeout(() => {
+          try {
+            flatListRef.current?.scrollToOffset({
+              offset: index * width,
+              animated: false
+            });
+          } catch (fallbackError) {
+            console.log('Fallback scrolling also failed:', fallbackError);
+          }
+        }, 50);
       }
     }
   }, [images, width]);
@@ -117,10 +121,10 @@ const CarImageCarousel = forwardRef(({
   
   // Set initial index when it changes
   useEffect(() => {
-    if (initialIndex !== activeIndex) {
+    if (initialIndex !== activeIndex && images && images.length > 0) {
       scrollToIndex(initialIndex, true);
     }
-  }, [initialIndex, scrollToIndex]);
+  }, [initialIndex, activeIndex, scrollToIndex, images]);
 
   // Clean up timeouts on unmount
   useEffect(() => {
@@ -132,22 +136,43 @@ const CarImageCarousel = forwardRef(({
   }, []);
 
   // Handle when scrolling ends to update the active index
-  const handleScroll = useCallback((event) => {
+  const handleMomentumScrollEnd = useCallback((event) => {
+    if (!event || !event.nativeEvent) return;
+    
     const contentOffsetX = event.nativeEvent.contentOffset.x;
     const newIndex = Math.round(contentOffsetX / width);
     
-    if (newIndex !== activeIndex && newIndex >= 0 && newIndex < memoizedImages.length) {
+    if (newIndex !== activeIndex && newIndex >= 0 && 
+        memoizedImages && newIndex < memoizedImages.length) {
+      console.log(`Carousel scrolled to index ${newIndex}`);
       setActiveIndex(newIndex);
       if (onIndexChange) {
         onIndexChange(newIndex);
       }
     }
-  }, [activeIndex, memoizedImages.length, onIndexChange]);
+  }, [activeIndex, memoizedImages, onIndexChange, width]);
 
-  // Go to a specific image
-  const goToImage = useCallback((index) => {
-    scrollToIndex(index, true);
-  }, [scrollToIndex]);
+  // Update the index if images change (like when switching tabs)
+  useEffect(() => {
+    // Reset to the first image when image array changes (e.g., when switching tabs)
+    if (memoizedImages && memoizedImages.length > 0 && activeIndex >= memoizedImages.length) {
+      console.log('Images changed, resetting carousel index to 0');
+      setActiveIndex(0);
+      if (onIndexChange) {
+        onIndexChange(0);
+      }
+      if (flatListRef.current) {
+        try {
+          flatListRef.current.scrollToOffset({
+            offset: 0,
+            animated: false
+          });
+        } catch (error) {
+          console.log('Error resetting carousel position:', error);
+        }
+      }
+    }
+  }, [memoizedImages, activeIndex, onIndexChange]);
 
   // Better memoization of renderItem to prevent recreation
   const renderItem = useCallback(({ item, index }) => (
@@ -203,12 +228,18 @@ const CarImageCarousel = forwardRef(({
               styles.paginationDot,
               index === activeIndex && styles.paginationDotActive
             ]}
-            onPress={() => goToImage(index)}
+            onPress={() => {
+              setActiveIndex(index);
+              scrollToIndex(index, true);
+              if (onIndexChange) {
+                onIndexChange(index);
+              }
+            }}
           />
         ))}
       </View>
     );
-  }, [memoizedImages.length, activeIndex, goToImage]);
+  }, [memoizedImages.length, activeIndex, scrollToIndex, onIndexChange]);
 
   return (
     <View style={[styles.container, { height }, style]}>
@@ -219,7 +250,7 @@ const CarImageCarousel = forwardRef(({
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScroll}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
         onViewableItemsChanged={onViewRef.current}
         viewabilityConfig={viewConfigRef.current}
         decelerationRate={Platform.OS === 'ios' ? 0.992 : 0.98}
@@ -235,14 +266,29 @@ const CarImageCarousel = forwardRef(({
         maxToRenderPerBatch={3}
         windowSize={5}
         initialNumToRender={3}
+        initialScrollIndex={initialIndex}
         removeClippedSubviews={Platform.OS === 'android'}
         keyExtractor={(_, index) => `carousel-${index}`}
         onScrollToIndexFailed={(info) => {
-          const offset = info.index * width;
-          flatListRef.current?.scrollToOffset({
-            offset,
-            animated: false
-          });
+          console.warn('Scroll to index failed in carousel:', info.index);
+          setTimeout(() => {
+            try {
+              if (flatListRef.current) {
+                flatListRef.current.scrollToOffset({
+                  offset: info.index * width,
+                  animated: false
+                });
+                
+                // Update the active index
+                setActiveIndex(info.index);
+                if (onIndexChange) {
+                  onIndexChange(info.index);
+                }
+              }
+            } catch (error) {
+              console.error('Error in onScrollToIndexFailed handler:', error);
+            }
+          }, 100);
         }}
       />
 
