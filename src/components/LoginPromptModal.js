@@ -28,72 +28,35 @@ const PROMPT_SHOWN_KEY = 'login_prompt_dismissed';
 const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
   const {isAuthenticated, user} = useAuth();
   const {isDark} = useTheme();
-  const [shouldShowModal, setShouldShowModal] = useState(false);
-  const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
+  const [shouldShowModal, setShouldShowModal] = useState(visible);
 
-  // First check AsyncStorage to see if user has previously dismissed the modal
+  // Update modal visibility when prop changes
   useEffect(() => {
-    const checkPromptDismissed = async () => {
-      try {
-        const promptDismissed = await AsyncStorage.getItem(PROMPT_SHOWN_KEY);
-        setHasCheckedStorage(true);
-
-        if (promptDismissed === 'true') {
-          // User has previously dismissed the modal
-          console.log('User has previously dismissed login prompt');
-          onClose();
-        }
-      } catch (error) {
-        console.error('Error checking prompt dismissed status:', error);
-        setHasCheckedStorage(true);
-      }
-    };
-
     if (visible) {
-      checkPromptDismissed();
+      setShouldShowModal(true);
     }
-  }, [visible, onClose]);
-
-  // Then check authentication status
-  useEffect(() => {
-    if (!hasCheckedStorage) return;
-
-    const checkAuthAndSetModal = async () => {
-      try {
-        const isUserAuthenticated = await isAuthenticated();
-        setShouldShowModal(visible && !isUserAuthenticated);
-
-        // If user is already logged in, close the modal automatically
-        if (isUserAuthenticated && visible) {
-          console.log('User is already logged in, not showing login prompt');
-          onClose();
-        }
-      } catch (error) {
-        console.error('Error checking authentication:', error);
-        setShouldShowModal(false);
-      }
-    };
-
-    checkAuthAndSetModal();
-  }, [visible, isAuthenticated, user, hasCheckedStorage, onClose]);
-
-  // If user is logged in or modal shouldn't be shown, don't render it
-  if (!shouldShowModal) {
-    return null;
-  }
+  }, [visible]);
 
   const handleDismiss = async () => {
     try {
       // Mark the prompt as dismissed in AsyncStorage
       await AsyncStorage.setItem(PROMPT_SHOWN_KEY, 'true');
       console.log('Login prompt marked as dismissed');
+      setShouldShowModal(false);
+      onClose();
     } catch (error) {
       console.error('Error saving prompt dismissed status:', error);
     }
-
-    // Close the modal
-    onClose();
   };
+
+  const handleLoginPress = () => {
+    setShouldShowModal(false);
+    onLoginPress();
+  };
+
+  if (!shouldShowModal) {
+    return null;
+  }
 
   return (
     <Modal
@@ -132,7 +95,7 @@ const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
               Log in or register to access exclusive features and deals!
             </Text>
 
-            <TouchableOpacity style={styles.loginButton} onPress={onLoginPress}>
+            <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
               <Text style={styles.loginButtonText}>Login / Register</Text>
             </TouchableOpacity>
           </View>
@@ -149,12 +112,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   overlay: {
     position: 'absolute',
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
     width: 340,
@@ -206,15 +169,6 @@ const styles = StyleSheet.create({
     height: 80,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  emailIconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#F5F0FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
   },
   title: {
     fontSize: 24,
