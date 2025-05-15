@@ -349,15 +349,70 @@ const CarDetailScreen = () => {
   // Memoize carImages to ensure stable reference
   const memoizedCarImages = useMemo(() => getAllImages(), [car, activeTab]);
 
-  // Define a function to determine when to switch tabs
-  const switchToNextTab = useCallback(() => {
-    console.log('Switching tabs from', activeTab);
-    if (activeTab === 'exterior') {
-      setActiveTab('interior');
+  // Add logging to track tab change requests
+  const switchToTab = (newTab) => {
+    // Only switch if the tab is actually different
+    if (newTab !== activeTab) {
+      console.log(`Tab change requested from ${activeTab} to ${newTab}`);
+      setActiveTab(newTab);
     } else {
-      setActiveTab('exterior');
+      console.log(`Tab change ignored - already on ${activeTab} tab`);
     }
-  }, [activeTab]);
+  };
+
+  // Helper function to handle tab switching with last image selection
+  const switchToTabWithLastImage = (targetTab) => {
+    // Only switch if the tab is actually different
+    if (targetTab === activeTab) {
+      console.log(`Tab switch to ${targetTab} ignored - already on this tab`);
+      return;
+    }
+    
+    console.log(`Switching to ${targetTab} tab and selecting last image`);
+    
+    // Get target images before switching
+    const targetImages = getImagesByType(targetTab);
+    const targetIndex = targetImages.length > 0 ? targetImages.length - 1 : 0;
+    
+    // First switch the tab
+    switchToTab(targetTab);
+    
+    // After tab switch, select the last image with a delay to ensure carousel is ready
+    setTimeout(() => {
+      console.log(`Setting ${targetTab} last image index: ${targetIndex}`);
+      setSelectedImageIndex(targetIndex);
+      
+      if (carouselRef.current) {
+        try {
+          carouselRef.current.scrollToIndex(targetIndex);
+        } catch (error) {
+          console.log(`Error scrolling to last image in ${targetTab} tab:`, error);
+          
+          // Retry once more with a longer delay
+          setTimeout(() => {
+            try {
+              if (carouselRef.current) {
+                carouselRef.current.scrollToIndex(targetIndex);
+                console.log(`Successfully scrolled to ${targetTab} image ${targetIndex} on retry`);
+              }
+            } catch (retryError) {
+              console.log('Final retry failed:', retryError);
+            }
+          }, 300);
+        }
+      }
+      
+      // Also update the thumbnail list position
+      if (thumbnailsListRef.current) {
+        try {
+          const offset = Math.max(0, targetIndex * 94 - 94);
+          thumbnailsListRef.current.scrollToOffset({ offset, animated: true });
+        } catch (error) {
+          console.log('Error scrolling thumbnail list:', error);
+        }
+      }
+    }, 250);
+  };
 
   // Fix the auto-scrolling implementation to ensure proper function definition and access
   useEffect(() => {
@@ -421,10 +476,10 @@ const CarDetailScreen = () => {
                     setTimeout(() => {
                       if (currentTab === 'exterior') {
                         console.log('Auto-switching to interior tab');
-                        setActiveTab('interior');
+                        switchToTab('interior');
                       } else if (currentTab === 'interior') {
                         console.log('Auto-switching to exterior tab');
-                        setActiveTab('exterior');
+                        switchToTab('exterior');
                       }
                     }, 700);
                   }
@@ -542,54 +597,6 @@ const CarDetailScreen = () => {
     isSwipingRef.current = true;
   };
 
-  // Helper function to handle tab switching with last image selection
-  const switchToTabWithLastImage = (targetTab) => {
-    console.log(`Switching to ${targetTab} tab and selecting last image`);
-    
-    // Get target images before switching
-    const targetImages = getImagesByType(targetTab);
-    const targetIndex = targetImages.length > 0 ? targetImages.length - 1 : 0;
-    
-    // First switch the tab
-    setActiveTab(targetTab);
-    
-    // After tab switch, select the last image with a delay to ensure carousel is ready
-    setTimeout(() => {
-      console.log(`Setting ${targetTab} last image index: ${targetIndex}`);
-      setSelectedImageIndex(targetIndex);
-      
-      if (carouselRef.current) {
-        try {
-          carouselRef.current.scrollToIndex(targetIndex);
-        } catch (error) {
-          console.log(`Error scrolling to last image in ${targetTab} tab:`, error);
-          
-          // Retry once more with a longer delay
-          setTimeout(() => {
-            try {
-              if (carouselRef.current) {
-                carouselRef.current.scrollToIndex(targetIndex);
-                console.log(`Successfully scrolled to ${targetTab} image ${targetIndex} on retry`);
-              }
-            } catch (retryError) {
-              console.log('Final retry failed:', retryError);
-            }
-          }, 300);
-        }
-      }
-      
-      // Also update the thumbnail list position
-      if (thumbnailsListRef.current) {
-        try {
-          const offset = Math.max(0, targetIndex * 94 - 94);
-          thumbnailsListRef.current.scrollToOffset({ offset, animated: true });
-        } catch (error) {
-          console.log('Error scrolling thumbnail list:', error);
-        }
-      }
-    }, 250);
-  };
-
   // Add this function to handle touch end for swipe detection
   const handleTouchEnd = (e) => {
     if (!isSwipingRef.current) return;
@@ -606,10 +613,10 @@ const CarDetailScreen = () => {
         if (selectedImageIndex === memoizedCarImages.length - 1) {
           if (activeTab === 'exterior') {
             console.log('Swipe detected at last exterior image, switching to interior tab');
-            setActiveTab('interior');
+            switchToTab('interior');
           } else if (activeTab === 'interior') {
             console.log('Swipe detected at last interior image, switching to exterior tab');
-            setActiveTab('exterior');
+            switchToTab('exterior');
           }
         } else {
           // Otherwise go to next image
@@ -1210,7 +1217,7 @@ const CarDetailScreen = () => {
                   styles.galleryTab,
                   activeTab === 'exterior' && styles.activeGalleryTab,
                 ]}
-                onPress={() => setActiveTab('exterior')}
+                onPress={() => switchToTab('exterior')}
               >
                 <Text
                   style={[
@@ -1227,7 +1234,7 @@ const CarDetailScreen = () => {
                   styles.galleryTab,
                   activeTab === 'interior' && styles.activeGalleryTab,
                 ]}
-                onPress={() => setActiveTab('interior')}
+                onPress={() => switchToTab('interior')}
               >
                 <Text
                   style={[
@@ -1916,14 +1923,6 @@ const CarDetailScreen = () => {
               { color: isDark ? '#000000' : '#FFFFFF' },
               isAlreadyInquired && styles.alreadyInquiredText
             ]}
-            onPress={() => navigation.navigate('EnquiryFormScreen', {
-              carId: id,
-              carTitle: title,
-              carImage: images[0],
-              carPrice: price,
-              currency: selectedCurrency,
-              onEnquirySubmit: handleEnquirySubmit
-            })}
           >
             {!isAuthenticated ? 'Login' : 
               isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
