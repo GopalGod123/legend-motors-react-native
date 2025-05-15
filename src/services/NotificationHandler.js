@@ -8,8 +8,8 @@ export default function useCleverTapDemo() {
     // Enable CleverTap debug logs
     CleverTap.setDebugLevel(3);
 
-    // Prompt for push permission (iOS)
-    CleverTap.promptForPushPermission(true);
+    CleverTap// Prompt for push permission (iOS)
+    .CleverTap.promptForPushPermission(true);
 
     // Request POST_NOTIFICATIONS permission for Android 13+
     async function requestNotificationPermission() {
@@ -37,39 +37,57 @@ export default function useCleverTapDemo() {
     });
 
     // 👉 Send Unique User Profile
-    const userProfile = {
-      Name: 'TestUser_' + Math.floor(Math.random() * 1000),
-      Identity: 'user_' + Math.floor(Math.random() * 100000), // Unique identity
-      Email: 'testuser_' + Math.floor(Math.random() * 1000) + '@example.com',
-      Phone: '+91123456789' + Math.floor(Math.random() * 10),
-      custom1: 'DemoTest',
-    };
-    CleverTap.createNotificationChannel(
-      'sat-test', // Channel ID
-      'General Notifications', // Name
-      'General notifications from the app', // Description
-      4, // Importance (1-5)
-      true, // Show Badge
-    );
-    console.log('Sending user profile to CleverTap:', userProfile);
+    // let Email =
+    //   'testuser1_' + Math.floor(Math.random() * 1000) + '@example.com';
+    // let Identity = 'user1_' + Math.floor(Math.random() * 100000);
+    // const userProfile1 = {
+    //   Name: 'satyam sen',
+    //   Identity: Identity, // User unique ID (string)
+    //   Email: Email,
+    //   Phone: '+919098727625', // Must include country code
+    //   Gender: 'M',
+    //   DOB: new Date('1990-10-10'), // Date object
+    // };
+
+    // setTimeout(() => {
+    //   CleverTap.profileSet(userProfile1);
+    //   console.log('update');
+    // }, 1000);
+
+    // console.log({Email});
+    // const userProfile = {
+    //   Name: 'TestU' + Math.floor(Math.random() * 1000),
+    //   Identity: Identity, // Unique identity
+    //   Email: Email,
+    //   Phone: '+91123456789' + Math.floor(Math.random() * 10),
+    //   custom1: 'DemoTest',
+    // };
+    // CleverTap.onUserLogin(userProfile1);
+    // CleverTap.createNotificationChannel(
+    //   'sat-test', // Channel ID
+    //   'General Notifications', // Name
+    //   'General notifications from the app', // Description
+    //   4, // Importance (1-5)
+    //   true, // Show Badge
+    // );
+    // console.log('Sending user profile to CleverTap:', userProfile);
 
     // Push profile to CleverTap
-    CleverTap.onUserLogin(userProfile);
 
     // ✅ Get FCM Token & Push it to CleverTap
-    async function getFCMToken() {
-      const fcmToken = await messaging().getToken();
-      console.log('FCM Token:', fcmToken);
+    // async function getFCMToken() {
+    //   const fcmToken = await messaging().getToken();
+    //   console.log('FCM Token:', fcmToken);
 
-      if (fcmToken) {
-        CleverTap.setPushToken(fcmToken);
-        console.log('Push token sent to CleverTap');
-      }
-    }
+    //   if (fcmToken) {
+    //     CleverTap.setFCMPushToken(fcmToken);
+    //     console.log('Push token sent to CleverTap');
+    //   }
+    // }
 
-    getFCMToken();
+    // getFCMToken();
 
     // Optional: Record an event
-    CleverTap.recordEvent('Demo_User_Login', {method: 'ReactNativeTest'});
+    // CleverTap.recordEvent('Demo_User_Profile');
   }, []);
 }

@@ -23,7 +23,7 @@
         android:value="Oc4-336"/>
       <meta-data 
         android:name="CLEVERTAP_REGION" 
-        android:value="global"/>
+        android:value="eu1"/>
 
       <!-- Firebase messaging service (Custom service to pass token to CleverTap) -->
       <service
