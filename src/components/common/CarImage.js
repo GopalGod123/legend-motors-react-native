@@ -1,16 +1,17 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, memo} from 'react';
 import {Image, View, StyleSheet, ActivityIndicator, Text} from 'react-native';
 import {COLORS} from '../../utils/constants';
 import {getAllPossibleImageUrls} from '../../utils/apiConfig';
+import {isImageCached, preloadImage} from '../../utils/ImageCacheManager';
 
-const CarImage = ({
+const CarImage = memo(({
   source,
   style,
   resizeMode = 'cover',
   showDebug = false,
   loadingIndicatorSource = null,
 }) => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!isImageCached(source));
   const [error, setError] = useState(false);
   const [urlIndex, setUrlIndex] = useState(0);
   const [possibleUrls, setPossibleUrls] = useState([]);
@@ -23,6 +24,7 @@ const CarImage = ({
 
   // Generate all possible URLs when source changes
   useEffect(() => {
+    let isMounted = true;
     setAttemptedUrls([]);
 
     if (typeof source === 'object' && source.uri) {
@@ -51,22 +53,43 @@ const CarImage = ({
 
       setPossibleUrls(urls);
 
-      // Set the first URL to try
-      if (urls.length > 0) {
-        setCurrentSource({uri: urls[0]});
-      } else {
-        setCurrentSource(source);
+      // Check if image is already cached
+      if (isImageCached(source)) {
+        if (isMounted) {
+          setCurrentSource(source);
+          setLoading(false);
+        }
+        return;
       }
+
+      // Attempt to preload the image
+      preloadImage(source)
+        .then(() => {
+          if (isMounted) {
+            setCurrentSource(source);
+            setLoading(false);
+          }
+        })
+        .catch(() => {
+          // If preloading fails, try the fallback URLs
+          if (isMounted && urls.length > 0) {
+            setCurrentSource({uri: urls[0]});
+            setUrlIndex(0);
+          }
+        });
     } else {
       // For local resources (numbers), just use as is
       setCurrentSource(source);
       setPossibleUrls([]);
+      setUrlIndex(0);
+      setError(false);
+      setLoading(false);
     }
 
-    setUrlIndex(0);
-    setError(false);
-    setLoading(true);
-  }, [source]);
+    return () => {
+      isMounted = false;
+    };
+  }, [source, showDebug]);
 
   const handleLoadStart = () => {
     setLoading(true);
@@ -151,7 +174,7 @@ const CarImage = ({
       )}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

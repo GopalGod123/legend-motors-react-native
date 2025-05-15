@@ -66,17 +66,24 @@ const LoginScreen = () => {
       const result = await login(email, password);
 
       if (result.success) {
-        // Navigate to home screen on successful login
+        // Clear any previous navigation history and go to main screen
         navigation.reset({
           index: 0,
           routes: [{name: 'Main'}],
         });
       } else {
-        // Show error message
-        Alert.alert('Login Failed', result.error || 'Invalid credentials');
+        // Show specific error message from API if available
+        Alert.alert(
+          'Login Failed', 
+          result.error || 'Invalid credentials. Please check your email and password.'
+        );
       }
     } catch (error) {
-      Alert.alert('Login Failed', error.toString());
+      console.error('Login error:', error);
+      Alert.alert(
+        'Login Error', 
+        'An unexpected error occurred. Please try again later.'
+      );
     }
   };
   const handleSsoLogin = async idToken => {

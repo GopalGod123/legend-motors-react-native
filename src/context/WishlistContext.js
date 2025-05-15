@@ -23,10 +23,8 @@ export const WishlistProvider = ({ children }) => {
     const checkAndFetchWishlist = async () => {
       const isUserAuthenticated = await isAuthenticated();
       if (isUserAuthenticated) {
-        console.log('User is authenticated, fetching wishlist');
         fetchWishlistItems();
       } else {
-        console.log('User is not authenticated, clearing wishlist');
         setWishlistItems([]);
       }
     };
@@ -40,7 +38,6 @@ export const WishlistProvider = ({ children }) => {
       // First check if the user is authenticated
       const isUserAuthenticated = await isAuthenticated();
       if (!isUserAuthenticated) {
-        console.log('Cannot fetch wishlist: User not authenticated');
         setWishlistItems([]);
         return;
       }
@@ -49,10 +46,8 @@ export const WishlistProvider = ({ children }) => {
       const response = await getWishlist();
       
       if (response.success && Array.isArray(response.data)) {
-        console.log(`Fetched ${response.data.length} wishlist items`);
         setWishlistItems(response.data);
       } else {
-        console.log('No wishlist items found or error in response');
         setWishlistItems([]);
       }
     } catch (error) {
@@ -69,7 +64,6 @@ export const WishlistProvider = ({ children }) => {
       // First check if the user is authenticated
       const isUserAuthenticated = await isAuthenticated();
       if (!isUserAuthenticated) {
-        console.log('Cannot add to wishlist: User not authenticated');
         return { success: false, requiresAuth: true };
       }
       
@@ -106,13 +100,11 @@ export const WishlistProvider = ({ children }) => {
       // First check if the user is authenticated
       const isUserAuthenticated = await isAuthenticated();
       if (!isUserAuthenticated) {
-        console.log('Cannot remove from wishlist: User not authenticated');
         return { success: false, requiresAuth: true };
       }
       
       // Check if this item is already being removed globally
       if (globalRemovingItems[idParam]) {
-        console.log(`Item ${idParam} is already being removed globally, skipping duplicate request`);
         return { success: true }; // Return true to prevent error messages in UI
       }
       
@@ -123,7 +115,6 @@ export const WishlistProvider = ({ children }) => {
       setRemovingItems(prev => ({ ...prev, [idParam]: true }));
       
       setLoading(true);
-      console.log(`WishlistContext: Removing item ${idParam} from wishlist`);
       
       // Extract the carId - this is what the API needs
       let carId;
@@ -142,11 +133,9 @@ export const WishlistProvider = ({ children }) => {
         if (foundItem) {
           // Get the carId from the found item
           carId = foundItem.carId || foundItem.id;
-          console.log(`Found car ID ${carId} for item ${idParam}`);
         } else {
           // Just use the ID directly as carId
           carId = parseInt(idParam);
-          console.log(`Using provided ID directly as carId: ${carId}`);
         }
       }
       
@@ -154,7 +143,6 @@ export const WishlistProvider = ({ children }) => {
       const response = await removeFromWishlist(carId);
       
       if (response.success) {
-        console.log(`Successfully removed car ID ${carId} from wishlist`);
         
         // Update the local state to remove this item
         setWishlistItems(prevItems => {

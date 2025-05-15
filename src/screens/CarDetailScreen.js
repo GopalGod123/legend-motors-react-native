@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import {
   View,
   Text,
@@ -35,6 +35,8 @@ import {
 } from '../utils/colorUtils';
 import LoginPromptModal from '../components/LoginPromptModal';
 import { useLoginPrompt } from '../hooks/useLoginPrompt';
+import ThumbImage from '../components/common/ThumbImage';
+import { preloadImages } from '../utils/ImageCacheManager';
 
 // Import custom icons
 const LtrIcon = require('../components/explore/icon_assets/ltr.png');
@@ -113,6 +115,112 @@ const isColorDark = (hexColor) => {
   return luminance < 0.5;
 };
 
+// Update ThumbnailList component to match timing with the main auto-scroll
+const ThumbnailList = memo(({ 
+  images, 
+  selectedIndex, 
+  onSelectImage, 
+  carouselRef,
+  listRef,
+  setAutoScrolling,
+  autoScrollTimerRef
+}) => {
+  const logRender = useRef(0);
+  
+  // Memoize images data to avoid re-renders
+  const memoizedImages = useMemo(() => images || [], [images ? images.length : 0]);
+  
+  // Log thumbnail list renders for monitoring performance
+  useEffect(() => {
+    logRender.current += 1;
+    console.log(`ThumbnailList component rendered ${logRender.current} times`);
+  }, []);
+  
+  // Force scroll to the selected index when it changes
+  useEffect(() => {
+    if (listRef && listRef.current && selectedIndex >= 0) {
+      const offset = Math.max(0, selectedIndex * 94 - 94); // 94 is item width + margins
+      listRef.current.scrollToOffset({
+        offset,
+        animated: true
+      });
+    }
+  }, [selectedIndex, listRef]);
+  
+  // Create a memoized render function with selected state dependency
+  const renderThumbnailItem = useCallback(({ item, index }) => {
+    // Determine if this thumbnail is the selected one
+    const isSelected = selectedIndex === index;
+    
+    return (
+      <TouchableOpacity
+        style={[
+          styles.thumbnailItem,
+          isSelected ? styles.thumbnailItemSelected : null,
+        ]}
+        onPress={() => {
+          // Update selected index
+          onSelectImage(index);
+          
+          // Temporarily pause auto-scrolling
+          setAutoScrolling(false);
+          
+          // Manually scroll the carousel
+          if (carouselRef.current) {
+            carouselRef.current.scrollToIndex({
+              index: index,
+              animated: true
+            });
+          }
+          
+          // Resume auto-scrolling after 5 seconds (matching main handler)
+          clearTimeout(autoScrollTimerRef.current);
+          autoScrollTimerRef.current = setTimeout(() => {
+            setAutoScrolling(true);
+          }, 5000);
+        }}
+      >
+        <ThumbImage
+          source={item}
+          style={styles.thumbnailImage}
+          resizeMode="cover"
+          selected={isSelected}
+        />
+      </TouchableOpacity>
+    );
+  }, [selectedIndex, onSelectImage, setAutoScrolling, carouselRef, autoScrollTimerRef]);
+  
+  // No need to render if no images
+  if (!memoizedImages || memoizedImages.length <= 1) return null;
+  
+  return (
+    <View style={styles.thumbnailsContainer}>
+      <FlatList
+        ref={listRef}
+        data={memoizedImages}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(_, index) => `thumbnail-${index}`}
+        contentContainerStyle={styles.thumbnailsContent}
+        onScrollBeginDrag={() => setAutoScrolling(false)}
+        getItemLayout={(data, index) => ({
+          length: 94,
+          offset: 94 * index,
+          index,
+        })}
+        initialNumToRender={5}
+        maxToRenderPerBatch={3}
+        windowSize={5}
+        removeClippedSubviews={true}
+        renderItem={renderThumbnailItem}
+        onScrollToIndexFailed={(info) => {
+          console.warn('Failed to scroll to index', info.index, info.highestMeasuredFrameIndex);
+        }}
+      />
+    </View>
+  );
+});
+
 const CarDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -129,6 +237,7 @@ const CarDetailScreen = () => {
   } = useWishlist();
   const { width } = useWindowDimensions();
 
+  // State declarations
   const [loading, setLoading] = useState(true);
   const [car, setCar] = useState(null);
   const [error, setError] = useState(null);
@@ -141,10 +250,20 @@ const CarDetailScreen = () => {
   const [isAlreadyInquired, setIsAlreadyInquired] = useState(false);
   const [userEnquiries, setUserEnquiries] = useState([]);
   const [autoScrolling, setAutoScrolling] = useState(true);
+  const [imagesPreloaded, setImagesPreloaded] = useState(false);
+  const [autoScrollRaf, setAutoScrollRaf] = useState(null);
+  
+  // Refs declarations
   const carouselRef = useRef(null);
   const thumbnailsListRef = useRef(null);
+  const bottomThumbnailsListRef = useRef(null);
   const autoScrollTimerRef = useRef(null);
-
+  const thumbnailRenderCount = useRef(0);
+  // Add these refs for use in the auto-scrolling effect
+  const autoScrollingRef = useRef(autoScrolling);
+  const selectedImageIndexRef = useRef(selectedImageIndex);
+  const activeTabRef = useRef(activeTab);
+  
   // Add state for managing accordion open/close state
   const [expandedAccordions, setExpandedAccordions] = useState({
     interior_feature: false,
@@ -209,71 +328,192 @@ const CarDetailScreen = () => {
     }
   }, [car, isInWishlist]);
 
-  // Auto-scroll images
+  // Effect to preload images when car data changes
   useEffect(() => {
-    if (autoScrolling && carImages && carImages.length > 1) {
-      // Set up timer for auto-scrolling
-      autoScrollTimerRef.current = setInterval(() => {
-        const nextIndex = (selectedImageIndex + 1) % carImages.length;
-        
-        // If we've reached the end of exterior images, switch to interior tab
-        if (activeTab === 'exterior' && nextIndex === 0) {
-          setActiveTab('interior');
-        }
-        
-        // If we've reached the end of interior images, switch back to exterior tab
-        if (activeTab === 'interior' && nextIndex === 0) {
-          setActiveTab('exterior');
-        }
-        
-        // Wait briefly to allow tab change to complete and images to load
-        setTimeout(() => {
-          setSelectedImageIndex(nextIndex);
-          
-          // Scroll main carousel
-          if (carouselRef.current) {
-            carouselRef.current.scrollToIndex({
-              index: nextIndex,
-              animated: true,
-            });
-          }
-          
-          // Scroll thumbnails
-          if (thumbnailsListRef.current) {
-            thumbnailsListRef.current.scrollToIndex({
-              index: nextIndex,
-              animated: true,
-              viewPosition: 0.5,
-            });
-          }
-        }, 100);
-      }, 5000); // 5 seconds between images
+    if (car && !imagesPreloaded) {
+      const allImages = getAllImages();
       
+      // First preload all main carousel images
+      preloadImages(allImages).then(() => {
+        console.log('All main images preloaded');
+        setImagesPreloaded(true);
+      });
+    }
+  }, [car]);
+
+  // Fix the auto-scrolling implementation to ensure proper function definition and access
+  useEffect(() => {
+    // Update refs when the state changes
+    autoScrollingRef.current = autoScrolling;
+    selectedImageIndexRef.current = selectedImageIndex;
+    activeTabRef.current = activeTab;
+    
+    // Only set up the auto-scroll when mounting or when autoScrolling changes
+    if (autoScrollingRef.current && memoizedCarImages && memoizedCarImages.length > 1) {
+      // Clear any existing RAF
+      if (autoScrollRaf) {
+        cancelAnimationFrame(autoScrollRaf);
+      }
+      
+      // Use a variable outside the RAF function to track time
+      let lastScrollTime = Date.now();
+      const scrollInterval = 3500; // 3.5 seconds - slightly longer for better UX
+      
+      // Define the performAutoScroll function first before using it
+      const performAutoScroll = () => {
+        // Check if we should still be auto-scrolling
+        if (!autoScrollingRef.current) {
+          return; // Exit the RAF loop if auto-scrolling is off
+        }
+        
+        const now = Date.now();
+        const elapsed = now - lastScrollTime;
+        
+        if (elapsed >= scrollInterval) {
+          // Make sure we're within bounds
+          if (memoizedCarImages && memoizedCarImages.length > 0) {
+            const maxIndex = memoizedCarImages.length - 1;
+            // Calculate next index
+            const currentIndex = selectedImageIndexRef.current;
+            const nextIndex = (currentIndex + 1) % memoizedCarImages.length;
+            
+            // Only proceed if index is valid
+            if (nextIndex >= 0 && nextIndex <= maxIndex) {
+              // Update the selected image index directly, avoiding setState in the RAF
+              selectedImageIndexRef.current = nextIndex;
+              
+              // Use a timeout to batch state updates outside the RAF loop
+              setTimeout(() => {
+                // Only update state if still auto-scrolling
+                if (autoScrollingRef.current) {
+                  setSelectedImageIndex(nextIndex);
+                  
+                  // Scroll main carousel if ref is available
+                  if (carouselRef.current) {
+                    try {
+                      // Use the proper parameter format for scrollToIndex
+                      carouselRef.current.scrollToIndex({
+                        index: nextIndex,
+                        animated: true
+                      });
+                    } catch (error) {
+                      console.log('Error scrolling carousel:', error);
+                    }
+                  }
+                  
+                  // If we've reached the end, switch tabs with delay
+                  if (nextIndex === 0) {
+                    // Use timeout to avoid state updates in the same tick
+                    setTimeout(() => {
+                      const currentTab = activeTabRef.current;
+                      if (currentTab === 'exterior') {
+                        setActiveTab('interior');
+                      } else if (currentTab === 'interior') {
+                        setActiveTab('exterior');
+                      }
+                    }, 100);
+                  }
+                }
+              }, 0);
+              
+              lastScrollTime = now;
+            }
+          }
+        }
+        
+        // Continue the animation loop with the same function reference
+        if (autoScrollingRef.current) {
+          const nextRaf = requestAnimationFrame(performAutoScroll);
+          setAutoScrollRaf(nextRaf);
+        }
+      };
+      
+      // Start the auto-scroll loop with the initial call
+      const initialRaf = requestAnimationFrame(performAutoScroll);
+      setAutoScrollRaf(initialRaf);
+      
+      // Cleanup function
       return () => {
-        if (autoScrollTimerRef.current) {
-          clearInterval(autoScrollTimerRef.current);
+        if (autoScrollRaf) {
+          cancelAnimationFrame(autoScrollRaf);
         }
       };
     }
-  }, [selectedImageIndex, carImages, activeTab, autoScrolling]);
+    
+    // Return a cleanup function even if we didn't set up auto-scrolling
+    return () => {
+      if (autoScrollRaf) {
+        cancelAnimationFrame(autoScrollRaf);
+      }
+    };
+  }, [autoScrolling, memoizedCarImages, carouselRef]);
 
-  // Reset auto-scroll when tab changes
+  // Add an effect to handle tab changes
   useEffect(() => {
+    console.log(`Tab changed to: ${activeTab}, resetting index to 0`);
+    
+    // Reset the selected image index when tab changes
     setSelectedImageIndex(0);
+    
+    // Wait for next render cycle before scrolling the carousel to index 0
+    setTimeout(() => {
+      if (carouselRef.current) {
+        carouselRef.current.scrollToIndex({
+          index: 0,
+          animated: true
+        });
+      }
+      
+      // Reset both thumbnail lists scroll position
+      if (thumbnailsListRef.current) {
+        thumbnailsListRef.current.scrollToOffset({ offset: 0, animated: true });
+      }
+      
+      if (bottomThumbnailsListRef.current) {
+        bottomThumbnailsListRef.current.scrollToOffset({ offset: 0, animated: true });
+      }
+    }, 50);
+    
+    // Ensure auto-scrolling is active when switching tabs
+    setAutoScrolling(true);
   }, [activeTab]);
 
-  // Pause auto-scrolling when user interacts with the carousel
-  const handleImagePress = () => {
-    setAutoScrolling(false);
-    // Resume auto-scrolling after 20 seconds of inactivity
-    if (autoScrollTimerRef.current) {
-      clearInterval(autoScrollTimerRef.current);
+  // Update the handleImagePress function
+  const handleImagePress = (index) => {
+    // If an index is provided, update the selected index
+    if (typeof index === 'number') {
+      setSelectedImageIndex(index);
     }
     
-    setTimeout(() => {
+    // Pause auto-scrolling temporarily
+    setAutoScrolling(false);
+    
+    // Clear any existing RAF to stop current auto-scrolling
+    if (autoScrollRaf) {
+      cancelAnimationFrame(autoScrollRaf);
+    }
+    
+    // Resume auto-scrolling after a delay
+    clearTimeout(autoScrollTimerRef.current);
+    autoScrollTimerRef.current = setTimeout(() => {
       setAutoScrolling(true);
-    }, 20000);
+    }, 5000); // 5 seconds pause when user interacts
   };
+
+  // In the cleanup function for the component
+  useEffect(() => {
+    return () => {
+      // Cleanup auto-scroll RAF when component unmounts
+      if (autoScrollRaf) {
+        cancelAnimationFrame(autoScrollRaf);
+      }
+      
+      // Clear any pending timeouts
+      if (autoScrollTimerRef.current) {
+        clearTimeout(autoScrollTimerRef.current);
+      }
+    };
+  }, []);
 
   // Function to handle viewing similar color cars
   const handleViewSimilarColorCars = () => {
@@ -432,7 +672,7 @@ const CarDetailScreen = () => {
           car.CarModel?.name || ''
         }`,
       carImage: carImageData,
-      carPrice: price,
+      carPrice: isAuthenticated ? price : null,
       currency: selectedCurrency,
       onEnquirySubmit: (success, isAlreadySubmitted) => {
         // After submission, update the local state and refresh enquiries
@@ -445,7 +685,7 @@ const CarDetailScreen = () => {
   };
 
   const toggleFavorite = async () => {
-    try {
+    try {thumbnailImageSelected
       if (!car) {
         console.log('Cannot toggle favorite: No car data available');
         return;
@@ -534,6 +774,9 @@ const CarDetailScreen = () => {
     return highlightImages;
   };
 
+  // Memoize carImages to ensure stable reference
+  const memoizedCarImages = useMemo(() => getAllImages(), [car, activeTab]);
+
   const renderSpecification = (label, value) => {
     if (!value) return null;
 
@@ -620,6 +863,7 @@ const CarDetailScreen = () => {
       }
     } catch (error) {
       console.error('Error opening brochure:', error);
+      
       
       // Show a more descriptive error message with alternative
       Alert.alert(
@@ -755,13 +999,10 @@ const CarDetailScreen = () => {
         }`
       : 'Car Details');
 
-  // Get car images
-  const carImages = getAllImages();
-
   // Get price
-  const price =
-    car?.CarPrices?.find((crr) => crr.currency === selectedCurrency)?.price ||
-    car.price;
+  const price = isAuthenticated ? 
+    (car?.CarPrices?.find((crr) => crr.currency === selectedCurrency)?.price || car.price) 
+    : null;
 
   return (
     <SafeAreaView
@@ -855,73 +1096,52 @@ const CarDetailScreen = () => {
               </TouchableOpacity>
             </View>
 
-            <CarImageCarousel
-              images={carImages}
-              style={styles.carImage}
-              height={220}
-              onImagePress={handleImagePress}
-              ref={carouselRef}
-              initialIndex={selectedImageIndex}
-              onIndexChange={(index) => setSelectedImageIndex(index)}
-            />
-
-           
+            {/* Update the UI component with ThumbnailList */}
+            {memoizedCarImages && memoizedCarImages.length > 0 && (
+              <>
+                <View style={styles.imageCarouselContainer}>
+                  <CarImageCarousel
+                    ref={carouselRef}
+                    images={memoizedCarImages}
+                    height={240}
+                    style={styles.carImage}
+                    onImagePress={handleImagePress}
+                    initialIndex={selectedImageIndex}
+                    onIndexChange={(index) => {
+                      if (index !== selectedImageIndex) {
+                        // Only update if there's an actual change
+                        setSelectedImageIndex(index);
+                      }
+                    }}
+                    showIndex={true}
+                  />
+                </View>
+                
+                {/* Use the optimized ThumbnailList component with all required props */}
+                <ThumbnailList
+                  images={memoizedCarImages}
+                  selectedIndex={selectedImageIndex}
+                  onSelectImage={setSelectedImageIndex}
+                  carouselRef={carouselRef}
+                  listRef={thumbnailsListRef}
+                  setAutoScrolling={setAutoScrolling}
+                  autoScrollTimerRef={autoScrollTimerRef}
+                />
+              </>
+            )}
           </View>
           
-          <View style={{marginTop: 8}}> 
-            {/* Thumbnails Gallery */}
-            {carImages.length > 1 && (
-              <View style={styles.thumbnailsContainer}>
-                <FlatList
-                  ref={thumbnailsListRef}
-                  data={carImages}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  keyExtractor={(item, index) => `thumbnail-${index}`}
-                  contentContainerStyle={styles.thumbnailsContent}
-                  onScrollBeginDrag={() => setAutoScrolling(false)}
-                  getItemLayout={(data, index) => ({
-                    length: 94, // item width + margin
-                    offset: 94 * index,
-                    index,
-                  })}
-                  renderItem={({ item, index }) => (
-                    <TouchableOpacity
-                      style={[
-                        styles.thumbnailItem,
-                        selectedImageIndex === index
-                          ? styles.thumbnailItemSelected
-                          : null,
-                      ]}
-                      onPress={() => {
-                        setSelectedImageIndex(index);
-                        setAutoScrolling(false);
-                        if (carouselRef.current) {
-                          carouselRef.current.scrollToIndex({
-                            index,
-                            animated: true,
-                          });
-                        }
-                        
-                        // Resume auto-scrolling after 20 seconds
-                        setTimeout(() => {
-                          setAutoScrolling(true);
-                        }, 20000);
-                      }}
-                    >
-                      <CarImage
-                        source={item}
-                        style={[
-                          styles.thumbnailImage,
-                          selectedImageIndex !== index ? styles.thumbnailImageUnselected : null,
-                        ]}
-                        resizeMode="cover"
-                      />
-                    </TouchableOpacity>
-                  )}
-                />
-              </View>
-            )}
+          {/* Add back the bottom thumbnail list with improved styling */}
+          <View style={styles.bottomThumbnailContainer}> 
+            <ThumbnailList
+              images={memoizedCarImages}
+              selectedIndex={selectedImageIndex}
+              onSelectImage={setSelectedImageIndex}
+              carouselRef={carouselRef}
+              listRef={bottomThumbnailsListRef}
+              setAutoScrolling={setAutoScrolling}
+              autoScrollTimerRef={autoScrollTimerRef}
+            />
           </View>
 
           <View
@@ -1492,32 +1712,51 @@ const CarDetailScreen = () => {
           },
         ]}
       >
-        <View style={styles.priceContainer}>
-          <Text
-            style={[
-              styles.priceLabel,
-              { color: isDark ? '#BBBBBB' : COLORS.textLight },
-            ]}
+        {!isAuthenticated ? (
+          <TouchableOpacity
+            style={styles.loginToViewPriceButton}
+            onPress={checkAuthAndShowPrompt}
           >
-            Price
-          </Text>
-          <Text
-            style={[
-              styles.priceLargeText,
-              { color: isDark ? '#FFFFFF' : colors.text },
-            ]}
-          >
-            {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
-            {price ? Math.floor(price).toLocaleString() : '175,000'}
-          </Text>
-        </View>
+            <Text style={styles.loginToViewPriceText}>
+              Login to View Price
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.priceContainer}>
+            <Text
+              style={[
+                styles.priceLabel,
+                { color: isDark ? '#BBBBBB' : COLORS.textLight },
+              ]}
+            >
+              Price
+            </Text>
+            <Text
+              style={[
+                styles.priceLargeText,
+                { color: isDark ? '#FFFFFF' : colors.text },
+              ]}
+            >
+              {price
+                ? `${selectedCurrency === 'USD' ? '$' : selectedCurrency} ${Math.floor(price).toLocaleString()}`
+                : <TouchableOpacity
+                    style={styles.loginToViewPriceButton}
+                    onPress={checkAuthAndShowPrompt}
+                  >
+                    <Text style={styles.loginToViewPriceText}>
+                      Login to View Price
+                    </Text>
+                  </TouchableOpacity>}
+            </Text>
+          </View>
+        )}
         <TouchableOpacity
           style={[
             styles.actionButton, 
             styles.inquireButton,
             isAlreadyInquired && styles.alreadyInquiredButton
           ]}
-          onPress={handleInquire}
+          onPress={!isAuthenticated ? checkAuthAndShowPrompt : handleInquire}
           disabled={isAlreadyInquired}
         >
           <Text
@@ -1526,8 +1765,17 @@ const CarDetailScreen = () => {
               { color: isDark ? '#000000' : '#FFFFFF' },
               isAlreadyInquired && styles.alreadyInquiredText
             ]}
+            onPress={() => navigation.navigate('EnquiryFormScreen', {
+              carId: id,
+              carTitle: title,
+              carImage: images[0],
+              carPrice: price,
+              currency: selectedCurrency,
+              onEnquirySubmit: handleEnquirySubmit
+            })}
           >
-            {isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
+            {!isAuthenticated ? 'Login' : 
+              isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
           </Text>
         </TouchableOpacity>
       </View>
@@ -1835,6 +2083,7 @@ const styles = StyleSheet.create({
   priceLargeText: {
     fontSize: 20,
     fontWeight: 'bold',
+    marginBottom: 10,
   },
   actionButton: {
     paddingVertical: SPACING.md,
@@ -1963,8 +2212,38 @@ const styles = StyleSheet.create({
     height: '100%',
     borderRadius: 12,
   },
-  thumbnailImageUnselected: {
-    opacity: 0.6, // Makes unselected thumbnails appear dull
+  imageCarouselContainer: {
+    width: '100%',
+    height: 240,
+    marginBottom: 10,
+  },
+  carouselStyle: {
+    width: '100%',
+    height: '100%',
+  },
+  thumbnailImageSelected: {
+    opacity: 1.0, // Ensure selected thumbnail has full opacity
+  },
+  bottomThumbnailContainer: {
+    width: '100%',
+    padding: 6,
+    marginTop: 0,
+    marginBottom: 10,
+  },
+  loginToViewPriceButton: {
+    backgroundColor: '#FF8C00',
+    color: '#000000',
+    paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    borderRadius: BORDER_RADIUS.md,
+    flex: 1,
+    marginRight: SPACING.md,
+  },
+  loginToViewPriceText: {
+    color: '#000000',
+    fontSize: FONT_SIZES.md,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
 

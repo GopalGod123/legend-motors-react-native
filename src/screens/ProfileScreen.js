@@ -305,6 +305,22 @@ const LogoutIcon = ({color}) => {
   );
 };
 
+// Add a phone icon for better UI
+const PhoneIcon = () => {
+  const {theme} = useTheme();
+  return (
+    <Svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M21.97 18.33c0 .36-.08.73-.25 1.09-.17.36-.39.7-.68 1.02-.49.54-1.03.93-1.64 1.18-.6.25-1.25.38-1.95.38-1.02 0-2.11-.24-3.26-.73s-2.3-1.15-3.44-1.98c-1.14-.83-2.2-1.76-3.19-2.8-.99-1.04-1.88-2.17-2.66-3.37C4.11 12.17 3.6 11.09 3.3 10s-.37-2.13-.19-3.1c.11-.58.32-1.13.63-1.63.31-.5.76-.92 1.34-1.26.65-.4 1.34-.5 2.02-.3.29.08.54.22.76.42.22.2.4.45.57.74l1.38 2.44c.17.29.25.55.25.79 0 .24-.08.46-.22.64-.14.18-.3.32-.48.44-.18.12-.34.23-.49.35-.15.12-.22.22-.22.34.08.33.27.74.58 1.23.31.49.68.97 1.11 1.45.45.48.91.93 1.38 1.35.47.42.89.7 1.27.85.09.03.19.05.28.05.17 0 .32-.08.45-.24.13-.16.29-.32.46-.49.17-.17.35-.33.54-.49.19-.16.4-.28.62-.36.22-.08.44-.12.65-.12.24 0 .48.06.74.19l2.65 1.56c.29.16.52.36.68.61.16.25.24.52.24.81Z"
+        stroke={themeColors[theme].text}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+};
+
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const {user, logout} = useAuth();
@@ -314,12 +330,24 @@ const ProfileScreen = () => {
   const [userProfile, setUserProfile] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = async (forceRefresh = false) => {
     try {
       setLoading(true);
+      // Try to refresh the token first to ensure valid authentication
+      await syncAuthToken();
+      
+      // Clear cache if force refresh is requested
+      if (forceRefresh) {
+        console.log('Force refreshing profile data');
+      }
+      
       const response = await getUserProfile();
       if (response.success) {
+        console.log('Profile data fetched successfully:', response.data);
         setUserProfile(response.data);
+      } else {
+        console.error('Failed to fetch profile data:', response.message);
+        Alert.alert('Error', 'Failed to load profile. Please try again.');
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -337,6 +365,12 @@ const ProfileScreen = () => {
             const retryResponse = await getUserProfile();
             if (retryResponse.success) {
               setUserProfile(retryResponse.data);
+            } else {
+              // If retry fails with refreshed token
+              Alert.alert(
+                'Error',
+                'Could not load your profile. Please try logging in again.',
+              );
             }
           } else {
             // If refresh fails, logout
@@ -355,20 +389,30 @@ const ProfileScreen = () => {
             [{text: 'OK', onPress: handleLogout}],
           );
         }
+      } else {
+        // Generic error handling
+        Alert.alert(
+          'Error',
+          'Failed to load profile. Please check your connection and try again.'
+        );
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Initial fetch when screen mounts
   useEffect(() => {
     fetchUserProfile();
-  }, []); // Empty dependency array since fetchUserProfile is stable
-
+  }, []); // Empty dependency array since fetchUserProfile is defined outside
+  
   // Refresh profile when screen comes into focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      fetchUserProfile();
+      // Force reload profile data when screen comes into focus
+      console.log('ProfileScreen focused - refreshing profile data');
+      setLoading(true); // Show loading indicator
+      fetchUserProfile(true); // Pass true to force a refresh
     });
     return unsubscribe;
   }, [navigation]);
@@ -432,18 +476,53 @@ const ProfileScreen = () => {
         }
       }
     }
-    // Default avatar
-    return 'data:image/png;base64,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';
   };
 
   // Get user phone with formatting
   const getUserPhone = () => {
     if (!userProfile || !userProfile.phone) return '';
-    // Add country code if available
-    if (userProfile.countryCode) {
-      return `+${userProfile.countryCode} ${userProfile.phone}`;
+    
+    // Get clean phone digits
+    const phoneDigits = userProfile.phone.replace(/\D/g, '');
+    
+    // Use dialCode from the API response (preferred) or fallback to countryCode
+    const countryCodeValue = userProfile.dialCode || userProfile.countryCode;
+    
+    // Format with country code if available
+    if (countryCodeValue) {
+      // Make sure country code has a plus sign
+      const formattedCountryCode = countryCodeValue.startsWith('+') 
+        ? countryCodeValue 
+        : '+' + countryCodeValue;
+      
+      console.log('Profile country/dial code from API:', countryCodeValue);
+      console.log('Formatted country code for display:', formattedCountryCode);
+      
+      // Apply different formatting based on country code
+      if (formattedCountryCode === '+1') {
+        // US/Canada format: +1 XXX-XXX-XXXX
+        if (phoneDigits.length <= 3) {
+          return `${formattedCountryCode} ${phoneDigits}`;
+        } else if (phoneDigits.length <= 6) {
+          return `${formattedCountryCode} ${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3)}`;
+        } else {
+          return `${formattedCountryCode} ${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
+        }
+      } else if (formattedCountryCode === '+91') {
+        // India format: +91 XXXXX XXXXX
+        if (phoneDigits.length > 5) {
+          return `${formattedCountryCode} ${phoneDigits.slice(0, 5)} ${phoneDigits.slice(5)}`;
+        } else {
+          return `${formattedCountryCode} ${phoneDigits}`;
+        }
+      } else {
+        // Default format for other country codes
+        return `${formattedCountryCode} ${phoneDigits}`;
+      }
     }
-    return userProfile.phone;
+    
+    // If no country code, just return the phone number
+    return phoneDigits;
   };
 
   if (loading) {
@@ -485,10 +564,6 @@ const ProfileScreen = () => {
             <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
               Profile
             </Text>
-            {/* <TouchableOpacity
-              style={[styles.editIconContainer, {borderColor: themeColors[theme].border}]}> */}
-            {/* <Text style={[styles.editIconText, {color: themeColors[theme].text}]}>···</Text> */}
-            {/* </TouchableOpacity> */}
           </View>
           <View style={styles.profileInfoContainer}>
             <View style={styles.avatarContainer}>
@@ -503,13 +578,17 @@ const ProfileScreen = () => {
             <Text style={[styles.userName, {color: themeColors[theme].text}]}>
               {getUserName()}
             </Text>
-            <Text
-              style={[
-                styles.userPhone,
-                {color: isDark ? '#ffffff' : '#888888'},
-              ]}>
-              {getUserPhone()}
-            </Text>
+            
+            {/* Enhanced phone display with country code */}
+            {userProfile && userProfile.phone && (
+              <View style={styles.phoneContainer}>
+                <PhoneIcon />
+                <Text style={[styles.userPhone, {color: isDark ? '#ffffff' : '#888888', marginLeft: 8}]}>
+                  {getUserPhone()}
+                </Text>
+              </View>
+            )}
+            
             <View style={styles.menuContainer}>
               <TouchableOpacity
                 style={[
@@ -526,23 +605,7 @@ const ProfileScreen = () => {
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
-              {/* 
-              <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}>
-                <View style={styles.menuIconContainer}>
-                  <BellIcon />
-                </View>
-                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Notification</Text>
-                <ChevronIcon />
-              </TouchableOpacity> */}
-              {/* <TouchableOpacity
-                style={[styles.menuItem, {borderBottomColor: themeColors[theme].border}]}>
-                <View style={styles.menuIconContainer}>
-                  <ShieldIcon />
-                </View>
-                <Text style={[styles.menuText, {color: themeColors[theme].text}]}>Security</Text>
-                <ChevronIcon />
-              </TouchableOpacity> */}
+
               <TouchableOpacity
                 style={[
                   styles.menuItem,
@@ -579,6 +642,36 @@ const ProfileScreen = () => {
                 <Text
                   style={[styles.menuText, {color: themeColors[theme].text}]}>
                   Privacy Policy
+                </Text>
+                <ChevronIcon />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.menuItem,
+                  {borderBottomColor: themeColors[theme].border},
+                ]}
+                onPress={() => navigation.navigate('TermsAndConditions')}>
+                <View style={styles.menuIconContainer}>
+                  <DocumentIcon />
+                </View>
+                <Text
+                  style={[styles.menuText, {color: themeColors[theme].text}]}>
+                  Terms and Conditions
+                </Text>
+                <ChevronIcon />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.menuItem,
+                  {borderBottomColor: themeColors[theme].border},
+                ]}
+                onPress={() => navigation.navigate('CookiePolicy')}>
+                <View style={styles.menuIconContainer}>
+                  <DocumentIcon />
+                </View>
+                <Text
+                  style={[styles.menuText, {color: themeColors[theme].text}]}>
+                  Cookie Policy
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
@@ -679,19 +772,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
   },
-  editIconContainer: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editIconText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginTop: -8,
-  },
   profileInfoContainer: {
     alignItems: 'center',
     marginTop: 8,
@@ -730,9 +810,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 4,
   },
+  phoneContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: 'rgba(0,0,0,0.04)',
+    borderRadius: 8,
+  },
   userPhone: {
     fontSize: 14,
-    marginBottom: 16,
+    fontWeight: '500',
   },
   menuContainer: {
     width: '100%',

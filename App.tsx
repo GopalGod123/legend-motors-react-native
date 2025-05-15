@@ -7,6 +7,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {CurrencyLanguageProvider} from './src/context/CurrencyLanguageContext';
 import {ThemeProvider} from './src/context/ThemeContext';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {CountryCodesProvider} from './src/context/CountryCodesContext';
 
 const App = () => {
   useEffect(() => {
@@ -21,9 +22,11 @@ const App = () => {
         <ThemeProvider>
           <CurrencyLanguageProvider>
             <AuthProvider>
-              <WishlistProvider>
-                <AppNavigator />
-              </WishlistProvider>
+              <CountryCodesProvider>
+                <WishlistProvider>
+                  <AppNavigator />
+                </WishlistProvider>
+              </CountryCodesProvider>
             </AuthProvider>
           </CurrencyLanguageProvider>
         </ThemeProvider>

@@ -14,8 +14,8 @@ import {
   BORDER_RADIUS,
 } from '../../utils/constants';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
-import {useTheme} from 'src/context/ThemeContext';
+import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
+import {useTheme} from '../../context/ThemeContext';
 
 const Header = ({user, onSettingsPress, onWishlistPress}) => {
   const {selectedCurrency, setSelectedCurrency} = useCurrencyLanguage();

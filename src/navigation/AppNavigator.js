@@ -26,6 +26,8 @@ import LanguageScreen from '../screens/LanguageScreen';
 import HelpCenterScreen from '../screens/HelpCenterScreen';
 import BlogPostDetailScreen from '../screens/BlogPostDetailScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
+import TermsAndConditionsScreen from '../screens/TermsAndConditionsScreen';
+import CookiePolicyScreen from '../screens/CookiePolicyScreen';
 
 // Test screen to help debug navigation
 const TestNavigationScreen = ({ navigation }) => (
@@ -77,9 +79,17 @@ const AppNavigator = () => {
         <Stack.Screen 
           name="PrivacyPolicy" 
           component={PrivacyPolicyScreen}
-          options={{
-            headerShown: false
-          }}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="TermsAndConditions" 
+          component={TermsAndConditionsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="CookiePolicy" 
+          component={CookiePolicyScreen}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

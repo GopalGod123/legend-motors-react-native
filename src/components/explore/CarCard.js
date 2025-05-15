@@ -403,8 +403,8 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     backgroundColor: '#ffffff',
-    borderTopEndRadius: BORDER_RADIUS.lg,
-    borderTopStartRadius: BORDER_RADIUS.lg,
+    borderTopEndRadius: 10,
+    borderTopStartRadius: 10,
     overflow: 'hidden',
   },
   carImage: {

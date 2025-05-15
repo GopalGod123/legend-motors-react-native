@@ -185,7 +185,7 @@ const HotDeals = () => {
             .filter(car => car);
         }
 
-        console.log('processedCars', processedCars);
+        // console.log('processedCars', processedCars);
         // Update cache
         setHotDeals([...processedCars]);
       } else {

@@ -21,6 +21,7 @@ import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
 import {Ionicons} from '../utils/icon';
 import {submitCarEnquiry, isAuthenticated} from '../services/api';
 import {useAuth} from '../context/AuthContext';
+import {useCountryCodes} from '../context/CountryCodesContext';
 import Logo from '../components/Logo';
 import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
@@ -28,44 +29,11 @@ import {useLoginPrompt} from '../hooks/useLoginPrompt';
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
 
-// Common country codes
-const countryCodes = [
-  {code: '+971', country: 'UAE'},
-  {code: '+966', country: 'Saudi Arabia'},
-  {code: '+974', country: 'Qatar'},
-  {code: '+973', country: 'Bahrain'},
-  {code: '+965', country: 'Kuwait'},
-  {code: '+968', country: 'Oman'},
-  {code: '+962', country: 'Jordan'},
-  {code: '+961', country: 'Lebanon'},
-  {code: '+20', country: 'Egypt'},
-  {code: '+1', country: 'USA/Canada'},
-  {code: '+44', country: 'UK'},
-  {code: '+91', country: 'India'},
-  {code: '+92', country: 'Pakistan'},
-  {code: '+63', country: 'Philippines'},
-  {code: '+234', country: 'Nigeria'},
-  {code: '+27', country: 'South Africa'},
-  {code: '+60', country: 'Malaysia'},
-  {code: '+65', country: 'Singapore'},
-  {code: '+66', country: 'Thailand'},
-  {code: '+62', country: 'Indonesia'},
-  {code: '+81', country: 'Japan'},
-  {code: '+82', country: 'South Korea'},
-  {code: '+86', country: 'China'},
-  {code: '+33', country: 'France'},
-  {code: '+49', country: 'Germany'},
-  {code: '+39', country: 'Italy'},
-  {code: '+34', country: 'Spain'},
-  {code: '+7', country: 'Russia'},
-  {code: '+55', country: 'Brazil'},
-  {code: '+52', country: 'Mexico'},
-];
-
 const EnquiryFormScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {user} = useAuth();
+  const {countryCodes, loading: loadingCountryCodes} = useCountryCodes();
 
   // Add the login prompt hook
   const {
@@ -102,8 +70,25 @@ const EnquiryFormScreen = () => {
   });
 
   const [countrySearch, setCountrySearch] = useState('');
-  const [filteredCountryCodes, setFilteredCountryCodes] =
-    useState(countryCodes);
+  const [filteredCountryCodes, setFilteredCountryCodes] = useState([]);
+
+  // Transform API country codes to the format expected by the component
+  const formattedCountryCodes = React.useMemo(() => {
+    if (!countryCodes || countryCodes.length === 0) return [];
+    
+    return countryCodes.map(country => ({
+      code: country.dialCode,
+      country: country.name,
+      countryCode: country.iso2,
+    }));
+  }, [countryCodes]);
+
+  useEffect(() => {
+    // Set initial filtered country codes from the API
+    if (formattedCountryCodes.length > 0) {
+      setFilteredCountryCodes(formattedCountryCodes);
+    }
+  }, [formattedCountryCodes]);
 
   // Check authentication when component mounts
   useEffect(() => {
@@ -132,30 +117,61 @@ const EnquiryFormScreen = () => {
 
     // If toggling on, fill the form with user data
     if (newState && user) {
-      setName(user.name || '');
+      setName(user.name || user.firstName || '');
       setEmail(user.email || '');
 
-      // Handle phone as in the useEffect
+      // Handle phone and country code properly
       if (user.phoneNumber) {
-        const userPhone = user.phoneNumber;
-        // If user phone already has the current country code, remove it
-        if (userPhone.startsWith(countryCode)) {
-          setPhoneNumber(userPhone.slice(countryCode.length));
-        } else {
-          // Try to extract from other country codes
-          let foundCode = false;
-          for (const country of countryCodes) {
-            if (userPhone.startsWith(country.code)) {
-              setCountryCode(country.code);
-              setPhoneNumber(userPhone.slice(country.code.length));
-              foundCode = true;
-              break;
-            }
+        let userPhone = user.phoneNumber;
+        let userDialCode = user.dialCode || user.countryCode;
+        
+        // If we have a dialCode, use it directly
+        if (userDialCode) {
+          // Make sure dialCode starts with a +
+          if (!userDialCode.startsWith('+')) {
+            userDialCode = '+' + userDialCode;
           }
-
-          // If no country code found, just use as is
-          if (!foundCode) {
-            setPhoneNumber(userPhone);
+          
+          // Set the country code
+          setCountryCode(userDialCode);
+          
+          // If phone starts with dialCode, remove it
+          if (userPhone.startsWith(userDialCode)) {
+            setPhoneNumber(userPhone.slice(userDialCode.length).trim());
+          } else if (userPhone.startsWith('+') && userDialCode.startsWith('+')) {
+            // Handle case where phone has + but doesn't match dialCode exactly
+            const dialCodeWithoutPlus = userDialCode.substring(1);
+            if (userPhone.substring(1).startsWith(dialCodeWithoutPlus)) {
+              setPhoneNumber(userPhone.substring(1 + dialCodeWithoutPlus.length).trim());
+            } else {
+              setPhoneNumber(userPhone.replace(/^\+/, '').trim());
+            }
+          } else {
+            // Just use the phone number as is
+            setPhoneNumber(userPhone.replace(/^\+/, '').trim());
+          }
+        } else {
+          // No dialCode, try to extract from the phone number
+          if (userPhone.startsWith('+')) {
+            // Try to find a matching country code
+            let foundCode = false;
+            for (const country of formattedCountryCodes) {
+              if (userPhone.startsWith(country.code)) {
+                setCountryCode(country.code);
+                setPhoneNumber(userPhone.slice(country.code.length).trim());
+                foundCode = true;
+                break;
+              }
+            }
+            
+            // If no country code found, keep the current one and use phone as is
+            if (!foundCode) {
+              // Remove the + if it exists and use the current country code
+              setPhoneNumber(userPhone.replace(/^\+/, '').trim());
+            }
+          } else {
+            // No + in phone number, just use as is with current country code
+            setPhoneNumber(userPhone.trim());
           }
         }
       }
@@ -345,19 +361,19 @@ const EnquiryFormScreen = () => {
   // Filter countries based on search
   useEffect(() => {
     if (!countrySearch) {
-      setFilteredCountryCodes(countryCodes);
+      setFilteredCountryCodes(formattedCountryCodes);
       return;
     }
 
     const searchTerm = countrySearch.toLowerCase();
-    const filtered = countryCodes.filter(
+    const filtered = formattedCountryCodes.filter(
       country =>
         country.country.toLowerCase().includes(searchTerm) ||
         country.code.includes(searchTerm),
     );
 
     setFilteredCountryCodes(filtered);
-  }, [countrySearch]);
+  }, [countrySearch, formattedCountryCodes]);
 
   // Reset country search when modal is closed
   useEffect(() => {
@@ -603,7 +619,7 @@ const EnquiryFormScreen = () => {
                   <FlatList
                     data={filteredCountryCodes}
                     renderItem={renderCountryCodeItem}
-                    keyExtractor={item => item.code}
+                    keyExtractor={item => `${item.code}-${item.countryCode}`}
                     style={styles.countryCodeList}
                     initialNumToRender={20}
                     maxToRenderPerBatch={20}
