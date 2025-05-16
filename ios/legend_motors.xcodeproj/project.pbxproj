@@ -292,7 +292,6 @@
 				DEVELOPMENT_TEAM = N9M76RZ6R8;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = legend_motors/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = LegendMotors;
 				INFOPLIST_KEY_CFBundleDisplayName = "Legend Motors";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -323,7 +322,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = N9M76RZ6R8;
 				INFOPLIST_FILE = legend_motors/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = LegendMotors;
 				INFOPLIST_KEY_CFBundleDisplayName = "Legend Motors";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -423,7 +421,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) DEBUG";
@@ -503,7 +504,10 @@
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 					"-DFOLLY_HAVE_CLOCK_GETTIME=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

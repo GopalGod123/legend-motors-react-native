@@ -27,24 +27,12 @@ const LanguageSelectScreen = () => {
   const navigation = useNavigation();
   const context = useCurrencyLanguage();
   const handleNext = () => {
-    // Example user profile data
-    const userProfile = {
-      Identity: '7247243141', // Unique Identity (MANDATORY)
-      Email: 'satyamsen01012000@gmail.com', // Email ID
-      Phone: '+917247243141', // Phone with country code
-      custom1: 43,
-    };
-
-    // Call this after login/signup or app start
-    CleverTap.setDebugLevel(3);
-    CleverTap.onUserLogin(userProfile);
-    console.log('settt Profile');
     // Navigate directly to Main screen
-    // context.setSelectedLanguage(selectedLanguage);
-    // navigation.reset({
-    //   index: 0,
-    //   routes: [{name: 'Main'}],
-    // });
+    context.setSelectedLanguage(selectedLanguage);
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'Main'}],
+    });
   };
 
   const handleLanguageSelect = langId => {

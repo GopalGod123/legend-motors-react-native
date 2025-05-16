@@ -8,8 +8,8 @@ export default function useCleverTapDemo() {
     // Enable CleverTap debug logs
     CleverTap.setDebugLevel(3);
 
-    CleverTap// Prompt for push permission (iOS)
-    .CleverTap.promptForPushPermission(true);
+    // Prompt for push permission (iOS)
+    CleverTap.promptForPushPermission(true);
 
     // Request POST_NOTIFICATIONS permission for Android 13+
     async function requestNotificationPermission() {
@@ -63,31 +63,47 @@ export default function useCleverTapDemo() {
     //   custom1: 'DemoTest',
     // };
     // CleverTap.onUserLogin(userProfile1);
-    // CleverTap.createNotificationChannel(
-    //   'sat-test', // Channel ID
-    //   'General Notifications', // Name
-    //   'General notifications from the app', // Description
-    //   4, // Importance (1-5)
-    //   true, // Show Badge
-    // );
+    CleverTap.createNotificationChannel(
+      'testing-01', // Channel ID
+      'General Notifications', // Name
+      'General notifications from the app', // Description
+      4, // Importance (1-5)
+      true, // Show Badge
+    );
     // console.log('Sending user profile to CleverTap:', userProfile);
 
     // Push profile to CleverTap
 
     // ✅ Get FCM Token & Push it to CleverTap
-    // async function getFCMToken() {
-    //   const fcmToken = await messaging().getToken();
-    //   console.log('FCM Token:', fcmToken);
+    async function getFCMToken() {
+      const fcmToken = await messaging().getToken();
+      console.log('FCM Token:', fcmToken);
 
-    //   if (fcmToken) {
-    //     CleverTap.setFCMPushToken(fcmToken);
-    //     console.log('Push token sent to CleverTap');
-    //   }
-    // }
+      if (fcmToken) {
+        CleverTap.setFCMPushToken(fcmToken);
+        console.log('Push token sent to CleverTap');
+      }
+    }
 
-    // getFCMToken();
+    getFCMToken();
 
     // Optional: Record an event
     // CleverTap.recordEvent('Demo_User_Profile');
+
+    // Example user profile data
+    // id="__52ab427647384beebe0608ee3cc407b8"
+    // const userProfile = {
+    //   Identity: 1235, // Unique Identity (MANDATORY)
+    //   Email: 'satyamsen624@gmail.com', // Email ID
+    //   // Phone: '+917247243141', // Phone with country code
+    //   // custom1: 43,
+    //   // ct_is_test_user: true,
+    //   Name: 'Satyam Sen',
+    // };
+
+    // // Call this after login/signup or app start
+    // CleverTap.setDebugLevel(3);
+    // CleverTap.profileSet(userProfile);
+    // console.log('settt Profile');
   }, []);
 }

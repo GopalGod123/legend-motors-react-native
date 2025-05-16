@@ -16,6 +16,8 @@ import com.clevertap.react.CleverTapApplication;
 import com.clevertap.android.sdk.ActivityLifecycleCallback;
 import com.clevertap.android.sdk.CleverTapAPI;
 import com.clevertap.android.sdk.CleverTapAPI.LogLevel;
+//import com.clevertap.android.pushtemplates.PushTemplateNotificationHandler;
+
 
 class MainApplication : Application(), ReactApplication {
 
@@ -41,6 +43,8 @@ class MainApplication : Application(), ReactApplication {
 
   override fun onCreate() {
     CleverTapAPI.setDebugLevel(LogLevel.VERBOSE);
+    //CleverTapAPI.setNotificationHandler(PushTemplateNotificationHandler())
+   // CleverTapAPI.getDefaultInstance(getApplicationContext())?.enableDeviceNetworkInfoReporting(true)
  // ActivityLifecycleCallback.register(this); // Required only for v2.2.1 and below
     super.onCreate()
     SoLoader.init(this, OpenSourceMergedSoMapping)
