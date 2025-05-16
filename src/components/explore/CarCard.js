@@ -20,6 +20,7 @@ import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme, themeColors} from 'src/context/ThemeContext';
 import {Svg, Mask, G, Path, Rect} from 'react-native-svg';
 import {useLoginPrompt} from '../../hooks/useLoginPrompt';
+import LoginPromptModal from '../LoginPromptModal';
 const {width} = Dimensions.get('window');
 
 const CarCard = memo(
@@ -36,7 +37,13 @@ const CarCard = memo(
     const navigation = useNavigation();
     const {theme, isDark} = useTheme();
     const {selectedCurrency} = useCurrencyLanguage();
-    const {showLoginPrompt} = useLoginPrompt();
+    const {
+      loginModalVisible,
+      showLoginPrompt,
+      hideLoginPrompt,
+      navigateToLogin,
+      checkAuthAndShowPrompt,
+    } = useLoginPrompt();
 
     // Use provided isDarkMode prop if available, otherwise use the theme context
     const effectiveDarkMode = isDarkMode !== undefined ? isDarkMode : isDark;
@@ -92,6 +99,21 @@ const CarCard = memo(
     const price = item?.CarPrices?.find(
       crr => crr.currency === selectedCurrency,
     )?.price;
+
+    // Handle wishlist toggle with auth check
+    const handleWishlistToggle = async (e) => {
+      e.stopPropagation();
+      
+      // Check if user is authenticated
+      const isAuthorized = await checkAuthAndShowPrompt();
+      if (!isAuthorized) {
+        // If not authenticated, the login prompt will be shown by checkAuthAndShowPrompt
+        return;
+      }
+      
+      // User is authenticated, proceed with toggling wishlist
+      toggleFavorite(item.id);
+    };
 
     return (
       <TouchableOpacity
@@ -323,10 +345,7 @@ const CarCard = memo(
             <View style={styles.actionButtons}>
               <TouchableOpacity
                 style={styles.iconButton}
-                onPress={e => {
-                  e.stopPropagation();
-                  toggleFavorite(item.id);
-                }}>
+                onPress={handleWishlistToggle}>
                 {isFavorite ? (
                   <AntDesign name="heart" size={24} color="#FF8C00" />
                 ) : (
@@ -349,6 +368,13 @@ const CarCard = memo(
             </View>
           </View>
         </View>
+        
+        {/* Login Prompt Modal */}
+        <LoginPromptModal
+          visible={loginModalVisible}
+          onClose={hideLoginPrompt}
+          onLoginPress={navigateToLogin}
+        />
       </TouchableOpacity>
     );
   },
