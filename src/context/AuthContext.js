@@ -83,7 +83,9 @@ export const AuthProvider = ({children}) => {
 
           // Set token for API calls
           syncAuthToken();
-          console.log('User session restored - token will remain valid until logout');
+          console.log(
+            'User session restored - token will remain valid until logout',
+          );
         }
       } catch (e) {
         console.error('Failed to load auth token', e);
@@ -141,26 +143,27 @@ export const AuthProvider = ({children}) => {
       const data = response.data;
 
       console.log('Login API DATA:', data);
-      console.log('Login API response:', response);
 
       // Store token in AsyncStorage
-      if (data.success && data.token) {
+      if (data.success && data.accessToken) {
         // Store in both places for compatibility
         const userData = {
-          ...response.user,
-          token: response.token,
+          ...data.user,
+          token: data.accessToken,
         };
         console.log('Login API response:', data);
 
         // Save to AsyncStorage
-        await AsyncStorage.setItem('userToken', response.token);
+        await AsyncStorage.setItem('userToken', data.accessToken);
         await AsyncStorage.setItem('userData', JSON.stringify(userData));
         syncAuthToken();
 
         // Update state
         setUser(userData);
-        console.log('SSO login successful - token will remain valid until logout');
-        
+        console.log(
+          'SSO login successful - token will remain valid until logout',
+        );
+
         return {success: true};
       } else {
         throw new Error(data.msg || 'No token received from server');
@@ -244,7 +247,7 @@ export const AuthProvider = ({children}) => {
   // Mock function to maintain API compatibility - does nothing
   const forceRefreshToken = async () => {
     console.log('Token refresh disabled - token remains valid until logout');
-    return { success: true };
+    return {success: true};
   };
 
   // Context value

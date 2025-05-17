@@ -21,6 +21,8 @@ import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import {languages} from './LanguageSelectScreen';
 import {COLORS} from 'src/utils/constants';
+import {getAuth, signOut} from '@react-native-firebase/auth';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 // SVG icons as React components
 const UserIcon = () => {
   const {theme} = useTheme();
@@ -428,6 +430,14 @@ const ProfileScreen = () => {
       await logoutUser();
       // Call context logout
       await logout();
+
+      //sso - signout
+      let ssoUser = getAuth().currentUser;
+      if (ssoUser) {
+        await signOut(getAuth());
+        if (GoogleSignin.getCurrentUser()) await GoogleSignin.revokeAccess();
+      }
+
       // Navigate to Login screen
       navigation.reset({
         index: 0,

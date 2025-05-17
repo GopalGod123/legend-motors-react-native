@@ -26,6 +26,7 @@ import {
   onAppleButtonPressIOS,
   onGoogleButtonPress,
 } from 'src/services/socialAuth';
+import {COLORS} from 'src/utils/constants';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -37,6 +38,8 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
 
   // Get authentication context
   const {login, loading, error, ssoApi} = useAuth();
@@ -86,40 +89,56 @@ const LoginScreen = () => {
       );
     }
   };
-  const handleSsoLogin = async idToken => {
+  const handleSsoLogin = async (idToken, isNewUser) => {
     try {
       const ssoResult = await ssoApi(idToken);
       console.log('SSO result:', ssoResult, idToken);
       if (ssoResult.success) {
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'Main'}],
-        });
+        setAppleLoading(false);
+        setGoogleLoading(false);
+        if (true) {
+          navigation.replace('FillProfile', {
+            sso: true,
+          });
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Main'}],
+          });
+        }
       }
     } catch (error) {
       console.error('sso sign-in error:', error);
+    } finally {
+      setAppleLoading(false);
+      setGoogleLoading(false);
     }
   };
   const handleGoogleLogin = async () => {
     try {
+      setGoogleLoading(true);
       const result = await onGoogleButtonPress();
       let idToken = await result.user.getIdToken();
-      console.log('Google sign-in result:', idToken);
-      handleSsoLogin(idToken);
+      let isNewUser = result.additionalUserInfo.isNewUser;
+      handleSsoLogin(idToken, isNewUser);
     } catch (error) {
+      setGoogleLoading(false);
       console.error('Google sign-in error:', error);
     }
   };
   const handleAppleLogin = async () => {
     try {
+      setAppleLoading(true);
       const result =
         Platform.OS === 'ios'
           ? await onAppleButtonPressIOS()
           : await onAppleButtonPressAndroid();
       let idToken = await result.user.getIdToken();
       console.log('Apple sign-in result:', idToken);
-      handleSsoLogin(idToken);
+      let isNewUser = result.additionalUserInfo.isNewUser;
+      handleSsoLogin(idToken, isNewUser);
     } catch (error) {
+      setAppleLoading(false);
       console.error('Apple sign-in error:', error);
     }
   };
@@ -226,19 +245,33 @@ const LoginScreen = () => {
         <TouchableOpacity
           onPress={handleAppleLogin}
           style={[styles.socialButton, isDark && styles.socialButtonDark]}>
-          <AppleIcon size={24} color={isDark ? '#FFFFFF' : '#000000'} />
-          <Text style={[styles.socialButtonText, isDark && styles.textDark]}>
-            Continue with Apple
-          </Text>
+          {appleLoading ? (
+            <ActivityIndicator color={isDark ? '#FFFFFF' : COLORS.primary} />
+          ) : (
+            <>
+              <AppleIcon size={24} color={isDark ? '#FFFFFF' : '#000000'} />
+              <Text
+                style={[styles.socialButtonText, isDark && styles.textDark]}>
+                Continue with Apple
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={handleGoogleLogin}
           style={[styles.socialButton, isDark && styles.socialButtonDark]}>
-          <GoogleIcon size={24} />
-          <Text style={[styles.socialButtonText, isDark && styles.textDark]}>
-            Continue with Google
-          </Text>
+          {googleLoading ? (
+            <ActivityIndicator color={isDark ? '#FFFFFF' : COLORS.primary} />
+          ) : (
+            <>
+              <GoogleIcon size={24} />
+              <Text
+                style={[styles.socialButtonText, isDark && styles.textDark]}>
+                Continue with Google
+              </Text>
+            </>
+          )}
         </TouchableOpacity>
       </View>
     </View>

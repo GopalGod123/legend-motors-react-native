@@ -140,7 +140,7 @@ const EditProfileScreen = () => {
   // Transform API country codes data to match the required format for location options
   const locationOptions = React.useMemo(() => {
     if (!countryCodes || countryCodes.length === 0) return [];
-    
+
     return countryCodes.map(country => ({
       name: country.name,
       code: country.iso2,
@@ -150,7 +150,7 @@ const EditProfileScreen = () => {
   // Transform API country codes data to match the required format for country code options
   const countryCodeOptions = React.useMemo(() => {
     if (!countryCodes || countryCodes.length === 0) return [];
-    
+
     return countryCodes.map(country => ({
       code: country.dialCode,
       country: country.name,
@@ -191,13 +191,16 @@ const EditProfileScreen = () => {
 
         // Get country code from either dialCode (preferred) or countryCode field
         let countryCode = profile.dialCode || profile.countryCode || '1'; // Default to US
-        
+
         // Format countryCode to ALWAYS include + if it doesn't already
         if (!countryCode.startsWith('+')) {
           countryCode = '+' + countryCode;
         }
-        
-        console.log('Profile country/dial code from API:', profile.dialCode || profile.countryCode);
+
+        console.log(
+          'Profile country/dial code from API:',
+          profile.dialCode || profile.countryCode,
+        );
         console.log('Formatted country code for UI:', countryCode);
 
         // Format phone with proper display format based on countryCode
@@ -205,21 +208,28 @@ const EditProfileScreen = () => {
         if (profile.phone) {
           // Get clean phone digits
           const phoneDigits = profile.phone.replace(/\D/g, '');
-          
+
           // Apply formatting based on country code
           if (countryCode === '+1') {
             // US/Canada format: XXX-XXX-XXXX
             if (phoneDigits.length <= 3) {
               formattedPhone = phoneDigits;
             } else if (phoneDigits.length <= 6) {
-              formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3)}`;
+              formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(
+                3,
+              )}`;
             } else {
-              formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
+              formattedPhone = `${phoneDigits.slice(0, 3)}-${phoneDigits.slice(
+                3,
+                6,
+              )}-${phoneDigits.slice(6, 10)}`;
             }
           } else if (countryCode === '+91') {
             // India format: XXXXX XXXXX
             if (phoneDigits.length > 5) {
-              formattedPhone = `${phoneDigits.slice(0, 5)} ${phoneDigits.slice(5)}`;
+              formattedPhone = `${phoneDigits.slice(0, 5)} ${phoneDigits.slice(
+                5,
+              )}`;
             } else {
               formattedPhone = phoneDigits;
             }
@@ -234,7 +244,7 @@ const EditProfileScreen = () => {
           lastName: profile.lastName || '',
           dateOfBirth: dateOfBirth,
           email: profile.email || '',
-          countryCode: countryCode, // Always with + prefix
+          countryCode: profile?.dialCode, // Always with + prefix
           phone: formattedPhone,
           location: profile.location || '',
           gender: profile.gender || '',
@@ -366,7 +376,7 @@ const EditProfileScreen = () => {
         if (!updateData.countryCode.startsWith('+')) {
           updateData.countryCode = `+${updateData.countryCode}`;
         }
-        
+
         // Set dialCode field to match countryCode for API consistency
         updateData.dialCode = updateData.countryCode;
       }
@@ -374,8 +384,8 @@ const EditProfileScreen = () => {
       // Remove null, undefined, or empty values to prevent API errors
       Object.keys(updateData).forEach(key => {
         if (
-          updateData[key] === null || 
-          updateData[key] === undefined || 
+          updateData[key] === null ||
+          updateData[key] === undefined ||
           updateData[key] === ''
         ) {
           delete updateData[key];
@@ -388,17 +398,19 @@ const EditProfileScreen = () => {
         lastName: updateData.lastName,
         email: updateData.email,
         countryCode: updateData.countryCode,
-        dialCode: updateData.dialCode, // Include dialCode field
         phone: updateData.phone,
         gender: updateData.gender || undefined,
         location: updateData.location || undefined,
         dateOfBirth: updateData.dateOfBirth || undefined,
-        profileImage: updateData.profileImage || undefined
+        profileImage: updateData.profileImage || undefined,
       };
 
-      console.log('Updating profile with data:', JSON.stringify(apiCompliantData));
+      console.log(
+        'Updating profile with data:',
+        JSON.stringify(apiCompliantData),
+      );
       const response = await updateUserProfile(apiCompliantData);
-      
+
       if (response.success) {
         Alert.alert('Success', 'Profile updated successfully', [
           {text: 'OK', onPress: () => navigation.goBack()},
@@ -408,16 +420,21 @@ const EditProfileScreen = () => {
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      
+
       // Enhanced error logging
       if (error.response) {
         console.error('Response data:', error.response.data);
         console.error('Response status:', error.response.status);
-        
+
         // Extract specific validation errors if they exist
-        const errorMessage = error.response.data?.message || 'An error occurred while updating your profile';
+        const errorMessage =
+          error.response.data?.message ||
+          'An error occurred while updating your profile';
         Alert.alert('Error', errorMessage);
-      } else if (error.message && error.message.includes('Authentication error')) {
+      } else if (
+        error.message &&
+        error.message.includes('Authentication error')
+      ) {
         Alert.alert(
           'Authentication Error',
           'Your session has expired. Please log in again.',
@@ -551,7 +568,9 @@ const EditProfileScreen = () => {
 
     return (
       <View style={styles.phoneInputContainer}>
-        <Text style={[styles.inputLabel, {color: themeColors[theme].text}]}>Phone Number</Text>
+        <Text style={[styles.inputLabel, {color: themeColors[theme].text}]}>
+          Phone Number
+        </Text>
         <View
           style={[
             styles.inputContainer,
@@ -613,57 +632,57 @@ const EditProfileScreen = () => {
             styles.dropdownPopup,
             {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
           ]}>
-            <Text
-              style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
-              Select Country Code
-            </Text>
+          <Text
+            style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
+            Select Country Code
+          </Text>
 
-            <FlatList
-              data={countryCodeOptions}
-              keyExtractor={item => `${item.code}-${item.countryCode}`}
-              style={styles.countryList}
-              showsVerticalScrollIndicator={true}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  style={[
-                    styles.countryItem,
-                    formData.countryCode === item.code && {
-                      backgroundColor: '#F47B20',
-                    },
-                  ]}
-                  onPress={() => handleCountrySelect(item.code)}>
-                  <View style={styles.countryInfo}>
-                    <Image
-                      source={{
-                        uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
-                      }}
-                      style={styles.flagImage}
-                      resizeMode="cover"
-                    />
-                    <Text
-                      style={[
-                        styles.countryText,
-                        {
-                          color:
-                            formData.countryCode === item.code
-                              ? '#FFFFFF'
-                              : themeColors[theme].text,
-                        },
-                      ]}>
-                      {item.code} {item.country}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-            />
+          <FlatList
+            data={countryCodeOptions}
+            keyExtractor={item => `${item.code}-${item.countryCode}`}
+            style={styles.countryList}
+            showsVerticalScrollIndicator={true}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={[
+                  styles.countryItem,
+                  formData.countryCode === item.code && {
+                    backgroundColor: '#F47B20',
+                  },
+                ]}
+                onPress={() => handleCountrySelect(item.code)}>
+                <View style={styles.countryInfo}>
+                  <Image
+                    source={{
+                      uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
+                    }}
+                    style={styles.flagImage}
+                    resizeMode="cover"
+                  />
+                  <Text
+                    style={[
+                      styles.countryText,
+                      {
+                        color:
+                          formData.countryCode === item.code
+                            ? '#FFFFFF'
+                            : themeColors[theme].text,
+                      },
+                    ]}>
+                    {item.code} {item.country}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
 
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setOpenDropdown(null)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setOpenDropdown(null)}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
         </View>
+      </View>
     );
   };
 

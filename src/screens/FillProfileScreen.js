@@ -12,30 +12,32 @@ import {
   Alert,
   ActivityIndicator,
   FlatList,
+  KeyboardAvoidingView,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
 import {Picker} from '@react-native-picker/picker';
 import * as ImagePicker from 'react-native-image-picker';
-import {registerUser} from '../services/api';
+import {registerUser, updateUserProfile} from '../services/api';
 import {useTheme} from 'src/context/ThemeContext';
+import {useAuth} from 'src/context/AuthContext';
+import {useCountryCodes} from 'src/context/CountryCodesContext';
+import FlagIcon from 'src/components/common/FlagIcon';
 
 const FillProfileScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const {email, registrationToken} = route.params || {
-    email: '',
-    registrationToken: '',
-  };
+  const [registrationToken, setRegistrationToken] = useState('');
   const [loading, setLoading] = useState(false);
   const {isDark} = useTheme();
   const [openDropdown, setOpenDropdown] = useState(null);
+  const {countryCodes} = useCountryCodes();
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    email: email,
-    countryCode: '+1', // Default country code for US
+    email: '',
+    countryCode: '+971', // Default country code for US
     phone: '',
     location: '',
     dateOfBirth: new Date(),
@@ -46,37 +48,33 @@ const FillProfileScreen = () => {
 
   const [profileImage, setProfileImage] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [sso, setSso] = useState(false);
 
   const [datePickerValue, setDatePickerValue] = useState({
     day: new Date().getDate(),
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
   });
-
-  // Add country code options with country codes for flags API
-  const countryCodeOptions = [
-    {code: '+1', country: 'US', countryCode: 'US'},
-    {code: '+44', country: 'UK', countryCode: 'GB'},
-    {code: '+91', country: 'IN', countryCode: 'IN'},
-    {code: '+971', country: 'UAE', countryCode: 'AE'},
-    {code: '+61', country: 'AU', countryCode: 'AU'},
-    {code: '+86', country: 'CN', countryCode: 'CN'},
-    {code: '+49', country: 'Germany', countryCode: 'DE'},
-    {code: '+33', country: 'France', countryCode: 'FR'},
-    {code: '+81', country: 'Japan', countryCode: 'JP'},
-    {code: '+39', country: 'Italy', countryCode: 'IT'},
-    {code: '+7', country: 'Russia', countryCode: 'RU'},
-    {code: '+55', country: 'Brazil', countryCode: 'BR'},
-    {code: '+52', country: 'Mexico', countryCode: 'MX'},
-    {code: '+82', country: 'South Korea', countryCode: 'KR'},
-    {code: '+34', country: 'Spain', countryCode: 'ES'},
-  ];
+  const {user} = useAuth();
+  useEffect(() => {
+    if (route.params?.registrationToken) {
+      setRegistrationToken(route.params?.registrationToken ?? '');
+      setFormData(prev => ({...prev, email: route?.params?.email ?? ''}));
+    } else if (route.params?.sso) {
+      setSso(true);
+      setFormData(prev => ({
+        ...prev,
+        email: user?.email ?? '',
+        firstName: user?.firstName ?? '',
+        lastName: user?.lastName ?? '',
+      }));
+    }
+  }, [route.params]);
 
   // Get country code from dial code
   const getCountryCodeFromDialCode = dialCode => {
-    const country = countryCodeOptions.find(option => option.code === dialCode);
-    return country ? country.countryCode : 'US';
+    const country = countryCodes.find(option => option.dialCode === dialCode);
+    return country ? country.iso2 : 'AE';
   };
 
   // Format the phone number as it's being entered
@@ -178,7 +176,6 @@ const FillProfileScreen = () => {
   // Render the dropdown options for country code
   const renderCountryCodeDropdown = () => {
     if (openDropdown !== 'countryCode') return null;
-
     return (
       <Modal
         visible={true}
@@ -193,22 +190,24 @@ const FillProfileScreen = () => {
             </Text>
 
             <FlatList
-              data={countryCodeOptions}
-              keyExtractor={item => item.code}
+              data={countryCodes}
+              keyExtractor={(item, index) =>
+                item.iso2?.toString() + index?.toString()
+              }
               style={styles.countryList}
               showsVerticalScrollIndicator={true}
               renderItem={({item}) => (
                 <TouchableOpacity
                   style={[
                     styles.countryItem,
-                    formData.countryCode === item.code &&
+                    formData.countryCode === item.dialCode &&
                       styles.selectedCountryItem,
                   ]}
-                  onPress={() => handleCountrySelect(item.code)}>
+                  onPress={() => handleCountrySelect(item.dialCode)}>
                   <View style={styles.countryInfo}>
                     <Image
                       source={{
-                        uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
+                        uri: `https://flagsapi.com/${item?.iso2}/flat/32.png`,
                       }}
                       style={styles.flagImage}
                       resizeMode="cover"
@@ -220,7 +219,7 @@ const FillProfileScreen = () => {
                         formData.countryCode === item.code &&
                           styles.selectedCountryText,
                       ]}>
-                      {item.code} {item.country}
+                      {item.dialCode} {item.name}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -341,11 +340,17 @@ const FillProfileScreen = () => {
         email: formData.email,
         password: formData.password,
         registrationToken: registrationToken,
+        countryCode: formData.countryCode,
       };
 
       console.log('Registration payload:', JSON.stringify(registrationData));
 
-      const response = await registerUser(registrationData);
+      if (sso) {
+        delete registrationData.registrationToken;
+      }
+      const response = sso
+        ? await updateUserProfile(registrationData)
+        : await registerUser(registrationData);
 
       console.log('Registration response:', response);
 
@@ -355,11 +360,27 @@ const FillProfileScreen = () => {
         [
           {
             text: 'OK',
-            onPress: () =>
-              navigation.replace('Login', {
-                email: formData.email,
-                fromRegistration: true,
-              }),
+            onPress: () => {
+              if (sso) {
+                navigation.reset({
+                  index: 0,
+                  routes: [{name: 'Main'}],
+                });
+              } else {
+                navigation.reset({
+                  index: 0,
+                  routes: [
+                    {
+                      name: 'Login',
+                      params: {
+                        email: formData.email,
+                        fromRegistration: true,
+                      },
+                    },
+                  ],
+                });
+              }
+            },
           },
         ],
       );
@@ -377,30 +398,6 @@ const FillProfileScreen = () => {
     const year = date.getFullYear();
     return `${month}/${day}/${year}`;
   };
-
-  // Add location options
-  const locationOptions = [
-    {name: 'United States', code: 'US'},
-    {name: 'United Kingdom', code: 'GB'},
-    {name: 'India', code: 'IN'},
-    {name: 'United Arab Emirates', code: 'AE'},
-    {name: 'Australia', code: 'AU'},
-    {name: 'China', code: 'CN'},
-    {name: 'Germany', code: 'DE'},
-    {name: 'France', code: 'FR'},
-    {name: 'Japan', code: 'JP'},
-    {name: 'Italy', code: 'IT'},
-    {name: 'Russia', code: 'RU'},
-    {name: 'Brazil', code: 'BR'},
-    {name: 'Mexico', code: 'MX'},
-    {name: 'South Korea', code: 'KR'},
-    {name: 'Spain', code: 'ES'},
-    {name: 'Canada', code: 'CA'},
-    {name: 'Singapore', code: 'SG'},
-    {name: 'Saudi Arabia', code: 'SA'},
-    {name: 'South Africa', code: 'ZA'},
-    {name: 'Pakistan', code: 'PK'},
-  ];
 
   // Handle location selection
   const handleLocationSelect = location => {
@@ -426,8 +423,10 @@ const FillProfileScreen = () => {
             </Text>
 
             <FlatList
-              data={locationOptions}
-              keyExtractor={item => item.code}
+              data={countryCodes}
+              keyExtractor={(item, index) =>
+                item.iso2?.toString() + index?.toString()
+              }
               style={styles.countryList}
               showsVerticalScrollIndicator={true}
               renderItem={({item}) => (
@@ -441,11 +440,12 @@ const FillProfileScreen = () => {
                   <View style={styles.countryInfo}>
                     <Image
                       source={{
-                        uri: `https://flagsapi.com/${item.code}/flat/32.png`,
+                        uri: `https://flagsapi.com/${item?.iso2}/flat/32.png`,
                       }}
                       style={styles.flagImage}
                       resizeMode="cover"
                     />
+
                     <Text
                       style={[
                         styles.countryText,
@@ -486,8 +486,8 @@ const FillProfileScreen = () => {
               <Image
                 source={{
                   uri: `https://flagsapi.com/${
-                    locationOptions.find(loc => loc.name === formData.location)
-                      ?.code || 'US'
+                    countryCodes.find(loc => loc.name === formData.location)
+                      ?.iso2 ?? 'AE'
                   }/flat/32.png`,
                 }}
                 style={styles.flagImage}
@@ -510,267 +510,273 @@ const FillProfileScreen = () => {
   };
 
   return (
-    <ScrollView style={isDark ? styles.containerDark : styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, isDark && styles.textDark]}>
-          Fill Your Profile
-        </Text>
-      </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
+      style={{flex: 1}}>
+      <ScrollView style={isDark ? styles.containerDark : styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => navigation.goBack()}>
+            <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
+          </TouchableOpacity>
+          <Text style={[styles.headerTitle, isDark && styles.textDark]}>
+            Fill Your Profile
+          </Text>
+        </View>
 
-      <View style={styles.imageContainer}>
-        <TouchableOpacity onPress={handleImagePick}>
-          {profileImage ? (
-            <Image source={{uri: profileImage}} style={styles.profileImage} />
-          ) : (
+        <View style={styles.imageContainer}>
+          <TouchableOpacity onPress={handleImagePick}>
+            {profileImage ? (
+              <Image source={{uri: profileImage}} style={styles.profileImage} />
+            ) : (
+              <View
+                style={[
+                  styles.placeholderImage,
+                  isDark && styles.placeholderImageDark,
+                ]}>
+                <Text style={styles.cameraIcon}>📷</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.form}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="First Name *"
+              value={formData.firstName}
+              onChangeText={text =>
+                setFormData(prev => ({...prev, firstName: text}))
+              }
+              placeholderTextColor={isDark ? '#666666' : undefined}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="Last Name *"
+              value={formData.lastName}
+              onChangeText={text =>
+                setFormData(prev => ({...prev, lastName: text}))
+              }
+              placeholderTextColor={isDark ? '#666666' : undefined}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="Email *"
+              value={formData.email}
+              onChangeText={text =>
+                setFormData(prev => ({...prev, email: text}))
+              }
+              keyboardType="email-address"
+              autoCapitalize="none"
+              editable={false}
+              placeholderTextColor={isDark ? '#666666' : undefined}
+            />
+            <Text style={styles.inputIcon}>✉️</Text>
+          </View>
+
+          {renderPhoneInput()}
+
+          {renderLocationInput()}
+
+          <TouchableOpacity
+            style={styles.inputContainer}
+            onPress={() => setShowDateModal(true)}>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="Date of Birth"
+              value={formatDate(formData.dateOfBirth)}
+              editable={false}
+              placeholderTextColor={isDark ? '#666666' : undefined}
+            />
+            <Text style={styles.inputIcon}>📅</Text>
+          </TouchableOpacity>
+
+          <View style={styles.inputContainer}>
+            <Picker
+              selectedValue={formData.gender}
+              style={[styles.input, isDark && styles.inputDark]}
+              onValueChange={value =>
+                setFormData(prev => ({...prev, gender: value}))
+              }
+              dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+              <Picker.Item
+                label="Select Gender"
+                value=""
+                color={isDark ? '#FFFFFF' : '#000000'}
+              />
+              <Picker.Item
+                label="Male"
+                value="Male"
+                color={isDark ? '#FFFFFF' : '#000000'}
+              />
+              <Picker.Item
+                label="Female"
+                value="Female"
+                color={isDark ? '#FFFFFF' : '#000000'}
+              />
+              <Picker.Item
+                label="Other"
+                value="Other"
+                color={isDark ? '#FFFFFF' : '#000000'}
+              />
+            </Picker>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="Password *"
+              value={formData.password}
+              onChangeText={text =>
+                setFormData(prev => ({...prev, password: text}))
+              }
+              secureTextEntry
+              placeholderTextColor={isDark ? '#666666' : undefined}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              placeholder="Confirm Password *"
+              value={formData.confirmPassword}
+              onChangeText={text =>
+                setFormData(prev => ({...prev, confirmPassword: text}))
+              }
+              secureTextEntry
+              placeholderTextColor={isDark ? '#666666' : undefined}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={[
+              styles.continueButton,
+              formData.firstName &&
+              formData.lastName &&
+              formData.email &&
+              formData.password &&
+              formData.confirmPassword
+                ? styles.activeButton
+                : {},
+            ]}
+            onPress={handleSubmit}
+            disabled={loading}>
+            {loading ? (
+              <ActivityIndicator color="#FFFFFF" size="small" />
+            ) : (
+              <Text style={styles.continueButtonText}>Continue</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {renderCountryCodeDropdown()}
+        {renderLocationDropdown()}
+
+        <Modal
+          visible={showDateModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowDateModal(false)}>
+          <View style={styles.modalOverlay}>
             <View
-              style={[
-                styles.placeholderImage,
-                isDark && styles.placeholderImageDark,
-              ]}>
-              <Text style={styles.cameraIcon}>📷</Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.form}>
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="First Name *"
-            value={formData.firstName}
-            onChangeText={text =>
-              setFormData(prev => ({...prev, firstName: text}))
-            }
-            placeholderTextColor={isDark ? '#666666' : undefined}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Last Name *"
-            value={formData.lastName}
-            onChangeText={text =>
-              setFormData(prev => ({...prev, lastName: text}))
-            }
-            placeholderTextColor={isDark ? '#666666' : undefined}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Email *"
-            value={formData.email}
-            onChangeText={text => setFormData(prev => ({...prev, email: text}))}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            editable={false}
-            placeholderTextColor={isDark ? '#666666' : undefined}
-          />
-          <Text style={styles.inputIcon}>✉️</Text>
-        </View>
-
-        {renderPhoneInput()}
-
-        {renderLocationInput()}
-
-        <TouchableOpacity
-          style={styles.inputContainer}
-          onPress={() => setShowDateModal(true)}>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Date of Birth"
-            value={formatDate(formData.dateOfBirth)}
-            editable={false}
-            placeholderTextColor={isDark ? '#666666' : undefined}
-          />
-          <Text style={styles.inputIcon}>📅</Text>
-        </TouchableOpacity>
-
-        <View style={styles.inputContainer}>
-          <Picker
-            selectedValue={formData.gender}
-            style={[styles.input, isDark && styles.inputDark]}
-            onValueChange={value =>
-              setFormData(prev => ({...prev, gender: value}))
-            }
-            dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
-            <Picker.Item
-              label="Select Gender"
-              value=""
-              color={isDark ? '#FFFFFF' : '#000000'}
-            />
-            <Picker.Item
-              label="Male"
-              value="Male"
-              color={isDark ? '#FFFFFF' : '#000000'}
-            />
-            <Picker.Item
-              label="Female"
-              value="Female"
-              color={isDark ? '#FFFFFF' : '#000000'}
-            />
-            <Picker.Item
-              label="Other"
-              value="Other"
-              color={isDark ? '#FFFFFF' : '#000000'}
-            />
-          </Picker>
-        </View>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Password *"
-            value={formData.password}
-            onChangeText={text =>
-              setFormData(prev => ({...prev, password: text}))
-            }
-            secureTextEntry
-            placeholderTextColor={isDark ? '#666666' : undefined}
-          />
-        </View>
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Confirm Password *"
-            value={formData.confirmPassword}
-            onChangeText={text =>
-              setFormData(prev => ({...prev, confirmPassword: text}))
-            }
-            secureTextEntry
-            placeholderTextColor={isDark ? '#666666' : undefined}
-          />
-        </View>
-
-        <TouchableOpacity
-          style={[
-            styles.continueButton,
-            formData.firstName &&
-            formData.lastName &&
-            formData.email &&
-            formData.password &&
-            formData.confirmPassword
-              ? styles.activeButton
-              : {},
-          ]}
-          onPress={handleSubmit}
-          disabled={loading}>
-          {loading ? (
-            <ActivityIndicator color="#FFFFFF" size="small" />
-          ) : (
-            <Text style={styles.continueButtonText}>Continue</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      {renderCountryCodeDropdown()}
-      {renderLocationDropdown()}
-
-      <Modal
-        visible={showDateModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowDateModal(false)}>
-        <View style={styles.modalOverlay}>
-          <View
-            style={[styles.modalContent, isDark && styles.modalContentDark]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, isDark && styles.textDark]}>
-                Select Date of Birth
-              </Text>
-              <TouchableOpacity onPress={() => setShowDateModal(false)}>
-                <Text style={[styles.closeButton, isDark && styles.textDark]}>
-                  ✕
+              style={[styles.modalContent, isDark && styles.modalContentDark]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, isDark && styles.textDark]}>
+                  Select Date of Birth
                 </Text>
+                <TouchableOpacity onPress={() => setShowDateModal(false)}>
+                  <Text style={[styles.closeButton, isDark && styles.textDark]}>
+                    ✕
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.datePickerContainer}>
+                <View style={styles.pickerColumn}>
+                  <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                    Month
+                  </Text>
+                  <Picker
+                    selectedValue={datePickerValue.month}
+                    style={[styles.picker, isDark && styles.pickerDark]}
+                    onValueChange={value =>
+                      setDatePickerValue(prev => ({...prev, month: value}))
+                    }
+                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                    {months.map(month => (
+                      <Picker.Item
+                        key={month.value}
+                        label={month.label}
+                        value={month.value}
+                        color={isDark ? '#FFFFFF' : '#000000'}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+
+                <View style={styles.pickerColumn}>
+                  <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                    Day
+                  </Text>
+                  <Picker
+                    selectedValue={datePickerValue.day}
+                    style={[styles.picker, isDark && styles.pickerDark]}
+                    onValueChange={value =>
+                      setDatePickerValue(prev => ({...prev, day: value}))
+                    }
+                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                    {days.map(day => (
+                      <Picker.Item
+                        key={day}
+                        label={String(day)}
+                        value={day}
+                        color={isDark ? '#FFFFFF' : '#000000'}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+
+                <View style={styles.pickerColumn}>
+                  <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                    Year
+                  </Text>
+                  <Picker
+                    selectedValue={datePickerValue.year}
+                    style={[styles.picker, isDark && styles.pickerDark]}
+                    onValueChange={value =>
+                      setDatePickerValue(prev => ({...prev, year: value}))
+                    }
+                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                    {years.map(year => (
+                      <Picker.Item
+                        key={year}
+                        label={String(year)}
+                        value={year}
+                        color={isDark ? '#FFFFFF' : '#000000'}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleDateChange}>
+                <Text style={styles.confirmButtonText}>Confirm</Text>
               </TouchableOpacity>
             </View>
-
-            <View style={styles.datePickerContainer}>
-              <View style={styles.pickerColumn}>
-                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                  Month
-                </Text>
-                <Picker
-                  selectedValue={datePickerValue.month}
-                  style={[styles.picker, isDark && styles.pickerDark]}
-                  onValueChange={value =>
-                    setDatePickerValue(prev => ({...prev, month: value}))
-                  }
-                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
-                  {months.map(month => (
-                    <Picker.Item
-                      key={month.value}
-                      label={month.label}
-                      value={month.value}
-                      color={isDark ? '#FFFFFF' : '#000000'}
-                    />
-                  ))}
-                </Picker>
-              </View>
-
-              <View style={styles.pickerColumn}>
-                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                  Day
-                </Text>
-                <Picker
-                  selectedValue={datePickerValue.day}
-                  style={[styles.picker, isDark && styles.pickerDark]}
-                  onValueChange={value =>
-                    setDatePickerValue(prev => ({...prev, day: value}))
-                  }
-                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
-                  {days.map(day => (
-                    <Picker.Item
-                      key={day}
-                      label={String(day)}
-                      value={day}
-                      color={isDark ? '#FFFFFF' : '#000000'}
-                    />
-                  ))}
-                </Picker>
-              </View>
-
-              <View style={styles.pickerColumn}>
-                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                  Year
-                </Text>
-                <Picker
-                  selectedValue={datePickerValue.year}
-                  style={[styles.picker, isDark && styles.pickerDark]}
-                  onValueChange={value =>
-                    setDatePickerValue(prev => ({...prev, year: value}))
-                  }
-                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
-                  {years.map(year => (
-                    <Picker.Item
-                      key={year}
-                      label={String(year)}
-                      value={year}
-                      color={isDark ? '#FFFFFF' : '#000000'}
-                    />
-                  ))}
-                </Picker>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              style={styles.confirmButton}
-              onPress={handleDateChange}>
-              <Text style={styles.confirmButtonText}>Confirm</Text>
-            </TouchableOpacity>
           </View>
-        </View>
-      </Modal>
-    </ScrollView>
+        </Modal>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

@@ -10,27 +10,25 @@ const SplashScreen = () => {
 
   useEffect(() => {
     const checkAuthAndNavigate = async () => {
-      try {
-        // Check if user is authenticated
-        const isUserAuthenticated = await isAuthenticated();
-        
-        // Navigate based on authentication status
-        setTimeout(() => {
-          if (isUserAuthenticated) {
-            // User is authenticated, go directly to main screen
-            navigation.replace('Main');
-          } else {
-            // User is not authenticated, go to language selection
-            navigation.replace('LanguageSelect');
-          }
-        }, 3000);
-      } catch (error) {
-        console.error('Error checking authentication:', error);
-        // Default to language selection if there's an error
-        setTimeout(() => {
-          navigation.replace('LanguageSelect');
-        }, 3000);
-      }
+      // Check if user is authenticated
+      const isUserAuthenticated = await isAuthenticated();
+
+      // Navigate based on authentication status
+      setTimeout(() => {
+        if (isUserAuthenticated) {
+          // User is authenticated, go directly to main screen
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Main'}],
+          });
+        } else {
+          // User is not authenticated, go to language selection
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'LanguageSelect'}],
+          });
+        }
+      }, 3000);
     };
 
     checkAuthAndNavigate();
