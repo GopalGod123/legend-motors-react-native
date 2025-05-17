@@ -89,21 +89,5 @@ export default function useCleverTapDemo() {
 
     // Optional: Record an event
     // CleverTap.recordEvent('Demo_User_Profile');
-
-    // Example user profile data
-    // id="__52ab427647384beebe0608ee3cc407b8"
-    // const userProfile = {
-    //   Identity: 1235, // Unique Identity (MANDATORY)
-    //   Email: 'satyamsen624@gmail.com', // Email ID
-    //   // Phone: '+917247243141', // Phone with country code
-    //   // custom1: 43,
-    //   // ct_is_test_user: true,
-    //   Name: 'Satyam Sen',
-    // };
-
-    // // Call this after login/signup or app start
-    // CleverTap.setDebugLevel(3);
-    // CleverTap.profileSet(userProfile);
-    // console.log('settt Profile');
   }, []);
 }

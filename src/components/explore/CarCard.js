@@ -101,16 +101,16 @@ const CarCard = memo(
     )?.price;
 
     // Handle wishlist toggle with auth check
-    const handleWishlistToggle = async (e) => {
-      e.stopPropagation();
-      
+    const handleWishlistToggle = async e => {
+      // e.stopPropagation();
+
       // Check if user is authenticated
       const isAuthorized = await checkAuthAndShowPrompt();
       if (!isAuthorized) {
         // If not authenticated, the login prompt will be shown by checkAuthAndShowPrompt
         return;
       }
-      
+
       // User is authenticated, proceed with toggling wishlist
       toggleFavorite(item.id);
     };
@@ -368,7 +368,7 @@ const CarCard = memo(
             </View>
           </View>
         </View>
-        
+
         {/* Login Prompt Modal */}
         <LoginPromptModal
           visible={loginModalVisible}

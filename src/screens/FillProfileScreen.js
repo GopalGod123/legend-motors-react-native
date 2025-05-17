@@ -629,33 +629,37 @@ const FillProfileScreen = () => {
               />
             </Picker>
           </View>
+          {sso ? (
+            <></>
+          ) : (
+            <>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={[styles.input, isDark && styles.inputDark]}
+                  placeholder="Password *"
+                  value={formData.password}
+                  onChangeText={text =>
+                    setFormData(prev => ({...prev, password: text}))
+                  }
+                  secureTextEntry
+                  placeholderTextColor={isDark ? '#666666' : undefined}
+                />
+              </View>
 
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={[styles.input, isDark && styles.inputDark]}
-              placeholder="Password *"
-              value={formData.password}
-              onChangeText={text =>
-                setFormData(prev => ({...prev, password: text}))
-              }
-              secureTextEntry
-              placeholderTextColor={isDark ? '#666666' : undefined}
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={[styles.input, isDark && styles.inputDark]}
-              placeholder="Confirm Password *"
-              value={formData.confirmPassword}
-              onChangeText={text =>
-                setFormData(prev => ({...prev, confirmPassword: text}))
-              }
-              secureTextEntry
-              placeholderTextColor={isDark ? '#666666' : undefined}
-            />
-          </View>
-
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={[styles.input, isDark && styles.inputDark]}
+                  placeholder="Confirm Password *"
+                  value={formData.confirmPassword}
+                  onChangeText={text =>
+                    setFormData(prev => ({...prev, confirmPassword: text}))
+                  }
+                  secureTextEntry
+                  placeholderTextColor={isDark ? '#666666' : undefined}
+                />
+              </View>
+            </>
+          )}
           <TouchableOpacity
             style={[
               styles.continueButton,

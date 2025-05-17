@@ -6,27 +6,35 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
-  const {user, isAuthenticated} = useAuth();
+  const {isAuthenticated} = useAuth();
 
   useEffect(() => {
-    const checkAuthAndNavigate = async () => {
+    const checkAuthAndNavigate = () => {
       // Check if user is authenticated
-      const isUserAuthenticated = await isAuthenticated();
 
       // Navigate based on authentication status
-      setTimeout(() => {
-        if (isUserAuthenticated) {
+      setTimeout(async () => {
+        const isAuthenticatedUser = await isAuthenticated();
+        const firstTimeUser = await AsyncStorage.getItem('firstTimeUser');
+        if (isAuthenticatedUser) {
           // User is authenticated, go directly to main screen
           navigation.reset({
             index: 0,
             routes: [{name: 'Main'}],
           });
         } else {
-          // User is not authenticated, go to language selection
-          navigation.reset({
-            index: 0,
-            routes: [{name: 'LanguageSelect'}],
-          });
+          if (!firstTimeUser) {
+            // User is not authenticated, go to language selection
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'LanguageSelect'}],
+            });
+          } else {
+            navigation.reset({
+              index: 0,
+              routes: [{name: 'Main'}, {name: 'Login'}],
+            });
+          }
         }
       }, 3000);
     };
@@ -35,7 +43,7 @@ const SplashScreen = () => {
 
     // Clean up any timers on component unmount
     return () => {};
-  }, [navigation, isAuthenticated]);
+  }, []);
 
   return (
     <View style={styles.container}>

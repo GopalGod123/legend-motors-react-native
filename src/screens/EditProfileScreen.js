@@ -17,11 +17,7 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Svg, {Path} from 'react-native-svg';
-import {
-  getUserProfile,
-  updateUserProfile,
-  syncAuthToken,
-} from '../services/api';
+import {getUserProfile, updateUserProfile} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import {useCountryCodes} from '../context/CountryCodesContext';
@@ -166,7 +162,6 @@ const EditProfileScreen = () => {
     setLoading(true);
     try {
       // First try to sync the auth token
-      await syncAuthToken();
 
       // If user context has data, pre-populate the form
       if (user) {
@@ -355,7 +350,6 @@ const EditProfileScreen = () => {
     setUpdating(true);
     try {
       // Ensure token is synchronized before updating
-      await syncAuthToken();
 
       // Prepare data for API
       const updateData = {

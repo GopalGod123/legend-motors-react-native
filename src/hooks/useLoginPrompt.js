@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import { isAuthenticated } from '../services/api';
+import {useState, useCallback} from 'react';
+import {useNavigation} from '@react-navigation/native';
+import {isAuthenticated} from '../services/api';
 
 /**
  * Hook to manage the login prompt modal
@@ -43,4 +43,4 @@ export const useLoginPrompt = () => {
     navigateToLogin,
     checkAuthAndShowPrompt,
   };
-}; 
+};

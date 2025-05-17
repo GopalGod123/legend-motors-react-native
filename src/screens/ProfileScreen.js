@@ -12,7 +12,7 @@ import {
   Alert,
   Switch,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Svg, {Path} from 'react-native-svg';
 import LogoutModal from '../components/LogoutModal';
 import {getUserProfile, syncAuthToken, logoutUser} from '../services/api';
@@ -325,99 +325,40 @@ const PhoneIcon = () => {
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const {user, logout} = useAuth();
+  const {user, logout, isAuthenticated} = useAuth();
   const {selectedLanguage, setSelectedLanguage} = useCurrencyLanguage();
   const {theme, toggleTheme, isDark} = useTheme();
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const fetchUserProfile = async (forceRefresh = false) => {
+  const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      // Try to refresh the token first to ensure valid authentication
-      await syncAuthToken();
-
-      // Clear cache if force refresh is requested
-      if (forceRefresh) {
-        console.log('Force refreshing profile data');
-      }
-
-      const response = await getUserProfile();
-      if (response.success) {
-        console.log('Profile data fetched successfully:', response.data);
-        setUserProfile(response.data);
+      const isValidUser = await isAuthenticated();
+      if (isValidUser) {
+        setUserProfile(user);
       } else {
-        console.error('Failed to fetch profile data:', response.message);
-        Alert.alert('Error', 'Failed to load profile. Please try again.');
+        Alert.alert(
+          'Session Expired',
+          'Your session has expired. Please log in again.',
+          [{text: 'OK', onPress: handleLogout}],
+        );
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
-
-      // Check if it's an auth error (401)
-      if (
-        error?.response?.status === 401 ||
-        (error?.message && error.message.includes('Authentication error'))
-      ) {
-        try {
-          // Try to refresh the token
-          const refreshed = await syncAuthToken();
-          if (refreshed) {
-            // Try again with new token
-            const retryResponse = await getUserProfile();
-            if (retryResponse.success) {
-              setUserProfile(retryResponse.data);
-            } else {
-              // If retry fails with refreshed token
-              Alert.alert(
-                'Error',
-                'Could not load your profile. Please try logging in again.',
-              );
-            }
-          } else {
-            // If refresh fails, logout
-            Alert.alert(
-              'Session Expired',
-              'Your session has expired. Please log in again.',
-              [{text: 'OK', onPress: handleLogout}],
-            );
-          }
-        } catch (refreshError) {
-          console.error('Token refresh error:', refreshError);
-          // Show auth error to user
-          Alert.alert(
-            'Authentication Error',
-            'Please log in again to continue.',
-            [{text: 'OK', onPress: handleLogout}],
-          );
-        }
-      } else {
-        // Generic error handling
-        Alert.alert(
-          'Error',
-          'Failed to load profile. Please check your connection and try again.',
-        );
-      }
     } finally {
       setLoading(false);
     }
   };
 
   // Initial fetch when screen mounts
+  const isFocused = useIsFocused();
   useEffect(() => {
     fetchUserProfile();
-  }, []); // Empty dependency array since fetchUserProfile is defined outside
+  }, [isFocused]);
 
   // Refresh profile when screen comes into focus
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      // Force reload profile data when screen comes into focus
-      console.log('ProfileScreen focused - refreshing profile data');
-      setLoading(true); // Show loading indicator
-      fetchUserProfile(true); // Pass true to force a refresh
-    });
-    return unsubscribe;
-  }, [navigation]);
 
   const handleNavigate = screenName => {
     navigation.navigate(screenName);
@@ -486,7 +427,8 @@ const ProfileScreen = () => {
         }
       }
     } else {
-      return 'https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png';
+      return null;
+      // return 'https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png';
     }
   };
 
@@ -589,7 +531,11 @@ const ProfileScreen = () => {
           <View style={styles.profileInfoContainer}>
             <View style={styles.avatarContainer}>
               <Image
-                source={{uri: getProfileImageUrl()}}
+                source={
+                  getProfileImageUrl()
+                    ? {uri: getProfileImageUrl()}
+                    : require('../assets/images/profile.jpg')
+                }
                 style={styles.avatar}
               />
               <View style={styles.badgeContainer}>
@@ -808,7 +754,7 @@ const styles = StyleSheet.create({
   avatar: {
     width: 120,
     height: 120,
-    borderRadius: 50,
+    borderRadius: 60,
   },
   badgeContainer: {
     position: 'absolute',

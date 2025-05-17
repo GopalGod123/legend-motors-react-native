@@ -113,7 +113,7 @@ const SearchBar = ({
               disabled && styles.disabledInput,
               isDark && styles.searchInputDark,
             ]}
-            placeholder="Search by body type.."
+            placeholder="Search by Keywords, Body type.."
             placeholderTextColor={
               disabled
                 ? '#C0C0C0'
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '25%',
+    width: '22%',
     borderRightWidth: 1,
     borderRightColor: '#9E86A7',
   },
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     height: '100%',
-    fontSize: 16,
+    fontSize: 14,
     color: '#555',
   },
   searchInputDark: {

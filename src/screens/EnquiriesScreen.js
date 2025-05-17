@@ -12,7 +12,11 @@ import {
   RefreshControl,
   Dimensions,
 } from 'react-native';
-import {useNavigation, useFocusEffect} from '@react-navigation/native';
+import {
+  useNavigation,
+  useFocusEffect,
+  useIsFocused,
+} from '@react-navigation/native';
 import {getUserEnquiries} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
@@ -50,10 +54,11 @@ const EnquiriesScreen = () => {
   const {theme, isDark} = useTheme();
 
   // Load enquiries when screen is focused
+  const isFocused = useIsFocused();
   useFocusEffect(
     useCallback(() => {
       checkAuthAndFetchEnquiries();
-    }, [user]),
+    }, [isFocused]),
   );
 
   const checkAuthAndFetchEnquiries = async () => {
@@ -157,16 +162,9 @@ const EnquiriesScreen = () => {
                 My Inquiries
               </Text>
             </View>
-            <Text
-              style={[
-                styles.headerTitle,
-                {color: isDark ? '#FFFFFF' : '#212121'},
-              ]}>
-              My Inquiries
-            </Text>
           </View>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => navigation.navigate('ExploreTab')}
             style={styles.searchButton}>
             <Ionicons
@@ -174,7 +172,7 @@ const EnquiriesScreen = () => {
               size={24}
               color={isDark ? '#FFFFFF' : '#000000'}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
@@ -218,7 +216,7 @@ const EnquiriesScreen = () => {
             </Text>
           </View>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => navigation.navigate('ExploreTab')}
             style={styles.searchButton}>
             <Ionicons
@@ -226,7 +224,7 @@ const EnquiriesScreen = () => {
               size={24}
               color={isDark ? '#FFFFFF' : '#000000'}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View style={styles.errorContainer}>
           <Text
@@ -271,7 +269,7 @@ const EnquiriesScreen = () => {
             </Text>
           </View>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => navigation.navigate('ExploreTab')}
             style={styles.searchButton}>
             <Ionicons
@@ -279,7 +277,7 @@ const EnquiriesScreen = () => {
               size={24}
               color={isDark ? '#FFFFFF' : '#000000'}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View style={styles.loginContainer}>
           <View style={styles.clipboardIconContainer}>
@@ -347,7 +345,7 @@ const EnquiriesScreen = () => {
             </Text>
           </View>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => navigation.navigate('ExploreTab')}
             style={styles.searchButton}>
             <Ionicons
@@ -355,7 +353,7 @@ const EnquiriesScreen = () => {
               size={24}
               color={isDark ? '#FFFFFF' : '#000000'}
             />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.clipboardIconContainer}>
@@ -427,7 +425,7 @@ const EnquiriesScreen = () => {
         </View>
 
         {/* Add search icon */}
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={() => navigation.navigate('ExploreTab')}
           style={styles.searchButton}>
           <Ionicons
@@ -435,7 +433,7 @@ const EnquiriesScreen = () => {
             size={24}
             color={isDark ? '#FFFFFF' : '#000000'}
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       <FlatList

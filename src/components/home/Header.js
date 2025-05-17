@@ -18,6 +18,7 @@ import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
 import {useTheme} from '../../context/ThemeContext';
 
 const Header = ({user, onSettingsPress, onWishlistPress}) => {
+  console.log('user', user);
   const {selectedCurrency, setSelectedCurrency} = useCurrencyLanguage();
   const {isDark} = useTheme();
 
@@ -50,6 +51,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
     <View style={styles.header}>
       <View style={styles.profileSection}>
         <ImagePlaceholder
+          img={require('../../assets/images/profile.jpg')}
           style={styles.profileImage}
           color={isDark ? '#3D3D3D' : '#ccd'}
         />
@@ -73,61 +75,63 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
       </View>
 
       <View style={styles.headerControls}>
-        <View
-          style={[
-            styles.currencyToggle,
-            {backgroundColor: isDark ? '#1A1A1A' : COLORS.white},
-          ]}>
-          <TouchableOpacity
+        {user?.email ? (
+          <View
             style={[
-              styles.currencyButton,
-              selectedCurrency === 'AED'
-                ? isDark
-                  ? styles.activeCurrencyButtonDark
-                  : styles.activeCurrencyButton
-                : {},
-            ]}
-            onPress={() => toggleCurrency('AED')}>
-            <Text
+              styles.currencyToggle,
+              {backgroundColor: isDark ? '#1A1A1A' : COLORS.white},
+            ]}>
+            <TouchableOpacity
               style={[
+                styles.currencyButton,
                 selectedCurrency === 'AED'
                   ? isDark
-                    ? {color: '#000'}
-                    : styles.activeText
-                  : isDark
-                  ? {color: '#9E86A8'}
-                  : styles.currencyText,
-                styles.toggleText,
-              ]}>
-              AED
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.currencyButton,
-
-              selectedCurrency === 'USD'
-                ? isDark
-                  ? styles.activeCurrencyButtonDark
-                  : styles.activeCurrencyButton
-                : {},
-            ]}
-            onPress={() => toggleCurrency('USD')}>
-            <Text
+                    ? styles.activeCurrencyButtonDark
+                    : styles.activeCurrencyButton
+                  : {},
+              ]}
+              onPress={() => toggleCurrency('AED')}>
+              <Text
+                style={[
+                  selectedCurrency === 'AED'
+                    ? isDark
+                      ? {color: '#000'}
+                      : styles.activeText
+                    : isDark
+                    ? {color: '#9E86A8'}
+                    : styles.currencyText,
+                  styles.toggleText,
+                ]}>
+                AED
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={[
+                styles.currencyButton,
+
                 selectedCurrency === 'USD'
                   ? isDark
-                    ? {color: '#000'}
-                    : styles.activeText
-                  : isDark
-                  ? {color: '#9E86A8'}
-                  : styles.currencyText,
-                styles.toggleText,
-              ]}>
-              USD
-            </Text>
-          </TouchableOpacity>
-        </View>
+                    ? styles.activeCurrencyButtonDark
+                    : styles.activeCurrencyButton
+                  : {},
+              ]}
+              onPress={() => toggleCurrency('USD')}>
+              <Text
+                style={[
+                  selectedCurrency === 'USD'
+                    ? isDark
+                      ? {color: '#000'}
+                      : styles.activeText
+                    : isDark
+                    ? {color: '#9E86A8'}
+                    : styles.currencyText,
+                  styles.toggleText,
+                ]}>
+                USD
+              </Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
 
         <TouchableOpacity style={styles.iconButton}>
           <Ionicons

@@ -16,27 +16,13 @@ const api = axios.create({
 // Function to synchronize the auth token between AsyncStorage and API headers
 export const syncAuthToken = async () => {
   try {
-    // Try to get token from AsyncStorage (both keys for backward compatibility)
-    const authToken = await AsyncStorage.getItem('auth_token');
-    const userToken = await AsyncStorage.getItem('userToken');
-
-    // Use whichever token is available, prioritizing auth_token
-    const token = authToken || userToken;
-
+    const token = await AsyncStorage.getItem('token');
     if (token) {
-      // Update the Authorization header
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       console.log('Auth token synchronized with API headers');
-      return true;
-    } else {
-      // If no token found, remove the Authorization header
-      delete api.defaults.headers.common['Authorization'];
-      console.log('No auth token found, removed from API headers');
-      return false;
     }
   } catch (error) {
     console.error('Error synchronizing auth token:', error);
-    return false;
   }
 };
 
@@ -45,9 +31,8 @@ api.interceptors.request.use(
   async config => {
     try {
       // Check both token storage locations
-      const authToken = await AsyncStorage.getItem('auth_token');
-      const userToken = await AsyncStorage.getItem('userToken');
-      console.log('params', config.params);
+      const authToken = await AsyncStorage.getItem('token');
+      console.log('params', config.url);
 
       // Use whichever token is available
       const token = authToken || userToken;
@@ -119,8 +104,8 @@ export const loginUser = async (email, password) => {
     // Store token in AsyncStorage
     if (data.success && data.token) {
       // Store in both places for compatibility
-      await AsyncStorage.setItem('auth_token', data.token);
-      await AsyncStorage.setItem('userToken', data.token);
+      await AsyncStorage.setItem('token', data.token);
+      await AsyncStorage.setItem('refreshToken', data.refreshToken);
 
       // Also set in headers for current session
       api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
@@ -146,8 +131,7 @@ export const loginUser = async (email, password) => {
 export const isAuthenticated = async () => {
   try {
     // Check both token storage locations for consistency
-    const authToken = await AsyncStorage.getItem('auth_token');
-    const userToken = await AsyncStorage.getItem('userToken');
+    const authToken = await AsyncStorage.getItem('token');
 
     // Use whichever token is available
     const token = authToken || userToken;
@@ -166,8 +150,9 @@ export const logoutUser = async () => {
     console.log('Logout response:', response.data);
 
     // Remove tokens from both AsyncStorage locations
-    await AsyncStorage.removeItem('auth_token');
-    await AsyncStorage.removeItem('userToken');
+    await AsyncStorage.removeItem('token');
+    await AsyncStorage.removeItem('userData');
+    await AsyncStorage.removeItem('refreshToken');
 
     // Remove token from Authorization header
     delete api.defaults.headers.common['Authorization'];
@@ -178,8 +163,9 @@ export const logoutUser = async () => {
 
     // Even if API call fails, still remove the tokens
     try {
-      await AsyncStorage.removeItem('auth_token');
-      await AsyncStorage.removeItem('userToken');
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('userData');
+      await AsyncStorage.removeItem('refreshToken');
     } catch (storageError) {
       console.error('Error removing tokens from AsyncStorage:', storageError);
     }
@@ -191,37 +177,40 @@ export const logoutUser = async () => {
 };
 
 // Function to refresh the authentication token
-export const refreshAuthToken = async (refreshToken) => {
+export const refreshAuthToken = async refreshToken => {
   try {
     // Call the token refresh endpoint
-    const response = await api.post('/auth/refresh-token', { refreshToken });
-    
+    const response = await api.post('/auth/refresh', {refreshToken});
+
     // Check if the response contains a new token
-    if (response.data && response.data.success && response.data.token) {
+    if (response.data && response.data.success && response.data.accessToken) {
       // Store the new token in AsyncStorage
-      await AsyncStorage.setItem('auth_token', response.data.token);
-      await AsyncStorage.setItem('userToken', response.data.token);
-      
+      await AsyncStorage.setItem('token', response.data.accessToken);
+
       // Update the API headers
-      api.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-      
+      api.defaults.headers.common[
+        'Authorization'
+      ] = `Bearer ${response.data.accessToken}`;
+
       console.log('Token refreshed successfully');
       return {
         success: true,
-        token: response.data.token,
-        refreshToken: response.data.refreshToken || refreshToken
+        token: response.data.accessToken,
       };
     } else {
       console.warn('No new token received from refresh API');
-      return { success: false, message: 'No token received' };
+      return {success: false, message: 'No token received'};
     }
   } catch (error) {
-    console.error('Token refresh error:', error.response?.data || error.message);
-    
+    console.error(
+      'Token refresh error:',
+      error.response?.data || error.message,
+    );
+
     // Return error details
     return {
       success: false,
-      error: error.response?.data || { message: 'Token refresh failed' }
+      error: error.response?.data || {message: 'Token refresh failed'},
     };
   }
 };
@@ -643,7 +632,6 @@ export const getCarList = async (params = {}) => {
 export const getUserProfile = async () => {
   try {
     // Ensure token is synchronized before making the request
-    await syncAuthToken();
 
     const response = await api.get('/auth/user/getProfile');
 
@@ -668,11 +656,10 @@ export const getUserProfile = async () => {
 export const updateUserProfile = async profileData => {
   try {
     // Ensure token is synchronized before making the request
-    await syncAuthToken();
 
     // Create a copy of the data to normalize
     const normalizedData = {...profileData};
-    
+
     // Handle dialCode/countryCode format
     // The API expects dialCode field with "+" prefix
     if (normalizedData.countryCode) {
@@ -680,16 +667,22 @@ export const updateUserProfile = async profileData => {
       if (!normalizedData.countryCode.startsWith('+')) {
         normalizedData.countryCode = '+' + normalizedData.countryCode;
       }
-      
+
       // Set dialCode from countryCode if needed
       normalizedData.dialCode = normalizedData.countryCode;
-      
-      console.log('Normalized country code for API request:', normalizedData.countryCode);
+
+      console.log(
+        'Normalized country code for API request:',
+        normalizedData.countryCode,
+      );
       console.log('Set dialCode for API request:', normalizedData.dialCode);
     }
 
-    console.log('Sending profile update request with data:', JSON.stringify(normalizedData));
-    
+    console.log(
+      'Sending profile update request with data:',
+      JSON.stringify(normalizedData),
+    );
+
     const response = await api.put('/auth/user/updateProfile', normalizedData);
 
     // Check for successful response
@@ -700,28 +693,36 @@ export const updateUserProfile = async profileData => {
     }
   } catch (error) {
     console.error('Error updating user profile:', error);
-    
+
     // Format the error response for better debugging and handling
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       console.error('Error response status:', error.response.status);
-      console.error('Error response data:', JSON.stringify(error.response.data));
-      
+      console.error(
+        'Error response data:',
+        JSON.stringify(error.response.data),
+      );
+
       return {
         success: false,
         status: error.response.status,
-        message: error.response.data?.message || 'Server responded with an error',
-        data: error.response.data
+        message:
+          error.response.data?.message || 'Server responded with an error',
+        data: error.response.data,
       };
     } else if (error.request) {
       // The request was made but no response was received
       console.error('No response received:', error.request);
       return {
         success: false,
-        message: 'No response received from server. Please check your connection.'
+        message:
+          'No response received from server. Please check your connection.',
       };
-    } else if (error.message && error.message.includes('Authentication error')) {
+    } else if (
+      error.message &&
+      error.message.includes('Authentication error')
+    ) {
       throw new Error(
         'Authentication error: Please log in again to update your profile.',
       );
@@ -729,7 +730,7 @@ export const updateUserProfile = async profileData => {
       // Something happened in setting up the request that triggered an Error
       return {
         success: false,
-        message: error.message || 'Failed to update profile'
+        message: error.message || 'Failed to update profile',
       };
     }
   }
@@ -739,7 +740,6 @@ export const updateUserProfile = async profileData => {
 export const getFaqCategories = async (lang = 'en') => {
   try {
     // Ensure token is synchronized before making the request
-    await syncAuthToken();
 
     const response = await api.get('/faq-category/categories-with-mobile', {
       // params: {lang},
@@ -819,32 +819,38 @@ export const getBlogPosts = async (params = {}) => {
 export const getUserEnquiries = async (params = {}) => {
   try {
     // Ensure token is synchronized before making the request
-    await syncAuthToken();
-    
+
     // Default parameters
     const defaultParams = {
       page: 1,
       limit: 100,
     };
-    
+
     // Merge default with provided params
     const requestParams = {...defaultParams, ...params};
-    
+
     console.log('Fetching user enquiries with params:', requestParams);
-    
+
     // Use the correct API endpoint
-    const response = await api.get('https://api.staging.legendmotorsglobal.com/api/v1/car-enquiry/user-enquiries', { 
-      params: requestParams,
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
+    const response = await api.get(
+      'https://api.staging.legendmotorsglobal.com/api/v1/car-enquiry/user-enquiries',
+      {
+        params: requestParams,
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
+        },
       },
-    });
-    
+    );
+
     console.log('User enquiries API response:', JSON.stringify(response.data));
-    
+
     if (response.data && response.data.success) {
-      console.log(`Successfully fetched ${response.data.data?.length || 0} user enquiries`);
+      console.log(
+        `Successfully fetched ${
+          response.data.data?.length || 0
+        } user enquiries`,
+      );
       return {
         success: true,
         data: response.data.data || [],
@@ -852,7 +858,10 @@ export const getUserEnquiries = async (params = {}) => {
         msg: response.data.msg || 'Enquiries retrieved successfully',
       };
     } else {
-      console.error('API returned unsuccessful response for user enquiries:', response.data);
+      console.error(
+        'API returned unsuccessful response for user enquiries:',
+        response.data,
+      );
       return {
         success: false,
         data: [],
@@ -861,7 +870,7 @@ export const getUserEnquiries = async (params = {}) => {
     }
   } catch (error) {
     console.error('Error fetching user enquiries:', error);
-    
+
     // Add more detailed error logging
     if (error.response) {
       console.error('Error response status:', error.response.status);
@@ -871,11 +880,14 @@ export const getUserEnquiries = async (params = {}) => {
     } else {
       console.error('Error setting up request:', error.message);
     }
-    
+
     return {
       success: false,
       data: [],
-      msg: error.response?.data?.msg || error.message || 'Failed to fetch enquiries',
+      msg:
+        error.response?.data?.msg ||
+        error.message ||
+        'Failed to fetch enquiries',
     };
   }
 };
@@ -1064,7 +1076,6 @@ export const getCarByIdOrSlug = async (idOrSlug, lang = 'en') => {
 export const addToWishlist = async carId => {
   try {
     // Ensure token is synchronized before making the request
-    await syncAuthToken();
 
     // console.log(`Adding car ${carId} to wishlist`);
 
@@ -1210,7 +1221,6 @@ const getWishlistItemData = async wishlistId => {
 export const getWishlist = async (params = {}) => {
   try {
     // Ensure token is synchronized before making the request
-    await syncAuthToken();
 
     // Default parameters
     const defaultParams = {
@@ -1251,10 +1261,13 @@ export const getWishlist = async (params = {}) => {
 };
 
 // Submit car enquiry
-export const submitCarEnquiry = async (enquiryData) => {
+export const submitCarEnquiry = async enquiryData => {
   try {
-    console.log('Submitting car enquiry with data:', JSON.stringify(enquiryData));
-    
+    console.log(
+      'Submitting car enquiry with data:',
+      JSON.stringify(enquiryData),
+    );
+
     // Ensure required fields are present
     if (!enquiryData.carId) {
       console.error('Missing required field: carId');
@@ -1263,47 +1276,53 @@ export const submitCarEnquiry = async (enquiryData) => {
         msg: 'Car ID is required',
       };
     }
-    
+
     // Ensure phone number is properly formatted with country code
     let finalPhoneNumber = enquiryData.phoneNumber || '';
-    
+
     // If country code is provided and not already part of the phone number
     if (enquiryData.countryCode) {
       const countryCodeWithoutPlus = enquiryData.countryCode.replace('+', '');
-      
+
       // Remove country code if it's already in the phone number
       if (finalPhoneNumber.startsWith('+' + countryCodeWithoutPlus)) {
-        finalPhoneNumber = finalPhoneNumber.substring(('+' + countryCodeWithoutPlus).length);
+        finalPhoneNumber = finalPhoneNumber.substring(
+          ('+' + countryCodeWithoutPlus).length,
+        );
       } else if (finalPhoneNumber.startsWith(countryCodeWithoutPlus)) {
-        finalPhoneNumber = finalPhoneNumber.substring(countryCodeWithoutPlus.length);
+        finalPhoneNumber = finalPhoneNumber.substring(
+          countryCodeWithoutPlus.length,
+        );
       }
-      
+
       // Ensure we don't have leading zeros
       while (finalPhoneNumber.startsWith('0')) {
         finalPhoneNumber = finalPhoneNumber.substring(1);
       }
-      
+
       // Add country code to the phone number
       finalPhoneNumber = enquiryData.countryCode + finalPhoneNumber;
     }
-    
+
     // Format the data according to API requirements
     const formattedData = {
       carId: parseInt(enquiryData.carId, 10),
       name: enquiryData.name,
       phoneNumber: finalPhoneNumber, // Properly formatted phone number with country code
       emailAddress: enquiryData.emailAddress,
-      pageUrl: enquiryData.pageUrl || `https://legendmotorsglobal.com/cars/${enquiryData.carId}`,
+      pageUrl:
+        enquiryData.pageUrl ||
+        `https://legendmotorsglobal.com/cars/${enquiryData.carId}`,
       countryCode: enquiryData.countryCode || '+971',
     };
-    
+
     console.log('Final formatted data for API:', JSON.stringify(formattedData));
-    
+
     // Make the API call
     const response = await api.post('/car-enquiry/create', formattedData);
-    
+
     console.log('Car enquiry response:', JSON.stringify(response.data));
-    
+
     return {
       success: true,
       data: response.data.data,
@@ -1314,19 +1333,24 @@ export const submitCarEnquiry = async (enquiryData) => {
     console.error('Request data:', error.request?.data);
     console.error('Response status:', error.response?.status);
     console.error('Response data:', error.response?.data);
-    
+
     // Provide better error message specifically for phone validation issues
-    if (error.response?.data?.message?.includes('phone') || 
-        error.response?.data?.errors?.some(err => err.includes('phone'))) {
+    if (
+      error.response?.data?.message?.includes('phone') ||
+      error.response?.data?.errors?.some(err => err.includes('phone'))
+    ) {
       return {
         success: false,
-        msg: 'The phone number format is invalid. Please ensure you\'ve entered a valid phone number for the selected country code.',
+        msg: "The phone number format is invalid. Please ensure you've entered a valid phone number for the selected country code.",
       };
     }
-    
+
     return {
       success: false,
-      msg: error.response?.data?.message || error.message || 'Failed to submit enquiry',
+      msg:
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to submit enquiry',
     };
   }
 };
@@ -1334,46 +1358,47 @@ export const submitCarEnquiry = async (enquiryData) => {
 // Function to fetch country dialing codes
 export const fetchCountryCodes = async (params = {}) => {
   try {
-    const { 
-      page = 1, 
-      limit = 100, 
-      sortBy = 'name', 
-      order = 'asc', 
-      search = '' 
+    const {
+      page = 1,
+      limit = 100,
+      sortBy = 'name',
+      order = 'asc',
+      search = '',
     } = params;
-    
+
     const queryParams = new URLSearchParams({
       page,
       limit,
       sortBy,
       order,
-      ...(search ? { search } : {})
+      ...(search ? {search} : {}),
     }).toString();
-    
+
     const response = await fetch(
       `${API_BASE_URL}/country-codes/list?${queryParams}`,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'x-api-key': API_KEY
-        }
-      }
+          'x-api-key': API_KEY,
+        },
+      },
     );
 
     const data = await response.json();
-    
+
     if (!response.ok) {
       throw new Error(data.message || 'Failed to fetch country codes');
     }
-    
+
     return data;
   } catch (error) {
     console.error('Error fetching country codes:', error);
-    return { 
-      success: false, 
-      message: error.message || 'An error occurred while fetching country codes',
-      data: []
+    return {
+      success: false,
+      message:
+        error.message || 'An error occurred while fetching country codes',
+      data: [],
     };
   }
 };

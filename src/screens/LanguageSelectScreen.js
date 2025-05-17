@@ -12,6 +12,7 @@ import BackArrow from '../components/BackArrow';
 import LogoImage from '../assets/images/LangaugeScreenLogo.png';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import CleverTap from 'clevertap-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const languages = [
   {id: 'en', name: 'English (US)'},
@@ -27,7 +28,24 @@ const LanguageSelectScreen = () => {
   const navigation = useNavigation();
   const context = useCurrencyLanguage();
   const handleNext = () => {
+    // Example user profile data
+    // id = '__52ab427647384beebe0608ee3cc407b8';
+    // const userProfile = {
+    //   Identity: 1991, // Unique Identity (MANDATORY)
+    //   Email: 'satyamsen624@gmail.com', // Email ID
+    //   // Phone: '+917247243141', // Phone with country code
+    //   // custom1: 43,
+    //   // ct_is_test_user: true,
+    //   Name: 'Satyam Sen',
+    // };
+
+    // // Call this after login/signup or app start
+    // CleverTap.setDebugLevel(3);
+    // CleverTap.profileSet(userProfile);
+    // console.log('settt Profile');
+
     // Navigate directly to Main screen
+    AsyncStorage.setItem('firstTimeUser', 'true');
     context.setSelectedLanguage(selectedLanguage);
     navigation.reset({
       index: 0,

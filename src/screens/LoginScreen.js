@@ -96,7 +96,7 @@ const LoginScreen = () => {
       if (ssoResult.success) {
         setAppleLoading(false);
         setGoogleLoading(false);
-        if (true) {
+        if (isNewUser) {
           navigation.replace('FillProfile', {
             sso: true,
           });
@@ -178,7 +178,7 @@ const LoginScreen = () => {
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            placeholderTextColor={isDark ? '#666666' : undefined}
+            placeholderTextColor={isDark ? '#666666' : '#000000'}
           />
         </View>
 

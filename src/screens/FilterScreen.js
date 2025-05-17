@@ -1643,11 +1643,11 @@ const FilterScreen = ({route, navigation}) => {
       case 'models':
         return selectedBrands.length > 0
           ? 'No models available for selected brands'
-          : 'Please select a brand first';
+          : 'Please select the brand first to continue';
       case 'trims':
         return selectedModels.length > 0
           ? 'No trims available for selected models'
-          : 'Please select a model first';
+          : 'Please select the modal first to continue';
       case 'years':
         return 'No years available';
       default:

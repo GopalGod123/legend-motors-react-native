@@ -37,10 +37,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>CleverTapAccountID</key>
 	<string>6KK-49W-447Z</string>
-	<key>CleverTapRegion</key>
-	<string>global</string>
 	<key>CleverTapToken</key>
-	<string>Oc4-336</string>
+	<string>0c4-336</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>

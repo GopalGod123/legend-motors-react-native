@@ -8,7 +8,7 @@ import {
   InteractionManager,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {useAuth} from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -28,6 +28,7 @@ import {SPACING, COLORS} from '../utils/constants';
 import Header from '../components/home/Header';
 import {FilterTabs} from '../components/explore';
 import {useTheme} from '../context/ThemeContext';
+import CleverTap from 'clevertap-react-native';
 
 // Memoize components that don't need frequent re-renders
 const MemoizedHeader = memo(Header);
@@ -120,6 +121,19 @@ const HomeScreen = () => {
 
   // Check login prompt status once
   useEffect(() => {
+    const userProfile = {
+      Identity: 1991, // Unique Identity (MANDATORY)
+      Email: 'satyamsen624@gmail.com', // Email ID
+      // Phone: '+917247243141', // Phone with country code
+      // custom1: 43,
+      // ct_is_test_user: true,
+      Name: 'Satyam Sen',
+    };
+
+    // Call this after login/signup or app start
+    CleverTap.setDebugLevel(3);
+    CleverTap.profileSet(userProfile);
+    console.log('settt Profile');
     const checkLoginPromptStatus = async () => {
       try {
         // Check if the user is authenticated
@@ -155,20 +169,8 @@ const HomeScreen = () => {
     if (!checkedPromptStatus) {
       checkLoginPromptStatus();
     }
-  }, [isAuthenticated, checkedPromptStatus]);
-
-  useEffect(() => {
-    // Pre-fetch car data only once
-    const fetchCarData = async () => {
-      try {
-        await getCarList();
-      } catch (error) {
-        console.error('Error fetching car data:', error);
-      }
-    };
-
-    fetchCarData();
-  }, []);
+  }, [isFocused]);
+  const isFocused = useIsFocused();
 
   // Add a state to prevent multiple navigations
   const [isNavigating, setIsNavigating] = useState(false);
