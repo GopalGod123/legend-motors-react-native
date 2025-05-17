@@ -11,13 +11,13 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {CountryCodesProvider} from './src/context/CountryCodesContext';
 
 const App = () => {
-  useCleverTapNotifications();
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId:
-        '789807190580-mo23ir6p664eb69bug94iq12ciluesjl.apps.googleusercontent.com',
-    });
-  }, []);
+  // useCleverTapNotifications();
+  // useEffect(() => {
+  //   GoogleSignin.configure({
+  //     webClientId:
+  //       '789807190580-mo23ir6p664eb69bug94iq12ciluesjl.apps.googleusercontent.com',
+  //   });
+  // }, []);
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <SafeAreaProvider>

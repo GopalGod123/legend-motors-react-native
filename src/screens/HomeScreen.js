@@ -121,19 +121,6 @@ const HomeScreen = () => {
 
   // Check login prompt status once
   useEffect(() => {
-    const userProfile = {
-      Identity: 1991, // Unique Identity (MANDATORY)
-      Email: 'satyamsen624@gmail.com', // Email ID
-      // Phone: '+917247243141', // Phone with country code
-      // custom1: 43,
-      // ct_is_test_user: true,
-      Name: 'Satyam Sen',
-    };
-
-    // Call this after login/signup or app start
-    CleverTap.setDebugLevel(3);
-    CleverTap.profileSet(userProfile);
-    console.log('settt Profile');
     const checkLoginPromptStatus = async () => {
       try {
         // Check if the user is authenticated
