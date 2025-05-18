@@ -13,6 +13,8 @@ import {
   Alert,
   Dimensions,
   Linking,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Svg, {Path, Circle} from 'react-native-svg';
@@ -613,34 +615,80 @@ const HelpCenterScreen = () => {
     }
 
     try {
+      // Normalize URLs
+      const normalizedUrl = url.startsWith('tel:') || url.startsWith('https://') 
+        ? url 
+        : `https://${url}`;
+
+      // Special handling for phone calls on Android
+      if (url.startsWith('tel:') && Platform.OS === 'android') {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.CALL_PHONE,
+            {
+              title: 'Phone Call Permission',
+              message: 'Legend Motors needs permission to make phone calls',
+              buttonNeutral: 'Ask Me Later',
+              buttonNegative: 'Cancel',
+              buttonPositive: 'OK',
+            }
+          );
+          
+          if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+            Alert.alert('Permission Denied', 'Cannot make phone call without permission');
+            return;
+          }
+        } catch (err) {
+          console.warn(err);
+          return;
+        }
+      }
+
       // Check if the link can be opened
-      const canOpen = await Linking.canOpenURL(url);
+      const canOpen = await Linking.canOpenURL(normalizedUrl);
 
       if (canOpen) {
-        await Linking.openURL(url);
+        await Linking.openURL(normalizedUrl);
       } else {
-        console.warn(`Cannot open URL: ${url}`);
+        console.warn(`Cannot open URL: ${normalizedUrl}`);
 
-        // Custom handling based on URL type
+        // Specific handling for different URL types
         if (url.startsWith('tel:')) {
           Alert.alert(
-            'Cannot Make Call',
-            "Your device doesn't support making calls or the phone app is not available.",
-            [{text: 'OK'}],
+            'Phone Call',
+            'Would you like to call this number?',
+            [
+              {text: 'Cancel', style: 'cancel'},
+              {text: 'Call', onPress: () => Linking.openURL(url)}
+            ]
+          );
+        } else if (url.includes('whatsapp')) {
+          Alert.alert(
+            'WhatsApp',
+            'Open WhatsApp to send a message?',
+            [
+              {text: 'Cancel', style: 'cancel'},
+              {text: 'Open', onPress: () => Linking.openURL(url)}
+            ]
           );
         } else {
           Alert.alert(
-            'Cannot Open Link',
-            'Your device cannot open this type of link. Please try again later or contact customer service.',
-            [{text: 'OK'}],
+            'Open Link',
+            'Would you like to open this link in your browser?',
+            [
+              {text: 'Cancel', style: 'cancel'},
+              {text: 'Open', onPress: () => Linking.openURL(normalizedUrl)}
+            ]
           );
         }
       }
     } catch (error) {
       console.error('Error opening URL:', error);
-      Alert.alert('Error', 'Could not open the link. Please try again later.', [
-        {text: 'OK'},
-      ]);
+      Alert.alert(
+        'Error', 
+        'Could not open the link. Please try again later or check your internet connection.', 
+        [{text: 'OK'}]
+      );
     }
   };
 
