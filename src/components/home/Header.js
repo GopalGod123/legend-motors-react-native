@@ -16,6 +16,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
 import {useTheme} from '../../context/ThemeContext';
+import {useNavigation} from '@react-navigation/native';
 
 const Header = ({user, onSettingsPress, onWishlistPress}) => {
   console.log('user', user);
@@ -46,15 +47,20 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
   const toggleCurrency = currency => {
     setSelectedCurrency(currency);
   };
-
+  const navigation = useNavigation();
   return (
     <View style={styles.header}>
       <View style={styles.profileSection}>
-        <ImagePlaceholder
-          img={require('../../assets/images/profile.jpg')}
-          style={styles.profileImage}
-          color={isDark ? '#3D3D3D' : '#ccd'}
-        />
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('ProfileTab');
+          }}>
+          <ImagePlaceholder
+            img={require('../../assets/images/profile.jpg')}
+            style={styles.profileImage}
+            color={isDark ? '#3D3D3D' : '#ccd'}
+          />
+        </TouchableOpacity>
         <View style={styles.greetingSection}>
           <Text
             style={[
@@ -133,7 +139,11 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           </View>
         ) : null}
 
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => {
+            navigation.navigate('Notification');
+          }}>
           <Ionicons
             name="notifications"
             size={24}

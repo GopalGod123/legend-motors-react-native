@@ -367,13 +367,10 @@ const MostPopularCars = () => {
       return null;
     }
   }, []);
-
+  const {selectedLanguage} = useCurrencyLanguage();
   useEffect(() => {
     fetchPopularCars();
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+  }, [selectedLanguage]);
 
   const fetchPopularCars = async () => {
     try {
@@ -537,32 +534,20 @@ const MostPopularCars = () => {
         </TouchableOpacity>
       </View>
 
-      {loading ? (
-        <FlatList
-          data={[{id: 'skeleton-1'}, {id: 'skeleton-2'}]}
-          renderItem={renderLoadingItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.carsList}
-          ItemSeparatorComponent={() => <View style={{width: 15}} />}
-        />
-      ) : (
-        <FlatList
-          data={popularCars}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.carsList}
-          renderItem={renderItem}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          windowSize={3}
-          removeClippedSubviews={true}
-          ItemSeparatorComponent={() => <View style={{width: 15}} />}
-          ListEmptyComponent={renderEmptyComponent}
-        />
-      )}
+      <FlatList
+        data={loading ? [{id: 'skeleton-1'}, {id: 'skeleton-2'}] : popularCars}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={item => item.id.toString()}
+        contentContainerStyle={styles.carsList}
+        renderItem={loading ? renderLoadingItem : renderItem}
+        initialNumToRender={2}
+        maxToRenderPerBatch={3}
+        windowSize={3}
+        removeClippedSubviews={true}
+        ItemSeparatorComponent={() => <View style={{width: 15}} />}
+        ListEmptyComponent={renderEmptyComponent}
+      />
 
       <LoginPromptModal
         visible={loginModalVisible}

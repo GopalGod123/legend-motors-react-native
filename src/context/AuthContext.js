@@ -100,8 +100,7 @@ export const AuthProvider = ({children}) => {
         throw new Error(response.msg || 'No token received from server');
       }
     } catch (error) {
-      setError(error.message || 'Login failed');
-      return {success: false, error: error.message || 'Login failed'};
+      throw error;
     } finally {
       setLoading(false);
     }

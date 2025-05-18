@@ -9,7 +9,7 @@ import {
   Dimensions,
   Share,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {MaterialCommunityIcons, Ionicons, AntDesign} from 'src/utils/icon';
 import {
   COLORS,
@@ -217,87 +217,63 @@ const JustArrived = () => {
   const isMounted = useRef(true);
 
   // Pre-process car data for better performance
-  const preprocessCarData = useCallback(car => {
+  const preprocessCarData = car => {
     // Extract body type
     // Handle undefined or null car
     if (!car) return null;
 
     try {
       // Process CarImages array if available
+      let processedImagesArray =
+        car?.CarImages || car?.images || car?.Images || car?.image || [];
       let processedImages = [];
-
       // Check if car has the CarImages array (from API)
-      if (
-        car.CarImages &&
-        Array.isArray(car.CarImages) &&
-        car.CarImages.length > 0
-      ) {
-        processedImages = car.CarImages.map(image => {
-          if (image.FileSystem && image.FileSystem.path) {
-            return {
+      if (processedImagesArray.length > 0) {
+        processedImagesArray.map(image => {
+          if (image?.FileSystem?.path) {
+            processedImages.push({
               uri: `https://cdn.legendmotorsglobal.com${image.FileSystem.path}`,
-              id: image.id,
-              type: image.type,
-              order: image.order,
+              id: image?.id,
+              type: image?.type,
+              order: image?.order,
               filename: image.FileSystem.path.split('/').pop(),
               fullPath: image.FileSystem.path,
-            };
+            });
           }
-          return null;
-        }).filter(img => img !== null);
+        });
       }
       // Fallback to other image properties if available
-      else if (
-        car.images &&
-        Array.isArray(car.images) &&
-        car.images.length > 0
-      ) {
-        processedImages = car.images.map(image => {
-          return typeof image === 'string' ? {uri: image} : image;
-        });
-      } else if (
-        car.Images &&
-        Array.isArray(car.Images) &&
-        car.Images.length > 0
-      ) {
-        processedImages = car.Images.map(image => {
-          return typeof image === 'string' ? {uri: image} : image;
-        });
-      } else if (car.image) {
-        processedImages = [
-          typeof car.image === 'string' ? {uri: car.image} : car.image,
-        ];
-      }
 
       car.bodyType =
-        car?.SpecificationValues?.find(a => a.Specification?.key == 'body_type')
-          ?.name ?? 'SUV';
+        car?.SpecificationValues?.find(
+          a => a?.Specification?.key == 'body_type',
+        )?.name ?? 'SUV';
       car.fuelType = car?.SpecificationValues?.find(
-        a => a.Specification?.key == 'fuel_type',
+        a => a?.Specification?.key == 'fuel_type',
       )?.name;
       car.transmissionType = car?.SpecificationValues?.find(
-        a => a.Specification?.key == 'transmission',
+        a => a?.Specification?.key == 'transmission',
       )?.name;
       car.steeringType = car?.SpecificationValues?.find(
-        a => a.Specification?.key == 'steering',
+        a => a?.Specification?.key == 'steering',
       )?.name;
       car.region = car?.SpecificationValues?.find(
-        a => a.Specification?.key == 'regional_specification',
+        a => a?.Specification?.key == 'regional_specification',
       )?.name;
 
       // Create a normalized car object with consistent property names
       const processedCar = {
         ...car,
-        id: car.id || car.carId || car.car_id || null,
-        brand: car.brand || (car.Brand ? car.Brand.name : null) || null,
-        model: car.model || (car.CarModel ? car.CarModel.name : null) || null,
-        trim: car.trim || (car.Trim ? car.Trim.name : null) || null,
-        year: car.year || car.Year || null,
-        price: car.price || car.priceAED || null,
+        id: car?.id || car?.carId || car?.car_id || null,
+        brand: car?.brand || car?.Brand?.name || null,
+        model: car?.model || car?.CarModel?.name || null,
+        trim: car?.trim || car?.Trim?.name || null,
+        year: car?.year || car?.Year || null,
+        price: car?.price || car?.priceAED || null,
         images: processedImages, // Use our processed images
-        color: car.color || car.exteriorColor || null,
-        stockId: car.stockId || car.stock_id || null,
-        slug: car.slug || null,
+        color: car?.color || car?.exteriorColor || null,
+        stockId: car?.stockId || car?.stock_id || null,
+        slug: car?.slug || null,
       };
 
       // Extract colors from slug if available
@@ -307,7 +283,7 @@ const JustArrived = () => {
       console.error('Error processing car:', error, car);
       return null;
     }
-  }, []);
+  };
   const {selectedLanguage, selectedCurrency} = useCurrencyLanguage();
 
   // Add the login prompt hook
@@ -317,13 +293,6 @@ const JustArrived = () => {
     navigateToLogin,
     checkAuthAndShowPrompt,
   } = useLoginPrompt();
-
-  useEffect(() => {
-    fetchNewArrivals();
-    return () => {
-      isMounted.current = false;
-    };
-  }, [selectedLanguage]);
 
   const fetchNewArrivals = async () => {
     try {
@@ -337,23 +306,17 @@ const JustArrived = () => {
         tags: 2,
       });
 
-      if (
-        response?.data &&
-        response?.success &&
-        Array.isArray(response?.data)
-      ) {
+      if (response.data?.length > 0) {
         const cars = [...response?.data];
 
         let processedCars = [];
 
-        if (cars.length > 0) {
-          processedCars = cars.map(preprocessCarData);
-        } else {
-          // Fallback to most recent cars
-          processedCars = cars.slice(0, 3).map(preprocessCarData);
-        }
-
-        // Update cache
+        cars.map(car => {
+          const processedCar = preprocessCarData(car);
+          if (processedCar) {
+            processedCars.push(processedCar);
+          }
+        });
 
         setNewArrivals([...processedCars]);
       } else {
@@ -361,11 +324,16 @@ const JustArrived = () => {
       }
     } catch (error) {
       console.error('Error fetching new arrivals:', error);
+
       setNewArrivals([]);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchNewArrivals();
+  }, [selectedLanguage]);
 
   const toggleFavorite = async carId => {
     // Check if user is authenticated first
@@ -595,7 +563,6 @@ const JustArrived = () => {
           </Text>
         </TouchableOpacity>
       </View>
-
       <Text
         style={[
           styles.subtitle,
@@ -604,33 +571,20 @@ const JustArrived = () => {
         Be the first to see our newest vehicles
       </Text>
 
-      {loading ? (
-        <FlatList
-          data={[{id: 'skeleton-1'}, {id: 'skeleton-2'}]}
-          renderItem={renderLoadingItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.carsList}
-          ItemSeparatorComponent={() => <View style={{width: 15}} />}
-        />
-      ) : (
-        <FlatList
-          data={newArrivals}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.carsList}
-          renderItem={renderItem}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          windowSize={3}
-          removeClippedSubviews={true}
-          ItemSeparatorComponent={() => <View style={{width: 15}} />}
-          ListEmptyComponent={renderEmptyComponent}
-        />
-      )}
-
+      <FlatList
+        data={loading ? [{id: 'skeleton-1'}, {id: 'skeleton-2'}] : newArrivals}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={item => item.id.toString()}
+        contentContainerStyle={styles.carsList}
+        renderItem={loading ? renderLoadingItem : renderItem}
+        initialNumToRender={2}
+        maxToRenderPerBatch={3}
+        windowSize={3}
+        removeClippedSubviews={true}
+        ItemSeparatorComponent={() => <View style={{width: 15}} />}
+        ListEmptyComponent={renderEmptyComponent}
+      />
       {/* Add the LoginPromptModal */}
       <LoginPromptModal
         visible={loginModalVisible}

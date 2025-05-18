@@ -45,7 +45,6 @@ const HotDeals = () => {
   const [hotDeals, setHotDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
-  const {user} = useAuth();
   const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
     useWishlist();
   const {isDark} = useTheme();
@@ -154,9 +153,6 @@ const HotDeals = () => {
   const {selectedLanguage} = useCurrencyLanguage();
   useEffect(() => {
     fetchHotDeals();
-    return () => {
-      isMounted.current = false;
-    };
   }, [selectedLanguage]);
   const fetchHotDeals = async () => {
     try {
@@ -444,30 +440,19 @@ const HotDeals = () => {
         Checkout our exclusive offers
       </Text>
 
-      {loading ? (
-        <FlatList
-          data={[{id: 'skeleton-1'}, {id: 'skeleton-2'}]}
-          renderItem={renderLoadingItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.scrollContainer}
-        />
-      ) : (
-        <FlatList
-          data={hotDeals}
-          renderItem={renderItem}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id.toString()}
-          contentContainerStyle={styles.scrollContainer}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          windowSize={3}
-          removeClippedSubviews={true}
-          ListEmptyComponent={renderEmptyComponent}
-        />
-      )}
+      <FlatList
+        data={loading ? [{id: 'skeleton-1'}, {id: 'skeleton-2'}] : hotDeals}
+        renderItem={loading ? renderLoadingItem : renderItem}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={item => item.id.toString()}
+        contentContainerStyle={styles.scrollContainer}
+        initialNumToRender={2}
+        maxToRenderPerBatch={3}
+        windowSize={3}
+        removeClippedSubviews={true}
+        ListEmptyComponent={renderEmptyComponent}
+      />
 
       <LoginPromptModal
         visible={loginModalVisible}

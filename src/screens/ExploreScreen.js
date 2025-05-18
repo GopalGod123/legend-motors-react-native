@@ -408,8 +408,8 @@ const ExploreScreen = () => {
           limit: PAGE_SIZE,
           status: 'published',
         };
-        if (search) {
-          params.search = search?.toLowerCase();
+        if (search || searchQuery) {
+          params.search = (search || searchQuery)?.toLowerCase();
         }
 
         if (appliedFilters?.brands && appliedFilters?.brands?.length > 0) {
@@ -558,7 +558,7 @@ const ExploreScreen = () => {
         }
       }
     },
-    [allCars, appliedFilters, filterCarsByApiCriteria, processCar, searchQuery],
+    [appliedFilters, searchQuery],
   );
 
   // Store the function in ref for stable reference
@@ -581,56 +581,9 @@ const ExploreScreen = () => {
     setFilteredBySearch(false);
 
     // Directly reset to original data
-    const resetToOriginal = async () => {
-      setLoading(true);
-      try {
-        // Reset to first page with original filters
-        const params = {
-          page: 1,
-          limit: 10,
-          status: 'published',
-        };
-
-        // Apply any existing filters
-        if (Object.keys(appliedFilters).length > 0) {
-          // Add filter parameters to params (simplified)
-        }
-
-        const response = await getCarList(params);
-
-        // Process cars (simplified)
-        let carData = [];
-        if (response && response.data) {
-          if (Array.isArray(response.data)) {
-            carData = response.data;
-          } else if (response.data.data && Array.isArray(response.data.data)) {
-            carData = response.data.data;
-          } else if (Array.isArray(response.data.cars)) {
-            carData = response.data.cars;
-          }
-        }
-
-        const processedCars = carData
-          .filter(car => car)
-          .map(processCar)
-          .filter(car => car);
-
-        // Update state
-        setCars(processedCars);
-        setFilteredCars(processedCars);
-        setAllCars(processedCars);
-        setTotalCars(processedCars.length);
-        setPage(1);
-        setHasMoreData(false);
-      } catch (error) {
-        console.error('Error clearing search:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
     // resetToOriginal();
-    functionRef.current.fetchCars(1);
+    // functionRef.current.fetchCars(1);
   }, [appliedFilters]);
   const {selectedLanguage} = useCurrencyLanguage();
 
@@ -768,7 +721,7 @@ const ExploreScreen = () => {
     // }, 300); // 300ms debounce
 
     // return () => clearTimeout(timeoutId);
-  }, [appliedFilters, processCar, selectedLanguage]); // Add processCar to dependencies
+  }, [appliedFilters, processCar, selectedLanguage, searchQuery]); // Add processCar to dependencies
 
   // Fetch cars by model IDs
   const fetchCarsByModelIds = async modelIds => {

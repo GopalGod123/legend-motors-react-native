@@ -116,14 +116,7 @@ export const loginUser = async (email, password) => {
 
     return data;
   } catch (error) {
-    console.error('API login error:', error.response?.data || error.message);
-    if (error.response) {
-      throw error.response.data || {message: 'Login failed'};
-    } else if (error.request) {
-      throw {message: 'No response from server. Please check your connection.'};
-    } else {
-      throw {message: error.message || 'An unknown error occurred'};
-    }
+    throw error;
   }
 };
 

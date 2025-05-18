@@ -12,6 +12,7 @@ import {useNavigation} from '@react-navigation/native';
 import Svg, {Path, Circle} from 'react-native-svg';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
+import {COLORS} from 'src/utils/constants';
 
 // Back Arrow Icon
 const BackIcon = () => {
@@ -77,7 +78,11 @@ const LanguageScreen = () => {
 
   const handleSelectLanguage = language => {
     setCurrentLanguage(language.id);
-    setSelectedLanguage(language.id);
+    // setSelectedLanguage(language.id);
+  };
+  const applyLanguage = () => {
+    setSelectedLanguage(currentLanguage);
+    navigation.goBack();
   };
 
   const suggestedLanguages = [
@@ -134,7 +139,7 @@ const LanguageScreen = () => {
                 style={[
                   styles.languageName,
                   {color: themeColors[theme].text},
-                  language.id === 'en' && {
+                  language.id === currentLanguage && {
                     color: isDark ? '#EF9439' : themeColors[theme].primary,
                   },
                 ]}>
@@ -185,6 +190,11 @@ const LanguageScreen = () => {
           ))}
         </View>
       </ScrollView>
+      <View style={styles.applyButtonContainer}>
+        <TouchableOpacity style={styles.applyButton} onPress={applyLanguage}>
+          <Text style={styles.applyButtonText}>Apply Language</Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 };
@@ -230,6 +240,27 @@ const styles = StyleSheet.create({
   },
   languageName: {
     fontSize: 18,
+  },
+  applyButtonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    width: '100%',
+    paddingHorizontal: 24,
+  },
+  applyButton: {
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    paddingVertical: 15,
+    borderRadius: 10,
+    marginTop: 24,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+  applyButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
 

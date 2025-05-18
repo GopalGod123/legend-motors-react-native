@@ -11,6 +11,7 @@ export const CurrencyLanguageProvider = ({children}) => {
 
   // Function to change language
   const changeLanguage = language => {
+    console.log('language', language);
     setSelectedLanguage(language);
     i18n.locale = language;
 
