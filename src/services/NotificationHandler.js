@@ -6,6 +6,7 @@ const CLEVERTAP_EVENTS = {
   ADD_TO_WISHLIST: 'Add to Wishlist',
   REMOVE_FROM_WISHLIST: 'Remove from Wishlist',
   VIEW_PRODUCT: 'View Product',
+  INQUIRY_PRODUCT: 'Inquiry Product',
 };
 export default function useCleverTapDemo() {
   const setUpNotification = () => {
@@ -66,15 +67,16 @@ export default function useCleverTapDemo() {
   };
   const setUserProfileCleverTap = user => {
     const userProfile = {
-      Name: user?.firstName,
+      FirstName: user?.firstName,
       LastName: user?.lastName,
+      Phone: user?.phone,
       Identity: user?.id, // Unique identity
       Email: user?.email,
     };
     CleverTap.profileSet(userProfile);
   };
 
-  const sendEvent = (event, data) => {
+  const sendEvent = (event, data = {}) => {
     CleverTap.recordEvent(event, data);
   };
   return {

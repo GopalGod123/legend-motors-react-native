@@ -22,6 +22,7 @@ import {Ionicons} from '../utils/icon';
 import {submitCarEnquiry, isAuthenticated} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useCountryCodes} from '../context/CountryCodesContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 import Logo from '../components/Logo';
 import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
@@ -34,6 +35,7 @@ const EnquiryFormScreen = () => {
   const route = useRoute();
   const {user} = useAuth();
   const {countryCodes, loading: loadingCountryCodes} = useCountryCodes();
+  const {theme, isDark} = useTheme();
 
   // Add the login prompt hook
   const {
@@ -75,11 +77,10 @@ const EnquiryFormScreen = () => {
   // Transform API country codes to the format expected by the component
   const formattedCountryCodes = React.useMemo(() => {
     if (!countryCodes || countryCodes.length === 0) return [];
-    
+
     return countryCodes.map(country => ({
-      code: country.dialCode,
+      countryCode: country.dialCode,
       country: country.name,
-      countryCode: country.iso2,
     }));
   }, [countryCodes]);
 
@@ -100,9 +101,7 @@ const EnquiryFormScreen = () => {
       } else {
         // If authenticated, pre-fill form with user data if available
         if (user) {
-          setName(user.name || '');
-          setEmail(user.email || '');
-          setPhoneNumber(user.phoneNumber || '');
+          console.log('user', user);
         }
       }
     };
@@ -117,32 +116,38 @@ const EnquiryFormScreen = () => {
 
     // If toggling on, fill the form with user data
     if (newState && user) {
-      setName(user.name || user.firstName || '');
+      setName(user.firstName + ' ' + user.lastName || '');
       setEmail(user.email || '');
+      setPhoneNumber(user.phone || '');
 
       // Handle phone and country code properly
-      if (user.phoneNumber) {
-        let userPhone = user.phoneNumber;
+      if (user.phone) {
+        let userPhone = user.phone;
         let userDialCode = user.dialCode || user.countryCode;
-        
+
         // If we have a dialCode, use it directly
         if (userDialCode) {
           // Make sure dialCode starts with a +
           if (!userDialCode.startsWith('+')) {
             userDialCode = '+' + userDialCode;
           }
-          
+
           // Set the country code
           setCountryCode(userDialCode);
-          
+
           // If phone starts with dialCode, remove it
           if (userPhone.startsWith(userDialCode)) {
             setPhoneNumber(userPhone.slice(userDialCode.length).trim());
-          } else if (userPhone.startsWith('+') && userDialCode.startsWith('+')) {
+          } else if (
+            userPhone.startsWith('+') &&
+            userDialCode.startsWith('+')
+          ) {
             // Handle case where phone has + but doesn't match dialCode exactly
             const dialCodeWithoutPlus = userDialCode.substring(1);
             if (userPhone.substring(1).startsWith(dialCodeWithoutPlus)) {
-              setPhoneNumber(userPhone.substring(1 + dialCodeWithoutPlus.length).trim());
+              setPhoneNumber(
+                userPhone.substring(1 + dialCodeWithoutPlus.length).trim(),
+              );
             } else {
               setPhoneNumber(userPhone.replace(/^\+/, '').trim());
             }
@@ -156,14 +161,16 @@ const EnquiryFormScreen = () => {
             // Try to find a matching country code
             let foundCode = false;
             for (const country of formattedCountryCodes) {
-              if (userPhone.startsWith(country.code)) {
-                setCountryCode(country.code);
-                setPhoneNumber(userPhone.slice(country.code.length).trim());
+              if (userPhone.startsWith(country.countryCode)) {
+                setCountryCode(country.countryCode);
+                setPhoneNumber(
+                  userPhone.slice(country.countryCode.length).trim(),
+                );
                 foundCode = true;
                 break;
               }
             }
-            
+
             // If no country code found, keep the current one and use phone as is
             if (!foundCode) {
               // Remove the + if it exists and use the current country code
@@ -385,19 +392,27 @@ const EnquiryFormScreen = () => {
   // Render country code item
   const renderCountryCodeItem = ({item}) => (
     <TouchableOpacity
-      style={styles.countryCodeItem}
+      style={[
+        styles.countryCodeItem,
+        {borderBottomColor: themeColors[theme].border},
+      ]}
       onPress={() => {
-        setCountryCode(item.code);
+        setCountryCode(item.countryCode);
         setCountryPickerVisible(false);
       }}>
-      <Text style={styles.countryCodeItemText}>
-        {item.code} ({item.country})
+      <Text
+        style={[styles.countryCodeItemText, {color: themeColors[theme].text}]}>
+        {item.countryCode} ({item.country})
       </Text>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {backgroundColor: themeColors[theme].background},
+      ]}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingContainer}>
@@ -408,7 +423,11 @@ const EnquiryFormScreen = () => {
           {/* Header with back button */}
           <View style={styles.header}>
             <TouchableOpacity onPress={goBack} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color="#000" />
+              <Ionicons
+                name="arrow-back"
+                size={24}
+                color={themeColors[theme].text}
+              />
             </TouchableOpacity>
           </View>
 
@@ -418,24 +437,45 @@ const EnquiryFormScreen = () => {
           </View>
 
           {/* Form Title */}
-          <Text style={styles.formTitle}>GET IN TOUCH</Text>
+          <Text style={[styles.formTitle, {color: themeColors[theme].text}]}>
+            GET IN TOUCH
+          </Text>
 
           {/* Car Info */}
-          <View style={styles.carInfoContainer}>
+          <View
+            style={[
+              styles.carInfoContainer,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: themeColors[theme].card,
+              },
+            ]}>
             <View style={styles.carDetailsWrapper}>
               <View style={styles.carInfoLeft}>
                 <View style={styles.carTitleContainer}>
                   <Text
-                    style={styles.carTitle}
+                    style={[
+                      styles.carTitle,
+                      {color: themeColors[theme].secondary},
+                    ]}
                     numberOfLines={2}
                     ellipsizeMode="tail">
                     {carTitle}
                   </Text>
                 </View>
                 <View style={styles.priceWrapper}>
-                  <Text style={styles.priceLabel}>Price</Text>
                   <Text
-                    style={styles.priceValue}
+                    style={[
+                      styles.priceLabel,
+                      {color: isDark ? '#aaa' : '#757575'},
+                    ]}>
+                    Price
+                  </Text>
+                  <Text
+                    style={[
+                      styles.priceValue,
+                      {color: themeColors[theme].secondary},
+                    ]}
                     numberOfLines={1}
                     ellipsizeMode="tail">
                     {currency}{' '}
@@ -453,8 +493,20 @@ const EnquiryFormScreen = () => {
                     resizeMode="cover"
                   />
                 ) : (
-                  <View style={styles.placeholderImage}>
-                    <Ionicons name="car" size={40} color="#ccc" />
+                  <View
+                    style={[
+                      styles.placeholderImage,
+                      {
+                        backgroundColor: isDark
+                          ? '#1A1A1A'
+                          : themeColors[theme].card,
+                      },
+                    ]}>
+                    <Ionicons
+                      name="car"
+                      size={40}
+                      color={isDark ? '#666' : '#ccc'}
+                    />
                   </View>
                 )}
               </View>
@@ -468,10 +520,17 @@ const EnquiryFormScreen = () => {
               <TextInput
                 style={[
                   styles.baseInput,
+                  {
+                    backgroundColor: isDark
+                      ? '#1A1A1A'
+                      : themeColors[theme].background,
+                    borderColor: themeColors[theme].border,
+                    color: themeColors[theme].text,
+                  },
                   errors.name ? styles.inputError : null,
                 ]}
                 placeholder="Your Name"
-                placeholderTextColor="#777"
+                placeholderTextColor={isDark ? '#666' : '#777'}
                 value={name}
                 onChangeText={setName}
               />
@@ -485,19 +544,25 @@ const EnquiryFormScreen = () => {
               <View
                 style={[
                   styles.baseInput,
+                  {
+                    backgroundColor: isDark
+                      ? '#1A1A1A'
+                      : themeColors[theme].background,
+                    borderColor: themeColors[theme].border,
+                  },
                   errors.email ? styles.inputError : null,
                   styles.iconInputContainer,
                 ]}>
                 <Ionicons
                   name="mail"
                   size={20}
-                  color="#5E366D"
+                  color={themeColors[theme].secondary}
                   style={styles.inputIcon}
                 />
                 <TextInput
-                  style={styles.iconInput}
+                  style={[styles.iconInput, {color: themeColors[theme].text}]}
                   placeholder="Email"
-                  placeholderTextColor="#777"
+                  placeholderTextColor={isDark ? '#666' : '#777'}
                   keyboardType="email-address"
                   autoCapitalize="none"
                   value={email}
@@ -514,29 +579,50 @@ const EnquiryFormScreen = () => {
               <View
                 style={[
                   styles.baseInput,
+                  {
+                    backgroundColor: isDark
+                      ? '#1A1A1A'
+                      : themeColors[theme].background,
+                    borderColor: themeColors[theme].border,
+                  },
                   errors.phoneNumber ? styles.inputError : null,
                   styles.phoneContainer,
                 ]}>
                 <TouchableOpacity
-                  style={styles.countryCodeButton}
+                  style={[
+                    styles.countryCodeButton,
+                    {borderRightColor: themeColors[theme].border},
+                  ]}
                   onPress={() => setCountryPickerVisible(true)}>
                   <Ionicons
                     name="flag"
                     size={20}
-                    color="#5E366D"
+                    color={themeColors[theme].secondary}
                     style={styles.inputIcon}
                   />
-                  <Text style={styles.countryCodeText}>{countryCode}</Text>
-                  <Ionicons name="chevron-down" size={16} color="#777" />
+                  <Text
+                    style={[
+                      styles.countryCodeText,
+                      {color: themeColors[theme].text},
+                    ]}>
+                    {countryCode}
+                  </Text>
+                  <Ionicons
+                    name="chevron-down"
+                    size={16}
+                    color={isDark ? '#666' : '#777'}
+                  />
                 </TouchableOpacity>
                 <TextInput
-                  style={styles.phoneNumberInput}
+                  style={[
+                    styles.phoneNumberInput,
+                    {color: themeColors[theme].text},
+                  ]}
                   placeholder="Phone Number"
-                  placeholderTextColor="#777"
+                  placeholderTextColor={isDark ? '#666' : '#777'}
                   keyboardType="phone-pad"
                   value={phoneNumber}
                   onChangeText={text => {
-                    // Remove non-digit characters on input
                     const digitsOnly = text.replace(/\D/g, '');
                     setPhoneNumber(digitsOnly);
                   }}
@@ -556,16 +642,21 @@ const EnquiryFormScreen = () => {
                 <View
                   style={[
                     styles.checkbox,
+                    {borderColor: themeColors[theme].primary},
                     sameAsProfile && {
-                      backgroundColor: '#F47B20',
-                      borderColor: '#F47B20',
+                      backgroundColor: themeColors[theme].primary,
+                      borderColor: themeColors[theme].primary,
                     },
                   ]}>
                   {sameAsProfile && (
                     <Ionicons name="checkmark" size={16} color="#fff" />
                   )}
                 </View>
-                <Text style={styles.checkboxLabel}>
+                <Text
+                  style={[
+                    styles.checkboxLabel,
+                    {color: themeColors[theme].text},
+                  ]}>
                   Auto-fill same as profile
                 </Text>
               </TouchableOpacity>
@@ -582,36 +673,73 @@ const EnquiryFormScreen = () => {
                 activeOpacity={1}
                 onPress={() => setCountryPickerVisible(false)}>
                 <View
-                  style={styles.modalContent}
+                  style={[
+                    styles.modalContent,
+                    {
+                      backgroundColor: isDark
+                        ? '#1A1A1A'
+                        : themeColors[theme].background,
+                    },
+                  ]}
                   onStartShouldSetResponder={() => true}
                   onTouchEnd={e => e.stopPropagation()}>
-                  <View style={styles.modalHeader}>
-                    <Text style={styles.modalTitle}>Select Country Code</Text>
+                  <View
+                    style={[
+                      styles.modalHeader,
+                      {borderBottomColor: themeColors[theme].border},
+                    ]}>
+                    <Text
+                      style={[
+                        styles.modalTitle,
+                        {color: themeColors[theme].text},
+                      ]}>
+                      Select Country Code
+                    </Text>
                     <TouchableOpacity
                       onPress={() => setCountryPickerVisible(false)}
                       style={styles.closeButton}>
-                      <Ionicons name="close" size={24} color="#000" />
+                      <Ionicons
+                        name="close"
+                        size={24}
+                        color={themeColors[theme].text}
+                      />
                     </TouchableOpacity>
                   </View>
 
-                  <View style={styles.searchContainer}>
+                  <View
+                    style={[
+                      styles.searchContainer,
+                      {
+                        backgroundColor: isDark
+                          ? '#1A1A1A'
+                          : themeColors[theme].card,
+                        borderBottomColor: themeColors[theme].border,
+                      },
+                    ]}>
                     <Ionicons
                       name="search"
                       size={20}
-                      color="#777"
+                      color={isDark ? '#666' : '#777'}
                       style={styles.searchIcon}
                     />
                     <TextInput
-                      style={styles.searchInput}
+                      style={[
+                        styles.searchInput,
+                        {color: themeColors[theme].text},
+                      ]}
                       placeholder="Search country"
-                      placeholderTextColor="#777"
+                      placeholderTextColor={isDark ? '#666' : '#777'}
                       value={countrySearch}
                       onChangeText={setCountrySearch}
                       autoCapitalize="none"
                     />
                     {countrySearch ? (
                       <TouchableOpacity onPress={() => setCountrySearch('')}>
-                        <Ionicons name="close-circle" size={20} color="#777" />
+                        <Ionicons
+                          name="close-circle"
+                          size={20}
+                          color={isDark ? '#666' : '#777'}
+                        />
                       </TouchableOpacity>
                     ) : null}
                   </View>
@@ -619,7 +747,7 @@ const EnquiryFormScreen = () => {
                   <FlatList
                     data={filteredCountryCodes}
                     renderItem={renderCountryCodeItem}
-                    keyExtractor={item => `${item.code}-${item.countryCode}`}
+                    keyExtractor={item => `${item.country}-${item.countryCode}`}
                     style={styles.countryCodeList}
                     initialNumToRender={20}
                     maxToRenderPerBatch={20}
@@ -628,7 +756,11 @@ const EnquiryFormScreen = () => {
                     keyboardShouldPersistTaps="handled"
                     ListEmptyComponent={
                       <View style={styles.noResultsContainer}>
-                        <Text style={styles.noResultsText}>
+                        <Text
+                          style={[
+                            styles.noResultsText,
+                            {color: isDark ? '#666' : '#777'},
+                          ]}>
                           No countries found
                         </Text>
                       </View>
@@ -640,7 +772,10 @@ const EnquiryFormScreen = () => {
 
             {/* Submit Button */}
             <TouchableOpacity
-              style={styles.submitButton}
+              style={[
+                styles.submitButton,
+                {backgroundColor: themeColors[theme].primary},
+              ]}
               onPress={handleSubmit}
               disabled={submitting}>
               {submitting ? (
@@ -662,39 +797,49 @@ const EnquiryFormScreen = () => {
               activeOpacity={1}
               onPress={handleSuccessModalClose}>
               <View
-                style={styles.successModalContent}
+                style={[
+                  styles.successModalContent,
+                  {
+                    backgroundColor: isDark
+                      ? '#1A1A1A'
+                      : themeColors[theme].background,
+                  },
+                ]}
                 onStartShouldSetResponder={() => true}
                 onTouchEnd={e => e.stopPropagation()}>
-                {/* Close button */}
                 <TouchableOpacity
                   style={styles.successModalCloseButton}
                   onPress={handleSuccessModalClose}>
-                  <Ionicons name="close" size={24} color="#000" />
+                  <Ionicons
+                    name="close"
+                    size={24}
+                    color={themeColors[theme].text}
+                  />
                 </TouchableOpacity>
 
-                {/* Logo */}
-                {/* <View style={styles.successModalLogoContainer}>
-                  <View style={styles.logoContainer}>
-                    <Text style={styles.logoText}>Legend</Text>
-                    <View style={styles.logoBox} />
-                    <Text style={styles.motorsText}>Motors</Text>
-                  </View>
-                </View> */}
-
-                {/* Thank you message */}
-                <Text style={styles.successModalTitle}>
+                <Text
+                  style={[
+                    styles.successModalTitle,
+                    {color: themeColors[theme].secondary},
+                  ]}>
                   🎉 Thank you for your Inquiry!
                 </Text>
 
-                <Text style={styles.successModalMessage}>
+                <Text
+                  style={[
+                    styles.successModalMessage,
+                    {color: themeColors[theme].text},
+                  ]}>
                   We've received your request, and our team will get back to you
                   shortly. Stay tuned-We're on it!
                 </Text>
 
-                {/* Buttons */}
                 <View style={styles.successModalButtonsContainer}>
                   <TouchableOpacity
-                    style={styles.successModalButton}
+                    style={[
+                      styles.successModalButton,
+                      {backgroundColor: themeColors[theme].primary},
+                    ]}
                     onPress={navigateToEnquiries}>
                     <Text style={styles.successModalButtonText}>
                       View My Inquiries
@@ -705,9 +850,14 @@ const EnquiryFormScreen = () => {
                     style={[
                       styles.successModalButton,
                       styles.successModalSecondaryButton,
+                      {borderColor: themeColors[theme].primary},
                     ]}
                     onPress={handleSuccessModalClose}>
-                    <Text style={styles.successModalSecondaryButtonText}>
+                    <Text
+                      style={[
+                        styles.successModalSecondaryButtonText,
+                        {color: themeColors[theme].primary},
+                      ]}>
                       Continue Browsing
                     </Text>
                   </TouchableOpacity>
@@ -727,37 +877,49 @@ const EnquiryFormScreen = () => {
               activeOpacity={1}
               onPress={handleAlreadySubmittedModalClose}>
               <View
-                style={styles.successModalContent}
+                style={[
+                  styles.successModalContent,
+                  {
+                    backgroundColor: isDark
+                      ? '#1A1A1A'
+                      : themeColors[theme].background,
+                  },
+                ]}
                 onStartShouldSetResponder={() => true}
                 onTouchEnd={e => e.stopPropagation()}>
-                {/* Close button */}
                 <TouchableOpacity
                   style={styles.successModalCloseButton}
                   onPress={handleAlreadySubmittedModalClose}>
-                  <Ionicons name="close" size={24} color="#000" />
+                  <Ionicons
+                    name="close"
+                    size={24}
+                    color={themeColors[theme].text}
+                  />
                 </TouchableOpacity>
 
-                {/* Logo */}
-                <View style={styles.successModalLogoContainer}>
-                  <View style={styles.logoContainer}>
-                    <Text style={styles.logoText}>Legend</Text>
-                    <View style={styles.logoBox} />
-                    <Text style={styles.motorsText}>Motors</Text>
-                  </View>
-                </View>
+                <Text
+                  style={[
+                    styles.successModalTitle,
+                    {color: themeColors[theme].secondary},
+                  ]}>
+                  Already Inquired
+                </Text>
 
-                {/* Already submitted message */}
-                <Text style={styles.successModalTitle}>Already Inquired</Text>
-
-                <Text style={styles.successModalMessage}>
+                <Text
+                  style={[
+                    styles.successModalMessage,
+                    {color: themeColors[theme].text},
+                  ]}>
                   You have already submitted an inquiry for this car with this
                   email. Our team will contact you soon with more information.
                 </Text>
 
-                {/* Buttons */}
                 <View style={styles.successModalButtonsContainer}>
                   <TouchableOpacity
-                    style={styles.successModalButton}
+                    style={[
+                      styles.successModalButton,
+                      {backgroundColor: themeColors[theme].primary},
+                    ]}
                     onPress={navigateToEnquiries}>
                     <Text style={styles.successModalButtonText}>
                       View My Enquiries
@@ -768,9 +930,14 @@ const EnquiryFormScreen = () => {
                     style={[
                       styles.successModalButton,
                       styles.successModalSecondaryButton,
+                      {borderColor: themeColors[theme].primary},
                     ]}
                     onPress={handleAlreadySubmittedModalClose}>
-                    <Text style={styles.successModalSecondaryButtonText}>
+                    <Text
+                      style={[
+                        styles.successModalSecondaryButtonText,
+                        {color: themeColors[theme].primary},
+                      ]}>
                       Continue Browsing
                     </Text>
                   </TouchableOpacity>
