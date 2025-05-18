@@ -352,15 +352,21 @@ const ProfileScreen = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      await checkAuthStatus();
-      if (isAuthenticated) {
+      let isAuth = await checkAuthStatus();
+      if (isAuth) {
         setUserProfile(user);
       } else {
+        let token = await AsyncStorage.getItem('token');
         Alert.alert(
-          'Session Expired',
-          'Your session has expired. Please log in again.',
+          token ? 'Session Expired' : 'Please Login',
+          token
+            ? 'Your session has expired. Please log in again.'
+            : 'Please log in to continue.',
           [{text: 'OK', onPress: handleLogout}],
         );
+        if (!token) {
+          navigation.reset({index: 0, routes: [{name: 'Login'}]});
+        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);

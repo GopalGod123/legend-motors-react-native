@@ -132,9 +132,9 @@ const HomeScreen = () => {
     const checkLoginPromptStatus = async () => {
       try {
         // Check if the user is authenticated
-        await checkAuthStatus();
+        let isAuth = await checkAuthStatus();
 
-        if (isAuthenticated) {
+        if (isAuth) {
           // If user is logged in, don't show the prompt
           setShowLoginPrompt(false);
           setCheckedPromptStatus(true);

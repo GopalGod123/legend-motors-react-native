@@ -29,8 +29,8 @@ export const useLoginPrompt = () => {
   // Check if user is authenticated and show login prompt if not
   const {isAuthenticated, checkAuthStatus} = useAuth();
   const checkAuthAndShowPrompt = useCallback(async () => {
-    await checkAuthStatus();
-    if (!isAuthenticated) {
+    let isAuth = await checkAuthStatus();
+    if (!isAuth) {
       showLoginPrompt();
       return false;
     }

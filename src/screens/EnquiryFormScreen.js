@@ -293,7 +293,10 @@ const EnquiryFormScreen = () => {
 
       const response = await submitCarEnquiry(enquiryData);
 
-      sendEventCleverTap(CLEVERTAP_EVENTS.INQUIRE_CAR, {carId});
+      sendEventCleverTap(CLEVERTAP_EVENTS.INQUIRE_CAR, {
+        carId,
+        carTitle,
+      });
       if (response.success) {
         console.log(
           'Enquiry submitted successfully:',
@@ -377,10 +380,8 @@ const EnquiryFormScreen = () => {
     }
 
     const searchTerm = countrySearch.toLowerCase();
-    const filtered = formattedCountryCodes.filter(
-      country =>
-        country.country.toLowerCase().includes(searchTerm) ||
-        country.code.includes(searchTerm),
+    const filtered = formattedCountryCodes.filter(country =>
+      country.country.toLowerCase()?.includes(searchTerm),
     );
 
     setFilteredCountryCodes(filtered);

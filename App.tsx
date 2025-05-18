@@ -9,6 +9,7 @@ import {ThemeProvider} from './src/context/ThemeContext';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {CountryCodesProvider} from './src/context/CountryCodesContext';
 import useCleverTap from 'src/services/NotificationHandler';
+import CleverTap from 'clevertap-react-native';
 
 const App = () => {
   const {setUpNotification} = useCleverTap();
@@ -18,6 +19,12 @@ const App = () => {
       webClientId:
         '789807190580-mo23ir6p664eb69bug94iq12ciluesjl.apps.googleusercontent.com',
     });
+    return () => {
+      CleverTap.removeListener(CleverTap.CleverTapPushNotificationClicked);
+      CleverTap.removeListener(
+        CleverTap.CleverTapInAppNotificationButtonTapped,
+      );
+    };
   }, []);
   return (
     <GestureHandlerRootView style={{flex: 1}}>

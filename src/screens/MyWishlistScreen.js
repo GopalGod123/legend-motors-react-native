@@ -105,44 +105,46 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
               {additionalInfo}
             </Text>
           )}
-          <Text
-            style={[styles.priceText, {color: themeColors[theme].secondary}]}>
-            {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
-            {parseInt(price).toLocaleString()}
-          </Text>
+          <View style={styles.priceContainer}>
+            <Text
+              style={[styles.priceText, {color: themeColors[theme].secondary}]}>
+              {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
+              {parseInt(price).toLocaleString()}
+            </Text>
 
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={styles.heartButton}
-              onPress={toggleWishlist}
-              disabled={isRemoving}>
-              {isRemoving ? (
-                <ActivityIndicator
-                  size="small"
-                  color={themeColors[theme].primary}
-                />
-              ) : inWishlist ? (
-                <AntDesign
-                  name="heart"
-                  size={24}
-                  color={themeColors[theme].primary}
-                />
-              ) : (
-                <AntDesign
-                  name="hearto"
-                  size={24}
-                  color={themeColors[theme].primary}
-                />
-              )}
-            </TouchableOpacity>
+            <View style={styles.actionButtons}>
+              <TouchableOpacity
+                style={styles.heartButton}
+                onPress={toggleWishlist}
+                disabled={isRemoving}>
+                {isRemoving ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={themeColors[theme].primary}
+                  />
+                ) : inWishlist ? (
+                  <AntDesign
+                    name="heart"
+                    size={24}
+                    color={themeColors[theme].primary}
+                  />
+                ) : (
+                  <AntDesign
+                    name="hearto"
+                    size={24}
+                    color={themeColors[theme].primary}
+                  />
+                )}
+              </TouchableOpacity>
 
-            <TouchableOpacity style={styles.shareButton}>
-              <Ionicons
-                name="share-social-outline"
-                size={24}
-                color={themeColors[theme].text}
-              />
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.shareButton}>
+                <Ionicons
+                  name="share-social-outline"
+                  size={24}
+                  color={themeColors[theme].text}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </View>
@@ -368,6 +370,11 @@ const MyWishlistScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
   container: {
     flex: 1,
   },

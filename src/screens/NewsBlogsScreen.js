@@ -609,7 +609,7 @@ const styles = StyleSheet.create({
     height: 124,
   },
   cardImageSection: {
-    width: 157,
+    width: '35%',
     height: '100%',
     position: 'relative',
   },
@@ -696,6 +696,7 @@ const styles = StyleSheet.create({
   authorName: {
     fontSize: 12,
     color: '#666666',
+    width: '70%',
   },
   authorNameDark: {
     color: '#CCCCCC',

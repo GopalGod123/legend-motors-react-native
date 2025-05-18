@@ -134,30 +134,22 @@ const EnquiriesScreen = () => {
             {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
           ]}>
           <View style={styles.headerLogoContainer}>
-            <View style={styles.headerLogoContainer}>
-              <Image
-                source={isDark ? require('../assets/images/legend-motors-dark.png') : require('../assets/images/legend-motors-light.png')}
-                style={styles.logoImage}
-              />
-              <Text
-                style={[
-                  styles.headerTitle,
-                  {color: isDark ? '#FFFFFF' : '#212121'},
-                ]}>
-                My Inquiries
-              </Text>
-            </View>
-          </View>
-
-          {/* <TouchableOpacity
-            onPress={() => navigation.navigate('ExploreTab')}
-            style={styles.searchButton}>
-            <Ionicons
-              name="search"
-              size={24}
-              color={isDark ? '#FFFFFF' : '#000000'}
+            <Image
+              source={
+                isDark
+                  ? require('../assets/images/legend-motors-dark.png')
+                  : require('../assets/images/legend-motors-light.png')
+              }
+              style={styles.logoImage}
             />
-          </TouchableOpacity> */}
+            <Text
+              style={[
+                styles.headerTitle,
+                {color: isDark ? '#FFFFFF' : '#212121'},
+              ]}>
+              My Inquiries
+            </Text>
+          </View>
         </View>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
@@ -317,7 +309,11 @@ const EnquiriesScreen = () => {
           ]}>
           <View style={styles.headerLogoContainer}>
             <Image
-              source={isDark ? require('../assets/images/legend-motors-dark.png') : require('../assets/images/legend-motors-light.png')}
+              source={
+                isDark
+                  ? require('../assets/images/legend-motors-dark.png')
+                  : require('../assets/images/legend-motors-light.png')
+              }
               style={styles.logoImage}
             />
             <Text
@@ -388,18 +384,22 @@ const EnquiriesScreen = () => {
         {/* Add Legend Motors logo next to title */}
         <View style={styles.headerLogoContainer}>
           <Image
-            source={isDark ? require('../assets/images/legend-motors-dark.png') : require('../assets/images/legend-motors-light.png')}
+            source={
+              isDark
+                ? require('../assets/images/legend-motors-dark.png')
+                : require('../assets/images/legend-motors-light.png')
+            }
             style={styles.logoImage}
           />
           <Text
             style={[
               styles.headerTitle,
               {
-                fontFamily: 'Effra Medium',
-                fontWeight: '400',
-                fontSize: 24,
-                lineHeight: 24 * 1.2, // 120% of font size
-                letterSpacing: 0,
+                // fontFamily: 'Effra Medium',
+                // // fontWeight: '400',
+                // fontSize: 24,
+                // lineHeight: 24 * 1.2, // 120% of font size
+                // letterSpacing: 0,
                 color: isDark ? '#FFFFFF' : '#212121',
               },
             ]}>
@@ -447,7 +447,7 @@ const EnquiriesScreen = () => {
             <View
               style={[
                 styles.cardContainer,
-                {backgroundColor: isDark ? '#0D0D0D' : 'transparent'},
+                {backgroundColor: isDark ? '#0D0D0D' : '#fff'},
               ]}>
               <View
                 style={[
@@ -578,6 +578,11 @@ const styles = StyleSheet.create({
     padding: 15,
     paddingTop: 20,
     borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
   },
   carImageContainer: {
     width: 104,

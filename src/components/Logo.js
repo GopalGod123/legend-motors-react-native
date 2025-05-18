@@ -8,30 +8,17 @@ import {useTheme} from 'src/context/ThemeContext';
 
 const Logo = ({width = 200, height = 80}) => {
   const {isDark} = useTheme();
-  try {
-    return (
-      <Image
-        source={
-          isDark
-            ? require('../assets/images/legeng-motors-dark.png')
-            : require('../assets/images/legend-motors-light.png')
-        }
-        style={{width, height, resizeMode: 'contain'}}
-      />
-    );
-  } catch (error) {
-    console.error('Error loading logo image:', error);
-    // Fallback text if image fails to load
-    return (
-      <Image
-        source={{
-          uri: 'https://raw.githubusercontent.com/legend-motors/assets/main/logo.png',
-        }}
-        style={{width, height, resizeMode: 'contain'}}
-        defaultSource={require('../assets/images/LangaugeScreenLogo.png')}
-      />
-    );
-  }
+
+  return (
+    <Image
+      source={
+        isDark
+          ? require('../assets/images/legend-motors-dark.png')
+          : require('../assets/images/legend-motors-light.png')
+      }
+      style={{width, height, resizeMode: 'contain'}}
+    />
+  );
 };
 
 export default Logo;

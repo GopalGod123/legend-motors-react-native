@@ -580,7 +580,7 @@ const CarDetailScreen = () => {
   };
 
   const fetchCarDetails = async () => {
-    await checkAuthStatus();
+    let isAuth = await checkAuthStatus();
     if (!carId) {
       setError('No car ID provided');
       setLoading(false);
@@ -606,13 +606,15 @@ const CarDetailScreen = () => {
 
         try {
           response = await getCarByIdOrSlug(carId, lang);
-          if (isAuthenticated) {
+          if (isAuth) {
             sendEventCleverTap(CLEVERTAP_EVENTS.VIEW_CAR_DETAILS, {
               carId: carId,
+              carTitle: carTitle,
             });
           } else {
             sendEventCleverTap(CLEVERTAP_EVENTS.BROWSING_CAR_GUEST, {
               carId: carId,
+              carTitle: carTitle,
             });
           }
         } catch (fetchError) {
@@ -1800,10 +1802,16 @@ const CarDetailScreen = () => {
           ]}
           onPress={() => {
             if (isAuthenticated) {
-              sendEventCleverTap(CLEVERTAP_EVENTS.VIEW_CAR_INQUIRY, {carId});
+              sendEventCleverTap(CLEVERTAP_EVENTS.VIEW_CAR_INQUIRY, {
+                carId,
+                carTitle,
+              });
               handleInquire();
             } else {
-              sendEventCleverTap(CLEVERTAP_EVENTS.INQUIRE_GUEST, {carId});
+              sendEventCleverTap(CLEVERTAP_EVENTS.INQUIRE_GUEST, {
+                carId,
+                carTitle,
+              });
               checkAuthAndShowPrompt();
             }
           }}

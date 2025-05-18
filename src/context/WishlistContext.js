@@ -21,8 +21,8 @@ export const WishlistProvider = ({children}) => {
   // Fetch wishlist items when user logs in
   useEffect(() => {
     const checkAndFetchWishlist = async () => {
-      await checkAuthStatus();
-      if (isAuthenticated) {
+      let isAuth = await checkAuthStatus();
+      if (isAuth) {
         fetchWishlistItems();
       } else {
         setWishlistItems([]);

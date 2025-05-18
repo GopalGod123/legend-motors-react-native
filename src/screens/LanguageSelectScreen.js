@@ -69,7 +69,7 @@ const LanguageSelectScreen = () => {
 
       <View style={styles.logoContainer}>
         <Image
-          source={LogoImage}
+          source={require('../assets/images/legend-motors-light.png')}
           style={{width: 250, height: 100, resizeMode: 'contain'}}
         />
       </View>

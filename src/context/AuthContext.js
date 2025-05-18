@@ -66,6 +66,7 @@ export const AuthProvider = ({children}) => {
       } finally {
         setLoading(false);
         let aa = await checkAuthStatus();
+        setIsAuthenticated(aa);
         console.log('isAuthenticated', aa);
       }
     };
@@ -191,26 +192,26 @@ export const AuthProvider = ({children}) => {
   };
 
   // Update user data
-  const updateUser = async (userData) => {
+  const updateUser = async userData => {
     try {
       if (!userData) return;
-      
+
       // Get current user data
       const currentUserData = await AsyncStorage.getItem('userData');
       const parsedUserData = currentUserData ? JSON.parse(currentUserData) : {};
-      
+
       // Merge current data with new data
       const updatedUserData = {
         ...parsedUserData,
         ...userData,
       };
-      
+
       // Save to AsyncStorage
       await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
-      
+
       // Update state
       setUser(updatedUserData);
-      
+
       return true;
     } catch (error) {
       console.error('Update user error:', error);
@@ -275,33 +276,19 @@ export const AuthProvider = ({children}) => {
 
   // Context value
   const value = {
-    user,
-    loading,
-    error,
-    login,
-    logout,
     refreshToken: forceRefreshToken,
     isAuthenticated,
     checkAuthStatus,
+    user,
+    login,
+    logout,
+    loading,
+    error,
     ssoApi,
     updateUser,
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        login,
-        logout,
-        loading,
-        error,
-        isAuthenticated: checkAuthStatus,
-        ssoApi,
-        updateUser,
-      }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 // Custom hook to use the auth context

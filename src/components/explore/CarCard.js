@@ -126,6 +126,7 @@ const CarCard = memo(
       if (!isAuthorized) {
         sendEventCleverTap(CLEVERTAP_EVENTS.WISHLIST_GUEST, {
           carId: item.id,
+          carTitle: carTitle,
         });
         // If not authenticated, the login prompt will be shown by checkAuthAndShowPrompt
         return;
@@ -133,10 +134,12 @@ const CarCard = memo(
       if (isFavorite) {
         sendEventCleverTap(CLEVERTAP_EVENTS.REMOVE_FROM_WISHLIST, {
           carId: item.id,
+          carTitle: carTitle,
         });
       } else {
         sendEventCleverTap(CLEVERTAP_EVENTS.ADD_TO_WISHLIST, {
           carId: item.id,
+          carTitle: carTitle,
         });
       }
       // User is authenticated, proceed with toggling wishlist

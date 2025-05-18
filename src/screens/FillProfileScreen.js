@@ -24,6 +24,8 @@ import {useAuth} from 'src/context/AuthContext';
 import {useCountryCodes} from 'src/context/CountryCodesContext';
 import FlagIcon from 'src/components/common/FlagIcon';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
+import {Ionicons} from '../utils/icon';
+import {COLORS} from 'src/utils/constants';
 
 const FillProfileScreen = () => {
   const navigation = useNavigation();
@@ -586,7 +588,12 @@ const FillProfileScreen = () => {
               editable={false}
               placeholderTextColor={isDark ? '#666666' : undefined}
             />
-            <Text style={styles.inputIcon}>✉️</Text>
+            <Ionicons
+              name={'mail-outline'}
+              size={22}
+              style={styles.inputIcon}
+              color={COLORS.primary}
+            />
           </View>
 
           {renderPhoneInput()}
@@ -603,7 +610,12 @@ const FillProfileScreen = () => {
               editable={false}
               placeholderTextColor={isDark ? '#666666' : undefined}
             />
-            <Text style={styles.inputIcon}>📅</Text>
+            <Ionicons
+              name={'calendar-outline'}
+              size={22}
+              style={styles.inputIcon}
+              color={COLORS.primary}
+            />
           </TouchableOpacity>
 
           <View style={styles.inputContainer}>

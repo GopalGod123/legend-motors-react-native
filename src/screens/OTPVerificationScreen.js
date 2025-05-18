@@ -15,6 +15,8 @@ import Logo from '../components/Logo';
 import BackArrow from '../components/BackArrow';
 import {verifyOTP, requestOTP} from '../services/api';
 import {useTheme} from 'src/context/ThemeContext';
+import {COLORS} from 'src/utils/constants';
+import {Ionicons} from '../utils/icon';
 
 const OTPVerificationScreen = () => {
   const navigation = useNavigation();
@@ -122,7 +124,12 @@ const OTPVerificationScreen = () => {
 
       <View
         style={[styles.emailContainer, isDark && styles.emailContainerDark]}>
-        <Text style={styles.emailIcon}>✉️</Text>
+        <Ionicons
+          name="mail-outline"
+          size={18}
+          style={{marginRight: 5}}
+          color={COLORS.primary}
+        />
         <Text style={[styles.email, isDark && styles.textDark]}>{email}</Text>
       </View>
 
@@ -205,6 +212,7 @@ const styles = StyleSheet.create({
   emailIcon: {
     marginRight: 10,
     fontSize: 16,
+    color: COLORS.primary,
   },
   email: {
     fontSize: 16,

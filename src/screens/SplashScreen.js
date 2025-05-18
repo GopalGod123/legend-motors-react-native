@@ -6,16 +6,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
-  const {isAuthenticated, checkAuthStatus} = useAuth();
+  const {isAuthenticated} = useAuth();
 
   useEffect(() => {
-    const checkAuthAndNavigate = () => {
+    const checkAuthAndNavigate = async () => {
       // Check if user is authenticated
 
       // Navigate based on authentication status
-      setTimeout(async () => {
-        await checkAuthStatus();
-        const firstTimeUser = await AsyncStorage.getItem('firstTimeUser');
+      const firstTimeUser = await AsyncStorage.getItem('firstTimeUser');
+      setTimeout(() => {
         if (isAuthenticated) {
           // User is authenticated, go directly to main screen
           navigation.reset({
@@ -50,7 +49,7 @@ const SplashScreen = () => {
       <Image
         source={require('./logo_Animation.gif')}
         style={styles.logo}
-        resizeMode="strech" // Use the built-in Image resizeMode property
+        resizeMode="contain" // Use the built-in Image resizeMode property
       />
     </View>
   );
@@ -66,6 +65,7 @@ const styles = StyleSheet.create({
   logo: {
     width: Dimensions.get('window').width, // Adjust as needed
     height: Dimensions.get('window').height, // Adjust as needed
+    backgroundColor: '#E8E2D6',
   },
 });
 
