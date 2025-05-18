@@ -23,6 +23,7 @@ import {useTheme} from 'src/context/ThemeContext';
 import {useAuth} from 'src/context/AuthContext';
 import {useCountryCodes} from 'src/context/CountryCodesContext';
 import FlagIcon from 'src/components/common/FlagIcon';
+import useCleverTap from 'src/services/NotificationHandler';
 
 const FillProfileScreen = () => {
   const navigation = useNavigation();
@@ -316,6 +317,8 @@ const FillProfileScreen = () => {
     setFormData(prev => ({...prev, dateOfBirth: newDate}));
   };
 
+  const {sendEventCleverTap} = useCleverTap();
+
   const handleSubmit = async () => {
     if (!isFormValid()) return;
 
@@ -367,6 +370,7 @@ const FillProfileScreen = () => {
                   routes: [{name: 'Main'}],
                 });
               } else {
+                sendEventCleverTap(CLEVERTAP_EVENTS.WELCOME);
                 navigation.reset({
                   index: 0,
                   routes: [

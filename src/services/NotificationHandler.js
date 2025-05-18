@@ -1,14 +1,17 @@
-import {useEffect} from 'react';
 import {Platform, PermissionsAndroid} from 'react-native';
 import CleverTap from 'clevertap-react-native';
 import messaging from '@react-native-firebase/messaging';
-const CLEVERTAP_EVENTS = {
-  ADD_TO_WISHLIST: 'Add to Wishlist',
-  REMOVE_FROM_WISHLIST: 'Remove from Wishlist',
-  VIEW_PRODUCT: 'View Product',
-  INQUIRY_PRODUCT: 'Inquiry Product',
+export const CLEVERTAP_EVENTS = {
+  WELCOME: 'welcome',
+  WELCOME_BACK: 'welcome_back',
+  VIEW_CAR: 'view_car',
+  VIEW_CAR_DETAILS: 'view_car_details',
+  ADD_TO_WISHLIST: 'add_to_wishlist',
+  REMOVE_FROM_WISHLIST: 'remove_from_wishlist',
+  VIEW_CAR_ENQUIRY: 'view_car_enquiry',
+  INQUIRE_CAR: 'inquiry_car',
 };
-export default function useCleverTapDemo() {
+export default function useCleverTap() {
   const setUpNotification = () => {
     // Enable CleverTap debug logs
     CleverTap.setDebugLevel(3);
@@ -76,12 +79,12 @@ export default function useCleverTapDemo() {
     CleverTap.profileSet(userProfile);
   };
 
-  const sendEvent = (event, data = {}) => {
+  const sendEventCleverTap = (event, data = {}) => {
     CleverTap.recordEvent(event, data);
   };
   return {
     setUpNotification,
     setUserProfileCleverTap,
-    sendEvent,
+    sendEventCleverTap,
   };
 }

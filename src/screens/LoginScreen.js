@@ -27,6 +27,7 @@ import {
   onGoogleButtonPress,
 } from 'src/services/socialAuth';
 import {COLORS} from 'src/utils/constants';
+import useCleverTap from 'src/services/NotificationHandler';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -68,6 +69,7 @@ const LoginScreen = () => {
       const result = await login(email, password);
 
       if (result.success) {
+        sendEventCleverTap(CLEVERTAP_EVENTS.WELCOME_BACK);
         // Clear any previous navigation history and go to main screen
         navigation.reset({
           index: 0,
@@ -89,6 +91,7 @@ const LoginScreen = () => {
       );
     }
   };
+  const {sendEventCleverTap} = useCleverTap();
   const handleSsoLogin = async (idToken, isNewUser) => {
     try {
       const ssoResult = await ssoApi(idToken);
@@ -97,10 +100,12 @@ const LoginScreen = () => {
         setAppleLoading(false);
         setGoogleLoading(false);
         if (isNewUser) {
+          sendEventCleverTap(CLEVERTAP_EVENTS.WELCOME);
           navigation.replace('FillProfile', {
             sso: true,
           });
         } else {
+          sendEventCleverTap(CLEVERTAP_EVENTS.WELCOME_BACK);
           navigation.reset({
             index: 0,
             routes: [{name: 'Main'}],

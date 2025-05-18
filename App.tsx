@@ -5,14 +5,15 @@ import {AuthProvider} from './src/context/AuthContext';
 import {WishlistProvider} from './src/context/WishlistContext';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {CurrencyLanguageProvider} from './src/context/CurrencyLanguageContext';
-import useCleverTapNotifications from 'src/services/NotificationHandler';
 import {ThemeProvider} from './src/context/ThemeContext';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {CountryCodesProvider} from './src/context/CountryCodesContext';
+import useCleverTap from 'src/services/NotificationHandler';
 
 const App = () => {
-  // useCleverTapNotifications();
+  const {setUpNotification} = useCleverTap();
   useEffect(() => {
+    setUpNotification();
     GoogleSignin.configure({
       webClientId:
         '789807190580-mo23ir6p664eb69bug94iq12ciluesjl.apps.googleusercontent.com',
