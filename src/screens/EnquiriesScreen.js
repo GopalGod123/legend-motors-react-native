@@ -595,15 +595,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 15,
     paddingTop: 20,
-    borderRadius: 32,
+    borderRadius: 24,
   },
   carImageContainer: {
     width: 104,
     height: 92,
-    borderRadius: 8,
+    borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: '#f5f5f5',
-    borderWidth: 1,
     borderColor: '#E0E0E0',
   },
   carImage: {
