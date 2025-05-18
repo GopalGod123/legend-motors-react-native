@@ -1608,7 +1608,7 @@ const CarDetailScreen = () => {
                       </Text>
                       <Icon
                         name={expandedAccordions[category] ? 'remove' : 'add'}
-                        size={24}
+                        size={30}
                         color={
                           expandedAccordions[category]
                             ? COLORS.primary
@@ -2158,8 +2158,9 @@ const styles = StyleSheet.create({
   accordionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginRight:30,
     alignItems: 'center',
-    paddingVertical: 2,
+    paddingVertical: 10,
     marginLeft: 20,
     borderBottomWidth: 0,
     backgroundColor: 'transparent',
@@ -2168,14 +2169,14 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   accordionTitle: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.xl,
     fontWeight: '500',
     textTransform: 'capitalize',
   },
   accordionContent: {
-    paddingVertical: 2,
+    paddingVertical: 10,
     paddingHorizontal: 20,
-    fontSize: FONT_SIZES.md,
+    fontSize: FONT_SIZES.lg,
     backgroundColor: 'transparent',
     borderBottomWidth: 1,
   },
