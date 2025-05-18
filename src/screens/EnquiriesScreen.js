@@ -136,8 +136,8 @@ const EnquiriesScreen = () => {
           <View style={styles.headerLogoContainer}>
             <View style={styles.headerLogoContainer}>
               <Image
-                source={require('../assets/images/logo.png')}
-                style={[styles.logoImage, {width: 60, height: 60}]}
+                source={isDark ? require('../assets/images/legend-motors-dark.png') : require('../assets/images/legend-motors-light.png')}
+                style={styles.logoImage}
               />
               <Text
                 style={[
@@ -317,7 +317,7 @@ const EnquiriesScreen = () => {
           ]}>
           <View style={styles.headerLogoContainer}>
             <Image
-              source={require('../assets/images/logo.png')}
+              source={isDark ? require('../assets/images/legend-motors-dark.png') : require('../assets/images/legend-motors-light.png')}
               style={styles.logoImage}
             />
             <Text
@@ -388,7 +388,7 @@ const EnquiriesScreen = () => {
         {/* Add Legend Motors logo next to title */}
         <View style={styles.headerLogoContainer}>
           <Image
-            source={require('../assets/images/logo.png')}
+            source={isDark ? require('../assets/images/legend-motors-dark.png') : require('../assets/images/legend-motors-light.png')}
             style={styles.logoImage}
           />
           <Text
@@ -534,7 +534,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 2,
-    paddingVertical: 24,
     borderBottomWidth: 1,
     borderBottomColor: '#EEEEEE',
   },
@@ -748,11 +747,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     color: '#212121',
-    marginLeft: 16,
+    marginLeft: 100,
   },
   logoImage: {
-    width: 60,
-    height: 60,
+    width: 120,
+    height: 120,
     resizeMode: 'contain',
   },
 });
