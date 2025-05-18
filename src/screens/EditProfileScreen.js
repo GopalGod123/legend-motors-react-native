@@ -756,6 +756,69 @@ const EditProfileScreen = () => {
     );
   };
 
+  // Render the dropdown options for gender
+  const renderGenderDropdown = () => {
+    if (openDropdown !== 'gender') return null;
+
+    return (
+      <View
+        style={[styles.dropdownOverlay, {backgroundColor: 'rgba(0,0,0,0.5)'}]}>
+        <View
+          style={[
+            styles.dropdownPopup,
+            {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+          ]}>
+          <Text
+            style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
+            Select Gender
+          </Text>
+
+          <FlatList
+            data={genderOptions}
+            keyExtractor={option => option}
+            style={styles.countryList}
+            showsVerticalScrollIndicator={true}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={[
+                  styles.countryItem,
+                  formData.gender === item && {
+                    backgroundColor: '#F47B20',
+               
+                  },
+                ]}
+                onPress={() => {
+                  handleDropdownSelect('gender', item);
+                }}>
+                <Text
+                  style={[
+                    styles.countryText,
+                    {
+                      color:
+                        formData.gender === item
+                          ? '#FFFFFF'
+                          : themeColors[theme].text,
+                      textAlign: 'center',
+                      alignSelf: 'center',
+                      width: '100%',
+                    },
+                  ]}>
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            )}
+          />
+
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setOpenDropdown(null)}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
   if (loading) {
     return (
       <SafeAreaView
@@ -994,14 +1057,12 @@ const EditProfileScreen = () => {
                 {
                   borderColor: themeColors[theme].border,
                   backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
-                  borderBottomLeftRadius: openDropdown === 'gender' ? 0 : 10,
-                  borderBottomRightRadius: openDropdown === 'gender' ? 0 : 10,
                 },
               ]}
               onPress={() => toggleDropdown('gender')}>
               <Text
                 style={[
-                  styles.inputGender,
+                  styles.input,
                   {
                     color: formData.gender
                       ? themeColors[theme].text
@@ -1016,45 +1077,6 @@ const EditProfileScreen = () => {
                 <DropdownIcon />
               </View>
             </TouchableOpacity>
-
-            {openDropdown === 'gender' && (
-              <View
-                style={[
-                  styles.dropdownContainer,
-                  {
-                    backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF',
-                    borderColor: themeColors[theme].border,
-                  },
-                ]}>
-                {genderOptions.map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    style={[
-                      styles.dropdownItem,
-                      {
-                        backgroundColor:
-                          formData.gender === option
-                            ? '#F47B20'
-                            : 'transparent',
-                      },
-                    ]}
-                    onPress={() => handleDropdownSelect('gender', option)}>
-                    <Text
-                      style={[
-                        styles.dropdownItemText,
-                        {
-                          color:
-                            formData.gender === option
-                              ? '#FFFFFF'
-                              : themeColors[theme].text,
-                        },
-                      ]}>
-                      {option}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
           </View>
 
           {/* Update Button */}
@@ -1081,6 +1103,7 @@ const EditProfileScreen = () => {
       {/* Render dropdowns outside of ScrollView */}
       {renderCountryCodeDropdown()}
       {renderLocationDropdown()}
+      {renderGenderDropdown()}
     </SafeAreaView>
   );
 };
@@ -1129,12 +1152,15 @@ const styles = StyleSheet.create({
     height: 55,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   input: {
     flex: 1,
     paddingHorizontal: 16,
     fontSize: 16,
     height: '100%',
+    textAlignVertical: 'center',
+    includeFontPadding: false,
   },
   inputGender: {
     flex: 1,
@@ -1144,7 +1170,7 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   dropdownInput: {
-    paddingVertical: 16,
+    paddingVertical: 5,
   },
   phoneInput: {
     paddingLeft: 8,
@@ -1169,7 +1195,7 @@ const styles = StyleSheet.create({
     height: 55,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 70,
+    marginTop: 25,
   },
   disabledButton: {
     backgroundColor: '#F8C4A6',
@@ -1186,23 +1212,23 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     overflow: 'hidden',
-    marginTop: -1, // Overlap with input container
+    marginTop: -1,
     position: 'absolute',
-    top: 55, // Position below the input
+    top: 55,
     left: 0,
     right: 0,
     zIndex: 1000,
   },
   dropdownItem: {
-    padding: 12,
+    padding: 2,
     borderBottomWidth: 0.5,
     borderBottomColor: '#DDDDDD',
-    justifyContent: 'center', // Center content vertically
-    height: 45, // Fixed height for consistent alignment
+    justifyContent: 'center',
+    height: 45,
   },
   dropdownItemText: {
     fontSize: 14,
-    textAlign: 'center', // Center text horizontally
+    textAlign: 'center',
   },
   phoneInputContainer: {
     marginBottom: 16,

@@ -125,12 +125,11 @@ const ChevronDownIcon = () => (
 // Headphones Icon for Customer Service
 const HeadphonesIcon = () => (
   <Svg
-  width={24}
-  height={24}
-  viewBox="0 0 24 24"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
-  >
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
     <Path
       d="M5.5 19C7.989 19 9 17.989 9 15.5V14C9 11.511 7.989 10.5 5.5 10.5C3.011 10.5 2 11.511 2 14V15.5C2 17.989 3.011 19 5.5 19Z"
       stroke="#ED8721"
@@ -139,27 +138,26 @@ const HeadphonesIcon = () => (
       strokeLinejoin="round"
     />
     <Path
-        d="M22 17.002a6.001 6.001 0 01-4.713 5.86l-.638-1.914A4.004 4.004 0 0019.465 19H17a2 2 0 01-2-2v-4a2 2 0 012-2h2.938a8 8 0 00-15.876 0H7a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-5C2 6.477 6.477 2 12 2s10 4.477 10 10v5.002z"
-        fill="#ED8721"
-      />
+      d="M22 17.002a6.001 6.001 0 01-4.713 5.86l-.638-1.914A4.004 4.004 0 0019.465 19H17a2 2 0 01-2-2v-4a2 2 0 012-2h2.938a8 8 0 00-15.876 0H7a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-5C2 6.477 6.477 2 12 2s10 4.477 10 10v5.002z"
+      fill="#ED8721"
+    />
   </Svg>
 );
 
 // Whatsapp Icon
 const WhatsAppIcon = () => (
   <Svg
-  width={24}
-  height={24}
-  viewBox="0 0 24 24"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
->
-<Path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M18.403 5.633A8.918 8.918 0 0012.053 3c-4.948 0-8.976 4.027-8.978 8.977 0 1.582.413 3.126 1.198 4.488L3 21.116l4.759-1.249a8.98 8.98 0 004.29 1.093h.004c4.947 0 8.975-4.027 8.977-8.977a8.926 8.926 0 00-2.627-6.35zm-6.35 13.812h-.003a7.445 7.445 0 01-3.798-1.041l-.272-.162-2.824.741.753-2.753-.177-.282a7.448 7.448 0 01-1.141-3.971c.002-4.114 3.349-7.461 7.465-7.461a7.413 7.413 0 015.275 2.188 7.42 7.42 0 012.183 5.279c-.002 4.114-3.349 7.462-7.461 7.462zm4.093-5.589c-.225-.113-1.327-.655-1.533-.73-.205-.075-.354-.112-.504.112-.15.224-.58.729-.711.879-.131.15-.262.168-.486.056-.224-.112-.947-.349-1.804-1.113-.667-.595-1.117-1.329-1.248-1.554-.131-.225-.014-.346.099-.458.101-.1.224-.262.336-.393.112-.131.149-.224.224-.374.075-.15.038-.281-.019-.393-.056-.113-.505-1.217-.692-1.666-.181-.435-.366-.377-.504-.383a9.649 9.649 0 00-.429-.008.826.826 0 00-.599.28c-.206.225-.785.767-.785 1.871s.804 2.171.916 2.321c.112.15 1.582 2.415 3.832 3.387.536.231.954.369 1.279.473.537.171 1.026.146 1.413.089.431-.064 1.327-.542 1.514-1.066.187-.524.187-.973.131-1.067-.056-.094-.207-.151-.43-.263z"
-        fill="#ED8721"
-      />
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <Path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M18.403 5.633A8.918 8.918 0 0012.053 3c-4.948 0-8.976 4.027-8.978 8.977 0 1.582.413 3.126 1.198 4.488L3 21.116l4.759-1.249a8.98 8.98 0 004.29 1.093h.004c4.947 0 8.975-4.027 8.977-8.977a8.926 8.926 0 00-2.627-6.35zm-6.35 13.812h-.003a7.445 7.445 0 01-3.798-1.041l-.272-.162-2.824.741.753-2.753-.177-.282a7.448 7.448 0 01-1.141-3.971c.002-4.114 3.349-7.461 7.465-7.461a7.413 7.413 0 015.275 2.188 7.42 7.42 0 012.183 5.279c-.002 4.114-3.349 7.462-7.461 7.462zm4.093-5.589c-.225-.113-1.327-.655-1.533-.73-.205-.075-.354-.112-.504.112-.15.224-.58.729-.711.879-.131.15-.262.168-.486.056-.224-.112-.947-.349-1.804-1.113-.667-.595-1.117-1.329-1.248-1.554-.131-.225-.014-.346.099-.458.101-.1.224-.262.336-.393.112-.131.149-.224.224-.374.075-.15.038-.281-.019-.393-.056-.113-.505-1.217-.692-1.666-.181-.435-.366-.377-.504-.383a9.649 9.649 0 00-.429-.008.826.826 0 00-.599.28c-.206.225-.785.767-.785 1.871s.804 2.171.916 2.321c.112.15 1.582 2.415 3.832 3.387.536.231.954.369 1.279.473.537.171 1.026.146 1.413.089.431-.064 1.327-.542 1.514-1.066.187-.524.187-.973.131-1.067-.056-.094-.207-.151-.43-.263z"
+      fill="#ED8721"
+    />
   </Svg>
 );
 
@@ -201,51 +199,49 @@ const WebsiteIcon = () => (
 // Facebook Icon
 const FacebookIcon = () => (
   <Svg
-  width={24}
-  height={24}
-  viewBox="0 0 24 24"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
-  >
-     <Path
-        d="M12.001 2.002c-5.522 0-10 4.477-10 9.999.001 4.99 3.657 9.126 8.438 9.879v-6.988h-2.54v-2.891h2.54V9.798c0-2.508 1.493-3.891 3.776-3.891 1.094 0 2.24.195 2.24.195V8.56h-1.264c-1.24 0-1.628.772-1.628 1.563v1.875h2.771l-.443 2.891h-2.328v6.988C18.344 21.129 22 16.992 22 12.001c0-5.522-4.477-10-9.999-10z"
-        fill="#ED8721"
-      />
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+    <Path
+      d="M12.001 2.002c-5.522 0-10 4.477-10 9.999.001 4.99 3.657 9.126 8.438 9.879v-6.988h-2.54v-2.891h2.54V9.798c0-2.508 1.493-3.891 3.776-3.891 1.094 0 2.24.195 2.24.195V8.56h-1.264c-1.24 0-1.628.772-1.628 1.563v1.875h2.771l-.443 2.891h-2.328v6.988C18.344 21.129 22 16.992 22 12.001c0-5.522-4.477-10-9.999-10z"
+      fill="#ED8721"
+    />
   </Svg>
 );
 
 // Twitter Icon
 const TwitterIcon = () => (
   <Svg
-      width={24}
-      height={24}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg">
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
     <Path
-        d="M19.633 7.997c.013.175.013.349.013.523 0 5.325-4.053 11.461-11.46 11.461-2.282 0-4.402-.661-6.186-1.809.324.037.636.05.973.05a8.07 8.07 0 005.001-1.721 4.036 4.036 0 01-3.767-2.793c.249.037.499.062.761.062.361 0 .724-.05 1.061-.137a4.026 4.026 0 01-3.23-3.953v-.05c.537.299 1.16.486 1.82.511a4.021 4.021 0 01-1.796-3.354c0-.748.199-1.434.548-2.032a11.457 11.457 0 008.306 4.215c-.062-.3-.1-.611-.1-.923a4.024 4.024 0 014.028-4.028c1.16 0 2.207.486 2.943 1.272a7.957 7.957 0 002.556-.973c-.3.93-.93 1.72-1.771 2.22a8.073 8.073 0 002.319-.624 8.646 8.646 0 01-2.019 2.083z"
-        fill="#ED8721"
-      />
+      d="M19.633 7.997c.013.175.013.349.013.523 0 5.325-4.053 11.461-11.46 11.461-2.282 0-4.402-.661-6.186-1.809.324.037.636.05.973.05a8.07 8.07 0 005.001-1.721 4.036 4.036 0 01-3.767-2.793c.249.037.499.062.761.062.361 0 .724-.05 1.061-.137a4.026 4.026 0 01-3.23-3.953v-.05c.537.299 1.16.486 1.82.511a4.021 4.021 0 01-1.796-3.354c0-.748.199-1.434.548-2.032a11.457 11.457 0 008.306 4.215c-.062-.3-.1-.611-.1-.923a4.024 4.024 0 014.028-4.028c1.16 0 2.207.486 2.943 1.272a7.957 7.957 0 002.556-.973c-.3.93-.93 1.72-1.771 2.22a8.073 8.073 0 002.319-.624 8.646 8.646 0 01-2.019 2.083z"
+      fill="#ED8721"
+    />
   </Svg>
 );
 
 // Instagram Icon
 const InstagramIcon = () => (
   <Svg
-  width={24}
-  height={24}
-  viewBox="0 0 24 24"
-  fill="none"
-  xmlns="http://www.w3.org/2000/svg"
-  >
+    width={24}
+    height={24}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
     <Path
-        d="M20.947 8.305a6.531 6.531 0 00-.419-2.216 4.61 4.61 0 00-2.633-2.633 6.606 6.606 0 00-2.186-.42c-.962-.043-1.267-.055-3.709-.055s-2.755 0-3.71.055a6.606 6.606 0 00-2.185.42 4.607 4.607 0 00-2.633 2.633 6.554 6.554 0 00-.419 2.185c-.043.963-.056 1.268-.056 3.71s0 2.754.056 3.71c.015.748.156 1.486.42 2.187a4.61 4.61 0 002.633 2.632 6.586 6.586 0 002.185.45c.963.043 1.268.056 3.71.056s2.755 0 3.71-.056a6.593 6.593 0 002.186-.419 4.616 4.616 0 002.633-2.633c.263-.7.404-1.438.42-2.187.042-.962.055-1.267.055-3.71-.002-2.442-.002-2.752-.058-3.709zm-8.953 8.297a4.622 4.622 0 01-4.623-4.623 4.622 4.622 0 114.623 4.623zm4.807-8.339a1.077 1.077 0 11-.002-2.154 1.077 1.077 0 01.002 2.154z"
-        fill="#ED8721"
-      />
-      <Path
-        d="M11.994 14.982a3.003 3.003 0 100-6.006 3.003 3.003 0 000 6.006z"
-        fill="#ED8721"
-      />
+      d="M20.947 8.305a6.531 6.531 0 00-.419-2.216 4.61 4.61 0 00-2.633-2.633 6.606 6.606 0 00-2.186-.42c-.962-.043-1.267-.055-3.709-.055s-2.755 0-3.71.055a6.606 6.606 0 00-2.185.42 4.607 4.607 0 00-2.633 2.633 6.554 6.554 0 00-.419 2.185c-.043.963-.056 1.268-.056 3.71s0 2.754.056 3.71c.015.748.156 1.486.42 2.187a4.61 4.61 0 002.633 2.632 6.586 6.586 0 002.185.45c.963.043 1.268.056 3.71.056s2.755 0 3.71-.056a6.593 6.593 0 002.186-.419 4.616 4.616 0 002.633-2.633c.263-.7.404-1.438.42-2.187.042-.962.055-1.267.055-3.71-.002-2.442-.002-2.752-.058-3.709zm-8.953 8.297a4.622 4.622 0 01-4.623-4.623 4.622 4.622 0 114.623 4.623zm4.807-8.339a1.077 1.077 0 11-.002-2.154 1.077 1.077 0 01.002 2.154z"
+      fill="#ED8721"
+    />
+    <Path
+      d="M11.994 14.982a3.003 3.003 0 100-6.006 3.003 3.003 0 000 6.006z"
+      fill="#ED8721"
+    />
   </Svg>
 );
 
@@ -323,179 +319,227 @@ const HelpCenterScreen = () => {
       id: '1-1',
       categoryId: 1,
       question: 'Who are we?',
-      answer: 'We are Legend Motors and have been providing Affordable & sustainable Mobility solutions since 2008 touching millions of lives around the World. Renowned for being a step ahead and making Today the future with our one of kind product assortment for over a decade now.',
-      plainTextAnswer: 'We are Legend Motors and have been providing Affordable & sustainable Mobility solutions since 2008 touching millions of lives around the World. Renowned for being a step ahead and making Today the future with our one of kind product assortment for over a decade now.'
+      answer:
+        'We are Legend Motors and have been providing Affordable & sustainable Mobility solutions since 2008 touching millions of lives around the World. Renowned for being a step ahead and making Today the future with our one of kind product assortment for over a decade now.',
+      plainTextAnswer:
+        'We are Legend Motors and have been providing Affordable & sustainable Mobility solutions since 2008 touching millions of lives around the World. Renowned for being a step ahead and making Today the future with our one of kind product assortment for over a decade now.',
     },
     {
       id: '1-2',
       categoryId: 1,
       question: 'What changes have been made in legend?',
-      answer: 'We have undergone a complete transformation and have embraced a new identity. We changed our previous logo and branding to a new one encapsulating Purple, a color of strength, intelligence, and strategic vision and Orange, a symbol of energy, ambition, and progress. The Legend logo is a bold representation of transformation, unity and boundless growth, brought to life through a carefully chosen color palette. We are the Old legend bringing new freshness to our customers without compromising our quality.',
-      plainTextAnswer: 'We have undergone a complete transformation and have embraced a new identity. We changed our previous logo and branding to a new one encapsulating Purple, a color of strength, intelligence, and strategic vision and Orange, a symbol of energy, ambition, and progress. The Legend logo is a bold representation of transformation, unity and boundless growth, brought to life through a carefully chosen color palette. We are the Old legend bringing new freshness to our customers without compromising our quality.'
+      answer:
+        'We have undergone a complete transformation and have embraced a new identity. We changed our previous logo and branding to a new one encapsulating Purple, a color of strength, intelligence, and strategic vision and Orange, a symbol of energy, ambition, and progress. The Legend logo is a bold representation of transformation, unity and boundless growth, brought to life through a carefully chosen color palette. We are the Old legend bringing new freshness to our customers without compromising our quality.',
+      plainTextAnswer:
+        'We have undergone a complete transformation and have embraced a new identity. We changed our previous logo and branding to a new one encapsulating Purple, a color of strength, intelligence, and strategic vision and Orange, a symbol of energy, ambition, and progress. The Legend logo is a bold representation of transformation, unity and boundless growth, brought to life through a carefully chosen color palette. We are the Old legend bringing new freshness to our customers without compromising our quality.',
     },
     {
       id: '1-3',
       categoryId: 1,
-      question: 'Who is Legend\'s official Ambassador?',
-      answer: 'Meet Lumo — The Guardian and Guide of Legend. Lumo is more than just an ambassador or a mascot — it\'s the guardian spirit and intelligent guide of Legend. Born from a vision to unite innovation, sustainability, and human connection, Lumo embodies the values that drive Legend forward in the world of mobility, energy, and technology.',
-      plainTextAnswer: 'Meet Lumo — The Guardian and Guide of Legend. Lumo is more than just an ambassador or a mascot — it\'s the guardian spirit and intelligent guide of Legend. Born from a vision to unite innovation, sustainability, and human connection, Lumo embodies the values that drive Legend forward in the world of mobility, energy, and technology.'
+      question: "Who is Legend's official Ambassador?",
+      answer:
+        "Meet Lumo — The Guardian and Guide of Legend. Lumo is more than just an ambassador or a mascot — it's the guardian spirit and intelligent guide of Legend. Born from a vision to unite innovation, sustainability, and human connection, Lumo embodies the values that drive Legend forward in the world of mobility, energy, and technology.",
+      plainTextAnswer:
+        "Meet Lumo — The Guardian and Guide of Legend. Lumo is more than just an ambassador or a mascot — it's the guardian spirit and intelligent guide of Legend. Born from a vision to unite innovation, sustainability, and human connection, Lumo embodies the values that drive Legend forward in the world of mobility, energy, and technology.",
     },
-    
+
     // About the website
     {
       id: '2-1',
       categoryId: 2,
       question: 'What is Legend website about?',
-      answer: 'Legend\'s website allows you to browse a wide range of cars available for sale. You can send inquiries to our sales team, who will assist you offline. You can select the cars of your choice from a wide range of vehicles. We have cars from top brands of the world and helps you buy the car seamlessly.',
-      plainTextAnswer: 'Legend\'s website allows you to browse a wide range of cars available for sale. You can send inquiries to our sales team, who will assist you offline. You can select the cars of your choice from a wide range of vehicles. We have cars from top brands of the world and helps you buy the car seamlessly.'
+      answer:
+        "Legend's website allows you to browse a wide range of cars available for sale. You can send inquiries to our sales team, who will assist you offline. You can select the cars of your choice from a wide range of vehicles. We have cars from top brands of the world and helps you buy the car seamlessly.",
+      plainTextAnswer:
+        "Legend's website allows you to browse a wide range of cars available for sale. You can send inquiries to our sales team, who will assist you offline. You can select the cars of your choice from a wide range of vehicles. We have cars from top brands of the world and helps you buy the car seamlessly.",
     },
     {
       id: '2-2',
       categoryId: 2,
       question: 'Do I need an account to browse cars?',
-      answer: 'No, you can browse cars without an account. However, creating an account allows you to view the best prices, save your favorite cars and track your inquiries.',
-      plainTextAnswer: 'No, you can browse cars without an account. However, creating an account allows you to view the best prices, save your favorite cars and track your inquiries.'
+      answer:
+        'No, you can browse cars without an account. However, creating an account allows you to view the best prices, save your favorite cars and track your inquiries.',
+      plainTextAnswer:
+        'No, you can browse cars without an account. However, creating an account allows you to view the best prices, save your favorite cars and track your inquiries.',
     },
     {
       id: '2-3',
       categoryId: 2,
       question: 'How do I send an inquiry about a car?',
-      answer: 'Simply click the "Inquire Now" button on the car\'s detail page, that will send the inquiry details and our sales team will contact you shortly. If you are a non-registered user, You might need to fill in the forms for us to connect with you.',
-      plainTextAnswer: 'Simply click the "Inquire Now" button on the car\'s detail page, that will send the inquiry details and our sales team will contact you shortly. If you are a non-registered user, You might need to fill in the forms for us to connect with you.'
+      answer:
+        'Simply click the "Inquire Now" button on the car\'s detail page, that will send the inquiry details and our sales team will contact you shortly. If you are a non-registered user, You might need to fill in the forms for us to connect with you.',
+      plainTextAnswer:
+        'Simply click the "Inquire Now" button on the car\'s detail page, that will send the inquiry details and our sales team will contact you shortly. If you are a non-registered user, You might need to fill in the forms for us to connect with you.',
     },
     {
       id: '2-4',
       categoryId: 2,
       question: 'Can I test drive a car listed on your website?',
-      answer: 'Once you send an inquiry, our sales team will arrange a test drive for you based on availability.',
-      plainTextAnswer: 'Once you send an inquiry, our sales team will arrange a test drive for you based on availability.'
+      answer:
+        'Once you send an inquiry, our sales team will arrange a test drive for you based on availability.',
+      plainTextAnswer:
+        'Once you send an inquiry, our sales team will arrange a test drive for you based on availability.',
     },
-    
+
     // Car Listings
     {
       id: '3-1',
       categoryId: 3,
       question: 'Are the car listings updated regularly?',
-      answer: 'Yes, Absolutely, we update our inventory frequently to ensure you see the latest cars available for sale with the best prices available in the market.',
-      plainTextAnswer: 'Yes, Absolutely, we update our inventory frequently to ensure you see the latest cars available for sale with the best prices available in the market.'
+      answer:
+        'Yes, Absolutely, we update our inventory frequently to ensure you see the latest cars available for sale with the best prices available in the market.',
+      plainTextAnswer:
+        'Yes, Absolutely, we update our inventory frequently to ensure you see the latest cars available for sale with the best prices available in the market.',
     },
     {
       id: '3-2',
       categoryId: 3,
       question: 'Can I filter cars by brand, model, or price range?',
-      answer: 'Totally! Use our advanced filters to narrow down your search based on brand, model, price range, and other features.',
-      plainTextAnswer: 'Totally! Use our advanced filters to narrow down your search based on brand, model, price range, and other features.'
+      answer:
+        'Totally! Use our advanced filters to narrow down your search based on brand, model, price range, and other features.',
+      plainTextAnswer:
+        'Totally! Use our advanced filters to narrow down your search based on brand, model, price range, and other features.',
     },
     {
       id: '3-3',
       categoryId: 3,
       question: 'Are all cars listed new, or do you also sell used cars?',
-      answer: 'Legend Global website helps you to buy brand new cars hitting the market.',
-      plainTextAnswer: 'Legend Global website helps you to buy brand new cars hitting the market.'
+      answer:
+        'Legend Global website helps you to buy brand new cars hitting the market.',
+      plainTextAnswer:
+        'Legend Global website helps you to buy brand new cars hitting the market.',
     },
-    
+
     // Car pricing
     {
       id: '4-1',
       categoryId: 4,
       question: 'Are the prices listed negotiable?',
-      answer: 'Prices are indicative and may be negotiable depending on the car and the offers we provide. The offers are subject to changes according to the business requirements and market status. Our sales team can provide more details when they contact you.',
-      plainTextAnswer: 'Prices are indicative and may be negotiable depending on the car and the offers we provide. The offers are subject to changes according to the business requirements and market status. Our sales team can provide more details when they contact you.'
+      answer:
+        'Prices are indicative and may be negotiable depending on the car and the offers we provide. The offers are subject to changes according to the business requirements and market status. Our sales team can provide more details when they contact you.',
+      plainTextAnswer:
+        'Prices are indicative and may be negotiable depending on the car and the offers we provide. The offers are subject to changes according to the business requirements and market status. Our sales team can provide more details when they contact you.',
     },
     {
       id: '4-2',
       categoryId: 4,
       question: 'Are taxes or registration fees included in the listed price?',
-      answer: 'No, the listed price is exclusive of taxes and registration fees. Our sales team will help you understand the total cost during discussions. Note: All Prices Mentioned in the App are Ex Works jebel Ali (Export Prices). Selected Models are available to be Registered in the UAE. (Import Duty/Customs/other Charges will be additional) Products are subject to availability. Getting offer for the car does not promise car availability until a Deposit is received.',
-      plainTextAnswer: 'No, the listed price is exclusive of taxes and registration fees. Our sales team will help you understand the total cost during discussions. Note: All Prices Mentioned in the App are Ex Works jebel Ali (Export Prices). Selected Models are available to be Registered in the UAE. (Import Duty/Customs/other Charges will be additional) Products are subject to availability. Getting offer for the car does not promise car availability until a Deposit is received.'
+      answer:
+        'No, the listed price is exclusive of taxes and registration fees. Our sales team will help you understand the total cost during discussions. Note: All Prices Mentioned in the App are Ex Works jebel Ali (Export Prices). Selected Models are available to be Registered in the UAE. (Import Duty/Customs/other Charges will be additional) Products are subject to availability. Getting offer for the car does not promise car availability until a Deposit is received.',
+      plainTextAnswer:
+        'No, the listed price is exclusive of taxes and registration fees. Our sales team will help you understand the total cost during discussions. Note: All Prices Mentioned in the App are Ex Works jebel Ali (Export Prices). Selected Models are available to be Registered in the UAE. (Import Duty/Customs/other Charges will be additional) Products are subject to availability. Getting offer for the car does not promise car availability until a Deposit is received.',
     },
     {
       id: '4-3',
       categoryId: 4,
       question: 'How does Legend Motors price the car listed on the platform?',
-      answer: 'The Prices are listed based on the Supply & Demand of the particular make and model. We try to keep ourselves updated to ensure we offer the most competitive rates possible.',
-      plainTextAnswer: 'The Prices are listed based on the Supply & Demand of the particular make and model. We try to keep ourselves updated to ensure we offer the most competitive rates possible.'
+      answer:
+        'The Prices are listed based on the Supply & Demand of the particular make and model. We try to keep ourselves updated to ensure we offer the most competitive rates possible.',
+      plainTextAnswer:
+        'The Prices are listed based on the Supply & Demand of the particular make and model. We try to keep ourselves updated to ensure we offer the most competitive rates possible.',
     },
-    
+
     // Inquiry Process
     {
       id: '5-1',
       categoryId: 5,
-      question: 'How long does it take for the sales team to respond to my inquiry?',
-      answer: 'Our sales team typically responds within 24 hours of receiving your inquiry.',
-      plainTextAnswer: 'Our sales team typically responds within 24 hours of receiving your inquiry.'
+      question:
+        'How long does it take for the sales team to respond to my inquiry?',
+      answer:
+        'Our sales team typically responds within 24 hours of receiving your inquiry.',
+      plainTextAnswer:
+        'Our sales team typically responds within 24 hours of receiving your inquiry.',
     },
     {
       id: '5-2',
       categoryId: 5,
       question: 'Can I inquire about multiple cars at once?',
-      answer: 'Yes, you can send inquiries for multiple cars by visiting their respective pages. We are at your service to help you find your dream car.',
-      plainTextAnswer: 'Yes, you can send inquiries for multiple cars by visiting their respective pages. We are at your service to help you find your dream car.'
+      answer:
+        'Yes, you can send inquiries for multiple cars by visiting their respective pages. We are at your service to help you find your dream car.',
+      plainTextAnswer:
+        'Yes, you can send inquiries for multiple cars by visiting their respective pages. We are at your service to help you find your dream car.',
     },
-    
+
     // Offline Sales Process
     {
       id: '6-1',
       categoryId: 6,
       question: 'What happens after I send an inquiry?',
-      answer: 'After receiving your inquiry, our sales team will contact you via phone or email to discuss further details about the car, pricing, and the next steps.',
-      plainTextAnswer: 'After receiving your inquiry, our sales team will contact you via phone or email to discuss further details about the car, pricing, and the next steps.'
+      answer:
+        'After receiving your inquiry, our sales team will contact you via phone or email to discuss further details about the car, pricing, and the next steps.',
+      plainTextAnswer:
+        'After receiving your inquiry, our sales team will contact you via phone or email to discuss further details about the car, pricing, and the next steps.',
     },
     {
       id: '6-2',
       categoryId: 6,
       question: 'Can I visit your showroom to see the car in person?',
-      answer: 'Yes! Once our sales team contacts you, they can arrange a visit to our showroom or to be nearest to you. It is highly advised to contact our team before you arrive if you have any specific inquiry.',
-      plainTextAnswer: 'Yes! Once our sales team contacts you, they can arrange a visit to our showroom or to be nearest to you. It is highly advised to contact our team before you arrive if you have any specific inquiry.'
+      answer:
+        'Yes! Once our sales team contacts you, they can arrange a visit to our showroom or to be nearest to you. It is highly advised to contact our team before you arrive if you have any specific inquiry.',
+      plainTextAnswer:
+        'Yes! Once our sales team contacts you, they can arrange a visit to our showroom or to be nearest to you. It is highly advised to contact our team before you arrive if you have any specific inquiry.',
     },
     {
       id: '6-3',
       categoryId: 6,
       question: 'Where are your cars located?',
-      answer: 'Most of the cars in our catalog are located in Jebel Ali, Dubai and few cars in branches. Once you purchase any car online, You can arrange to pickup from our Location in Dubai. For B2B customers, some of our vehicles are also available in other countries, where we conduct our rigorous vehicle inspection process. We also Offer to ship it to the port closest to you or deliver it right to your doorstep.',
-      plainTextAnswer: 'Most of the cars in our catalog are located in Jebel Ali, Dubai and few cars in branches. Once you purchase any car online, You can arrange to pickup from our Location in Dubai. For B2B customers, some of our vehicles are also available in other countries, where we conduct our rigorous vehicle inspection process. We also Offer to ship it to the port closest to you or deliver it right to your doorstep.'
+      answer:
+        'Most of the cars in our catalog are located in Jebel Ali, Dubai and few cars in branches. Once you purchase any car online, You can arrange to pickup from our Location in Dubai. For B2B customers, some of our vehicles are also available in other countries, where we conduct our rigorous vehicle inspection process. We also Offer to ship it to the port closest to you or deliver it right to your doorstep.',
+      plainTextAnswer:
+        'Most of the cars in our catalog are located in Jebel Ali, Dubai and few cars in branches. Once you purchase any car online, You can arrange to pickup from our Location in Dubai. For B2B customers, some of our vehicles are also available in other countries, where we conduct our rigorous vehicle inspection process. We also Offer to ship it to the port closest to you or deliver it right to your doorstep.',
     },
-    
+
     // Images & Specifications
     {
       id: '7-1',
       categoryId: 7,
       question: 'Are there detailed images of each car?',
-      answer: 'Yes, every car listing includes high-quality images showcasing both interior and exterior views. Also, we provide you the option to view specific highlights and features of the car as well.',
-      plainTextAnswer: 'Yes, every car listing includes high-quality images showcasing both interior and exterior views. Also, we provide you the option to view specific highlights and features of the car as well.'
+      answer:
+        'Yes, every car listing includes high-quality images showcasing both interior and exterior views. Also, we provide you the option to view specific highlights and features of the car as well.',
+      plainTextAnswer:
+        'Yes, every car listing includes high-quality images showcasing both interior and exterior views. Also, we provide you the option to view specific highlights and features of the car as well.',
     },
     {
       id: '7-2',
       categoryId: 7,
       question: 'Where can I find technical specifications for each car?',
-      answer: 'Each car listing includes detailed technical specifications like engine type, mileage, features, and more.',
-      plainTextAnswer: 'Each car listing includes detailed technical specifications like engine type, mileage, features, and more.'
+      answer:
+        'Each car listing includes detailed technical specifications like engine type, mileage, features, and more.',
+      plainTextAnswer:
+        'Each car listing includes detailed technical specifications like engine type, mileage, features, and more.',
     },
-    
+
     // Account & Notifications
     {
       id: '8-1',
       categoryId: 8,
-      question: 'Will I receive updates on new listings if I register an account?',
-      answer: 'Yes! Registered users can opt-in for email or push notifications about new car listings and offers. We provide you with a lot of information in addition to helping you stay informed about the latest offers and prices.',
-      plainTextAnswer: 'Yes! Registered users can opt-in for email or push notifications about new car listings and offers. We provide you with a lot of information in addition to helping you stay informed about the latest offers and prices.'
+      question:
+        'Will I receive updates on new listings if I register an account?',
+      answer:
+        'Yes! Registered users can opt-in for email or push notifications about new car listings and offers. We provide you with a lot of information in addition to helping you stay informed about the latest offers and prices.',
+      plainTextAnswer:
+        'Yes! Registered users can opt-in for email or push notifications about new car listings and offers. We provide you with a lot of information in addition to helping you stay informed about the latest offers and prices.',
     },
     {
       id: '8-2',
       categoryId: 8,
       question: 'Can I save my favorite cars for later?',
-      answer: 'Yes! Create an account to save your favorite cars and access them anytime.',
-      plainTextAnswer: 'Yes! Create an account to save your favorite cars and access them anytime.'
+      answer:
+        'Yes! Create an account to save your favorite cars and access them anytime.',
+      plainTextAnswer:
+        'Yes! Create an account to save your favorite cars and access them anytime.',
     },
-    
+
     // Miscellaneous FAQs
     {
       id: '9-1',
       categoryId: 9,
       question: 'Do you offer financing options for purchasing cars?',
-      answer: 'Financing options are not available directly through our website but may be discussed with our sales team offline.',
-      plainTextAnswer: 'Financing options are not available directly through our website but may be discussed with our sales team offline.'
-    }
+      answer:
+        'Financing options are not available directly through our website but may be discussed with our sales team offline.',
+      plainTextAnswer:
+        'Financing options are not available directly through our website but may be discussed with our sales team offline.',
+    },
   ];
 
   const [faqCategories, setFaqCategories] = useState(staticCategories);
@@ -562,83 +606,81 @@ const HelpCenterScreen = () => {
   };
 
   // Handle opening external links
-  const handleOpenLink = async (url) => {
+  const handleOpenLink = async url => {
     if (!url) {
       Alert.alert('Error', 'Invalid link');
       return;
     }
-    
+
     try {
       // Check if the link can be opened
       const canOpen = await Linking.canOpenURL(url);
-      
+
       if (canOpen) {
         await Linking.openURL(url);
       } else {
         console.warn(`Cannot open URL: ${url}`);
-        
+
         // Custom handling based on URL type
         if (url.startsWith('tel:')) {
           Alert.alert(
             'Cannot Make Call',
-            'Your device doesn\'t support making calls or the phone app is not available.',
-            [{ text: 'OK' }]
+            "Your device doesn't support making calls or the phone app is not available.",
+            [{text: 'OK'}],
           );
         } else {
           Alert.alert(
             'Cannot Open Link',
             'Your device cannot open this type of link. Please try again later or contact customer service.',
-            [{ text: 'OK' }]
+            [{text: 'OK'}],
           );
         }
       }
     } catch (error) {
       console.error('Error opening URL:', error);
-      Alert.alert(
-        'Error',
-        'Could not open the link. Please try again later.',
-        [{ text: 'OK' }]
-      );
+      Alert.alert('Error', 'Could not open the link. Please try again later.', [
+        {text: 'OK'},
+      ]);
     }
   };
 
   // Define contact items for Contact Us tab with their respective URLs
   const contactItems = [
     {
-      id: '1', 
-      name: 'Customer Service', 
+      id: '1',
+      name: 'Customer Service',
       icon: <HeadphonesIcon />,
-      url: 'tel:+971 50 966 0888'
+      url: 'tel:+971 50 966 0888',
     },
     {
-      id: '2', 
-      name: 'WhatsApp', 
+      id: '2',
+      name: 'WhatsApp',
       icon: <WhatsAppIcon />,
-      url: 'https://api.whatsapp.com/send/?phone=971509660888&text&type=phone_number&app_absent=0'
+      url: 'https://api.whatsapp.com/send/?phone=971509660888&text&type=phone_number&app_absent=0',
     },
     {
-      id: '3', 
-      name: 'Website', 
+      id: '3',
+      name: 'Website',
       icon: <WebsiteIcon />,
-      url: 'https://legendmotorsglobal.com'
+      url: 'https://legendmotorsglobal.com',
     },
     {
-      id: '4', 
-      name: 'Facebook', 
+      id: '4',
+      name: 'Facebook',
       icon: <FacebookIcon />,
-      url: 'https://www.facebook.com/legendmotorsglobal'
+      url: 'https://www.facebook.com/legendmotorsglobal',
     },
     {
-      id: '5', 
-      name: 'Twitter', 
+      id: '5',
+      name: 'Twitter',
       icon: <TwitterIcon />,
-      url: 'https://twitter.com/legendmotorsdxb'
+      url: 'https://twitter.com/legendmotorsdxb',
     },
     {
-      id: '6', 
-      name: 'Instagram', 
+      id: '6',
+      name: 'Instagram',
       icon: <InstagramIcon />,
-      url: 'https://www.instagram.com/legendmotorsglobal/'
+      url: 'https://www.instagram.com/legendmotorsglobal/',
     },
     // {
     //   id: '7',
@@ -687,19 +729,25 @@ const HelpCenterScreen = () => {
                 styles.categoryButtonVertical,
                 category.active && styles.activeCategoryButtonVertical,
                 {
-                  backgroundColor: category.active 
-                    ? (isDark ? '#FF8C00' : '#F47B20') 
-                    : (isDark ? '#333333' : '#F5F5F5'),
-                }
+                  backgroundColor: category.active
+                    ? isDark
+                      ? '#FF8C00'
+                      : '#F47B20'
+                    : isDark
+                    ? '#333333'
+                    : '#F5F5F5',
+                },
               ]}
               onPress={() => handleCategoryPress(category.id)}>
               <Text
                 style={[
                   styles.categoryTextVertical,
                   {
-                    color: category.active 
-                      ? '#FFFFFF' 
-                      : (isDark ? '#FFFFFF' : '#333333'),
+                    color: category.active
+                      ? '#FFFFFF'
+                      : isDark
+                      ? '#FFFFFF'
+                      : '#333333',
                   },
                 ]}>
                 {category.name}
@@ -845,11 +893,6 @@ const HelpCenterScreen = () => {
         <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
           Help Center
         </Text>
-        <TouchableOpacity style={styles.infoButton}>
-          <View style={styles.infoIconContainer}>
-            <Text style={styles.infoIconDot}>...</Text>
-          </View>
-        </TouchableOpacity>
       </View>
 
       <View
@@ -923,7 +966,7 @@ const HelpCenterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding:24
+    padding: 24,
   },
   header: {
     flexDirection: 'row',
