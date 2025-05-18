@@ -1,10 +1,11 @@
-import React, {useState, memo} from 'react';
+import React, {useState, memo, useRef, useEffect} from 'react';
 import {
   View,
   StyleSheet,
   Image,
   Dimensions,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import {SPACING, BORDER_RADIUS} from '../../utils/constants';
 import {useTheme} from 'src/context/ThemeContext';
@@ -37,15 +38,29 @@ const PaginationDot = memo(({active, onPress, index, isDark}) => (
 const PromotionBanner = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const {isDark} = useTheme();
+  const scrollViewRef = useRef(null);
 
   const banners = [
     require('../../assets/images/banner1.jpg'),
     require('../../assets/images/banner2.jpg'),
   ];
 
-  // Simplified banner navigation
-  const showBanner = index => {
-    setCurrentIndex(index);
+  // Handle scroll end to update the current banner index
+  const handleScroll = event => {
+    const contentOffsetX = event.nativeEvent.contentOffset.x;
+    const currentIndex = Math.round(contentOffsetX / bannerWidth);
+    setCurrentIndex(currentIndex);
+  };
+
+  // Function to navigate to specific banner
+  const scrollToBanner = index => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({
+        x: index * bannerWidth,
+        animated: true,
+      });
+      setCurrentIndex(index);
+    }
   };
 
   return (
@@ -57,12 +72,25 @@ const PromotionBanner = () => {
           shadowOpacity: isDark ? 0.3 : 0.2,
         },
       ]}>
-      {/* Show only current banner image instead of ScrollView */}
-      <Image
-        source={banners[currentIndex]}
-        style={styles.bannerImage}
-        resizeMode="cover"
-      />
+      {/* ScrollView for horizontal sliding */}
+      <ScrollView
+        ref={scrollViewRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={handleScroll}
+        scrollEventThrottle={16}
+        decelerationRate="fast"
+        contentContainerStyle={styles.scrollViewContent}>
+        {banners.map((banner, index) => (
+          <Image
+            key={index}
+            source={banner}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+        ))}
+      </ScrollView>
 
       <View style={styles.paginationContainer}>
         {banners.map((_, index) => (
@@ -70,7 +98,7 @@ const PromotionBanner = () => {
             key={index}
             index={index}
             active={index === currentIndex}
-            onPress={showBanner}
+            onPress={scrollToBanner}
             isDark={isDark}
           />
         ))}
@@ -88,6 +116,9 @@ const styles = StyleSheet.create({
     elevation: 2,
     shadowOffset: {width: 0, height: 1},
     shadowRadius: 2,
+    height: 181,
+  },
+  scrollViewContent: {
     height: 181,
   },
   bannerImage: {

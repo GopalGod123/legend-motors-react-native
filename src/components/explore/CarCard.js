@@ -1,4 +1,4 @@
-import React, {memo} from 'react';
+import React, {memo, useRef} from 'react';
 import {
   Dimensions,
   Image,
@@ -21,7 +21,7 @@ import {useTheme, themeColors} from 'src/context/ThemeContext';
 import {Svg, Mask, G, Path, Rect} from 'react-native-svg';
 import {useLoginPrompt} from '../../hooks/useLoginPrompt';
 import LoginPromptModal from '../LoginPromptModal';
-const {width} = Dimensions.get('window');
+const {width: screenWidth} = Dimensions.get('window');
 
 const CarCard = memo(
   ({
@@ -37,6 +37,7 @@ const CarCard = memo(
     const navigation = useNavigation();
     const {theme, isDark} = useTheme();
     const {selectedCurrency} = useCurrencyLanguage();
+    const carouselRef = useRef(null);
     const {
       loginModalVisible,
       showLoginPrompt,
@@ -61,27 +62,37 @@ const CarCard = memo(
     const region = item?.region;
     const steeringType = item?.steeringType;
 
-    // Prepare images - only use first image initially for faster loading
-    let imageUrls = [];
-
+    // Prepare images for carousel
+    let carImages = [];
+    
+    // Process CarImages if available (from API)
     if (item.CarImages && item.CarImages.length > 0) {
-      // Get only the first image at first for faster loading
-      const firstImage = item.CarImages[0];
-      if (firstImage.FileSystem) {
-        const path =
-          firstImage.FileSystem.thumbnailPath ||
-          firstImage.FileSystem.compressedPath ||
-          firstImage.FileSystem.path;
-
-        if (path) {
-          imageUrls = [{uri: `https://cdn.legendmotorsglobal.com${path}`}];
+      carImages = item.CarImages.map(img => {
+        if (img.FileSystem) {
+          const path = 
+            img.FileSystem.thumbnailPath || 
+            img.FileSystem.compressedPath || 
+            img.FileSystem.path;
+          
+          if (path) {
+            return {uri: `https://cdn.legendmotorsglobal.com${path}`};
+          }
         }
-      }
+        // Fallback for images without proper path
+        return require('../../components/home/car_Image.png');
+      });
     }
-
-    // If no valid images from API, use the fallback
-    if (imageUrls.length === 0) {
-      imageUrls = [require('src/components/home/HotDealsCar.png')];
+    // If item has images array, use that
+    else if (item.images && item.images.length > 0) {
+      carImages = item.images;
+    }
+    // If item has single image
+    else if (item.image) {
+      carImages = [item.image];
+    }
+    // Fallback to default image if no images available
+    if (carImages.length === 0) {
+      carImages = [require('../../components/home/car_Image.png')];
     }
 
     // Construct the car title - pre-computed
@@ -92,18 +103,19 @@ const CarCard = memo(
             item.Trim?.name ? ` ${item.Trim.name}` : ''
           }`
         : item.title || 'Car Details');
-    const carImages = item.images || [item.image] || [
-        require('../../components/home/car_Image.png'),
-      ];
-    // Get pricce from API response
+        
+    // Get price from API response
     const price = item?.CarPrices?.find(
       crr => crr.currency === selectedCurrency,
     )?.price;
 
+    // Calculate card width based on provided width prop
+    const cardWidthValue = typeof width === 'string' && width.includes('%')
+      ? (parseFloat(width) / 100) * screenWidth
+      : typeof width === 'number' ? width : screenWidth;
+
     // Handle wishlist toggle with auth check
     const handleWishlistToggle = async e => {
-      // e.stopPropagation();
-
       // Check if user is authenticated
       const isAuthorized = await checkAuthAndShowPrompt();
       if (!isAuthorized) {
@@ -113,6 +125,12 @@ const CarCard = memo(
 
       // User is authenticated, proceed with toggling wishlist
       toggleFavorite(item.id);
+    };
+
+    // Handle image press
+    const handleImagePress = (index) => {
+      // Navigate to detail view or image gallery if needed
+      onPress(item);
     };
 
     return (
@@ -127,26 +145,15 @@ const CarCard = memo(
         ]}
         onPress={() => onPress(item)}
         activeOpacity={0.9}>
-        <View style={[styles.imageContainer, {width}]}>
-          {/* {typeof imageUrls[0] === 'object' && imageUrls[0].uri ? (
-            <CarImage
-              source={imageUrls[0]}
-              style={styles.carImage}
-              resizeMode="cover"
-              loadingIndicatorSource={require('src/components/home/HotDealsCar.png')}
-            />
-          ) : (
-            <Image
-              source={imageUrls[0]}
-              style={styles.carImage}
-              resizeMode="cover"
-            />
-          )} */}
+        <View style={[styles.imageContainer, {width: '100%'}]}>
           <CarImageCarousel
+            ref={carouselRef}
             images={tag ? [carImages[0]] : carImages}
-            style={[styles.carImage]}
+            style={styles.carouselContainer}
             height={180}
-            onImagePress={() => {}}
+            width={cardWidthValue}
+            onImagePress={handleImagePress}
+            showIndex={carImages.length > 1}
           />
           <View style={{position: 'absolute', top: 10, left: 10}}>{tag}</View>
         </View>
@@ -432,6 +439,12 @@ const styles = StyleSheet.create({
     borderTopEndRadius: 10,
     borderTopStartRadius: 10,
     overflow: 'hidden',
+  },
+  carouselContainer: {
+    width: '100%',
+    height: '100%',
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
   },
   carImage: {
     width: '100%',

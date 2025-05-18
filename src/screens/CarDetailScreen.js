@@ -139,8 +139,7 @@ const ThumbnailList = memo(({
   // Force scroll to the selected index when it changes
   useEffect(() => {
     if (listRef && listRef.current && selectedIndex >= 0) {
-      // Calculate the offset to center the selected thumbnail if possible
-      const offset = Math.max(0, selectedIndex * 94 - 94); 
+      const offset = Math.max(0, selectedIndex * 94 - 94); // 94 is item width + margins
       listRef.current.scrollToOffset({
         offset,
         animated: true
@@ -163,24 +162,33 @@ const ThumbnailList = memo(({
           // Update selected index
           onSelectImage(index);
           
-          // Do not pause auto-scrolling, just restart from the new index
+          // Temporarily pause auto-scrolling
+          setAutoScrolling(false);
+          
+          // Manually scroll the carousel
           if (carouselRef.current) {
-            carouselRef.current.scrollToIndex(index);
+            carouselRef.current.scrollToIndex({
+              index: index,
+              animated: true
+            });
           }
+          
+          // Resume auto-scrolling after 5 seconds (matching main handler)
+          clearTimeout(autoScrollTimerRef.current);
+          autoScrollTimerRef.current = setTimeout(() => {
+            setAutoScrolling(true);
+          }, 5000);
         }}
       >
         <ThumbImage
           source={item}
-          style={[
-            styles.thumbnailImage,
-            isSelected ? styles.thumbnailImageSelected : null
-          ]}
+          style={styles.thumbnailImage}
           resizeMode="cover"
           selected={isSelected}
         />
       </TouchableOpacity>
     );
-  }, [selectedIndex, onSelectImage, carouselRef]);
+  }, [selectedIndex, onSelectImage, setAutoScrolling, carouselRef, autoScrollTimerRef]);
   
   // No need to render if no images
   if (!memoizedImages || memoizedImages.length <= 1) return null;
@@ -194,6 +202,7 @@ const ThumbnailList = memo(({
         showsHorizontalScrollIndicator={false}
         keyExtractor={(_, index) => `thumbnail-${index}`}
         contentContainerStyle={styles.thumbnailsContent}
+        onScrollBeginDrag={() => setAutoScrolling(false)}
         getItemLayout={(data, index) => ({
           length: 94,
           offset: 94 * index,
@@ -202,18 +211,10 @@ const ThumbnailList = memo(({
         initialNumToRender={5}
         maxToRenderPerBatch={3}
         windowSize={5}
-        removeClippedSubviews={Platform.OS === 'android'}
+        removeClippedSubviews={true}
         renderItem={renderThumbnailItem}
         onScrollToIndexFailed={(info) => {
-          console.warn('Failed to scroll to index', info.index);
-          setTimeout(() => {
-            if (listRef.current) {
-              listRef.current.scrollToOffset({
-                offset: info.index * 94,
-                animated: false
-              });
-            }
-          }, 100);
+          console.warn('Failed to scroll to index', info.index, info.highestMeasuredFrameIndex);
         }}
       />
     </View>
@@ -280,12 +281,6 @@ const CarDetailScreen = () => {
     checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
-  // Track swipe direction and distance to trigger tab change
-  const swipeStartX = useRef(0);
-  const isSwipingRef = useRef(false);
-  const lastAutoScrollTime = useRef(Date.now());
-  const scrollInterval = 3000; // 3 seconds between auto-scrolls
-
   // Function to toggle accordion state
   const toggleAccordion = (category) => {
     setExpandedAccordions((prev) => ({
@@ -346,74 +341,6 @@ const CarDetailScreen = () => {
     }
   }, [car]);
 
-  // Memoize carImages to ensure stable reference
-  const memoizedCarImages = useMemo(() => getAllImages(), [car, activeTab]);
-
-  // Add logging to track tab change requests
-  const switchToTab = (newTab) => {
-    // Only switch if the tab is actually different
-    if (newTab !== activeTab) {
-      console.log(`Tab change requested from ${activeTab} to ${newTab}`);
-      setActiveTab(newTab);
-    } else {
-      console.log(`Tab change ignored - already on ${activeTab} tab`);
-    }
-  };
-
-  // Helper function to handle tab switching with last image selection
-  const switchToTabWithLastImage = (targetTab) => {
-    // Only switch if the tab is actually different
-    if (targetTab === activeTab) {
-      console.log(`Tab switch to ${targetTab} ignored - already on this tab`);
-      return;
-    }
-    
-    console.log(`Switching to ${targetTab} tab and selecting last image`);
-    
-    // Get target images before switching
-    const targetImages = getImagesByType(targetTab);
-    const targetIndex = targetImages.length > 0 ? targetImages.length - 1 : 0;
-    
-    // First switch the tab
-    switchToTab(targetTab);
-    
-    // After tab switch, select the last image with a delay to ensure carousel is ready
-    setTimeout(() => {
-      console.log(`Setting ${targetTab} last image index: ${targetIndex}`);
-      setSelectedImageIndex(targetIndex);
-      
-      if (carouselRef.current) {
-        try {
-          carouselRef.current.scrollToIndex(targetIndex);
-        } catch (error) {
-          console.log(`Error scrolling to last image in ${targetTab} tab:`, error);
-          
-          // Retry once more with a longer delay
-          setTimeout(() => {
-            try {
-              if (carouselRef.current) {
-                carouselRef.current.scrollToIndex(targetIndex);
-                console.log(`Successfully scrolled to ${targetTab} image ${targetIndex} on retry`);
-              }
-            } catch (retryError) {
-              console.log('Final retry failed:', retryError);
-            }
-          }, 300);
-        }
-      }
-      
-      // Also update the thumbnail list position
-      if (thumbnailsListRef.current) {
-        try {
-          const offset = Math.max(0, targetIndex * 94 - 94);
-          thumbnailsListRef.current.scrollToOffset({ offset, animated: true });
-        } catch (error) {
-          console.log('Error scrolling thumbnail list:', error);
-        }
-      }
-    }, 250);
-  };
-
   // Fix the auto-scrolling implementation to ensure proper function definition and access
   useEffect(() => {
     // Update refs when the state changes
@@ -428,6 +355,10 @@ const CarDetailScreen = () => {
         cancelAnimationFrame(autoScrollRaf);
       }
       
+      // Use a variable outside the RAF function to track time
+      let lastScrollTime = Date.now();
+      const scrollInterval = 3500; // 3.5 seconds - slightly longer for better UX
+      
       // Define the performAutoScroll function first before using it
       const performAutoScroll = () => {
         // Check if we should still be auto-scrolling
@@ -436,7 +367,7 @@ const CarDetailScreen = () => {
         }
         
         const now = Date.now();
-        const elapsed = now - lastAutoScrollTime.current;
+        const elapsed = now - lastScrollTime;
         
         if (elapsed >= scrollInterval) {
           // Make sure we're within bounds
@@ -460,33 +391,32 @@ const CarDetailScreen = () => {
                   // Scroll main carousel if ref is available
                   if (carouselRef.current) {
                     try {
-                      carouselRef.current.scrollToIndex(nextIndex);
+                      // Use the proper parameter format for scrollToIndex
+                      carouselRef.current.scrollToIndex({
+                        index: nextIndex,
+                        animated: true
+                      });
                     } catch (error) {
                       console.log('Error scrolling carousel:', error);
                     }
                   }
                   
-                  // If we've reached the last image and are looping back to the first,
-                  // switch to the other tab after a delay
-                  if (nextIndex === 0 && currentIndex === maxIndex) {
-                    console.log('Auto-scroll reached the end of images in tab, switching tabs...');
-                    
-                    // Switch tabs based on current tab
-                    const currentTab = activeTabRef.current;
+                  // If we've reached the end, switch tabs with delay
+                  if (nextIndex === 0) {
+                    // Use timeout to avoid state updates in the same tick
                     setTimeout(() => {
+                      const currentTab = activeTabRef.current;
                       if (currentTab === 'exterior') {
-                        console.log('Auto-switching to interior tab');
-                        switchToTab('interior');
+                        setActiveTab('interior');
                       } else if (currentTab === 'interior') {
-                        console.log('Auto-switching to exterior tab');
-                        switchToTab('exterior');
+                        setActiveTab('exterior');
                       }
-                    }, 700);
+                    }, 100);
                   }
                 }
               }, 0);
               
-              lastAutoScrollTime.current = now;
+              lastScrollTime = now;
             }
           }
         }
@@ -516,7 +446,7 @@ const CarDetailScreen = () => {
         cancelAnimationFrame(autoScrollRaf);
       }
     };
-  }, [autoScrolling, memoizedCarImages]);
+  }, [autoScrolling, memoizedCarImages, carouselRef]);
 
   // Add an effect to handle tab changes
   useEffect(() => {
@@ -528,131 +458,46 @@ const CarDetailScreen = () => {
     // Wait for next render cycle before scrolling the carousel to index 0
     setTimeout(() => {
       if (carouselRef.current) {
-        try {
-          carouselRef.current.scrollToIndex(0);
-          console.log(`Scrolled ${activeTab} carousel to index 0`);
-        } catch (error) {
-          console.log('Error scrolling carousel during tab change:', error);
-        }
+        carouselRef.current.scrollToIndex({
+          index: 0,
+          animated: true
+        });
       }
       
       // Reset both thumbnail lists scroll position
       if (thumbnailsListRef.current) {
-        try {
-          thumbnailsListRef.current.scrollToOffset({ offset: 0, animated: true });
-          console.log(`Reset ${activeTab} thumbnail list position`);
-        } catch (error) {
-          console.log('Error scrolling thumbnail list:', error);
-        }
+        thumbnailsListRef.current.scrollToOffset({ offset: 0, animated: true });
       }
       
       if (bottomThumbnailsListRef.current) {
-        try {
-          bottomThumbnailsListRef.current.scrollToOffset({ offset: 0, animated: true });
-        } catch (error) {
-          console.log('Error scrolling bottom thumbnail list:', error);
-        }
+        bottomThumbnailsListRef.current.scrollToOffset({ offset: 0, animated: true });
       }
-      
-      console.log(`Tab transition complete. Current tab: ${activeTab}`);
-      
-      // Get current tab images count for debugging
-      const currentTabImages = getImagesByType(activeTab);
-      console.log(`${activeTab} tab has ${currentTabImages.length} images`);
-    }, 200); // Increased delay for more reliable transition
+    }, 50);
     
-    // Ensure auto-scrolling is active when switching tabs and reset timer
+    // Ensure auto-scrolling is active when switching tabs
     setAutoScrolling(true);
-    lastAutoScrollTime.current = Date.now();
   }, [activeTab]);
 
-  // Add a debug log for the autoScrolling state changes
-  useEffect(() => {
-    console.log(`Auto-scrolling state changed to: ${autoScrolling}`);
-  }, [autoScrolling]);
-  
-  // Add a debug log for the selectedImageIndex changes
-  useEffect(() => {
-    console.log(`Selected image index changed to: ${selectedImageIndex} of ${memoizedCarImages?.length || 0} images`);
-    // If we're at the last image, log a reminder that we should transition soon
-    if (memoizedCarImages && selectedImageIndex === memoizedCarImages.length - 1) {
-      console.log('At last image of tab, next will switch tabs');
-    }
-  }, [selectedImageIndex, memoizedCarImages]);
-
-  // Update the handleImagePress function to restart auto-scroll from selected index
+  // Update the handleImagePress function
   const handleImagePress = (index) => {
     // If an index is provided, update the selected index
     if (typeof index === 'number') {
       setSelectedImageIndex(index);
     }
     
-    // Don't pause auto-scrolling, just reset the timer
-    lastAutoScrollTime.current = Date.now();
-  };
-
-  // Add this function to handle touch start for swipe detection
-  const handleTouchStart = (e) => {
-    swipeStartX.current = e.nativeEvent.pageX;
-    isSwipingRef.current = true;
-  };
-
-  // Add this function to handle touch end for swipe detection
-  const handleTouchEnd = (e) => {
-    if (!isSwipingRef.current) return;
+    // Pause auto-scrolling temporarily
+    setAutoScrolling(false);
     
-    const swipeEndX = e.nativeEvent.pageX;
-    const swipeDistance = swipeEndX - swipeStartX.current;
-    const swipeThreshold = width * 0.2; // 20% of screen width
-    
-    // Only handle significant horizontal swipes
-    if (Math.abs(swipeDistance) > swipeThreshold) {
-      // Swipe right to left (next)
-      if (swipeDistance < 0) {
-        // If at the last image of exterior tab, switch to interior tab
-        if (selectedImageIndex === memoizedCarImages.length - 1) {
-          if (activeTab === 'exterior') {
-            console.log('Swipe detected at last exterior image, switching to interior tab');
-            switchToTab('interior');
-          } else if (activeTab === 'interior') {
-            console.log('Swipe detected at last interior image, switching to exterior tab');
-            switchToTab('exterior');
-          }
-        } else {
-          // Otherwise go to next image
-          const nextIndex = (selectedImageIndex + 1) % memoizedCarImages.length;
-          setSelectedImageIndex(nextIndex);
-          if (carouselRef.current) {
-            carouselRef.current.scrollToIndex(nextIndex);
-          }
-        }
-      } 
-      // Swipe left to right (previous)
-      else if (swipeDistance > 0) {
-        // If at the first image, switch tabs
-        if (selectedImageIndex === 0) {
-          console.log('Swipe detected at first image, switching tabs from', activeTab);
-          
-          if (activeTab === 'exterior') {
-            switchToTabWithLastImage('interior');
-          } else if (activeTab === 'interior') {
-            switchToTabWithLastImage('exterior');
-          }
-        } else {
-          // Otherwise go to previous image
-          const prevIndex = selectedImageIndex > 0 ? selectedImageIndex - 1 : 0;
-          setSelectedImageIndex(prevIndex);
-          if (carouselRef.current) {
-            carouselRef.current.scrollToIndex(prevIndex);
-          }
-        }
-      }
-      
-      // Reset timer after swipe
-      lastAutoScrollTime.current = Date.now();
+    // Clear any existing RAF to stop current auto-scrolling
+    if (autoScrollRaf) {
+      cancelAnimationFrame(autoScrollRaf);
     }
     
-    isSwipingRef.current = false;
+    // Resume auto-scrolling after a delay
+    clearTimeout(autoScrollTimerRef.current);
+    autoScrollTimerRef.current = setTimeout(() => {
+      setAutoScrolling(true);
+    }, 5000); // 5 seconds pause when user interacts
   };
 
   // In the cleanup function for the component
@@ -840,7 +685,7 @@ const CarDetailScreen = () => {
   };
 
   const toggleFavorite = async () => {
-    try {
+    try {thumbnailImageSelected
       if (!car) {
         console.log('Cannot toggle favorite: No car data available');
         return;
@@ -929,61 +774,41 @@ const CarDetailScreen = () => {
     return highlightImages;
   };
 
-  // Extract car details
-  const brandName = car.Brand?.name || '';
-  const carModel = car.CarModel?.name || '';
-  const year = car.Year?.year || '';
-  const title = `${year} ${brandName} ${carModel} ${car.Trim?.name || ''}`;
+  // Memoize carImages to ensure stable reference
+  const memoizedCarImages = useMemo(() => getAllImages(), [car, activeTab]);
 
-  // Get all features
-  const features = car.FeatureValues || [];
+  const renderSpecification = (label, value) => {
+    if (!value) return null;
 
-  // Get specifications
-  const specifications = car.SpecificationValues || [];
+    return (
+      <View style={styles.specItem} key={`spec-${label}`}>
+        <Text style={styles.specLabel}>{label}:</Text>
+        <Text style={styles.specValue}>{value}</Text>
+      </View>
+    );
+  };
 
-  // Group specifications by category
-  const groupedSpecs = specifications.reduce((acc, spec) => {
-    const category = spec.Specification?.name || 'Other';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(spec);
-    return acc;
-  }, {});
+  const renderFeatureItem = ({ item }) => (
+    <View
+      style={styles.featureItem}
+      key={`feature-${item.id || Math.random().toString()}`}
+    >
+      <Icon name="check-circle" size={20} color={COLORS.primary} />
+      <Text style={styles.featureText}>{item.name}</Text>
+    </View>
+  );
 
-  // Extract data for the CarCard style display
-  const additionalInfo = car.additionalInfo || '';
-  const bodyType =
-    car.SpecificationValues?.find((a) => a.Specification?.key === 'body_type')
-      ?.name || 'SUV';
-  const fuelType =
-    car.SpecificationValues?.find((a) => a.Specification?.key === 'fuel_type')
-      ?.name || 'Electric';
-  const transmission =
-    car.SpecificationValues?.find(
-      (a) => a.Specification?.key === 'transmission'
-    )?.name || 'Automatic';
-  const region =
-    car.SpecificationValues?.find(
-      (a) => a.Specification?.key === 'regional_specification'
-    )?.name || 'China';
-  const steeringType =
-    car.SpecificationValues?.find((a) => a.Specification?.key === 'steering')
-      ?.name || 'Left hand drive';
-
-  // Prepare car title
-  const carTitle =
-    additionalInfo ||
-    (year && brandName && carModel
-      ? `${year} ${brandName} ${carModel}${
-          car.Trim?.name ? ` ${car.Trim.name}` : ''
-        }`
-      : 'Car Details');
-
-  // Get price
-  const price = isAuthenticated ? 
-    (car?.CarPrices?.find((crr) => crr.currency === selectedCurrency)?.price || car.price) 
-    : null;
+  // Group features by category
+  const groupFeaturesByCategory = (features) => {
+    return features.reduce((acc, feature) => {
+      const category = feature.Feature?.key || 'other';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(feature);
+      return acc;
+    }, {});
+  };
 
   // Add logging effect to check brochure data when car data changes
   useEffect(() => {
@@ -1062,40 +887,7 @@ const CarDetailScreen = () => {
         ]
       );
     }
-  };
-  
-  const renderSpecification = (label, value) => {
-    if (!value) return null;
-
-    return (
-      <View style={styles.specItem} key={`spec-${label}`}>
-        <Text style={styles.specLabel}>{label}:</Text>
-        <Text style={styles.specValue}>{value}</Text>
-      </View>
-    );
-  };
-
-  const renderFeatureItem = ({ item }) => (
-    <View
-      style={styles.featureItem}
-      key={`feature-${item.id || Math.random().toString()}`}
-    >
-      <Icon name="check-circle" size={20} color={COLORS.primary} />
-      <Text style={styles.featureText}>{item.name}</Text>
-    </View>
-  );
-
-  // Group features by category
-  const groupFeaturesByCategory = (features) => {
-    return features.reduce((acc, feature) => {
-      const category = feature.Feature?.key || 'other';
-      if (!acc[category]) {
-        acc[category] = [];
-      }
-      acc[category].push(feature);
-      return acc;
-    }, {});
-  };
+  }; 
 
   if (loading) {
     return (
@@ -1155,6 +947,62 @@ const CarDetailScreen = () => {
       </SafeAreaView>
     );
   }
+
+  // Extract car details
+  const brandName = car.Brand?.name || '';
+  const carModel = car.CarModel?.name || '';
+  const year = car.Year?.year || '';
+  const title = `${year} ${brandName} ${carModel} ${car.Trim?.name || ''}`;
+
+  // Get all features
+  const features = car.FeatureValues || [];
+
+  // Get specifications
+  const specifications = car.SpecificationValues || [];
+
+  // Group specifications by category
+  const groupedSpecs = specifications.reduce((acc, spec) => {
+    const category = spec.Specification?.name || 'Other';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(spec);
+    return acc;
+  }, {});
+
+  // Extract data for the CarCard style display
+  const additionalInfo = car.additionalInfo || '';
+  const bodyType =
+    car.SpecificationValues?.find((a) => a.Specification?.key === 'body_type')
+      ?.name || 'SUV';
+  const fuelType =
+    car.SpecificationValues?.find((a) => a.Specification?.key === 'fuel_type')
+      ?.name || 'Electric';
+  const transmission =
+    car.SpecificationValues?.find(
+      (a) => a.Specification?.key === 'transmission'
+    )?.name || 'Automatic';
+  const region =
+    car.SpecificationValues?.find(
+      (a) => a.Specification?.key === 'regional_specification'
+    )?.name || 'China';
+  const steeringType =
+    car.SpecificationValues?.find((a) => a.Specification?.key === 'steering')
+      ?.name || 'Left hand drive';
+
+  // Prepare car title
+  const carTitle =
+    additionalInfo ||
+    (year && brandName && carModel
+      ? `${year} ${brandName} ${carModel}${
+          car.Trim?.name ? ` ${car.Trim.name}` : ''
+        }`
+      : 'Car Details');
+
+  // Get price
+  const price = isAuthenticated ? 
+    (car?.CarPrices?.find((crr) => crr.currency === selectedCurrency)?.price || car.price) 
+    : null;
 
   return (
     <SafeAreaView
@@ -1217,7 +1065,7 @@ const CarDetailScreen = () => {
                   styles.galleryTab,
                   activeTab === 'exterior' && styles.activeGalleryTab,
                 ]}
-                onPress={() => switchToTab('exterior')}
+                onPress={() => setActiveTab('exterior')}
               >
                 <Text
                   style={[
@@ -1234,7 +1082,7 @@ const CarDetailScreen = () => {
                   styles.galleryTab,
                   activeTab === 'interior' && styles.activeGalleryTab,
                 ]}
-                onPress={() => switchToTab('interior')}
+                onPress={() => setActiveTab('interior')}
               >
                 <Text
                   style={[
@@ -1251,11 +1099,7 @@ const CarDetailScreen = () => {
             {/* Update the UI component with ThumbnailList */}
             {memoizedCarImages && memoizedCarImages.length > 0 && (
               <>
-                <View 
-                  style={styles.imageCarouselContainer}
-                  onTouchStart={handleTouchStart}
-                  onTouchEnd={handleTouchEnd}
-                >
+                <View style={styles.imageCarouselContainer}>
                   <CarImageCarousel
                     ref={carouselRef}
                     images={memoizedCarImages}
@@ -1267,8 +1111,6 @@ const CarDetailScreen = () => {
                       if (index !== selectedImageIndex) {
                         // Only update if there's an actual change
                         setSelectedImageIndex(index);
-                        // Reset auto-scroll timer when index changes manually
-                        lastAutoScrollTime.current = Date.now();
                       }
                     }}
                     showIndex={true}
@@ -1766,7 +1608,7 @@ const CarDetailScreen = () => {
                       </Text>
                       <Icon
                         name={expandedAccordions[category] ? 'remove' : 'add'}
-                        size={24}
+                        size={30}
                         color={
                           expandedAccordions[category]
                             ? COLORS.primary
@@ -1923,6 +1765,14 @@ const CarDetailScreen = () => {
               { color: isDark ? '#000000' : '#FFFFFF' },
               isAlreadyInquired && styles.alreadyInquiredText
             ]}
+            onPress={() => navigation.navigate('EnquiryFormScreen', {
+              carId: id,
+              carTitle: title,
+              carImage: images[0],
+              carPrice: price,
+              currency: selectedCurrency,
+              onEnquirySubmit: handleEnquirySubmit
+            })}
           >
             {!isAuthenticated ? 'Login' : 
               isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
@@ -2101,7 +1951,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 0,
   },
   priceText: {
     fontSize: 22,
@@ -2308,8 +2158,9 @@ const styles = StyleSheet.create({
   accordionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginRight:30,
     alignItems: 'center',
-    paddingVertical: 2,
+    paddingVertical: 10,
     marginLeft: 20,
     borderBottomWidth: 0,
     backgroundColor: 'transparent',
@@ -2318,14 +2169,14 @@ const styles = StyleSheet.create({
     borderBottomColor: 'transparent',
   },
   accordionTitle: {
-    fontSize: FONT_SIZES.lg,
+    fontSize: FONT_SIZES.xl,
     fontWeight: '500',
     textTransform: 'capitalize',
   },
   accordionContent: {
-    paddingVertical: 2,
+    paddingVertical: 10,
     paddingHorizontal: 20,
-    fontSize: FONT_SIZES.md,
+    fontSize: FONT_SIZES.lg,
     backgroundColor: 'transparent',
     borderBottomWidth: 1,
   },
