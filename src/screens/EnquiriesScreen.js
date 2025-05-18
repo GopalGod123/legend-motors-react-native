@@ -23,24 +23,10 @@ import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
 import {Ionicons} from 'src/utils/icon';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useTheme} from '../context/ThemeContext';
-import Logo from 'src/components/Logo';
 
 const {width} = Dimensions.get('window');
 
 // Custom Logo component to replace the missing icon
-const LegendMotorsLogo = () => {
-  const {isDark} = useTheme();
-
-  return (
-    <View style={styles.logoContainer}>
-      <Text style={[styles.logoText, {color: isDark ? '#FFFFFF' : '#212121'}]}>
-        Legend
-      </Text>
-      <View style={styles.logoBox} />
-      <Text style={styles.motorsText}>Motors</Text>
-    </View>
-  );
-};
 
 const EnquiriesScreen = () => {
   const navigation = useNavigation();
@@ -151,8 +137,7 @@ const EnquiriesScreen = () => {
             <View style={styles.headerLogoContainer}>
               <Image
                 source={require('../assets/images/logo.png')}
-                style={[styles.logoImage, {width: 30, height: 30}]}
-                resizeMode="contain"
+                style={[styles.logoImage, {width: 60, height: 60}]}
               />
               <Text
                 style={[
@@ -333,8 +318,7 @@ const EnquiriesScreen = () => {
           <View style={styles.headerLogoContainer}>
             <Image
               source={require('../assets/images/logo.png')}
-              style={[styles.logoImage, {width: 30, height: 30}]}
-              resizeMode="contain"
+              style={styles.logoImage}
             />
             <Text
               style={[
@@ -405,8 +389,7 @@ const EnquiriesScreen = () => {
         <View style={styles.headerLogoContainer}>
           <Image
             source={require('../assets/images/logo.png')}
-            style={[styles.logoImage, {width: 30, height: 30}]}
-            resizeMode="contain"
+            style={styles.logoImage}
           />
           <Text
             style={[
@@ -569,7 +552,7 @@ const styles = StyleSheet.create({
     color: '#212121',
   },
   logoBox: {
-    width: 32,
+    width: 70,
     height: 32,
     backgroundColor: '#5E366D',
     marginHorizontal: 4,
@@ -766,6 +749,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#212121',
     marginLeft: 16,
+  },
+  logoImage: {
+    width: 60,
+    height: 60,
+    resizeMode: 'contain',
   },
 });
 
