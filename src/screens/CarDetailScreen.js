@@ -1951,7 +1951,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 0,
   },
   priceText: {
     fontSize: 22,

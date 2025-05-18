@@ -217,8 +217,9 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'center',
+    alignSelf: 'flex-end',
     marginBottom: 16,
+    marginRight: 16,
   },
   normalTitleText: {
     fontSize: 20,
