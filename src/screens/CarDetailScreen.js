@@ -662,7 +662,7 @@ const CarDetailScreen = () => {
 
     // Ensure we're passing a valid carId and image
     const carImageData =
-      carImages && carImages.length > 0 ? carImages[0] : null;
+      memoizedCarImages && memoizedCarImages.length > 0 ? memoizedCarImages[0] : null;
 
     navigation.navigate('EnquiryFormScreen', {
       carId: car.id, // Ensure this is a valid car ID
@@ -1714,7 +1714,10 @@ const CarDetailScreen = () => {
       >
         {!isAuthenticated ? (
           <TouchableOpacity
-            style={styles.loginToViewPriceButton}
+            style={[
+              styles.loginToViewPriceButton,
+              { backgroundColor: isDark ? '#F47B20' : '#FF8C00' } // Adjust button color based on theme
+            ]}
             onPress={checkAuthAndShowPrompt}
           >
             <Text style={styles.loginToViewPriceText}>
@@ -1739,8 +1742,11 @@ const CarDetailScreen = () => {
             >
               {price
                 ? `${selectedCurrency === 'USD' ? '$' : selectedCurrency} ${Math.floor(price).toLocaleString()}`
-                : <TouchableOpacity
-                    style={styles.loginToViewPriceButton}
+                :                   <TouchableOpacity
+                    style={[
+                      styles.loginToViewPriceButton,
+                      { backgroundColor: isDark ? '#F47B20' : '#FF8C00' } // Adjust button color based on theme
+                    ]}
                     onPress={checkAuthAndShowPrompt}
                   >
                     <Text style={styles.loginToViewPriceText}>
@@ -1754,6 +1760,7 @@ const CarDetailScreen = () => {
           style={[
             styles.actionButton, 
             styles.inquireButton,
+            { backgroundColor: isDark ? '#F47B20' : '#FF8C00' }, // Adjust button color based on theme
             isAlreadyInquired && styles.alreadyInquiredButton
           ]}
           onPress={!isAuthenticated ? checkAuthAndShowPrompt : handleInquire}
@@ -1762,17 +1769,9 @@ const CarDetailScreen = () => {
           <Text
             style={[
               styles.inquireButtonText,
-              { color: isDark ? '#000000' : '#FFFFFF' },
+              { color: '#FFFFFF' }, // Always use white text for better contrast on orange button
               isAlreadyInquired && styles.alreadyInquiredText
             ]}
-            onPress={() => navigation.navigate('EnquiryFormScreen', {
-              carId: id,
-              carTitle: title,
-              carImage: images[0],
-              carPrice: price,
-              currency: selectedCurrency,
-              onEnquirySubmit: handleEnquirySubmit
-            })}
           >
             {!isAuthenticated ? 'Login' : 
               isAlreadyInquired ? 'Already Inquired' : 'Inquire Now'}
@@ -2093,7 +2092,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   inquireButton: {
-    backgroundColor: '#FF8C00',
+    backgroundColor: '#FF8C00', // Default, will be overridden with inline style
     flex: 1,
     marginTop: 10,
     width: 250,
@@ -2232,8 +2231,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   loginToViewPriceButton: {
-    backgroundColor: '#FF8C00',
-    color: '#000000',
+    backgroundColor: '#FF8C00', // Default, will be overridden with inline style
     paddingVertical: SPACING.md,
     paddingHorizontal: SPACING.lg,
     borderRadius: BORDER_RADIUS.md,
@@ -2241,7 +2239,7 @@ const styles = StyleSheet.create({
     marginRight: SPACING.md,
   },
   loginToViewPriceText: {
-    color: '#000000',
+    color: '#FFFFFF', // White text for better contrast in both themes
     fontSize: FONT_SIZES.md,
     fontWeight: '600',
     textAlign: 'center',
