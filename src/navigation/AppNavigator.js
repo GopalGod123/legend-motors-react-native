@@ -29,6 +29,7 @@ import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import TermsAndConditionsScreen from '../screens/TermsAndConditionsScreen';
 import CookiePolicyScreen from '../screens/CookiePolicyScreen';
 import Notification from 'src/screens/Notification';
+import NotificationSettings from 'src/screens/NotificationSettings';
 
 // Test screen to help debug navigation
 const TestNavigationScreen = ({navigation}) => (
@@ -91,6 +92,10 @@ const AppNavigator = () => {
           component={BlogPostDetailScreen}
         />
         <Stack.Screen name="Notification" component={Notification} />
+        <Stack.Screen
+          name="NotificationSettings"
+          component={NotificationSettings}
+        />
         <Stack.Screen
           name="TestNavigation"
           component={TestNavigationScreen}

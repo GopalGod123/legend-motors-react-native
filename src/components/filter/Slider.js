@@ -14,7 +14,7 @@ const SLIDER_HEIGHT =
     ? Dimensions.get('window').height * 0.55
     : Dimensions.get('window').height * 0.4;
 const HANDLE_SIZE = 30;
-const DAMPING = 0.3; // Adjust this to make thumb slower (0.2 slower, 0.5 faster)
+const DAMPING = 0.06; // Reduced from 0.3 to make movement more controlled
 
 const VerticalRangeSlider = ({min = 0, max = 100, onChange}) => {
   const lowerThumbY = useSharedValue(SLIDER_HEIGHT - HANDLE_SIZE);
@@ -59,11 +59,11 @@ const VerticalRangeSlider = ({min = 0, max = 100, onChange}) => {
     .onEnd(() => {
       // Apply spring animation when gesture ends for smooth deceleration
       lowerThumbY.value = withSpring(lowerThumbY.value, {
-        damping: 20,
-        stiffness: 90,
-        mass: 1,
+        damping: 15,
+        stiffness: 50,
+        mass: 1.5,
         overshootClamping: true,
-        duration: 1000,
+        duration: 500,
       });
       updateRange();
     });
@@ -77,11 +77,11 @@ const VerticalRangeSlider = ({min = 0, max = 100, onChange}) => {
     .onEnd(() => {
       // Apply spring animation when gesture ends for smooth deceleration
       upperThumbY.value = withSpring(upperThumbY.value, {
-        damping: 20,
-        stiffness: 90,
-        mass: 1,
+        damping: 15,
+        stiffness: 50,
+        mass: 1.5,
         overshootClamping: true,
-        duration: 1000,
+        duration: 500,
       });
       updateRange();
     });

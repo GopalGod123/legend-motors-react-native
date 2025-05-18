@@ -139,17 +139,19 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           </View>
         ) : null}
 
-        <TouchableOpacity
-          style={styles.iconButton}
-          onPress={() => {
-            navigation.navigate('Notification');
-          }}>
-          <Ionicons
-            name="notifications"
-            size={24}
-            color={isDark ? '#9E86A8' : '#5E366D'}
-          />
-        </TouchableOpacity>
+        {user?.email ? (
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={() => {
+              navigation.navigate('Notification');
+            }}>
+            <Ionicons
+              name="notifications"
+              size={24}
+              color={isDark ? '#9E86A8' : '#5E366D'}
+            />
+          </TouchableOpacity>
+        ) : null}
 
         <TouchableOpacity style={styles.iconButton} onPress={onWishlistPress}>
           <Ionicons

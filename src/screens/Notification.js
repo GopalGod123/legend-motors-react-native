@@ -8,23 +8,49 @@ import {
   FlatList,
 } from 'react-native';
 import {Ionicons} from '../utils/icon';
+import {useNavigation} from '@react-navigation/native';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 const Notification = () => {
+  const navigation = useNavigation();
+  const {theme, isDark} = useTheme();
   const renderNotification = () => {
     return (
       <View>
-        <Text style={styles.sectionHeader}>Today</Text>
-        <View style={styles.notificationCard}>
-          <View style={styles.iconCircle}>
+        <Text style={[styles.sectionHeader, {color: themeColors[theme].text}]}>
+          Today
+        </Text>
+        <View
+          style={[
+            styles.notificationCard,
+            {backgroundColor: themeColors[theme].card},
+          ]}>
+          <View
+            style={[
+              styles.iconCircle,
+              {backgroundColor: themeColors[theme].primary},
+            ]}>
             <Ionicons name="notifications" size={24} color={'#FFFFFF'} />
           </View>
           <View style={styles.textContainer}>
-            <Text style={styles.title}>Your offer has been accepted!</Text>
-            <Text style={styles.message}>
+            <Text style={[styles.title, {color: themeColors[theme].text}]}>
+              Your offer has been accepted!
+            </Text>
+            <Text style={[styles.message, {color: isDark ? '#aaa' : '#666'}]}>
               Congrats! your offer has been accepted by the seller for $170,000
             </Text>
-            <TouchableOpacity style={styles.button}>
-              <Text style={styles.buttonText}>View Details</Text>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                {borderColor: themeColors[theme].primary},
+              ]}>
+              <Text
+                style={[
+                  styles.buttonText,
+                  {color: themeColors[theme].primary},
+                ]}>
+                View Details
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -32,8 +58,23 @@ const Notification = () => {
     );
   };
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Notification</Text>
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: themeColors[theme].background},
+      ]}>
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={themeColors[theme].text}
+          />
+        </TouchableOpacity>
+        <Text style={[styles.headerText, {color: themeColors[theme].text}]}>
+          Notification
+        </Text>
+      </View>
 
       <FlatList
         data={[1, 2, 3]}
@@ -48,13 +89,21 @@ const Notification = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
     padding: 16,
+    paddingTop: 40,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginLeft: 10,
   },
   sectionHeader: {
     fontSize: 18,
@@ -63,7 +112,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   notificationCard: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 8,
     padding: 16,
     marginBottom: 16,
@@ -74,7 +122,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#6A1B9A',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 16,
@@ -88,21 +135,18 @@ const styles = StyleSheet.create({
   },
   message: {
     fontSize: 14,
-    color: '#666',
     marginVertical: 4,
   },
   button: {
     marginTop: 8,
     paddingVertical: 8,
     paddingHorizontal: 16,
-    borderColor: '#FF9800',
     borderWidth: 1,
     borderRadius: 4,
     alignSelf: 'flex-start',
     borderRadius: 10,
   },
   buttonText: {
-    color: '#FF9800',
     fontWeight: 'bold',
   },
 });

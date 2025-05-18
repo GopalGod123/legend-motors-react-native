@@ -23,7 +23,7 @@ export const themeColors = {
     notification: '#FF3B30',
   },
   dark: {
-    background: '#000000',
+    background: '#2D2D2D',
     text: '#FFFFFF',
     primary: '#EF9439',
     secondary: '#6f4a8e',

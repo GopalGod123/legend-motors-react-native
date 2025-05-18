@@ -23,6 +23,7 @@ import {languages} from './LanguageSelectScreen';
 import {COLORS} from 'src/utils/constants';
 import {getAuth, signOut} from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {Ionicons} from '../utils/icon';
 // SVG icons as React components
 const UserIcon = () => {
   const {theme} = useTheme();
@@ -577,6 +578,27 @@ const ProfileScreen = () => {
                 <ChevronIcon />
               </TouchableOpacity>
 
+              <TouchableOpacity
+                style={[
+                  styles.menuItem,
+                  {borderBottomColor: themeColors[theme].border},
+                ]}
+                onPress={() => handleNavigate('NotificationSettings')}>
+                <View style={styles.menuIconContainer}>
+                  <Ionicons
+                    name="notifications-outline"
+                    size={24}
+                    color={themeColors[theme].text}
+                  />
+                </View>
+                <Text
+                  style={[styles.menuText, {color: themeColors[theme].text}]}>
+                  Notification
+                </Text>
+                <View style={styles.rightContainer}>
+                  <ChevronIcon />
+                </View>
+              </TouchableOpacity>
               <TouchableOpacity
                 style={[
                   styles.menuItem,
