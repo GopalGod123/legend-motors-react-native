@@ -13,6 +13,7 @@ import api, {
   refreshAuthToken,
   getUserProfile,
 } from '../services/api';
+import useCleverTap from 'src/services/NotificationHandler';
 
 // Create an authentication context
 const AuthContext = createContext();
@@ -24,6 +25,12 @@ export const AuthProvider = ({children}) => {
   const [error, setError] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const {setUserProfileCleverTap} = useCleverTap();
+  useEffect(() => {
+    if (user?.email) {
+      setUserProfileCleverTap(user);
+    }
+  }, [user?.email]);
   // Check for stored auth token on app load
   useEffect(() => {
     const bootstrapAsync = async () => {

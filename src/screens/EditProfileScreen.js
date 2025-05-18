@@ -22,6 +22,7 @@ import {useAuth} from '../context/AuthContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import {useCountryCodes} from '../context/CountryCodesContext';
 import BackArrow from '../components/BackArrow';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
 // Back Arrow Icon
 const BackIcon = () => {
@@ -344,6 +345,7 @@ const EditProfileScreen = () => {
     return true;
   };
 
+  const {sendEventCleverTap} = useCleverTap();
   const handleUpdate = async () => {
     if (!validateForm()) return;
 
@@ -404,7 +406,7 @@ const EditProfileScreen = () => {
         JSON.stringify(apiCompliantData),
       );
       const response = await updateUserProfile(apiCompliantData);
-
+      sendEventCleverTap(CLEVERTAP_EVENTS.PROFILE_UPDATE);
       if (response.success) {
         Alert.alert('Success', 'Profile updated successfully', [
           {text: 'OK', onPress: () => navigation.goBack()},

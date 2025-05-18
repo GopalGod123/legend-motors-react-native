@@ -606,9 +606,15 @@ const CarDetailScreen = () => {
 
         try {
           response = await getCarByIdOrSlug(carId, lang);
-          sendEventCleverTap(CLEVERTAP_EVENTS.VIEW_CAR_DETAILS, {
-            carId: carId,
-          });
+          if (isAuthenticated) {
+            sendEventCleverTap(CLEVERTAP_EVENTS.VIEW_CAR_DETAILS, {
+              carId: carId,
+            });
+          } else {
+            sendEventCleverTap(CLEVERTAP_EVENTS.BROWSING_CAR_GUEST, {
+              carId: carId,
+            });
+          }
         } catch (fetchError) {
           console.error(`Attempt ${attempts} failed:`, fetchError);
           // Continue to next attempt
@@ -1792,7 +1798,15 @@ const CarDetailScreen = () => {
             {backgroundColor: isDark ? '#F47B20' : '#FF8C00'}, // Adjust button color based on theme
             isAlreadyInquired && styles.alreadyInquiredButton,
           ]}
-          onPress={!isAuthenticated ? checkAuthAndShowPrompt : handleInquire}
+          onPress={() => {
+            if (isAuthenticated) {
+              sendEventCleverTap(CLEVERTAP_EVENTS.VIEW_CAR_INQUIRY, {carId});
+              handleInquire();
+            } else {
+              sendEventCleverTap(CLEVERTAP_EVENTS.INQUIRE_GUEST, {carId});
+              checkAuthAndShowPrompt();
+            }
+          }}
           disabled={isAlreadyInquired}>
           <Text
             style={[

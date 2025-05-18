@@ -26,6 +26,7 @@ import {useTheme, themeColors} from '../context/ThemeContext';
 import Logo from '../components/Logo';
 import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -264,6 +265,8 @@ const EnquiryFormScreen = () => {
     return isValid;
   };
 
+  const {sendEventCleverTap} = useCleverTap();
+
   // Handle form submission
   const handleSubmit = async () => {
     if (!validateForm()) {
@@ -290,6 +293,7 @@ const EnquiryFormScreen = () => {
 
       const response = await submitCarEnquiry(enquiryData);
 
+      sendEventCleverTap(CLEVERTAP_EVENTS.INQUIRE_CAR, {carId});
       if (response.success) {
         console.log(
           'Enquiry submitted successfully:',

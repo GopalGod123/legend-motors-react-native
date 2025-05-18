@@ -21,6 +21,7 @@ import {useTheme, themeColors} from 'src/context/ThemeContext';
 import {Svg, Mask, G, Path, Rect} from 'react-native-svg';
 import {useLoginPrompt} from '../../hooks/useLoginPrompt';
 import LoginPromptModal from '../LoginPromptModal';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 const {width: screenWidth} = Dimensions.get('window');
 
 const CarCard = memo(
@@ -117,15 +118,27 @@ const CarCard = memo(
         ? width
         : screenWidth;
 
+    const {sendEventCleverTap} = useCleverTap();
     // Handle wishlist toggle with auth check
     const handleWishlistToggle = async e => {
       // Check if user is authenticated
       const isAuthorized = await checkAuthAndShowPrompt();
       if (!isAuthorized) {
+        sendEventCleverTap(CLEVERTAP_EVENTS.WISHLIST_GUEST, {
+          carId: item.id,
+        });
         // If not authenticated, the login prompt will be shown by checkAuthAndShowPrompt
         return;
       }
-
+      if (isFavorite) {
+        sendEventCleverTap(CLEVERTAP_EVENTS.REMOVE_FROM_WISHLIST, {
+          carId: item.id,
+        });
+      } else {
+        sendEventCleverTap(CLEVERTAP_EVENTS.ADD_TO_WISHLIST, {
+          carId: item.id,
+        });
+      }
       // User is authenticated, proceed with toggling wishlist
       toggleFavorite(item.id);
     };

@@ -29,6 +29,7 @@ import Header from '../components/home/Header';
 import {FilterTabs} from '../components/explore';
 import {useTheme} from '../context/ThemeContext';
 import CleverTap from 'clevertap-react-native';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
 // Memoize components that don't need frequent re-renders
 const MemoizedHeader = memo(Header);
@@ -118,7 +119,14 @@ const HomeScreen = () => {
     }, 100);
     // }
   };
-
+  const {sendEventCleverTap} = useCleverTap();
+  useEffect(() => {
+    if (isAuthenticated) {
+      sendEventCleverTap(CLEVERTAP_EVENTS.DAILY_CHECK_IN);
+    } else {
+      sendEventCleverTap(CLEVERTAP_EVENTS.GUEST_LOGIN);
+    }
+  }, []);
   // Check login prompt status once
   useEffect(() => {
     const checkLoginPromptStatus = async () => {

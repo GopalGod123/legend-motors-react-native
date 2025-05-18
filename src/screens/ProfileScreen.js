@@ -25,6 +25,7 @@ import {getAuth, signOut} from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {Ionicons} from '../utils/icon';
 import {useWishlist} from 'src/context/WishlistContext';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 // SVG icons as React components
 const UserIcon = () => {
   const {theme} = useTheme();
@@ -367,7 +368,10 @@ const ProfileScreen = () => {
     navigation.navigate(screenName);
   };
 
+  const {sendEventCleverTap} = useCleverTap();
+
   const handleLogout = async () => {
+    sendEventCleverTap(CLEVERTAP_EVENTS.LOG_OUT);
     try {
       setShowLogoutModal(false);
       // Call logout API

@@ -7,7 +7,7 @@ export const CLEVERTAP_EVENTS = {
   VIEW_CAR_DETAILS: 'VIEW_CAR_DETAILS',
   ADD_TO_WISHLIST: 'ADD_TO_WISHLIST',
   REMOVE_FROM_WISHLIST: 'REMOVE_FROM_WISHLIST',
-  VIEW_CAR_ENQUIRY: 'VIEW_CAR_ENQUIRY',
+  VIEW_CAR_INQUIRY: 'VIEW_CAR_ENQUIRY',
   INQUIRE_CAR: 'INQUIRE_CAR',
   PROFILE_UPDATE: 'PROFILE_UPDATE',
   PROFILE_INCOMPLETE: 'PROFILE_INCOMPLETE',
@@ -18,6 +18,7 @@ export const CLEVERTAP_EVENTS = {
   PASSWORD_RESET: 'PASSWORD_RESET',
   BROWSING_AS_GUEST: 'BROWSING_AS_GUEST',
   WISHLIST_GUEST: 'WISHLIST_GUEST',
+  INQUIRE_GUEST: 'WISHLIST_GUEST',
   BROWSING_CAR_GUEST: 'BROWSING_CAR_GUEST',
   GUEST_LOGIN: 'GUEST_LOGIN',
 };
@@ -35,14 +36,23 @@ export default function useCleverTap() {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         );
-        console.log(
-          'Notification permission granted:',
-          granted === PermissionsAndroid.RESULTS.GRANTED,
-        );
       }
     }
 
     requestNotificationPermission();
+
+    CleverTap.isPushPermissionGranted((err, granted) => {
+      console.log('Push permission granted:', granted);
+      if (granted) {
+        sendEventCleverTap(CLEVERTAP_EVENTS.NOTIFICATION_PERMISSION, {
+          granted: true,
+        });
+      } else {
+        sendEventCleverTap(CLEVERTAP_EVENTS.NOTIFICATION_PERMISSION, {
+          granted: false,
+        });
+      }
+    });
 
     // Register for Push (iOS only)
     if (Platform.OS === 'ios') {

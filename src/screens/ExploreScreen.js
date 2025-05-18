@@ -40,6 +40,7 @@ import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
 // Create color statistics tracker
 const colorStats = {
@@ -380,9 +381,18 @@ const ExploreScreen = () => {
     }
   }, [route.params?.filters, route.params?.search]);
 
+  const {sendEventCleverTap} = useCleverTap();
+  const {isAuthenticated} = useAuth();
   // Define the fetchCars function first without dependencies
   const fetchCars = useCallback(
     async (newPage = 1, search = '') => {
+      if (!isAuthenticated) {
+        sendEventCleverTap(CLEVERTAP_EVENTS.BROWSING_AS_GUEST);
+      } else if (search || searchQuery) {
+        sendEventCleverTap(CLEVERTAP_EVENTS.SEARCH_CAR, {
+          search: search || searchQuery,
+        });
+      }
       // Always set loading to true and clear existing cars when starting a new fetch
       if (newPage === 1) setLoading(true);
       else setLoadingMore(true);

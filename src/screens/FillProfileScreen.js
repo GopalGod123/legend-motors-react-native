@@ -23,7 +23,7 @@ import {useTheme} from 'src/context/ThemeContext';
 import {useAuth} from 'src/context/AuthContext';
 import {useCountryCodes} from 'src/context/CountryCodesContext';
 import FlagIcon from 'src/components/common/FlagIcon';
-import useCleverTap from 'src/services/NotificationHandler';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
 const FillProfileScreen = () => {
   const navigation = useNavigation();
@@ -56,8 +56,11 @@ const FillProfileScreen = () => {
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
   });
+  const {sendEventCleverTap} = useCleverTap();
+
   const {user} = useAuth();
   useEffect(() => {
+    sendEventCleverTap(CLEVERTAP_EVENTS.PROFILE_INCOMPLETE);
     if (route.params?.registrationToken) {
       setRegistrationToken(route.params?.registrationToken ?? '');
       setFormData(prev => ({...prev, email: route?.params?.email ?? ''}));
@@ -317,8 +320,6 @@ const FillProfileScreen = () => {
     setFormData(prev => ({...prev, dateOfBirth: newDate}));
   };
 
-  const {sendEventCleverTap} = useCleverTap();
-
   const handleSubmit = async () => {
     if (!isFormValid()) return;
 
@@ -354,6 +355,7 @@ const FillProfileScreen = () => {
       const response = sso
         ? await updateUserProfile(registrationData)
         : await registerUser(registrationData);
+      sendEventCleverTap(CLEVERTAP_EVENTS.PROFILE_UPDATE);
 
       console.log('Registration response:', response);
 
@@ -371,6 +373,7 @@ const FillProfileScreen = () => {
                 });
               } else {
                 sendEventCleverTap(CLEVERTAP_EVENTS.WELCOME);
+
                 navigation.reset({
                   index: 0,
                   routes: [

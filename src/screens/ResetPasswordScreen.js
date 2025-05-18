@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,57 +8,56 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
 import LockIcon from '../components/icons/LockIcon';
 import EyeIcon from '../components/icons/EyeIcon';
-import { resetPassword } from '../services/api';
+import {resetPassword} from '../services/api';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { email, resetToken } = route.params || {};
-  
+  const {email, resetToken} = route.params || {};
+
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const {sendEventCleverTap} = useCleverTap();
   const handleResetPassword = async () => {
     if (!newPassword) {
       Alert.alert('Error', 'Please enter a new password');
       return;
     }
-    
+
     if (newPassword.length < 8) {
       Alert.alert('Error', 'Password must be at least 8 characters long');
       return;
     }
-    
+
     if (newPassword !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
       return;
     }
-    
+
     try {
       setLoading(true);
       const response = await resetPassword(email, newPassword, resetToken);
-      
+
       if (response.success) {
-        Alert.alert(
-          'Success', 
-          'Your password has been updated successfully',
-          [
-            {
-              text: 'OK',
-              onPress: () => navigation.reset({
+        sendEventCleverTap(CLEVERTAP_EVENTS.PASSWORD_RESET);
+        Alert.alert('Success', 'Your password has been updated successfully', [
+          {
+            text: 'OK',
+            onPress: () =>
+              navigation.reset({
                 index: 0,
-                routes: [{ name: 'Login', params: { email } }],
+                routes: [{name: 'Login', params: {email}}],
               }),
-            }
-          ]
-        );
+          },
+        ]);
       } else {
         Alert.alert('Error', response.msg || 'Failed to reset password');
       }
@@ -78,7 +77,7 @@ const ResetPasswordScreen = () => {
       </TouchableOpacity>
 
       <Text style={styles.title}>Create New Password</Text>
-      
+
       <View style={styles.iconContainer}>
         <LockIcon width={50} height={50} />
       </View>
@@ -118,11 +117,12 @@ const ResetPasswordScreen = () => {
       </View>
 
       <Text style={styles.passwordRequirements}>
-        Password must be at least 8 characters long and include a combination of numbers, letters, and special characters.
+        Password must be at least 8 characters long and include a combination of
+        numbers, letters, and special characters.
       </Text>
 
-      <TouchableOpacity 
-        style={styles.continueButton} 
+      <TouchableOpacity
+        style={styles.continueButton}
         onPress={handleResetPassword}
         disabled={loading}>
         {loading ? (
@@ -202,4 +202,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ResetPasswordScreen; 
+export default ResetPasswordScreen;

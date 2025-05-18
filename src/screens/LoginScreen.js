@@ -27,7 +27,7 @@ import {
   onGoogleButtonPress,
 } from 'src/services/socialAuth';
 import {COLORS} from 'src/utils/constants';
-import useCleverTap from 'src/services/NotificationHandler';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
