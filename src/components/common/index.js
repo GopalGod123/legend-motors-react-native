@@ -20,7 +20,7 @@
 
 //   // Fallback image
 //   const fallbackImage =
-//     loadingIndicatorSource || require('../home/car_Image.png');
+//     loadingIndicatorSource || require('../home/car_Image.jpg');
 
 //   // Convert Image resizeMode to FastImage resizeMode
 //   const getFastImageResizeMode = () => {

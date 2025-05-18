@@ -1,42 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { Image, View, StyleSheet, ActivityIndicator } from 'react-native';
-import { COLORS } from '../../utils/constants';
-import { API_KEY } from '../../utils/apiConfig';
+import React, {useState, useEffect} from 'react';
+import {Image, View, StyleSheet, ActivityIndicator} from 'react-native';
+import {COLORS} from '../../utils/constants';
+import {API_KEY} from '../../utils/apiConfig';
 
-const AuthenticatedImage = ({ source, style, resizeMode = 'cover' }) => {
+const AuthenticatedImage = ({source, style, resizeMode = 'cover'}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  
+
   // Fallback image
-  const fallbackImage = require('../home/car_Image.png');
-  
+  const fallbackImage = require('../home/car_Image.jpg');
+
   // If source is a number (local resource)
   if (typeof source === 'number') {
-    return (
-      <Image 
-        source={source}
-        style={style}
-        resizeMode={resizeMode}
-      />
-    );
+    return <Image source={source} style={style} resizeMode={resizeMode} />;
   }
-  
+
   // For remote images
   if (source?.uri) {
     // Create a new source object with the API key in headers
     const sourceWithAuth = {
       uri: source.uri,
       headers: {
-        'x-api-key': API_KEY
-      }
+        'x-api-key': API_KEY,
+      },
     };
-    
+
     console.log('Using authenticated image source:', source.uri);
-    
+
     return (
       <View style={style}>
         {!error ? (
-          <Image 
+          <Image
             source={sourceWithAuth}
             style={styles.image}
             resizeMode={resizeMode}
@@ -46,7 +40,7 @@ const AuthenticatedImage = ({ source, style, resizeMode = 'cover' }) => {
               setLoading(false);
             }}
             onLoadEnd={() => setLoading(false)}
-            onError={(e) => {
+            onError={e => {
               console.error('Image load error:', e.nativeEvent?.error);
               console.error('Failed image URL:', source.uri);
               setError(true);
@@ -54,13 +48,13 @@ const AuthenticatedImage = ({ source, style, resizeMode = 'cover' }) => {
             }}
           />
         ) : (
-          <Image 
+          <Image
             source={fallbackImage}
             style={styles.image}
             resizeMode={resizeMode}
           />
         )}
-        
+
         {loading && !error && (
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="small" color={COLORS.primary} />
@@ -69,15 +63,9 @@ const AuthenticatedImage = ({ source, style, resizeMode = 'cover' }) => {
       </View>
     );
   }
-  
+
   // Default fallback
-  return (
-    <Image 
-      source={fallbackImage}
-      style={style}
-      resizeMode={resizeMode}
-    />
-  );
+  return <Image source={fallbackImage} style={style} resizeMode={resizeMode} />;
 };
 
 const styles = StyleSheet.create({
@@ -90,7 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(240, 240, 240, 0.5)',
-  }
+  },
 });
 
-export default AuthenticatedImage; 
+export default AuthenticatedImage;

@@ -64,22 +64,22 @@ const CarCard = memo(
 
     // Prepare images for carousel
     let carImages = [];
-    
+
     // Process CarImages if available (from API)
     if (item.CarImages && item.CarImages.length > 0) {
       carImages = item.CarImages.map(img => {
         if (img.FileSystem) {
-          const path = 
-            img.FileSystem.thumbnailPath || 
-            img.FileSystem.compressedPath || 
+          const path =
+            img.FileSystem.thumbnailPath ||
+            img.FileSystem.compressedPath ||
             img.FileSystem.path;
-          
+
           if (path) {
             return {uri: `https://cdn.legendmotorsglobal.com${path}`};
           }
         }
         // Fallback for images without proper path
-        return require('../../components/home/car_Image.png');
+        return require('../../components/home/car_Image.jpg');
       });
     }
     // If item has images array, use that
@@ -92,7 +92,7 @@ const CarCard = memo(
     }
     // Fallback to default image if no images available
     if (carImages.length === 0) {
-      carImages = [require('../../components/home/car_Image.png')];
+      carImages = [require('../../components/home/car_Image.jpg')];
     }
 
     // Construct the car title - pre-computed
@@ -103,16 +103,19 @@ const CarCard = memo(
             item.Trim?.name ? ` ${item.Trim.name}` : ''
           }`
         : item.title || 'Car Details');
-        
+
     // Get price from API response
     const price = item?.CarPrices?.find(
       crr => crr.currency === selectedCurrency,
     )?.price;
 
     // Calculate card width based on provided width prop
-    const cardWidthValue = typeof width === 'string' && width.includes('%')
-      ? (parseFloat(width) / 100) * screenWidth
-      : typeof width === 'number' ? width : screenWidth;
+    const cardWidthValue =
+      typeof width === 'string' && width.includes('%')
+        ? (parseFloat(width) / 100) * screenWidth
+        : typeof width === 'number'
+        ? width
+        : screenWidth;
 
     // Handle wishlist toggle with auth check
     const handleWishlistToggle = async e => {
@@ -128,7 +131,7 @@ const CarCard = memo(
     };
 
     // Handle image press
-    const handleImagePress = (index) => {
+    const handleImagePress = index => {
       // Navigate to detail view or image gallery if needed
       onPress(item);
     };

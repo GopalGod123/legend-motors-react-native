@@ -104,7 +104,7 @@ const BlogPostDetailScreen = () => {
   // Construct image URL
   const imageUrl = post.coverImage
     ? {uri: `https://cdn.legendmotorsglobal.com${post.coverImage.original}`}
-    : require('../components/home/car_Image.png');
+    : require('../components/home/car_Image.jpg');
 
   return (
     <SafeAreaView style={[styles.container, isDark && styles.containerDark]}>
@@ -231,7 +231,7 @@ const BlogPostDetailScreen = () => {
               <View
                 style={[styles.relatedCard, isDark && styles.relatedCardDark]}>
                 <Image
-                  source={require('../components/home/car_Image.png')}
+                  source={require('../components/home/car_Image.jpg')}
                   style={styles.relatedImage}
                   resizeMode="cover"
                 />
@@ -257,7 +257,7 @@ const BlogPostDetailScreen = () => {
               <View
                 style={[styles.relatedCard, isDark && styles.relatedCardDark]}>
                 <Image
-                  source={require('../components/home/car_Image.png')}
+                  source={require('../components/home/car_Image.jpg')}
                   style={styles.relatedImage}
                   resizeMode="cover"
                 />

@@ -47,7 +47,7 @@ const CarListItem = ({
 
   // Use the images array directly from the processed car
   const carImages = carData.images || [carData.image] || [
-      require('../../components/home/car_Image.png'),
+      require('../../components/home/car_Image.jpg'),
     ];
 
   // Check if we need to highlight parts of text due to search

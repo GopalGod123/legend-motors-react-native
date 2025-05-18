@@ -119,7 +119,7 @@ const NewsBlogsScreen = () => {
     // Construct image URL
     const imageUrl = item.coverImage
       ? {uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}`}
-      : require('../components/home/car_Image.png');
+      : require('../components/home/car_Image.jpg');
 
     return (
       <TouchableOpacity
@@ -197,7 +197,7 @@ const NewsBlogsScreen = () => {
       ? {
           uri: `https://cdn.legendmotorsglobal.com${featuredPost.coverImage.original}`,
         }
-      : require('../components/home/car_Image.png');
+      : require('../components/home/car_Image.jpg');
 
     return (
       <View style={styles.featuredSection}>
@@ -296,7 +296,7 @@ const NewsBlogsScreen = () => {
               ? {
                   uri: `https://cdn.legendmotorsglobal.com${item.coverImage.original}`,
                 }
-              : require('../components/home/car_Image.png');
+              : require('../components/home/car_Image.jpg');
 
             // Adjust index to start from 2 since featured post is 1
             const displayIndex = index + 2;

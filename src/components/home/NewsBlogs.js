@@ -83,7 +83,7 @@ const NewsBlogs = () => {
       ? {
           uri: `https://cdn.legendmotorsglobal.com${firstBlog.coverImage.original}`,
         }
-      : require('./car_Image.png');
+      : require('./car_Image.jpg');
 
     return (
       <View style={styles.blogsContainer}>
