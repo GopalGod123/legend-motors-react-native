@@ -378,7 +378,7 @@ const HotDeals = () => {
             {
               width: '100%',
               height: 40,
-              borderRadius: 20,
+              borderRadius: 10,
               backgroundColor: isDark ? '#2D2D2D' : '#eeeeee',
             },
           ]}
@@ -466,7 +466,7 @@ const HotDeals = () => {
 const styles = StyleSheet.create({
   container: {
     // marginVertical: SPACING.xl,
-    borderRadius: BORDER_RADIUS.lg,
+    borderRadius: 10,
     // paddingVertical: SPACING.lg,
     backgroundColor: 'transparent',
     marginTop: SPACING.md,
@@ -586,12 +586,12 @@ const styles = StyleSheet.create({
   },
   skeletonLine: {
     height: 12,
-    borderRadius: 6,
+    borderRadius: 10,
   },
   noDealsContainer: {
     width: cardWidth,
     height: 300,
-    borderRadius: BORDER_RADIUS.lg,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: SPACING.xl,
