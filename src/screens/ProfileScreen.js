@@ -11,11 +11,18 @@ import {
   ActivityIndicator,
   Alert,
   Switch,
+  InteractionManager,
+  Platform,
 } from 'react-native';
 import {useIsFocused, useNavigation} from '@react-navigation/native';
-import Svg, {Path} from 'react-native-svg';
+import Svg, {Path, Circle} from 'react-native-svg';
 import LogoutModal from '../components/LogoutModal';
-import {getUserProfile, syncAuthToken, logoutUser} from '../services/api';
+import {
+  getUserProfile,
+  syncAuthToken,
+  logoutUser,
+  updateUserProfile,
+} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
@@ -26,6 +33,7 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {Ionicons} from '../utils/icon';
 import {useWishlist} from 'src/context/WishlistContext';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
+import {launchImageLibrary} from 'react-native-image-picker';
 // SVG icons as React components
 const UserIcon = () => {
   const {theme} = useTheme();
@@ -129,17 +137,19 @@ const ShieldIcon = () => {
 
 const ProfileImageIcon = props => (
   <Svg
-    width={26}
-    height={26}
-    viewBox="0 0 26 26"
+    width={32}
+    height={32}
+    viewBox="0 0 32 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     {...props}>
+    <Circle cx="16" cy="16" r="16" fill="#EF9439" />
     <Path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M18.8316 0.512919C20.6298 0.400535 22.4029 1.02489 23.7391 2.24862C24.9628 3.58474 25.5872 5.35791 25.4873 7.16853V18.8315C25.5997 20.6421 24.9628 22.4153 23.7516 23.7514C22.4154 24.9751 20.6298 25.5995 18.8316 25.4871H7.16859C5.35795 25.5995 3.58477 24.9751 2.24864 23.7514C1.02489 22.4153 0.400535 20.6421 0.512919 18.8315V7.16853C0.400535 5.35791 1.02489 3.58474 2.24864 2.24862C3.58477 1.02489 5.35795 0.400535 7.16859 0.512919H18.8316ZM11.7264 19.0562L20.1303 10.6275C20.892 9.85325 20.892 8.60455 20.1303 7.84283L18.5069 6.21951C17.7327 5.44532 16.484 5.44532 15.7098 6.21951L14.8732 7.06864C14.7483 7.19351 14.7483 7.40579 14.8732 7.53066C14.8732 7.53066 16.8586 9.50362 16.8961 9.55357C17.0335 9.70341 17.1209 9.9032 17.1209 10.128C17.1209 10.5775 16.7587 10.9521 16.2967 10.9521C16.0844 10.9521 15.8846 10.8647 15.7473 10.7274L13.6619 8.6545C13.562 8.5546 13.3872 8.5546 13.2873 8.6545L7.33092 14.6108C6.91884 15.0229 6.68159 15.5723 6.6691 16.1592L6.59418 19.1187C6.59418 19.281 6.64413 19.4308 6.75651 19.5432C6.8689 19.6556 7.01874 19.718 7.18107 19.718H10.1156C10.7149 19.718 11.2894 19.4808 11.7264 19.0562Z"
-      fill="#EF9439"
+      d="M21 11.75L20.25 11M16 21H22M9 16L18.25 11.5L20.5 13.75L16 23H9V16Z"
+      stroke="white"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </Svg>
 );
@@ -328,13 +338,16 @@ const PhoneIcon = () => {
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const {user, logout, isAuthenticated, checkAuthStatus} = useAuth();
+  const {user, logout, isAuthenticated, checkAuthStatus, updateUser} =
+    useAuth();
   const {selectedLanguage, setSelectedLanguage} = useCurrencyLanguage();
   const {theme, toggleTheme, isDark} = useTheme();
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const {clearWishlist} = useWishlist();
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const fetchUserProfile = async () => {
     try {
@@ -353,6 +366,176 @@ const ProfileScreen = () => {
       console.error('Error fetching user profile:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Show tooltip when long pressing profile image
+  const handleLongPress = () => {
+    setShowTooltip(true);
+    // Hide tooltip after 3 seconds
+    setTimeout(() => {
+      setShowTooltip(false);
+    }, 3000);
+  };
+
+  // Handle image picker
+  const handleImagePicker = async () => {
+    // Use InteractionManager to ensure the UI is ready
+    InteractionManager.runAfterInteractions(() => {
+      try {
+        const options = {
+          mediaType: 'photo',
+          includeBase64: false,
+          maxHeight: 800,
+          maxWidth: 800,
+          quality: 0.8,
+          selectionLimit: 1,
+        };
+
+        if (Platform.OS === 'android') {
+          // For Android, use the modern approach
+          launchImageLibrary(options)
+            .then(result => {
+              if (result.didCancel) {
+                console.log('User cancelled image picker');
+                return;
+              }
+
+              if (result.errorCode) {
+                console.log('ImagePicker Error: ', result.errorMessage);
+                // Use a timeout to avoid the "not attached to activity" error
+                setTimeout(() => {
+                  Alert.alert(
+                    'Error',
+                    'Failed to select image. Please try again.',
+                  );
+                }, 100);
+                return;
+              }
+
+              if (result.assets && result.assets.length > 0) {
+                // Upload the selected image
+                uploadProfileImage(result.assets[0]);
+              }
+            })
+            .catch(error => {
+              console.error('Image picker error:', error);
+              setTimeout(() => {
+                Alert.alert(
+                  'Error',
+                  'Failed to open image picker. Please try again.',
+                );
+              }, 100);
+            });
+        } else {
+          // For iOS, we can use the async/await approach
+          launchImageLibrary(options)
+            .then(result => {
+              if (result.didCancel) {
+                console.log('User cancelled image picker');
+                return;
+              }
+
+              if (result.errorCode) {
+                console.log('ImagePicker Error: ', result.errorMessage);
+                Alert.alert(
+                  'Error',
+                  'Failed to select image. Please try again.',
+                );
+                return;
+              }
+
+              if (result.assets && result.assets.length > 0) {
+                // Upload the selected image
+                uploadProfileImage(result.assets[0]);
+              }
+            })
+            .catch(error => {
+              console.error('Image picker error:', error);
+              Alert.alert(
+                'Error',
+                'Failed to open image picker. Please try again.',
+              );
+            });
+        }
+      } catch (error) {
+        console.error('Image picker error:', error);
+        setTimeout(() => {
+          Alert.alert(
+            'Error',
+            'Failed to open image picker. Please try again.',
+          );
+        }, 100);
+      }
+    });
+  };
+
+  // Upload profile image to server and update profile
+  const uploadProfileImage = async imageAsset => {
+    try {
+      setUploadingImage(true);
+
+      // First, upload the image to get an image ID
+      // Implement the image upload API call based on your backend
+      const formData = new FormData();
+      formData.append('file', {
+        name: imageAsset.fileName || 'profile.jpg',
+        type: imageAsset.type,
+        uri: imageAsset.uri,
+      });
+
+      // Make API call to upload image
+      const uploadResponse = await fetch(
+        'https://api.legendmotorsglobal.com/api/upload',
+        {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+
+      const uploadResult = await uploadResponse.json();
+
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.message || 'Failed to upload image');
+      }
+
+      // Now update user profile with the new image ID
+      const profileData = {
+        profileImage: uploadResult.data.id,
+      };
+
+      const updateResponse = await updateUserProfile(profileData);
+
+      if (updateResponse.success) {
+        // Update local user data
+        setUserProfile({
+          ...userProfile,
+          profileImage: updateResponse.data.profileImage,
+        });
+
+        // Update auth context
+        if (updateUser) {
+          updateUser({
+            ...user,
+            profileImage: updateResponse.data.profileImage,
+          });
+        }
+
+        Alert.alert('Success', 'Profile picture updated successfully');
+      } else {
+        throw new Error(updateResponse.msg || 'Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Profile image update error:', error);
+      Alert.alert(
+        'Error',
+        'Failed to update profile picture. Please try again.',
+      );
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -520,15 +703,6 @@ const ProfileScreen = () => {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text
-            style={[
-              styles.headerTitle,
-              {color: isDark ? '#888888' : '#888888'},
-            ]}>
-            Profile & settings
-          </Text>
-        </View>
         <View style={styles.profileContainer}>
           <View style={styles.profileHeader}>
             <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
@@ -536,19 +710,36 @@ const ProfileScreen = () => {
             </Text>
           </View>
           <View style={styles.profileInfoContainer}>
-            <View style={styles.avatarContainer}>
-              <Image
-                source={
-                  getProfileImageUrl()
-                    ? {uri: getProfileImageUrl()}
-                    : require('../assets/images/profile.jpg')
-                }
-                style={styles.avatar}
-              />
+            <TouchableOpacity
+              style={styles.avatarContainer}
+              onPress={handleImagePicker}
+              onLongPress={handleLongPress}
+              disabled={uploadingImage}>
+              {uploadingImage ? (
+                <View style={styles.loadingAvatarContainer}>
+                  <ActivityIndicator size="large" color="#F47B20" />
+                </View>
+              ) : (
+                <Image
+                  source={
+                    getProfileImageUrl()
+                      ? {uri: getProfileImageUrl()}
+                      : require('../assets/images/profile.jpg')
+                  }
+                  style={styles.avatar}
+                />
+              )}
               <View style={styles.badgeContainer}>
                 <ProfileImageIcon width={24} height={24} />
               </View>
-            </View>
+              {showTooltip && (
+                <View style={styles.tooltipContainer}>
+                  <Text style={styles.tooltipText}>
+                    Tap the pencil icon to change your profile picture
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
             <Text style={[styles.userName, {color: themeColors[theme].text}]}>
               {getUserName()}
             </Text>
@@ -758,6 +949,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     flex: 1,
     paddingHorizontal: 16,
+    marginTop: 16,
     paddingBottom: 16,
     backgroundColor: 'transparent',
   },
@@ -786,15 +978,29 @@ const styles = StyleSheet.create({
   },
   badgeContainer: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'transparent',
+    bottom: 5,
+    right: 5,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 0,
+    borderWidth: 2,
+    borderColor: 'white',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  loadingAvatarContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(0,0,0,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   badgeIcon: {
     width: 12,
@@ -881,6 +1087,21 @@ const styles = StyleSheet.create({
   menuItemText: {
     marginLeft: 12,
     fontSize: 16,
+  },
+  tooltipContainer: {
+    position: 'absolute',
+    bottom: -40,
+    left: -30,
+    right: -30,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    padding: 10,
+    borderRadius: 8,
+    zIndex: 1000,
+  },
+  tooltipText: {
+    color: 'white',
+    fontSize: 14,
+    textAlign: 'center',
   },
 });
 
