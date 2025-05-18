@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
+  Linking,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import Svg, {Path, Circle} from 'react-native-svg';
@@ -270,6 +271,53 @@ const InstagramIcon = () => (
   </Svg>
 );
 
+// LinkedIn Icon
+const LinkedInIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M16 8C17.5913 8 19.1174 8.63214 20.2426 9.75736C21.3679 10.8826 22 12.4087 22 14V21H18V14C18 13.4696 17.7893 12.9609 17.4142 12.5858C17.0391 12.2107 16.5304 12 16 12C15.4696 12 14.9609 12.2107 14.5858 12.5858C14.2107 12.9609 14 13.4696 14 14V21H10V14C10 12.4087 10.6321 10.8826 11.7574 9.75736C12.8826 8.63214 14.4087 8 16 8Z"
+      stroke="#0077B5"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M6 9H2V21H6V9Z"
+      stroke="#0077B5"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M4 6C5.10457 6 6 5.10457 6 4C6 2.89543 5.10457 2 4 2C2.89543 2 2 2.89543 2 4C2 5.10457 2.89543 6 4 6Z"
+      stroke="#0077B5"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
+// YouTube Icon
+const YouTubeIcon = () => (
+  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+    <Path
+      d="M22.54 6.42C22.4212 5.94541 22.1793 5.51057 21.8387 5.15941C21.498 4.80824 21.0708 4.55318 20.6 4.42C18.88 4 12 4 12 4C12 4 5.12 4 3.4 4.46C2.92925 4.59318 2.50197 4.84824 2.16131 5.19941C1.82066 5.55057 1.57881 5.98541 1.46 6.46C1.14522 8.20556 0.991235 9.97631 1 11.75C0.988768 13.537 1.14276 15.3213 1.46 17.08C1.59096 17.5398 1.83831 17.9581 2.17814 18.2945C2.51798 18.6308 2.93882 18.8738 3.4 19C5.12 19.46 12 19.46 12 19.46C12 19.46 18.88 19.46 20.6 19C21.0708 18.8668 21.498 18.6118 21.8387 18.2606C22.1793 17.9094 22.4212 17.4746 22.54 17C22.8524 15.2676 23.0063 13.5103 23 11.75C23.0112 9.96295 22.8572 8.1787 22.54 6.42Z"
+      stroke="#FF0000"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <Path
+      d="M9.75 15.02L15.5 11.75L9.75 8.48V15.02Z"
+      stroke="#FF0000"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </Svg>
+);
+
 const HelpCenterScreen = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
@@ -277,96 +325,217 @@ const HelpCenterScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedItem, setExpandedItem] = useState(null);
 
-  // Add new states for API data
-  const [loading, setLoading] = useState(true);
-  const [faqCategories, setFaqCategories] = useState([
-    {id: 1, name: 'All', active: true},
-    {id: 2, name: 'Account', active: false},
-    {id: 3, name: 'Orders', active: false},
-    {id: 4, name: 'Payments', active: false},
-    {id: 5, name: 'Shipping', active: false},
-  ]);
-  const [activeCategoryId, setActiveCategoryId] = useState(null);
-  const [faqs, setFaqs] = useState([]);
-  const [filteredFaqs, setFilteredFaqs] = useState([]);
-  const [error, setError] = useState(null);
+  // Define static categories
+  const staticCategories = [
+    {id: 1, name: 'About Legend and New Brand Identity', active: true},
+    {id: 2, name: 'About the website', active: false},
+    {id: 3, name: 'Car Listings', active: false},
+    {id: 4, name: 'Car Pricing', active: false},
+    {id: 5, name: 'Inquiry Process', active: false},
+    {id: 6, name: 'Offline Sales', active: false},
+    {id: 7, name: 'Images & Specifications', active: false},
+    {id: 8, name: 'Account & Notifications', active: false},
+    {id: 9, name: 'Miscellaneous FAQs', active: false},
+  ];
 
-  // Fetch FAQ data on component mount
-  useEffect(() => {
-    fetchFaqData();
-  }, []);
+  // Static FAQ data
+  const staticFaqData = [
+    // About Legend and New Brand Identity
+    {
+      id: '1-1',
+      categoryId: 1,
+      question: 'Who are we?',
+      answer: 'We are Legend Motors and have been providing Affordable & sustainable Mobility solutions since 2008 touching millions of lives around the World. Renowned for being a step ahead and making Today the future with our one of kind product assortment for over a decade now.',
+      plainTextAnswer: 'We are Legend Motors and have been providing Affordable & sustainable Mobility solutions since 2008 touching millions of lives around the World. Renowned for being a step ahead and making Today the future with our one of kind product assortment for over a decade now.'
+    },
+    {
+      id: '1-2',
+      categoryId: 1,
+      question: 'What changes have been made in legend?',
+      answer: 'We have undergone a complete transformation and have embraced a new identity. We changed our previous logo and branding to a new one encapsulating Purple, a color of strength, intelligence, and strategic vision and Orange, a symbol of energy, ambition, and progress. The Legend logo is a bold representation of transformation, unity and boundless growth, brought to life through a carefully chosen color palette. We are the Old legend bringing new freshness to our customers without compromising our quality.',
+      plainTextAnswer: 'We have undergone a complete transformation and have embraced a new identity. We changed our previous logo and branding to a new one encapsulating Purple, a color of strength, intelligence, and strategic vision and Orange, a symbol of energy, ambition, and progress. The Legend logo is a bold representation of transformation, unity and boundless growth, brought to life through a carefully chosen color palette. We are the Old legend bringing new freshness to our customers without compromising our quality.'
+    },
+    {
+      id: '1-3',
+      categoryId: 1,
+      question: 'Who is Legend\'s official Ambassador?',
+      answer: 'Meet Lumo — The Guardian and Guide of Legend. Lumo is more than just an ambassador or a mascot — it\'s the guardian spirit and intelligent guide of Legend. Born from a vision to unite innovation, sustainability, and human connection, Lumo embodies the values that drive Legend forward in the world of mobility, energy, and technology.',
+      plainTextAnswer: 'Meet Lumo — The Guardian and Guide of Legend. Lumo is more than just an ambassador or a mascot — it\'s the guardian spirit and intelligent guide of Legend. Born from a vision to unite innovation, sustainability, and human connection, Lumo embodies the values that drive Legend forward in the world of mobility, energy, and technology.'
+    },
+    
+    // About the website
+    {
+      id: '2-1',
+      categoryId: 2,
+      question: 'What is Legend website about?',
+      answer: 'Legend\'s website allows you to browse a wide range of cars available for sale. You can send inquiries to our sales team, who will assist you offline. You can select the cars of your choice from a wide range of vehicles. We have cars from top brands of the world and helps you buy the car seamlessly.',
+      plainTextAnswer: 'Legend\'s website allows you to browse a wide range of cars available for sale. You can send inquiries to our sales team, who will assist you offline. You can select the cars of your choice from a wide range of vehicles. We have cars from top brands of the world and helps you buy the car seamlessly.'
+    },
+    {
+      id: '2-2',
+      categoryId: 2,
+      question: 'Do I need an account to browse cars?',
+      answer: 'No, you can browse cars without an account. However, creating an account allows you to view the best prices, save your favorite cars and track your inquiries.',
+      plainTextAnswer: 'No, you can browse cars without an account. However, creating an account allows you to view the best prices, save your favorite cars and track your inquiries.'
+    },
+    {
+      id: '2-3',
+      categoryId: 2,
+      question: 'How do I send an inquiry about a car?',
+      answer: 'Simply click the "Inquire Now" button on the car\'s detail page, that will send the inquiry details and our sales team will contact you shortly. If you are a non-registered user, You might need to fill in the forms for us to connect with you.',
+      plainTextAnswer: 'Simply click the "Inquire Now" button on the car\'s detail page, that will send the inquiry details and our sales team will contact you shortly. If you are a non-registered user, You might need to fill in the forms for us to connect with you.'
+    },
+    {
+      id: '2-4',
+      categoryId: 2,
+      question: 'Can I test drive a car listed on your website?',
+      answer: 'Once you send an inquiry, our sales team will arrange a test drive for you based on availability.',
+      plainTextAnswer: 'Once you send an inquiry, our sales team will arrange a test drive for you based on availability.'
+    },
+    
+    // Car Listings
+    {
+      id: '3-1',
+      categoryId: 3,
+      question: 'Are the car listings updated regularly?',
+      answer: 'Yes, Absolutely, we update our inventory frequently to ensure you see the latest cars available for sale with the best prices available in the market.',
+      plainTextAnswer: 'Yes, Absolutely, we update our inventory frequently to ensure you see the latest cars available for sale with the best prices available in the market.'
+    },
+    {
+      id: '3-2',
+      categoryId: 3,
+      question: 'Can I filter cars by brand, model, or price range?',
+      answer: 'Totally! Use our advanced filters to narrow down your search based on brand, model, price range, and other features.',
+      plainTextAnswer: 'Totally! Use our advanced filters to narrow down your search based on brand, model, price range, and other features.'
+    },
+    {
+      id: '3-3',
+      categoryId: 3,
+      question: 'Are all cars listed new, or do you also sell used cars?',
+      answer: 'Legend Global website helps you to buy brand new cars hitting the market.',
+      plainTextAnswer: 'Legend Global website helps you to buy brand new cars hitting the market.'
+    },
+    
+    // Car pricing
+    {
+      id: '4-1',
+      categoryId: 4,
+      question: 'Are the prices listed negotiable?',
+      answer: 'Prices are indicative and may be negotiable depending on the car and the offers we provide. The offers are subject to changes according to the business requirements and market status. Our sales team can provide more details when they contact you.',
+      plainTextAnswer: 'Prices are indicative and may be negotiable depending on the car and the offers we provide. The offers are subject to changes according to the business requirements and market status. Our sales team can provide more details when they contact you.'
+    },
+    {
+      id: '4-2',
+      categoryId: 4,
+      question: 'Are taxes or registration fees included in the listed price?',
+      answer: 'No, the listed price is exclusive of taxes and registration fees. Our sales team will help you understand the total cost during discussions. Note: All Prices Mentioned in the App are Ex Works jebel Ali (Export Prices). Selected Models are available to be Registered in the UAE. (Import Duty/Customs/other Charges will be additional) Products are subject to availability. Getting offer for the car does not promise car availability until a Deposit is received.',
+      plainTextAnswer: 'No, the listed price is exclusive of taxes and registration fees. Our sales team will help you understand the total cost during discussions. Note: All Prices Mentioned in the App are Ex Works jebel Ali (Export Prices). Selected Models are available to be Registered in the UAE. (Import Duty/Customs/other Charges will be additional) Products are subject to availability. Getting offer for the car does not promise car availability until a Deposit is received.'
+    },
+    {
+      id: '4-3',
+      categoryId: 4,
+      question: 'How does Legend Motors price the car listed on the platform?',
+      answer: 'The Prices are listed based on the Supply & Demand of the particular make and model. We try to keep ourselves updated to ensure we offer the most competitive rates possible.',
+      plainTextAnswer: 'The Prices are listed based on the Supply & Demand of the particular make and model. We try to keep ourselves updated to ensure we offer the most competitive rates possible.'
+    },
+    
+    // Inquiry Process
+    {
+      id: '5-1',
+      categoryId: 5,
+      question: 'How long does it take for the sales team to respond to my inquiry?',
+      answer: 'Our sales team typically responds within 24 hours of receiving your inquiry.',
+      plainTextAnswer: 'Our sales team typically responds within 24 hours of receiving your inquiry.'
+    },
+    {
+      id: '5-2',
+      categoryId: 5,
+      question: 'Can I inquire about multiple cars at once?',
+      answer: 'Yes, you can send inquiries for multiple cars by visiting their respective pages. We are at your service to help you find your dream car.',
+      plainTextAnswer: 'Yes, you can send inquiries for multiple cars by visiting their respective pages. We are at your service to help you find your dream car.'
+    },
+    
+    // Offline Sales Process
+    {
+      id: '6-1',
+      categoryId: 6,
+      question: 'What happens after I send an inquiry?',
+      answer: 'After receiving your inquiry, our sales team will contact you via phone or email to discuss further details about the car, pricing, and the next steps.',
+      plainTextAnswer: 'After receiving your inquiry, our sales team will contact you via phone or email to discuss further details about the car, pricing, and the next steps.'
+    },
+    {
+      id: '6-2',
+      categoryId: 6,
+      question: 'Can I visit your showroom to see the car in person?',
+      answer: 'Yes! Once our sales team contacts you, they can arrange a visit to our showroom or to be nearest to you. It is highly advised to contact our team before you arrive if you have any specific inquiry.',
+      plainTextAnswer: 'Yes! Once our sales team contacts you, they can arrange a visit to our showroom or to be nearest to you. It is highly advised to contact our team before you arrive if you have any specific inquiry.'
+    },
+    {
+      id: '6-3',
+      categoryId: 6,
+      question: 'Where are your cars located?',
+      answer: 'Most of the cars in our catalog are located in Jebel Ali, Dubai and few cars in branches. Once you purchase any car online, You can arrange to pickup from our Location in Dubai. For B2B customers, some of our vehicles are also available in other countries, where we conduct our rigorous vehicle inspection process. We also Offer to ship it to the port closest to you or deliver it right to your doorstep.',
+      plainTextAnswer: 'Most of the cars in our catalog are located in Jebel Ali, Dubai and few cars in branches. Once you purchase any car online, You can arrange to pickup from our Location in Dubai. For B2B customers, some of our vehicles are also available in other countries, where we conduct our rigorous vehicle inspection process. We also Offer to ship it to the port closest to you or deliver it right to your doorstep.'
+    },
+    
+    // Images & Specifications
+    {
+      id: '7-1',
+      categoryId: 7,
+      question: 'Are there detailed images of each car?',
+      answer: 'Yes, every car listing includes high-quality images showcasing both interior and exterior views. Also, we provide you the option to view specific highlights and features of the car as well.',
+      plainTextAnswer: 'Yes, every car listing includes high-quality images showcasing both interior and exterior views. Also, we provide you the option to view specific highlights and features of the car as well.'
+    },
+    {
+      id: '7-2',
+      categoryId: 7,
+      question: 'Where can I find technical specifications for each car?',
+      answer: 'Each car listing includes detailed technical specifications like engine type, mileage, features, and more.',
+      plainTextAnswer: 'Each car listing includes detailed technical specifications like engine type, mileage, features, and more.'
+    },
+    
+    // Account & Notifications
+    {
+      id: '8-1',
+      categoryId: 8,
+      question: 'Will I receive updates on new listings if I register an account?',
+      answer: 'Yes! Registered users can opt-in for email or push notifications about new car listings and offers. We provide you with a lot of information in addition to helping you stay informed about the latest offers and prices.',
+      plainTextAnswer: 'Yes! Registered users can opt-in for email or push notifications about new car listings and offers. We provide you with a lot of information in addition to helping you stay informed about the latest offers and prices.'
+    },
+    {
+      id: '8-2',
+      categoryId: 8,
+      question: 'Can I save my favorite cars for later?',
+      answer: 'Yes! Create an account to save your favorite cars and access them anytime.',
+      plainTextAnswer: 'Yes! Create an account to save your favorite cars and access them anytime.'
+    },
+    
+    // Miscellaneous FAQs
+    {
+      id: '9-1',
+      categoryId: 9,
+      question: 'Do you offer financing options for purchasing cars?',
+      answer: 'Financing options are not available directly through our website but may be discussed with our sales team offline.',
+      plainTextAnswer: 'Financing options are not available directly through our website but may be discussed with our sales team offline.'
+    }
+  ];
+
+  const [faqCategories, setFaqCategories] = useState(staticCategories);
+  const [activeCategoryId, setActiveCategoryId] = useState(1);
+  const [faqs, setFaqs] = useState(staticFaqData);
+  const [filteredFaqs, setFilteredFaqs] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Filter FAQs when search query or active category changes
   useEffect(() => {
     filterFaqs();
-  }, [searchQuery, activeCategoryId, faqs]);
+  }, [searchQuery, activeCategoryId]);
 
-  const fetchFaqData = async (language = 'en') => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await getFaqCategories(language);
-
-      if (response.success && response.data) {
-        console.log('FAQ data received:', response.data);
-
-        // Process categories and set first one as active
-        const categories = response.data.map((category, index) => ({
-          id: category.id,
-          name: category.name,
-          active: index === 0,
-        }));
-
-        setFaqCategories(categories);
-
-        // Set the first category as active if categories exist
-        if (categories.length > 0) {
-          setActiveCategoryId(categories[0].id);
-        }
-
-        // Flatten all FAQs for search functionality
-        const allFaqs = [];
-        response.data.forEach(category => {
-          if (category.faqs && category.faqs.length > 0) {
-            category.faqs.forEach(faq => {
-              allFaqs.push({
-                id: `${category.id}-${
-                  faq.id || Math.random().toString(36).substring(7)
-                }`,
-                categoryId: category.id,
-                question: faq.question,
-                answer: faq.answer,
-                plainTextAnswer: stripHtmlTags(faq.answer), // Add plain text version for search
-              });
-            });
-          }
-        });
-
-        setFaqs(allFaqs);
-        setFilteredFaqs(allFaqs);
-      } else {
-        console.log('API returned unsuccessful response for FAQs:', response);
-        setError('Failed to load FAQs. Please try again later.');
-
-        // Set empty data to avoid undefined errors
-        setFaqCategories([]);
-        setFaqs([]);
-        setFilteredFaqs([]);
-      }
-    } catch (error) {
-      console.error('Error fetching FAQ data:', error);
-      setError(
-        'An error occurred while loading FAQs. Please check your connection and try again.',
-      );
-
-      // Set empty data to avoid undefined errors
-      setFaqCategories([]);
-      setFaqs([]);
-      setFilteredFaqs([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Initialize with filtered faqs based on first category
+  useEffect(() => {
+    filterFaqs();
+  }, []);
 
   const filterFaqs = () => {
     let filtered = [...faqs];
@@ -414,19 +583,97 @@ const HelpCenterScreen = () => {
     setSearchQuery(text);
   };
 
-  const handleRefresh = () => {
-    setSearchQuery('');
-    fetchFaqData();
+  // Handle opening external links
+  const handleOpenLink = async (url) => {
+    if (!url) {
+      Alert.alert('Error', 'Invalid link');
+      return;
+    }
+    
+    try {
+      // Check if the link can be opened
+      const canOpen = await Linking.canOpenURL(url);
+      
+      if (canOpen) {
+        await Linking.openURL(url);
+      } else {
+        console.warn(`Cannot open URL: ${url}`);
+        
+        // Custom handling based on URL type
+        if (url.startsWith('tel:')) {
+          Alert.alert(
+            'Cannot Make Call',
+            'Your device doesn\'t support making calls or the phone app is not available.',
+            [{ text: 'OK' }]
+          );
+        } else {
+          Alert.alert(
+            'Cannot Open Link',
+            'Your device cannot open this type of link. Please try again later or contact customer service.',
+            [{ text: 'OK' }]
+          );
+        }
+      }
+    } catch (error) {
+      console.error('Error opening URL:', error);
+      Alert.alert(
+        'Error',
+        'Could not open the link. Please try again later.',
+        [{ text: 'OK' }]
+      );
+    }
   };
 
-  // Define contact items for Contact Us tab
+  // Define contact items for Contact Us tab with their respective URLs
   const contactItems = [
-    {id: '1', name: 'Customer Service', icon: <HeadphonesIcon />},
-    {id: '2', name: 'WhatsApp', icon: <WhatsAppIcon />},
-    {id: '3', name: 'Website', icon: <WebsiteIcon />},
-    {id: '4', name: 'Facebook', icon: <FacebookIcon />},
-    {id: '5', name: 'Twitter', icon: <TwitterIcon />},
-    {id: '6', name: 'Instagram', icon: <InstagramIcon />},
+    {
+      id: '1', 
+      name: 'Customer Service', 
+      icon: <HeadphonesIcon />,
+      url: 'tel:+971 50 966 0888'
+    },
+    {
+      id: '2', 
+      name: 'WhatsApp', 
+      icon: <WhatsAppIcon />,
+      url: 'https://api.whatsapp.com/send/?phone=971509660888&text&type=phone_number&app_absent=0'
+    },
+    {
+      id: '3', 
+      name: 'Website', 
+      icon: <WebsiteIcon />,
+      url: 'https://legendmotorsglobal.com'
+    },
+    {
+      id: '4', 
+      name: 'Facebook', 
+      icon: <FacebookIcon />,
+      url: 'https://www.facebook.com/legendmotorsglobal'
+    },
+    {
+      id: '5', 
+      name: 'Twitter', 
+      icon: <TwitterIcon />,
+      url: 'https://twitter.com/legendmotorsdxb'
+    },
+    {
+      id: '6', 
+      name: 'Instagram', 
+      icon: <InstagramIcon />,
+      url: 'https://www.instagram.com/legendmotorsglobal/'
+    },
+    {
+      id: '7',
+      name: 'LinkedIn',
+      icon: <LinkedInIcon />,
+      url: 'https://www.linkedin.com/company/legendmotors/'
+    },
+    {
+      id: '8',
+      name: 'YouTube',
+      icon: <YouTubeIcon />,
+      url: 'https://www.youtube.com/@legendmotorsgroup7502'
+    }
   ];
 
   const renderFAQTab = () => {
@@ -447,40 +694,41 @@ const HelpCenterScreen = () => {
           <Text style={[styles.errorText, {color: themeColors[theme].text}]}>
             {error}
           </Text>
-          <TouchableOpacity style={styles.retryButton} onPress={handleRefresh}>
-            <Text style={styles.retryButtonText}>Try Again</Text>
-          </TouchableOpacity>
         </View>
       );
     }
 
     return (
       <View style={styles.tabContent}>
-        {/* FAQ Categories */}
-        {faqCategories.length > 0 && (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.categoriesContainer}>
-            {faqCategories.map(category => (
-              <TouchableOpacity
-                key={category.id}
+        {/* FAQ Categories - Vertical Layout */}
+        <View style={styles.categoriesVerticalContainer}>
+          {faqCategories.map(category => (
+            <TouchableOpacity
+              key={category.id}
+              style={[
+                styles.categoryButtonVertical,
+                category.active && styles.activeCategoryButtonVertical,
+                {
+                  backgroundColor: category.active 
+                    ? (isDark ? '#FF8C00' : '#F47B20') 
+                    : (isDark ? '#333333' : '#F5F5F5'),
+                }
+              ]}
+              onPress={() => handleCategoryPress(category.id)}>
+              <Text
                 style={[
-                  styles.categoryButton,
-                  category.active && styles.activeCategoryButton,
-                ]}
-                onPress={() => handleCategoryPress(category.id)}>
-                <Text
-                  style={[
-                    styles.categoryText,
-                    category.active && styles.activeCategoryText,
-                  ]}>
-                  {category.name}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )}
+                  styles.categoryTextVertical,
+                  {
+                    color: category.active 
+                      ? '#FFFFFF' 
+                      : (isDark ? '#FFFFFF' : '#333333'),
+                  },
+                ]}>
+                {category.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         {/* Search Bar */}
         <View
@@ -539,7 +787,7 @@ const HelpCenterScreen = () => {
                         styles.answerText,
                         {color: isDark ? '#FFFFFF' : '#757575'},
                       ]}>
-                      {parseHtmlContent(item.answer)}
+                      {item.answer}
                     </Text>
                   </View>
                 )}
@@ -562,14 +810,21 @@ const HelpCenterScreen = () => {
   const renderContactTab = () => {
     return (
       <View style={styles.tabContent}>
+        <Text style={styles.contactHeaderText}>
+          Connect with Legend Motors through any of these channels:
+        </Text>
         <View style={styles.contactItemsContainer}>
           {contactItems.map(item => (
             <TouchableOpacity
               key={item.id}
               style={[
                 styles.contactItem,
-                {borderBottomColor: themeColors[theme].border},
-              ]}>
+                {
+                  borderBottomColor: themeColors[theme].border,
+                  backgroundColor: isDark ? '#333333' : '#F5F5F5',
+                },
+              ]}
+              onPress={() => handleOpenLink(item.url)}>
               <View style={styles.contactIcon}>{item.icon}</View>
               <Text
                 style={[
@@ -578,6 +833,17 @@ const HelpCenterScreen = () => {
                 ]}>
                 {item.name}
               </Text>
+              <View style={styles.contactArrow}>
+                <Svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <Path
+                    d="M6 12L10 8L6 4"
+                    stroke={isDark ? '#FFFFFF' : '#212121'}
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </Svg>
+              </View>
             </TouchableOpacity>
           ))}
         </View>
@@ -594,7 +860,7 @@ const HelpCenterScreen = () => {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       <View style={styles.header}>
         <TouchableOpacity
-          style={styles.backButton}
+          style={[styles.backButton, {color: isDark ? '#FFFFFF' : '#2D2D2D'}]}
           onPress={() => navigation.goBack()}>
           <SvgComponent />
         </TouchableOpacity>
@@ -727,28 +993,26 @@ const styles = StyleSheet.create({
   tabContent: {
     padding: 16,
   },
-  categoriesContainer: {
-    flexDirection: 'row',
+  categoriesVerticalContainer: {
     marginBottom: 16,
+    width: '100%',
   },
-  categoryButton: {
+  categoryButtonVertical: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 8,
     borderRadius: 8,
-    marginRight: 8,
-    backgroundColor: '#FFFFFF',
+    marginBottom: 8,
+    width: '100%',
+    alignItems: 'flex-start',
     borderWidth: 1,
     borderColor: '#F47B20',
   },
-  activeCategoryButton: {
+  activeCategoryButtonVertical: {
     backgroundColor: '#F47B20',
   },
-  categoryText: {
-    color: '#F47B20',
+  categoryTextVertical: {
+    fontSize: 16,
     fontWeight: '500',
-  },
-  activeCategoryText: {
-    color: '#FFFFFF',
   },
   searchContainer: {
     flexDirection: 'row',
@@ -781,7 +1045,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   questionText: {
-    fontSize: 14,
+    fontSize: 18,
     flex: 1,
     paddingRight: 8,
   },
@@ -832,13 +1096,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 16,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
+    borderRadius: 8,
+    marginBottom: 8,
   },
   contactIcon: {
     marginRight: 16,
   },
   contactName: {
     fontSize: 16,
+    flex: 1,
+  },
+  contactArrow: {
+    marginLeft: 8,
+  },
+  contactHeaderText: {
+    fontSize: 16,
+    marginBottom: 16,
+    textAlign: 'center',
+    color: '#666666',
   },
   loadingContainer: {
     flex: 1,
