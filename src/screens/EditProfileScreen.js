@@ -455,7 +455,7 @@ const EditProfileScreen = () => {
   };
 
   // Add gender options
-  const genderOptions = ['Male', 'Female', 'Other', 'Prefer not to say'];
+  const genderOptions = ['Male', 'Female', 'Prefer not to say'];
 
   // Location validation
   const validateLocation = text => {

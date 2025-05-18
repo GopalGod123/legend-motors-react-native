@@ -516,15 +516,7 @@ const ProfileScreen = () => {
       <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text
-            style={[
-              styles.headerTitle,
-              {color: isDark ? '#888888' : '#888888'},
-            ]}>
-            Profile & settings
-          </Text>
-        </View>
+        
         <View style={styles.profileContainer}>
           <View style={styles.profileHeader}>
             <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
@@ -754,6 +746,7 @@ const styles = StyleSheet.create({
   profileContainer: {
     flex: 1,
     paddingHorizontal: 16,
+    marginTop: 16,
     paddingBottom: 16,
     backgroundColor: 'transparent',
   },
