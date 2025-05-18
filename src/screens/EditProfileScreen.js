@@ -78,20 +78,15 @@ const CalendarIcon = ({color = '#212121'}) => (
 
 // Email Icon
 const EmailIcon = ({color = '#7A40C6'}) => (
-  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+  <Svg
+    width={20}
+    height={20}
+    viewBox="0 0 20 20"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
     <Path
-      d="M17 21H7C4 21 2 19.5 2 16V8C2 4.5 4 3 7 3H17C20 3 22 4.5 22 8V16C22 19.5 20 21 17 21Z"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <Path
-      d="M18.5 8.5L13.5736 12.4222C12.6941 13.1255 11.4577 13.1255 10.5781 12.4222L5.5 8.5"
-      stroke={color}
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      d="M3.333 16.667c-.458 0-.85-.164-1.177-.49A1.605 1.605 0 011.666 15V5c0-.458.164-.85.49-1.177.326-.326.719-.49 1.177-.49h13.334c.458 0 .85.164 1.177.49.326.326.49.719.49 1.177v10c0 .458-.164.85-.49 1.177-.327.326-.72.49-1.178.49H3.333zM10 10.833l6.666-4.166V5L10 9.167 3.333 5v1.667L10 10.833z"
+      fill={color}
     />
   </Svg>
 );
@@ -483,7 +478,7 @@ const EditProfileScreen = () => {
     return (
       <Image
         source={{uri: `https://flagsapi.com/${countryCode}/flat/32.png`}}
-        style={{width: 24, height: 16, borderRadius: 2}}
+        style={styles.flagImage}
         resizeMode="cover"
         key={`flag-${dialCode}-${countryCode}`} // Unique key to force re-render
       />
@@ -583,7 +578,7 @@ const EditProfileScreen = () => {
             onPress={() => toggleDropdown('countryCode')}>
             <Text
               style={{
-                marginRight: 4,
+                marginRight: 10,
                 color: themeColors[theme].text,
                 fontWeight: '500',
               }}>
@@ -593,7 +588,7 @@ const EditProfileScreen = () => {
               source={{
                 uri: `https://flagsapi.com/${countryFlagCode}/flat/32.png`,
               }}
-              style={{width: 24, height: 16, borderRadius: 2}}
+              style={styles.flagImage}
               resizeMode="cover"
             />
           </TouchableOpacity>
@@ -628,57 +623,57 @@ const EditProfileScreen = () => {
             styles.dropdownPopup,
             {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
           ]}>
-          <Text
-            style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
-            Select Country Code
-          </Text>
+            <Text
+              style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
+              Select Country Code
+            </Text>
 
-          <FlatList
-            data={countryCodeOptions}
-            keyExtractor={item => `${item.code}-${item.countryCode}`}
-            style={styles.countryList}
-            showsVerticalScrollIndicator={true}
-            renderItem={({item}) => (
-              <TouchableOpacity
-                style={[
-                  styles.countryItem,
-                  formData.countryCode === item.code && {
-                    backgroundColor: '#F47B20',
-                  },
-                ]}
-                onPress={() => handleCountrySelect(item.code)}>
-                <View style={styles.countryInfo}>
-                  <Image
-                    source={{
-                      uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
-                    }}
-                    style={styles.flagImage}
-                    resizeMode="cover"
-                  />
-                  <Text
-                    style={[
-                      styles.countryText,
-                      {
-                        color:
-                          formData.countryCode === item.code
-                            ? '#FFFFFF'
-                            : themeColors[theme].text,
-                      },
-                    ]}>
-                    {item.code} {item.country}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
+            <FlatList
+              data={countryCodeOptions}
+              keyExtractor={item => `${item.code}-${item.countryCode}`}
+              style={styles.countryList}
+              showsVerticalScrollIndicator={true}
+              renderItem={({item}) => (
+                <TouchableOpacity
+                  style={[
+                    styles.countryItem,
+                    formData.countryCode === item.code && {
+                      backgroundColor: '#F47B20',
+                    },
+                  ]}
+                  onPress={() => handleCountrySelect(item.code)}>
+                  <View style={styles.countryInfo}>
+                    <Image
+                      source={{
+                        uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
+                      }}
+                      style={styles.flagImage}
+                      resizeMode="cover"
+                    />
+                    <Text
+                      style={[
+                        styles.countryText,
+                        {
+                          color:
+                            formData.countryCode === item.code
+                              ? '#FFFFFF'
+                              : themeColors[theme].text,
+                        },
+                      ]}>
+                      {item.code} {item.country}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
 
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setOpenDropdown(null)}>
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setOpenDropdown(null)}>
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
     );
   };
 
@@ -726,8 +721,13 @@ const EditProfileScreen = () => {
                     source={{
                       uri: `https://flagsapi.com/${item.code}/flat/32.png`,
                     }}
-                    style={styles.flagImage}
+                    style={{
+                      width: 24,
+                      height: 16,
+                      borderRadius: 2,
+                    }}
                     resizeMode="cover"
+                    key={item.code} // Add key to force re-render when location changes
                   />
                   <Text
                     style={[
@@ -958,7 +958,6 @@ const EditProfileScreen = () => {
                       width: 24,
                       height: 16,
                       borderRadius: 2,
-                      marginRight: 10,
                     }}
                     resizeMode="cover"
                     key={formData.location} // Add key to force re-render when location changes
@@ -1149,9 +1148,12 @@ const styles = StyleSheet.create({
   },
   phoneInput: {
     paddingLeft: 8,
+    marginLeft: 40,
   },
   inputIcon: {
     paddingRight: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   flagContainer: {
     paddingLeft: 16,
@@ -1159,6 +1161,7 @@ const styles = StyleSheet.create({
     borderRightWidth: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 20,
   },
   updateButton: {
     backgroundColor: '#F47B20',
@@ -1246,11 +1249,11 @@ const styles = StyleSheet.create({
   countryInfo: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 20,
   },
   flagImage: {
     width: 24,
     height: 16,
-    marginRight: 10,
     borderRadius: 2,
   },
   countryText: {
@@ -1273,6 +1276,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     paddingHorizontal: 16,
+    gap: 10,
   },
   inputLabel: {
     fontSize: 14,
