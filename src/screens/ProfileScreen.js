@@ -24,6 +24,7 @@ import {COLORS} from 'src/utils/constants';
 import {getAuth, signOut} from '@react-native-firebase/auth';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {Ionicons} from '../utils/icon';
+import {useWishlist} from 'src/context/WishlistContext';
 // SVG icons as React components
 const UserIcon = () => {
   const {theme} = useTheme();
@@ -332,6 +333,7 @@ const ProfileScreen = () => {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const {clearWishlist} = useWishlist();
 
   const fetchUserProfile = async () => {
     try {
@@ -372,7 +374,7 @@ const ProfileScreen = () => {
       await logoutUser();
       // Call context logout
       await logout();
-
+      clearWishlist();
       //sso - signout
       let ssoUser = getAuth().currentUser;
       if (ssoUser) {

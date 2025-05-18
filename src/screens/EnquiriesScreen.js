@@ -181,7 +181,7 @@ const EnquiriesScreen = () => {
               styles.loadingText,
               {color: isDark ? '#CCCCCC' : '#757575'},
             ]}>
-            Loading enquiries...
+            Loading inquiries...
           </Text>
         </View>
       </SafeAreaView>

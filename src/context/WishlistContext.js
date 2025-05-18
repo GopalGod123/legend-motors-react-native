@@ -191,6 +191,9 @@ export const WishlistProvider = ({children}) => {
         addItemToWishlist,
         removeItemFromWishlist,
         fetchWishlistItems,
+        clearWishlist: () => {
+          setWishlistItems([]);
+        },
       }}>
       {children}
     </WishlistContext.Provider>

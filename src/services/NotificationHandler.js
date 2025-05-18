@@ -2,9 +2,13 @@ import {useEffect} from 'react';
 import {Platform, PermissionsAndroid} from 'react-native';
 import CleverTap from 'clevertap-react-native';
 import messaging from '@react-native-firebase/messaging';
-
+const CLEVERTAP_EVENTS = {
+  ADD_TO_WISHLIST: 'Add to Wishlist',
+  REMOVE_FROM_WISHLIST: 'Remove from Wishlist',
+  VIEW_PRODUCT: 'View Product',
+};
 export default function useCleverTapDemo() {
-  useEffect(() => {
+  const setUpNotification = () => {
     // Enable CleverTap debug logs
     CleverTap.setDebugLevel(3);
 
@@ -36,35 +40,8 @@ export default function useCleverTapDemo() {
       console.log('CleverTap ID:', id);
     });
 
-    // 👉 Send Unique User Profile
-    // let Email =
-    //   'testuser1_' + Math.floor(Math.random() * 1000) + '@example.com';
-    // let Identity = 'user1_' + Math.floor(Math.random() * 100000);
-    // const userProfile1 = {
-    //   Name: 'satyam sen',
-    //   Identity: Identity, // User unique ID (string)
-    //   Email: Email,
-    //   Phone: '+919098727625', // Must include country code
-    //   Gender: 'M',
-    //   DOB: new Date('1990-10-10'), // Date object
-    // };
-
-    // setTimeout(() => {
-    //   CleverTap.profileSet(userProfile1);
-    //   console.log('update');
-    // }, 1000);
-
-    // console.log({Email});
-    // const userProfile = {
-    //   Name: 'TestU' + Math.floor(Math.random() * 1000),
-    //   Identity: Identity, // Unique identity
-    //   Email: Email,
-    //   Phone: '+91123456789' + Math.floor(Math.random() * 10),
-    //   custom1: 'DemoTest',
-    // };
-    // CleverTap.onUserLogin(userProfile1);
     CleverTap.createNotificationChannel(
-      'testing-01', // Channel ID
+      'legend-motors', // Channel ID
       'General Notifications', // Name
       'General notifications from the app', // Description
       4, // Importance (1-5)
@@ -86,8 +63,23 @@ export default function useCleverTapDemo() {
     }
 
     getFCMToken();
+  };
+  const setUserProfileCleverTap = user => {
+    const userProfile = {
+      Name: user?.firstName,
+      LastName: user?.lastName,
+      Identity: user?.id, // Unique identity
+      Email: user?.email,
+    };
+    CleverTap.profileSet(userProfile);
+  };
 
-    // Optional: Record an event
-    // CleverTap.recordEvent('Demo_User_Profile');
-  }, []);
+  const sendEvent = (event, data) => {
+    CleverTap.recordEvent(event, data);
+  };
+  return {
+    setUpNotification,
+    setUserProfileCleverTap,
+    sendEvent,
+  };
 }
