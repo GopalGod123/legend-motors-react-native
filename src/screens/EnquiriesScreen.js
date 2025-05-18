@@ -44,7 +44,7 @@ const LegendMotorsLogo = () => {
 
 const EnquiriesScreen = () => {
   const navigation = useNavigation();
-  const {user, isAuthenticated} = useAuth();
+  const {user, isAuthenticated, checkAuthStatus} = useAuth();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [enquiries, setEnquiries] = useState([]);
@@ -64,10 +64,10 @@ const EnquiriesScreen = () => {
   const checkAuthAndFetchEnquiries = async () => {
     setLoading(true);
     try {
-      const authenticated = await isAuthenticated();
-      setIsUserAuthenticated(authenticated);
+      await checkAuthStatus();
+      setIsUserAuthenticated(isAuthenticated);
 
-      if (authenticated) {
+      if (isAuthenticated) {
         fetchEnquiries();
       } else {
         // Not authenticated, don't fetch data

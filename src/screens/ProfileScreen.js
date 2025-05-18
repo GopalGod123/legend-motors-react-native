@@ -327,7 +327,7 @@ const PhoneIcon = () => {
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
-  const {user, logout, isAuthenticated} = useAuth();
+  const {user, logout, isAuthenticated, checkAuthStatus} = useAuth();
   const {selectedLanguage, setSelectedLanguage} = useCurrencyLanguage();
   const {theme, toggleTheme, isDark} = useTheme();
   const [loading, setLoading] = useState(true);
@@ -338,8 +338,8 @@ const ProfileScreen = () => {
   const fetchUserProfile = async () => {
     try {
       setLoading(true);
-      const isValidUser = await isAuthenticated();
-      if (isValidUser) {
+      await checkAuthStatus();
+      if (isAuthenticated) {
         setUserProfile(user);
       } else {
         Alert.alert(

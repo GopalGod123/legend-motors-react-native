@@ -16,13 +16,13 @@ export const WishlistProvider = ({children}) => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [removingItems, setRemovingItems] = useState({}); // Track items being removed locally
-  const {user, isAuthenticated} = useAuth();
+  const {user, isAuthenticated, checkAuthStatus} = useAuth();
 
   // Fetch wishlist items when user logs in
   useEffect(() => {
     const checkAndFetchWishlist = async () => {
-      const isUserAuthenticated = await isAuthenticated();
-      if (isUserAuthenticated) {
+      await checkAuthStatus();
+      if (isAuthenticated) {
         fetchWishlistItems();
       } else {
         setWishlistItems([]);

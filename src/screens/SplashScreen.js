@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SplashScreen = () => {
   const navigation = useNavigation();
-  const {isAuthenticated} = useAuth();
+  const {isAuthenticated, checkAuthStatus} = useAuth();
 
   useEffect(() => {
     const checkAuthAndNavigate = () => {
@@ -14,9 +14,9 @@ const SplashScreen = () => {
 
       // Navigate based on authentication status
       setTimeout(async () => {
-        const isAuthenticatedUser = await isAuthenticated();
+        await checkAuthStatus();
         const firstTimeUser = await AsyncStorage.getItem('firstTimeUser');
-        if (isAuthenticatedUser) {
+        if (isAuthenticated) {
           // User is authenticated, go directly to main screen
           navigation.reset({
             index: 0,

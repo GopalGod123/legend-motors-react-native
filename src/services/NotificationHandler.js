@@ -2,14 +2,24 @@ import {Platform, PermissionsAndroid} from 'react-native';
 import CleverTap from 'clevertap-react-native';
 import messaging from '@react-native-firebase/messaging';
 export const CLEVERTAP_EVENTS = {
-  WELCOME: 'welcome',
-  WELCOME_BACK: 'welcome_back',
-  VIEW_CAR: 'view_car',
-  VIEW_CAR_DETAILS: 'view_car_details',
-  ADD_TO_WISHLIST: 'add_to_wishlist',
-  REMOVE_FROM_WISHLIST: 'remove_from_wishlist',
-  VIEW_CAR_ENQUIRY: 'view_car_enquiry',
-  INQUIRE_CAR: 'inquiry_car',
+  WELCOME: 'REGISTER',
+  WELCOME_BACK: 'LOGIN',
+  VIEW_CAR_DETAILS: 'VIEW_CAR_DETAILS',
+  ADD_TO_WISHLIST: 'ADD_TO_WISHLIST',
+  REMOVE_FROM_WISHLIST: 'REMOVE_FROM_WISHLIST',
+  VIEW_CAR_ENQUIRY: 'VIEW_CAR_ENQUIRY',
+  INQUIRE_CAR: 'INQUIRE_CAR',
+  PROFILE_UPDATE: 'PROFILE_UPDATE',
+  PROFILE_INCOMPLETE: 'PROFILE_INCOMPLETE',
+  LOG_OUT: 'LOG_OUT',
+  DAILY_CHECK_IN: 'DAILY_CHECK_IN',
+  SEARCH_CAR: 'SEARCH_CAR',
+  NOTIFICATION_PERMISSION: 'NOTIFICATION_PERMISSION',
+  PASSWORD_RESET: 'PASSWORD_RESET',
+  BROWSING_AS_GUEST: 'BROWSING_AS_GUEST',
+  WISHLIST_GUEST: 'WISHLIST_GUEST',
+  BROWSING_CAR_GUEST: 'BROWSING_CAR_GUEST',
+  GUEST_LOGIN: 'GUEST_LOGIN',
 };
 export default function useCleverTap() {
   const setUpNotification = () => {

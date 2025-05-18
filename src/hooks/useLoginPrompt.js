@@ -1,6 +1,6 @@
 import {useState, useCallback} from 'react';
 import {useNavigation} from '@react-navigation/native';
-import {isAuthenticated} from '../services/api';
+import {useAuth} from 'src/context/AuthContext';
 
 /**
  * Hook to manage the login prompt modal
@@ -27,9 +27,10 @@ export const useLoginPrompt = () => {
   }, [navigation]);
 
   // Check if user is authenticated and show login prompt if not
+  const {isAuthenticated, checkAuthStatus} = useAuth();
   const checkAuthAndShowPrompt = useCallback(async () => {
-    const userAuthenticated = await isAuthenticated();
-    if (!userAuthenticated) {
+    await checkAuthStatus();
+    if (!isAuthenticated) {
       showLoginPrompt();
       return false;
     }

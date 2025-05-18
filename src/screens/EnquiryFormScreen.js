@@ -19,7 +19,7 @@ import {
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
 import {Ionicons} from '../utils/icon';
-import {submitCarEnquiry, isAuthenticated} from '../services/api';
+import {submitCarEnquiry} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useCountryCodes} from '../context/CountryCodesContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
@@ -92,22 +92,22 @@ const EnquiryFormScreen = () => {
   }, [formattedCountryCodes]);
 
   // Check authentication when component mounts
-  useEffect(() => {
-    const checkAuth = async () => {
-      const isAuthorized = await checkAuthAndShowPrompt();
-      if (!isAuthorized) {
-        // If not authenticated, the login prompt will show automatically
-        // We'll stay on this screen until they log in or dismiss the prompt
-      } else {
-        // If authenticated, pre-fill form with user data if available
-        if (user) {
-          console.log('user', user);
-        }
-      }
-    };
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     const isAuthorized = await checkAuthAndShowPrompt();
+  //     if (!isAuthorized) {
+  //       // If not authenticated, the login prompt will show automatically
+  //       // We'll stay on this screen until they log in or dismiss the prompt
+  //     } else {
+  //       // If authenticated, pre-fill form with user data if available
+  //       if (user) {
+  //         console.log('user', user);
+  //       }
+  //     }
+  //   };
 
-    checkAuth();
-  }, [user, checkAuthAndShowPrompt]);
+  //   checkAuth();
+  // }, [user, checkAuthAndShowPrompt]);
 
   // Handle checkbox toggle
   const toggleSameAsProfile = () => {

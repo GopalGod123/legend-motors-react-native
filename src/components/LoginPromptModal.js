@@ -26,7 +26,6 @@ const LockIcon = () => (
 const PROMPT_SHOWN_KEY = 'login_prompt_dismissed';
 
 const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
-  const {isAuthenticated, user} = useAuth();
   const {isDark} = useTheme();
   const [shouldShowModal, setShouldShowModal] = useState(visible);
 
@@ -95,7 +94,9 @@ const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
               Log in or register to access exclusive features and deals!
             </Text>
 
-            <TouchableOpacity style={styles.loginButton} onPress={handleLoginPress}>
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={handleLoginPress}>
               <Text style={styles.loginButtonText}>Login / Register</Text>
             </TouchableOpacity>
           </View>

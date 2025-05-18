@@ -22,6 +22,7 @@ export const AuthProvider = ({children}) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Check for stored auth token on app load
   useEffect(() => {
@@ -192,6 +193,7 @@ export const AuthProvider = ({children}) => {
         console.log('response', response);
         if (response.success) {
           setUser(response.data);
+          setIsAuthenticated(true);
           return true;
         }
       }
@@ -203,6 +205,7 @@ export const AuthProvider = ({children}) => {
 
           if (res.success) {
             setUser(res.data);
+            setIsAuthenticated(true);
             return true;
           }
         }
@@ -217,11 +220,13 @@ export const AuthProvider = ({children}) => {
             const res = await getUserProfile();
             if (res.success) {
               setUser(res.data);
+              setIsAuthenticated(true);
               return true;
             }
           }
         }
       } catch (error) {
+        setIsAuthenticated(false);
         return false;
       }
     }
@@ -241,7 +246,8 @@ export const AuthProvider = ({children}) => {
     login,
     logout,
     refreshToken: forceRefreshToken,
-    isAuthenticated: checkAuthStatus,
+    isAuthenticated,
+    checkAuthStatus,
     ssoApi,
   };
 

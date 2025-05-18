@@ -66,7 +66,7 @@ const DeferredComponent = memo(
 
 const HomeScreen = () => {
   const navigation = useNavigation();
-  const {user, isAuthenticated} = useAuth();
+  const {user, isAuthenticated, checkAuthStatus} = useAuth();
   const {isDark} = useTheme();
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [checkedPromptStatus, setCheckedPromptStatus] = useState(false);
@@ -124,9 +124,9 @@ const HomeScreen = () => {
     const checkLoginPromptStatus = async () => {
       try {
         // Check if the user is authenticated
-        const userAuthenticated = await isAuthenticated();
+        await checkAuthStatus();
 
-        if (userAuthenticated) {
+        if (isAuthenticated) {
           // If user is logged in, don't show the prompt
           setShowLoginPrompt(false);
           setCheckedPromptStatus(true);
