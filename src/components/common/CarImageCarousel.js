@@ -11,7 +11,7 @@ import { COLORS } from '../../utils/constants';
 import CarImage from './CarImage';
 import { preloadImages } from '../../utils/ImageCacheManager';
 
-const { width } = Dimensions.get('window');
+const { width: screenWidth } = Dimensions.get('window');
 
 const CarImageCarousel = forwardRef(({ 
   images, 
@@ -20,12 +20,19 @@ const CarImageCarousel = forwardRef(({
   onImagePress,
   showIndex = false,
   initialIndex = 0,
-  onIndexChange
+  onIndexChange,
+  width: propWidth,
 }, ref) => {
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const [imagesPreloaded, setImagesPreloaded] = useState(false);
   const flatListRef = useRef(null);
   const scrollToIndexTimeoutRef = useRef(null);
+
+  // Calculate width - use propWidth if provided, otherwise use screenWidth
+  const width = propWidth || screenWidth;
+  
+  // Calculate item width - use full container width for item width
+  const itemWidth = width;
 
   // Memoize images to prevent unnecessary re-renders
   const memoizedImages = useMemo(() => images || [], [images ? images.length : 0]);
@@ -96,14 +103,14 @@ const CarImageCarousel = forwardRef(({
         const index = typeof indexOrOptions === 'object' ? indexOrOptions.index : indexOrOptions;
         
         // Fallback if scrollToIndex fails - use scrollToOffset
-        const offset = index * width;
+        const offset = index * itemWidth;
         flatListRef.current.scrollToOffset({
           offset,
           animated: true,
         });
       }
     }
-  }, [images, width]);
+  }, [images, itemWidth]);
   
   // Implement useImperativeHandle to expose methods to parent components
   useImperativeHandle(ref, () => ({
@@ -130,7 +137,7 @@ const CarImageCarousel = forwardRef(({
   // Handle when scrolling ends to update the active index
   const handleScroll = useCallback((event) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const newIndex = Math.round(contentOffsetX / width);
+    const newIndex = Math.round(contentOffsetX / itemWidth);
     
     if (newIndex !== activeIndex && newIndex >= 0 && newIndex < memoizedImages.length) {
       setActiveIndex(newIndex);
@@ -138,7 +145,7 @@ const CarImageCarousel = forwardRef(({
         onIndexChange(newIndex);
       }
     }
-  }, [activeIndex, memoizedImages.length, onIndexChange]);
+  }, [activeIndex, memoizedImages.length, onIndexChange, itemWidth]);
 
   // Go to a specific image
   const goToImage = useCallback((index) => {
@@ -152,7 +159,7 @@ const CarImageCarousel = forwardRef(({
   // Better memoization of renderItem to prevent recreation
   const renderItem = useCallback(({ item, index }) => (
     <TouchableOpacity
-      style={[styles.itemContainer, { width }]}
+      style={[styles.itemContainer, { width: itemWidth }]}
       activeOpacity={0.9}
       onPress={() => onImagePress && onImagePress(index)}
     >
@@ -170,13 +177,13 @@ const CarImageCarousel = forwardRef(({
         </View>
       )}
     </TouchableOpacity>
-  ), [width, height, onImagePress, showIndex]);
+  ), [itemWidth, height, onImagePress, showIndex, memoizedImages.length]);
 
   // Memoize flatlist configuration for stability
   const listConfig = useMemo(() => ({
     getItemLayout: (_data, index) => ({
-      length: width,
-      offset: width * index,
+      length: itemWidth,
+      offset: itemWidth * index,
       index,
     }),
     windowSize: 3,
@@ -184,7 +191,7 @@ const CarImageCarousel = forwardRef(({
     maxToRenderPerBatch: 2,
     removeClippedSubviews: true,
     keyExtractor: (_, index) => `carousel-${index}`,
-  }), [width]);
+  }), [itemWidth]);
 
   // If no images or empty array, return null
   if (!memoizedImages || memoizedImages.length === 0) {
@@ -223,19 +230,22 @@ const CarImageCarousel = forwardRef(({
   }, [memoizedImages.length, activeIndex, goToImage]);
 
   return (
-    <View style={[styles.container, { height }, style]}>
+    <View style={[styles.container, { height, width }, style]}>
       <FlatList
         ref={flatListRef}
         data={memoizedImages}
         renderItem={renderItem}
         horizontal
         pagingEnabled
+        decelerationRate="fast"
+        snapToInterval={itemWidth}
+        snapToAlignment="start"
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
         keyExtractor={(_, index) => `carousel-${index}`}
         getItemLayout={(_, index) => ({
-          length: width,
-          offset: width * index,
+          length: itemWidth,
+          offset: itemWidth * index,
           index,
         })}
         maxToRenderPerBatch={2}
@@ -252,7 +262,7 @@ const CarImageCarousel = forwardRef(({
           
           // Try scrollToOffset which is less likely to fail
           flatListRef.current?.scrollToOffset({
-            offset: validIndex * width,
+            offset: validIndex * itemWidth,
             animated: false
           });
           
