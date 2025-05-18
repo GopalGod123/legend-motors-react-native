@@ -261,6 +261,7 @@ const HotDeals = () => {
         years: [],
         yearIds: [],
       },
+      title: 'Hot Deals',
     });
   };
 
