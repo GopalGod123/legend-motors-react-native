@@ -1110,38 +1110,10 @@ export const addToWishlist = async carId => {
 // Keep track of deletion requests that are in progress
 const pendingDeletions = {};
 
-export const removeFromWishlist = async carId => {
+export const removeFromWishlist = async ({carId, userId}) => {
   try {
-    // Check if this carId is already being processed
-    const key = `car_${carId}`;
-    if (pendingDeletions[key]) {
-      // console.log(
-      //   `Delete request for car ${carId} already in progress, skipping duplicate`,
-      // );
-      return {success: true, message: 'Request already in progress'};
-    }
-
-    // Mark this request as pending
-    pendingDeletions[key] = true;
-
-    // Always use the carId, never the wishlistId
-    // Convert to number if it's a string
-    const numericCarId = parseInt(carId);
-    // console.log(
-    //   `Attempting to remove car with ID: ${numericCarId} from wishlist`,
-    // );
-
-    // Use fixed userId based on API requirements
-    const userId = 35; // Hardcoded from API documentation
-
-    // Make sure userId is included in the URL
-    const url = `${API_BASE_URL}/wishlist/delete?userId=${userId}&carId=${numericCarId}`;
-    // console.log(`Making DELETE request to: ${url}`);
-
-    // Use the api instance which already has the interceptor for auth tokens
-    // instead of making a direct axios call. This prevents duplicate token handling.
     const response = await api.delete(
-      `/wishlist/delete?userId=${userId}&carId=${numericCarId}`,
+      `/wishlist/delete?userId=${userId}&carId=${carId}`,
     );
 
     if (response.data && response.data.success) {

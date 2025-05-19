@@ -17,7 +17,7 @@ import {
 import {useIsFocused, useNavigation} from '@react-navigation/native';
 import Svg, {Path, Circle} from 'react-native-svg';
 import LogoutModal from '../components/LogoutModal';
-import {
+import api, {
   getUserProfile,
   syncAuthToken,
   logoutUser,
@@ -489,22 +489,20 @@ const ProfileScreen = () => {
       });
 
       // Make API call to upload image
-      const uploadResponse = await fetch(
-        'https://api.legendmotorsglobal.com/api/upload',
-        {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+      const uploadResult = await api.post('file-system/upload', formData, {
+        // params: {
+        //
+        // },
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'x-parent-folder': 'profiles',
         },
-      );
+      });
+      console.log('uploadResult', uploadResult);
 
-      const uploadResult = await uploadResponse.json();
-
-      if (!uploadResult.success) {
-        throw new Error(uploadResult.message || 'Failed to upload image');
-      }
+      // if (!uploadResult?.success) {
+      //   throw new Error(uploadResult.message || 'Failed to upload image');
+      // }
 
       // Now update user profile with the new image ID
       const profileData = {
@@ -607,8 +605,11 @@ const ProfileScreen = () => {
 
   // Get profile image URL
   const getProfileImageUrl = () => {
-    if (userProfile && userProfile.profileImage) {
-      const image = userProfile.profileImage;
+    if (user && user.profileImage) {
+      const image = user.profileImage;
+      console.log('image', image);
+      console.log('https://cdn.legendmotorsglobal.com' + image.path);
+      return `https://cdn.legendmotorsglobal.com${image.path}`;
       // Try different image paths
       const imagePath =
         image.webp || image.original || image.thumbnailPath || image.path;

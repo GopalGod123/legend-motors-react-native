@@ -33,6 +33,8 @@ const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
   useEffect(() => {
     if (visible) {
       setShouldShowModal(true);
+    } else {
+      setShouldShowModal(false);
     }
   }, [visible]);
 
@@ -59,14 +61,14 @@ const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
 
   return (
     <Modal
-      animationType="fade"
+      animationType="slide"
       transparent={true}
+      // style={{backgroundColor: 'red',padding:30}}
       visible={shouldShowModal}
+      // visible={true}
       statusBarTranslucent={true}
       onRequestClose={handleDismiss}>
       <View style={styles.container}>
-        <Pressable style={styles.overlay} onPress={handleDismiss} />
-
         <View style={[styles.modalContent, isDark && styles.modalContentDark]}>
           <TouchableOpacity
             style={styles.closeButton}

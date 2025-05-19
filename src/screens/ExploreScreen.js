@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   Text,
   TextInput,
+  Dimensions,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {COLORS, SPACING} from '../utils/constants';
@@ -382,7 +383,7 @@ const ExploreScreen = () => {
         else if (tagId === 2) setActiveFilter('new');
         else if (tagId === 3) setActiveFilter('hot');
       }
-      
+
       // Set category title based on tag ID
       if (route.params.title) {
         setCategoryTitle(route.params.title);
@@ -391,12 +392,12 @@ const ExploreScreen = () => {
         route.params.filters.specifications.tags
       ) {
         const tagId = route.params.filters.specifications.tags[0];
-        if (tagId === 1) setCategoryTitle("Most Popular in UAE");
-        else if (tagId === 2) setCategoryTitle("Just Arrived!");
-        else if (tagId === 3) setCategoryTitle("Hot Deals");
-        else setCategoryTitle("");
+        if (tagId === 1) setCategoryTitle('Most Popular in UAE');
+        else if (tagId === 2) setCategoryTitle('Just Arrived!');
+        else if (tagId === 3) setCategoryTitle('Hot Deals');
+        else setCategoryTitle('');
       } else {
-        setCategoryTitle("");
+        setCategoryTitle('');
       }
     }
     if (route.params?.search) {
@@ -1203,6 +1204,8 @@ const ExploreScreen = () => {
         toggleFavorite={toggleFavorite}
         shareCar={() => handleShare(item)}
         isFavorite={isInWishlist(item.id)}
+        isExplore={true}
+        width={Dimensions.get('window').width - 30}
       />
     );
     // return (

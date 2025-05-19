@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Ionicons, AntDesign} from 'src/utils/icon';
-import {getWishlist, removeFromWishlist} from '../services/api';
+import {getWishlist} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useWishlist} from '../context/WishlistContext';
 import {COLORS, SPACING, FONT_SIZES} from '../utils/constants';
@@ -169,6 +169,7 @@ const MyWishlistScreen = () => {
     checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
+  console.log('wishlistItems', wishlistItems);
   // Fetch wishlist data
   const fetchWishlist = async () => {
     try {

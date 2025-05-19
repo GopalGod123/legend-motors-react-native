@@ -32,10 +32,10 @@ const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
         name={'caretdown'}
         size={8}
         color={
-          activeFilter === item.id
+          isDark
+            ? '#000'
+            : activeFilter === item.id
             ? '#ffffff'
-            : isDark
-            ? '#FFFFFF'
             : COLORS.primary
         }
       />
@@ -93,8 +93,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   filterButtonDark: {
-    backgroundColor: '#2D2D2D',
-    borderColor: '#FF8C00',
+    // backgroundColor: '#2D2D2D',
+    backgroundColor: '#FF8C00',
   },
   activeFilterButton: {
     backgroundColor: COLORS.primary,
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   filterButtonTextDark: {
-    color: '#FFFFFF',
+    color: '#000',
   },
   activeFilterText: {
     color: '#FFFFFF',

@@ -175,7 +175,7 @@ export const AuthProvider = ({children}) => {
       await AsyncStorage.removeItem('token');
       await AsyncStorage.removeItem('userData');
       await AsyncStorage.removeItem('refreshToken');
-
+      setIsAuthenticated(false);
       // Update state
       setUser(null);
       console.log('User logged out successfully');

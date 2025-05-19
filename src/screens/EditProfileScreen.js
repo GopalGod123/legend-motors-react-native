@@ -15,6 +15,8 @@ import {
   Image,
   FlatList,
 } from 'react-native';
+import {Picker} from '@react-native-picker/picker';
+
 import {useNavigation} from '@react-navigation/native';
 import Svg, {Path} from 'react-native-svg';
 import {getUserProfile, updateUserProfile} from '../services/api';
@@ -125,6 +127,7 @@ const EditProfileScreen = () => {
 
   // Replace modals with dropdown states
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [showDateModal, setShowDateModal] = useState(false);
 
   // Add a ref for the ScrollView to handle dropdown scrolling
   const dropdownScrollViewRef = React.useRef(null);
@@ -292,7 +295,8 @@ const EditProfileScreen = () => {
       const [month, day, year] = displayDate.split('/');
       return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
     } catch (e) {
-      return displayDate || ''; // Return as is if format is unexpected
+      console.error('Error formatting date for API:', e);
+      return '';
     }
   };
 
@@ -311,6 +315,16 @@ const EditProfileScreen = () => {
     }
   };
 
+  const handleDateChange = () => {
+    setShowDateModal(false);
+    // Format the date as MM/DD/YYYY for display
+    const formattedDate = `${datePickerValue.month
+      .toString()
+      .padStart(2, '0')}/${datePickerValue.day.toString().padStart(2, '0')}/${
+      datePickerValue.year
+    }`;
+    setFormData(prev => ({...prev, dateOfBirth: formattedDate}));
+  };
   // Handle selection for any dropdown
   const handleDropdownSelect = (field, value) => {
     handleChange(field, value);
@@ -611,6 +625,39 @@ const EditProfileScreen = () => {
     );
   };
 
+  const getDaysInMonth = (month, year) => {
+    return new Date(year, month, 0).getDate();
+  };
+
+  const years = Array.from(
+    {length: 100},
+    (_, i) => new Date().getFullYear() - i,
+  );
+  const months = [
+    {value: 1, label: 'January'},
+    {value: 2, label: 'February'},
+    {value: 3, label: 'March'},
+    {value: 4, label: 'April'},
+    {value: 5, label: 'May'},
+    {value: 6, label: 'June'},
+    {value: 7, label: 'July'},
+    {value: 8, label: 'August'},
+    {value: 9, label: 'September'},
+    {value: 10, label: 'October'},
+    {value: 11, label: 'November'},
+    {value: 12, label: 'December'},
+  ];
+
+  const [datePickerValue, setDatePickerValue] = useState({
+    day: new Date().getDate(),
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
+  });
+  const days = Array.from(
+    {length: getDaysInMonth(datePickerValue?.month, datePickerValue?.year)},
+    (_, i) => i + 1,
+  );
+
   // Render the dropdown options for country code
   const renderCountryCodeDropdown = () => {
     if (openDropdown !== 'countryCode') return null;
@@ -623,57 +670,57 @@ const EditProfileScreen = () => {
             styles.dropdownPopup,
             {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
           ]}>
-            <Text
-              style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
-              Select Country Code
-            </Text>
+          <Text
+            style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
+            Select Country Code
+          </Text>
 
-            <FlatList
-              data={countryCodeOptions}
-              keyExtractor={item => `${item.code}-${item.countryCode}`}
-              style={styles.countryList}
-              showsVerticalScrollIndicator={true}
-              renderItem={({item}) => (
-                <TouchableOpacity
-                  style={[
-                    styles.countryItem,
-                    formData.countryCode === item.code && {
-                      backgroundColor: '#F47B20',
-                    },
-                  ]}
-                  onPress={() => handleCountrySelect(item.code)}>
-                  <View style={styles.countryInfo}>
-                    <Image
-                      source={{
-                        uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
-                      }}
-                      style={styles.flagImage}
-                      resizeMode="cover"
-                    />
-                    <Text
-                      style={[
-                        styles.countryText,
-                        {
-                          color:
-                            formData.countryCode === item.code
-                              ? '#FFFFFF'
-                              : themeColors[theme].text,
-                        },
-                      ]}>
-                      {item.code} {item.country}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              )}
-            />
+          <FlatList
+            data={countryCodeOptions}
+            keyExtractor={item => `${item.code}-${item.countryCode}`}
+            style={styles.countryList}
+            showsVerticalScrollIndicator={true}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={[
+                  styles.countryItem,
+                  formData.countryCode === item.code && {
+                    backgroundColor: '#F47B20',
+                  },
+                ]}
+                onPress={() => handleCountrySelect(item.code)}>
+                <View style={styles.countryInfo}>
+                  <Image
+                    source={{
+                      uri: `https://flagsapi.com/${item.countryCode}/flat/32.png`,
+                    }}
+                    style={styles.flagImage}
+                    resizeMode="cover"
+                  />
+                  <Text
+                    style={[
+                      styles.countryText,
+                      {
+                        color:
+                          formData.countryCode === item.code
+                            ? '#FFFFFF'
+                            : themeColors[theme].text,
+                      },
+                    ]}>
+                    {item.code} {item.country}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          />
 
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setOpenDropdown(null)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setOpenDropdown(null)}>
+            <Text style={styles.closeButtonText}>Close</Text>
+          </TouchableOpacity>
         </View>
+      </View>
     );
   };
 
@@ -784,7 +831,6 @@ const EditProfileScreen = () => {
                   styles.countryItem,
                   formData.gender === item && {
                     backgroundColor: '#F47B20',
-               
                   },
                 ]}
                 onPress={() => {
@@ -909,7 +955,7 @@ const EditProfileScreen = () => {
                     openDropdown === 'dateOfBirth' ? 0 : 10,
                 },
               ]}
-              onPress={() => toggleDropdown('dateOfBirth')}>
+              onPress={() => setShowDateModal(true)}>
               <Text
                 style={[
                   styles.inputGender,
@@ -927,51 +973,6 @@ const EditProfileScreen = () => {
                 <CalendarIcon color={themeColors[theme].primary} />
               </View>
             </TouchableOpacity>
-
-            {openDropdown === 'dateOfBirth' && (
-              <View
-                style={[
-                  styles.dropdownContainer,
-                  {
-                    backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF',
-                    borderColor: themeColors[theme].border,
-                  },
-                ]}>
-                {[
-                  {date: '01/01/1990', label: 'Jan 1, 1990'},
-                  {date: '01/01/1995', label: 'Jan 1, 1995'},
-                  {date: '01/01/2000', label: 'Jan 1, 2000'},
-                ].map(option => (
-                  <TouchableOpacity
-                    key={option.date}
-                    style={[
-                      styles.dropdownItem,
-                      {
-                        backgroundColor:
-                          formData.dateOfBirth === option.date
-                            ? '#F47B20'
-                            : 'transparent',
-                      },
-                    ]}
-                    onPress={() =>
-                      handleDropdownSelect('dateOfBirth', option.date)
-                    }>
-                    <Text
-                      style={[
-                        styles.dropdownItemText,
-                        {
-                          color:
-                            formData.dateOfBirth === option.date
-                              ? '#FFFFFF'
-                              : themeColors[theme].text,
-                        },
-                      ]}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
           </View>
 
           {/* Email */}
@@ -1104,11 +1105,118 @@ const EditProfileScreen = () => {
       {renderCountryCodeDropdown()}
       {renderLocationDropdown()}
       {renderGenderDropdown()}
+      <Modal
+        visible={showDateModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowDateModal(false)}>
+        <View style={styles.modalOverlay}>
+          <View
+            style={[styles.modalContent, isDark && styles.modalContentDark]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, isDark && styles.textDark]}>
+                Select Date of Birth
+              </Text>
+              <TouchableOpacity onPress={() => setShowDateModal(false)}>
+                <Text style={[styles.closeButton, isDark && styles.textDark]}>
+                  ✕
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.datePickerContainer}>
+              <View style={styles.pickerColumn}>
+                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                  Month
+                </Text>
+                <Picker
+                  selectedValue={datePickerValue.month}
+                  style={[styles.picker, isDark && styles.pickerDark]}
+                  onValueChange={value =>
+                    setDatePickerValue(prev => ({...prev, month: value}))
+                  }
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                  {months.map(month => (
+                    <Picker.Item
+                      key={month.value}
+                      label={month.label}
+                      value={month.value}
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              <View style={styles.pickerColumn}>
+                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                  Day
+                </Text>
+                <Picker
+                  selectedValue={datePickerValue.day}
+                  style={[styles.picker, isDark && styles.pickerDark]}
+                  onValueChange={value =>
+                    setDatePickerValue(prev => ({...prev, day: value}))
+                  }
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                  {days.map(day => (
+                    <Picker.Item
+                      key={day}
+                      label={String(day)}
+                      value={day}
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
+                  ))}
+                </Picker>
+              </View>
+
+              <View style={styles.pickerColumn}>
+                <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
+                  Year
+                </Text>
+                <Picker
+                  selectedValue={datePickerValue.year}
+                  style={[styles.picker, isDark && styles.pickerDark]}
+                  onValueChange={value =>
+                    setDatePickerValue(prev => ({...prev, year: value}))
+                  }
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                  {years.map(year => (
+                    <Picker.Item
+                      key={year}
+                      label={String(year)}
+                      value={year}
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.confirmButton}
+              onPress={handleDateChange}>
+              <Text style={styles.confirmButtonText}>Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  confirmButton: {
+    backgroundColor: '#F4821F',
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  confirmButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
   container: {
     flex: 1,
     padding: 24,
@@ -1308,6 +1416,62 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 6,
     fontWeight: '500',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    maxHeight: '70%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalContentDark: {
+    backgroundColor: '#000000',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  textDark: {
+    color: '#FFFFFF',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  closeButton: {
+    fontSize: 18,
+    color: '#666666',
+  },
+  datePickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  pickerColumn: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
+  pickerLabel: {
+    fontSize: 14,
+    color: '#666666',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  picker: {
+    height: 150,
+  },
+  pickerDark: {
+    color: '#FFFFFF',
   },
 });
 

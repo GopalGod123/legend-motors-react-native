@@ -121,51 +121,20 @@ const HomeScreen = () => {
   };
   const {sendEventCleverTap} = useCleverTap();
   useEffect(() => {
-    if (isAuthenticated) {
-      sendEventCleverTap(CLEVERTAP_EVENTS.DAILY_CHECK_IN);
-    } else {
-      sendEventCleverTap(CLEVERTAP_EVENTS.GUEST_LOGIN);
-    }
-  }, []);
-  // Check login prompt status once
-  useEffect(() => {
-    const checkLoginPromptStatus = async () => {
-      try {
-        // Check if the user is authenticated
-        let isAuth = await checkAuthStatus();
-
-        if (isAuth) {
-          // If user is logged in, don't show the prompt
-          setShowLoginPrompt(false);
-          setCheckedPromptStatus(true);
-          return;
-        }
-
-        // Check if prompt has been shown before
-        const promptShown = await AsyncStorage.getItem(LOGIN_PROMPT_SHOWN);
-
-        if (promptShown === 'true') {
-          // Prompt has been shown before, don't show it again
-          setShowLoginPrompt(false);
-        } else {
-          // Defer login prompt to avoid hindering initial render
-          InteractionManager.runAfterInteractions(() => {
-            setShowLoginPrompt(true);
-          });
-        }
-
-        setCheckedPromptStatus(true);
-      } catch (error) {
-        console.error('Error checking login prompt status:', error);
-        setCheckedPromptStatus(true);
+    const chackUser = async () => {
+      let isAuth = checkAuthStatus();
+      if (isAuth) {
+        setShowLoginPrompt(false);
+        sendEventCleverTap(CLEVERTAP_EVENTS.DAILY_CHECK_IN);
+      } else {
+        setShowLoginPrompt(true);
+        sendEventCleverTap(CLEVERTAP_EVENTS.GUEST_LOGIN);
       }
     };
-
-    if (!checkedPromptStatus) {
-      checkLoginPromptStatus();
-    }
-  }, [isFocused]);
-  const isFocused = useIsFocused();
+    chackUser();
+  }, []);
+  // Check login prompt status once
+  //
 
   // Add a state to prevent multiple navigations
   const [isNavigating, setIsNavigating] = useState(false);
@@ -308,13 +277,12 @@ const HomeScreen = () => {
         </ScrollView>
       </>
       {/* Login Prompt Modal - only show if checked and should be shown */}
-      {checkedPromptStatus && (
-        <LoginPromptModal
-          visible={showLoginPrompt}
-          onClose={handleSkipLogin}
-          onLoginPress={handleLoginPress}
-        />
-      )}
+
+      <LoginPromptModal
+        visible={showLoginPrompt}
+        onClose={handleSkipLogin}
+        onLoginPress={handleLoginPress}
+      />
     </SafeAreaView>
   );
 };
