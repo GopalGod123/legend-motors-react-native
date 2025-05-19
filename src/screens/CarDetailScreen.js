@@ -891,62 +891,18 @@ const CarDetailScreen = () => {
 
   // Update function to handle brochure download/view
   const handleBrochureView = async () => {
-    try {
-      // Check if the car has a brochure file
-      const brochureData =
-        car?.brochureFile || (car?.brochureid ? {path: car.brochureid} : null);
+    // Check if the car has a brochure file
+    console.log(`https://cdn.legendmotorsglobal.com${car?.brochureFile?.path}`);
+    const brochureUrl = `https://cdn.legendmotorsglobal.com${car?.brochureFile?.path}`;
+    console.log('Opening brochure URL in browser:', brochureUrl);
 
-      // Log what we found
-      console.log('Attempting to open brochure with data:', brochureData);
-
-      if (brochureData && brochureData.path) {
-        // Construct the full URL to the brochure
-        const brochureUrl = `https://cdn.legendmotorsglobal.com${brochureData.path}`;
-        console.log('Opening brochure URL in browser:', brochureUrl);
-
-        // Simple direct opening in browser for all platforms
-        const canOpen = await Linking.canOpenURL(brochureUrl);
-        if (canOpen) {
-          // Open directly in the browser
-          await Linking.openURL(brochureUrl);
-        } else {
-          throw new Error('Cannot open URL in browser');
-        }
-      } else {
-        // If no brochure is available, show an alert to the user
-        console.log('No brochure data found in car object:', car);
-        Alert.alert(
-          'Brochure Not Available',
-          'The brochure for this car is not available at the moment.',
-          [{text: 'OK'}],
-        );
-      }
-    } catch (error) {
-      console.error('Error opening brochure:', error);
-
-      // Show a more descriptive error message with alternative
-      Alert.alert(
-        'Cannot Open PDF',
-        'Unable to open the brochure in browser. Would you like to copy the URL instead?',
-        [
-          {
-            text: 'Open PDF',
-            onPress: () => {
-              const brochureData =
-                car?.brochureFile ||
-                (car?.brochureid ? {path: car.brochureid} : null);
-              if (brochureData && brochureData.path) {
-                const url = `https://cdn.legendmotorsglobal.com${brochureData.path}`;
-                Share.share({
-                  message: url,
-                  title: 'Car Brochure URL',
-                });
-              }
-            },
-          },
-          {text: 'Cancel', style: 'cancel'},
-        ],
-      );
+    // Simple direct opening in browser for all platforms
+    const canOpen = Linking.canOpenURL(brochureUrl);
+    if (canOpen) {
+      // Open directly in the browser
+      Linking.openURL(brochureUrl);
+    } else {
+      throw new Error('Cannot open URL in browser');
     }
   };
 
@@ -1159,7 +1115,15 @@ const CarDetailScreen = () => {
                     onIndexChange={index => {
                       if (index !== selectedImageIndex) {
                         // Only update if there's an actual change
+
                         setSelectedImageIndex(index);
+                        if (index == memoizedCarImages.length - 1) {
+                          setTimeout(() => {
+                            setActiveTab(
+                              activeTab == 'exterior' ? 'interior' : 'exterior',
+                            );
+                          }, 100);
+                        }
                       }
                     }}
                     showIndex={true}
@@ -1806,6 +1770,9 @@ const CarDetailScreen = () => {
             styles.inquireButton,
             {backgroundColor: isDark ? '#F47B20' : '#FF8C00'}, // Adjust button color based on theme
             isAlreadyInquired && styles.alreadyInquiredButton,
+            {
+              marginTop: isAuthenticated ? 10 : 0,
+            },
           ]}
           onPress={() => {
             if (isAuthenticated) {
@@ -2153,7 +2120,7 @@ const styles = StyleSheet.create({
   inquireButton: {
     backgroundColor: '#FF8C00', // Default, will be overridden with inline style
     flex: 1,
-    marginTop: 10,
+    // marginTop: 10,
     width: 250,
     borderRadius: 8,
   },

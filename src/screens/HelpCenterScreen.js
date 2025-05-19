@@ -21,6 +21,7 @@ import Svg, {Path, Circle} from 'react-native-svg';
 import {getFaqCategories} from '../services/api';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import SvgComponent from 'src/utils/icon/SvgComponent';
+import {COLORS} from 'src/utils/constants';
 
 // Utility functions for handling HTML content
 const parseHtmlContent = html => {
@@ -116,7 +117,7 @@ const ChevronDownIcon = () => (
   <Svg width="18" height="18" viewBox="0 0 18 18" fill="none">
     <Path
       d="M4.5 6.75L9 11.25L13.5 6.75"
-      stroke="#424242"
+      stroke={COLORS.primary}
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -616,9 +617,10 @@ const HelpCenterScreen = () => {
 
     try {
       // Normalize URLs
-      const normalizedUrl = url.startsWith('tel:') || url.startsWith('https://') 
-        ? url 
-        : `https://${url}`;
+      const normalizedUrl =
+        url.startsWith('tel:') || url.startsWith('https://')
+          ? url
+          : `https://${url}`;
 
       // Special handling for phone calls on Android
       if (url.startsWith('tel:') && Platform.OS === 'android') {
@@ -631,11 +633,14 @@ const HelpCenterScreen = () => {
               buttonNeutral: 'Ask Me Later',
               buttonNegative: 'Cancel',
               buttonPositive: 'OK',
-            }
+            },
           );
-          
+
           if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-            Alert.alert('Permission Denied', 'Cannot make phone call without permission');
+            Alert.alert(
+              'Permission Denied',
+              'Cannot make phone call without permission',
+            );
             return;
           }
         } catch (err) {
@@ -654,40 +659,32 @@ const HelpCenterScreen = () => {
 
         // Specific handling for different URL types
         if (url.startsWith('tel:')) {
-          Alert.alert(
-            'Phone Call',
-            'Would you like to call this number?',
-            [
-              {text: 'Cancel', style: 'cancel'},
-              {text: 'Call', onPress: () => Linking.openURL(url)}
-            ]
-          );
+          Alert.alert('Phone Call', 'Would you like to call this number?', [
+            {text: 'Cancel', style: 'cancel'},
+            {text: 'Call', onPress: () => Linking.openURL(url)},
+          ]);
         } else if (url.includes('whatsapp')) {
-          Alert.alert(
-            'WhatsApp',
-            'Open WhatsApp to send a message?',
-            [
-              {text: 'Cancel', style: 'cancel'},
-              {text: 'Open', onPress: () => Linking.openURL(url)}
-            ]
-          );
+          Alert.alert('WhatsApp', 'Open WhatsApp to send a message?', [
+            {text: 'Cancel', style: 'cancel'},
+            {text: 'Open', onPress: () => Linking.openURL(url)},
+          ]);
         } else {
           Alert.alert(
             'Open Link',
             'Would you like to open this link in your browser?',
             [
               {text: 'Cancel', style: 'cancel'},
-              {text: 'Open', onPress: () => Linking.openURL(normalizedUrl)}
-            ]
+              {text: 'Open', onPress: () => Linking.openURL(normalizedUrl)},
+            ],
           );
         }
       }
     } catch (error) {
       console.error('Error opening URL:', error);
       Alert.alert(
-        'Error', 
-        'Could not open the link. Please try again later or check your internet connection.', 
-        [{text: 'OK'}]
+        'Error',
+        'Could not open the link. Please try again later or check your internet connection.',
+        [{text: 'OK'}],
       );
     }
   };

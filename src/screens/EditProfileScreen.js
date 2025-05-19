@@ -16,6 +16,7 @@ import {
   FlatList,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {useNavigation} from '@react-navigation/native';
 import Svg, {Path} from 'react-native-svg';
@@ -94,16 +95,13 @@ const EmailIcon = ({color = '#7A40C6'}) => (
 );
 
 // Dropdown Icon
-const DropdownIcon = () => (
-  <Svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <Path
-      d="M6 9L12 15L18 9"
-      stroke="#212121"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </Svg>
+const DropdownIcon = ({color = '#212121'}) => (
+  <Ionicons name="chevron-down" size={24} color={color} />
+);
+
+// Add this custom dropdown icon component after the other icon components
+const PickerDropdownIcon = ({color}) => (
+  <Ionicons name="chevron-down" size={24} color={color} />
 );
 
 const EditProfileScreen = () => {
@@ -573,9 +571,9 @@ const EditProfileScreen = () => {
 
     return (
       <View style={styles.phoneInputContainer}>
-        <Text style={[styles.inputLabel, {color: themeColors[theme].text}]}>
+        {/* <Text style={[styles.inputLabel, {color: themeColors[theme].text}]}>
           Phone Number
-        </Text>
+        </Text> */}
         <View
           style={[
             styles.inputContainer,
@@ -1024,7 +1022,7 @@ const EditProfileScreen = () => {
                       borderRadius: 2,
                     }}
                     resizeMode="cover"
-                    key={formData.location} // Add key to force re-render when location changes
+                    key={formData.location}
                   />
                 )}
                 <Text
@@ -1040,9 +1038,12 @@ const EditProfileScreen = () => {
                   ]}>
                   {formData.location || 'Select Country'}
                 </Text>
-              </View>
-              <View style={styles.inputIcon}>
-                <DropdownIcon />
+                <Ionicons
+                  name="chevron-down"
+                  size={20}
+                  color={themeColors[theme].text}
+                  style={{marginLeft: 5}}
+                />
               </View>
             </TouchableOpacity>
           </View>
@@ -1074,9 +1075,12 @@ const EditProfileScreen = () => {
                 ]}>
                 {formData.gender || 'Select Gender'}
               </Text>
-              <View style={styles.inputIcon}>
-                <DropdownIcon />
-              </View>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color={themeColors[theme].text}
+                style={{marginRight: 16}}
+              />
             </TouchableOpacity>
           </View>
 
@@ -1135,7 +1139,13 @@ const EditProfileScreen = () => {
                   onValueChange={value =>
                     setDatePickerValue(prev => ({...prev, month: value}))
                   }
-                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}
+                  mode="dropdown"
+                  dropdownIcon={() => (
+                    <PickerDropdownIcon
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
+                  )}>
                   {months.map(month => (
                     <Picker.Item
                       key={month.value}
@@ -1157,7 +1167,13 @@ const EditProfileScreen = () => {
                   onValueChange={value =>
                     setDatePickerValue(prev => ({...prev, day: value}))
                   }
-                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}
+                  mode="dropdown"
+                  dropdownIcon={() => (
+                    <PickerDropdownIcon
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
+                  )}>
                   {days.map(day => (
                     <Picker.Item
                       key={day}
@@ -1179,7 +1195,13 @@ const EditProfileScreen = () => {
                   onValueChange={value =>
                     setDatePickerValue(prev => ({...prev, year: value}))
                   }
-                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                  dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}
+                  mode="dropdown"
+                  dropdownIcon={() => (
+                    <PickerDropdownIcon
+                      color={isDark ? '#FFFFFF' : '#000000'}
+                    />
+                  )}>
                   {years.map(year => (
                     <Picker.Item
                       key={year}
@@ -1206,7 +1228,7 @@ const EditProfileScreen = () => {
 
 const styles = StyleSheet.create({
   confirmButton: {
-    backgroundColor: '#F4821F',
+    backgroundColor: '#F47B20',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -1424,51 +1446,57 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    width: '80%',
-    maxHeight: '70%',
+    width: '90%',
+    maxHeight: '80%',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
   },
   modalContentDark: {
-    backgroundColor: '#000000',
+    backgroundColor: '#2D2D2D',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   textDark: {
     color: '#FFFFFF',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: '#333333',
-    marginBottom: 20,
-    textAlign: 'center',
   },
   closeButton: {
-    fontSize: 18,
+    fontSize: 24,
     color: '#666666',
+    padding: 5,
   },
   datePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 20,
   },
   pickerColumn: {
     flex: 1,
     marginHorizontal: 5,
+    alignItems: 'center',
   },
   pickerLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666666',
-    marginBottom: 5,
-    textAlign: 'center',
+    marginBottom: 10,
+    fontWeight: '500',
   },
   picker: {
-    height: 150,
+    width: '100%',
+    height: 200,
   },
   pickerDark: {
     color: '#FFFFFF',

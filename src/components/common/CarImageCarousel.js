@@ -314,7 +314,7 @@ const CarImageCarousel = forwardRef(
                   onIndexChange(validIndex);
                 }
               }
-            }, 150);
+            }, 100);
           }}
         />
 

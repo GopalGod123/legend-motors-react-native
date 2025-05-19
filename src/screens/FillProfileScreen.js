@@ -19,7 +19,7 @@ import BackArrow from '../components/BackArrow';
 import {Picker} from '@react-native-picker/picker';
 import * as ImagePicker from 'react-native-image-picker';
 import {registerUser, updateUserProfile} from '../services/api';
-import {useTheme} from 'src/context/ThemeContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 import {useAuth} from 'src/context/AuthContext';
 import {useCountryCodes} from 'src/context/CountryCodesContext';
 import FlagIcon from 'src/components/common/FlagIcon';
@@ -32,7 +32,7 @@ const FillProfileScreen = () => {
   const route = useRoute();
   const [registrationToken, setRegistrationToken] = useState('');
   const [loading, setLoading] = useState(false);
-  const {isDark} = useTheme();
+  const {theme, isDark} = useTheme();
   const [openDropdown, setOpenDropdown] = useState(null);
   const {countryCodes} = useCountryCodes();
 
@@ -225,18 +225,13 @@ const FillProfileScreen = () => {
                         formData.countryCode === item.code &&
                           styles.selectedCountryText,
                       ]}>
-                      {item.dialCode} {item.name}
+                      {item.dialCode}
+                      {`  `} {item.name}
                     </Text>
                   </View>
                 </TouchableOpacity>
               )}
             />
-
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setOpenDropdown(null)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -468,12 +463,6 @@ const FillProfileScreen = () => {
                 </TouchableOpacity>
               )}
             />
-
-            <TouchableOpacity
-              style={styles.closeButton}
-              onPress={() => setOpenDropdown(null)}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -512,10 +501,41 @@ const FillProfileScreen = () => {
               {formData.location || 'Select Country'}
             </Text>
           </View>
-          <Text style={[styles.inputIcon, isDark && styles.textDark]}>▼</Text>
+          <Ionicons
+            name="chevron-down"
+            size={18}
+            color={themeColors[theme].text}
+            style={{marginRight: 3}}
+          />
         </TouchableOpacity>
       </View>
     );
+  };
+
+  // Add this custom dropdown icon component after the other icon components
+  const PickerDropdownIcon = ({color}) => (
+    <Ionicons name="chevron-down" size={24} color={color} />
+  );
+
+  // Add gender options array at the top with other constants
+  const genderOptions = ['Male', 'Female', 'Prefer not to say'];
+
+  // Add this function after the state declarations
+  const handleDropdownSelect = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+    setOpenDropdown(null);
+  };
+
+  // Add this function to toggle dropdown
+  const toggleDropdown = name => {
+    if (openDropdown === name) {
+      setOpenDropdown(null);
+    } else {
+      setOpenDropdown(name);
+    }
   };
 
   return (
@@ -619,35 +639,86 @@ const FillProfileScreen = () => {
           </TouchableOpacity>
 
           <View style={styles.inputContainer}>
-            <Picker
-              selectedValue={formData.gender}
-              style={[styles.input, isDark && styles.inputDark]}
-              onValueChange={value =>
-                setFormData(prev => ({...prev, gender: value}))
-              }
-              dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
-              <Picker.Item
-                label="Select Gender"
-                value=""
-                color={isDark ? '#FFFFFF' : '#000000'}
+            <TouchableOpacity
+              style={[
+                styles.inputContainer,
+                {
+                  borderColor: themeColors[theme].border,
+                  backgroundColor: isDark ? '#1A1A1A' : '#FAFAFA',
+                },
+              ]}
+              onPress={() => toggleDropdown('gender')}>
+              <Text style={[styles.input, isDark && styles.inputDark]}>
+                {formData.gender || 'Select Gender'}
+              </Text>
+              <Ionicons
+                name="chevron-down"
+                size={20}
+                color={themeColors[theme].text}
+                style={{
+                  marginRight: 16,
+                  position: 'absolute',
+                  end: 0,
+                  top: 13,
+                }}
               />
-              <Picker.Item
-                label="Male"
-                value="Male"
-                color={isDark ? '#FFFFFF' : '#000000'}
-              />
-              <Picker.Item
-                label="Female"
-                value="Female"
-                color={isDark ? '#FFFFFF' : '#000000'}
-              />
-              <Picker.Item
-                label="Other"
-                value="Other"
-                color={isDark ? '#FFFFFF' : '#000000'}
-              />
-            </Picker>
+            </TouchableOpacity>
           </View>
+
+          {/* Add the gender dropdown modal */}
+          {openDropdown === 'gender' && (
+            <View
+              style={[
+                styles.dropdownOverlay,
+                {backgroundColor: 'rgba(0,0,0,0.5)'},
+              ]}>
+              <View
+                style={[
+                  styles.dropdownPopup,
+                  {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
+                ]}>
+                <Text
+                  style={[
+                    styles.dropdownTitle,
+                    {color: themeColors[theme].text},
+                  ]}>
+                  Select Gender
+                </Text>
+                <View style={styles.countryList}>
+                  {genderOptions.map((item, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={[
+                        styles.countryItem,
+                        formData.gender === item && {
+                          backgroundColor: '#F47B20',
+                        },
+                      ]}
+                      onPress={() => {
+                        handleDropdownSelect('gender', item);
+                      }}>
+                      <Text
+                        style={[
+                          styles.countryText,
+                          {
+                            color:
+                              formData.gender === item
+                                ? '#FFFFFF'
+                                : themeColors[theme].text,
+                            textAlign: 'center',
+                            alignSelf: 'center',
+                            width: '100%',
+                          },
+                        ]}>
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </View>
+          )}
+
           {sso ? (
             <></>
           ) : (
@@ -733,7 +804,13 @@ const FillProfileScreen = () => {
                     onValueChange={value =>
                       setDatePickerValue(prev => ({...prev, month: value}))
                     }
-                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}
+                    mode="dropdown"
+                    dropdownIcon={() => (
+                      <PickerDropdownIcon
+                        color={isDark ? '#FFFFFF' : '#000000'}
+                      />
+                    )}>
                     {months.map(month => (
                       <Picker.Item
                         key={month.value}
@@ -755,7 +832,13 @@ const FillProfileScreen = () => {
                     onValueChange={value =>
                       setDatePickerValue(prev => ({...prev, day: value}))
                     }
-                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}
+                    mode="dropdown"
+                    dropdownIcon={() => (
+                      <PickerDropdownIcon
+                        color={isDark ? '#FFFFFF' : '#000000'}
+                      />
+                    )}>
                     {days.map(day => (
                       <Picker.Item
                         key={day}
@@ -777,7 +860,13 @@ const FillProfileScreen = () => {
                     onValueChange={value =>
                       setDatePickerValue(prev => ({...prev, year: value}))
                     }
-                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}>
+                    dropdownIconColor={isDark ? '#FFFFFF' : '#000000'}
+                    mode="dropdown"
+                    dropdownIcon={() => (
+                      <PickerDropdownIcon
+                        color={isDark ? '#FFFFFF' : '#000000'}
+                      />
+                    )}>
                     {years.map(year => (
                       <Picker.Item
                         key={year}
@@ -867,6 +956,7 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderRadius: 8,
     padding: 12,
+    paddingHorizontal: 12,
     fontSize: 16,
     color: '#333333',
     backgroundColor: '#FFFFFF',
@@ -911,6 +1001,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 16,
     borderRadius: 2,
+    marginEnd: 10,
   },
   phoneInput: {
     flex: 1,
@@ -946,54 +1037,60 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContent: {
-    width: '80%',
-    maxHeight: '70%',
+    width: '90%',
+    maxHeight: '80%',
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
     padding: 20,
   },
   modalContentDark: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#2D2D2D',
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 20,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: '#333333',
-    marginBottom: 20,
-    textAlign: 'center',
   },
   closeButton: {
-    fontSize: 18,
+    fontSize: 24,
     color: '#666666',
+    padding: 5,
   },
   datePickerContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 20,
   },
   pickerColumn: {
     flex: 1,
     marginHorizontal: 5,
+    alignItems: 'center',
   },
   pickerLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#666666',
-    marginBottom: 5,
-    textAlign: 'center',
+    marginBottom: 10,
+    fontWeight: '500',
   },
   picker: {
-    height: 150,
+    width: '100%',
+    height: 200,
   },
   pickerDark: {
     color: '#FFFFFF',
   },
   confirmButton: {
-    backgroundColor: '#F4821F',
+    backgroundColor: '#F47B20',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -1060,6 +1157,33 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     color: '#666666',
+  },
+  dropdownOverlay: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  dropdownPopup: {
+    width: '80%',
+    maxHeight: '70%',
+    borderRadius: 15,
+    padding: 15,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  dropdownTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 10,
+    textAlign: 'center',
   },
 });
 
