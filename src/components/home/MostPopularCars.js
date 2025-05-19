@@ -422,6 +422,7 @@ const MostPopularCars = () => {
         years: [],
         yearIds: [],
       },
+      title: 'Most Popular in UAE',
     });
   };
 

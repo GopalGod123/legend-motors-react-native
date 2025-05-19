@@ -400,6 +400,7 @@ const JustArrived = () => {
         years: [],
         yearIds: [],
       },
+      title: 'Just Arrived!',
     });
   };
 

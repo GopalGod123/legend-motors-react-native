@@ -741,7 +741,6 @@ const CarDetailScreen = () => {
 
   const toggleFavorite = async () => {
     try {
-      thumbnailImageSelected;
       if (!car) {
         console.log('Cannot toggle favorite: No car data available');
         return;

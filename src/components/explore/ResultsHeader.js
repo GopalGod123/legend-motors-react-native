@@ -16,6 +16,7 @@ const ResultsHeader = ({
   filteredBySearch = false,
   hasFilters = false,
   onClearFilters,
+  categoryTitle = '',
 }) => {
   const {isDark, theme} = useTheme();
 
@@ -31,6 +32,14 @@ const ResultsHeader = ({
         <Text
           style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
           Viewing car details (ID: {carId || 'unknown'})
+        </Text>
+      );
+    } else if (categoryTitle) {
+      // Show category title if present (Hot Deals, Just Arrived, Most Popular)
+      return (
+        <Text
+          style={[styles.categoryTitle, {color: isDark ? '#FFFFFF' : '#000000'}]}>
+          {categoryTitle}
         </Text>
       );
     } else if (filteredBySearch && searchQuery) {
@@ -152,6 +161,10 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.sm,
     color: '#FFFFFF',
     fontWeight: '500',
+  },
+  categoryTitle: {
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
 

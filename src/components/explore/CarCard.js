@@ -449,14 +449,16 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     // overflow: 'hidden',
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
     marginBottom: 10,
   },
   imageContainer: {
     width: '100%',
     height: 200,
     backgroundColor: '#ffffff',
-    borderTopEndRadius: 10,
-    borderTopStartRadius: 10,
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
     overflow: 'hidden',
   },
   carouselContainer: {
@@ -468,8 +470,8 @@ const styles = StyleSheet.create({
   carImage: {
     width: '100%',
     height: '100%',
-    borderTopEndRadius: BORDER_RADIUS.lg,
-    borderTopStartRadius: BORDER_RADIUS.lg,
+    borderTopLeftRadius: BORDER_RADIUS.lg,
+    borderTopRightRadius: BORDER_RADIUS.lg,
   },
   cardContent: {
     padding: 15,

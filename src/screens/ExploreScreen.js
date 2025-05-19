@@ -353,6 +353,13 @@ const ExploreScreen = () => {
     checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
+  const {sendEventCleverTap} = useCleverTap();
+  const {isAuthenticated} = useAuth();
+
+  // Add state for category title
+  const [categoryTitle, setCategoryTitle] = useState('');
+
+  // Update the useEffect for route params to set category title
   useEffect(() => {
     if (route.params?.filters) {
       // Completely reset previous filters when new ones are applied
@@ -375,14 +382,28 @@ const ExploreScreen = () => {
         else if (tagId === 2) setActiveFilter('new');
         else if (tagId === 3) setActiveFilter('hot');
       }
+      
+      // Set category title based on tag ID
+      if (route.params.title) {
+        setCategoryTitle(route.params.title);
+      } else if (
+        route.params.filters.specifications &&
+        route.params.filters.specifications.tags
+      ) {
+        const tagId = route.params.filters.specifications.tags[0];
+        if (tagId === 1) setCategoryTitle("Most Popular in UAE");
+        else if (tagId === 2) setCategoryTitle("Just Arrived!");
+        else if (tagId === 3) setCategoryTitle("Hot Deals");
+        else setCategoryTitle("");
+      } else {
+        setCategoryTitle("");
+      }
     }
     if (route.params?.search) {
       setSearchQuery(route.params.search);
     }
-  }, [route.params?.filters, route.params?.search]);
+  }, [route.params?.filters, route.params?.search, route.params?.title]);
 
-  const {sendEventCleverTap} = useCleverTap();
-  const {isAuthenticated} = useAuth();
   // Define the fetchCars function first without dependencies
   const fetchCars = useCallback(
     async (newPage = 1, search = '') => {
@@ -1502,6 +1523,7 @@ const ExploreScreen = () => {
         filteredBySearch={searchQuery}
         hasFilters={hasFilters()}
         onClearFilters={clearAllFilters}
+        categoryTitle={categoryTitle}
       />
 
       {/* Filter Tabs Component - Only show when not viewing a specific car */}
