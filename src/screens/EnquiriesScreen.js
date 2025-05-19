@@ -122,7 +122,7 @@ const EnquiriesScreen = () => {
       <SafeAreaView
         style={[
           styles.container,
-          {backgroundColor: isDark ? '#000000' : '#FFFFFF'},
+          {backgroundColor: isDark ? '#2D2D2D' : '#FFFFFF'},
         ]}>
         <StatusBar
           barStyle={isDark ? 'light-content' : 'dark-content'}

@@ -34,6 +34,7 @@ import {Ionicons} from '../utils/icon';
 import {useWishlist} from 'src/context/WishlistContext';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 import {launchImageLibrary} from 'react-native-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // SVG icons as React components
 const UserIcon = () => {
   const {theme} = useTheme();
@@ -364,9 +365,6 @@ const ProfileScreen = () => {
             : 'Please log in to continue.',
           [{text: 'OK', onPress: handleLogout}],
         );
-        if (!token) {
-          navigation.reset({index: 0, routes: [{name: 'Login'}]});
-        }
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -686,11 +684,17 @@ const ProfileScreen = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
+        ]}>
         <StatusBar barStyle="dark-content" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
-          <Text style={styles.loadingText}>Loading profile...</Text>
+          <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
+            Loading profile...
+          </Text>
         </View>
       </SafeAreaView>
     );

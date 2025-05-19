@@ -99,7 +99,7 @@ const LoginScreen = () => {
       if (ssoResult.success) {
         setAppleLoading(false);
         setGoogleLoading(false);
-        if (true) {
+        if (isNewUser) {
           sendEventCleverTap(CLEVERTAP_EVENTS.WELCOME);
           navigation.replace('FillProfile', {
             sso: true,

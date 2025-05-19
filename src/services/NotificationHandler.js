@@ -113,7 +113,7 @@ export default function useCleverTap() {
       Identity: user?.id, // Unique identity
       Email: user?.email,
     };
-    CleverTap.profileSet(userProfile);
+    CleverTap.onUserLogin(userProfile);
   };
 
   const sendEventCleverTap = (event, data = {}) => {

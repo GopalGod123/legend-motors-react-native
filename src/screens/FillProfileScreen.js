@@ -284,11 +284,11 @@ const FillProfileScreen = () => {
       Alert.alert('Error', 'Email is required');
       return false;
     }
-    if (!formData.password) {
+    if (!formData.password && !sso) {
       Alert.alert('Error', 'Password is required');
       return false;
     }
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.confirmPassword && !sso) {
       Alert.alert('Error', 'Passwords do not match');
       return false;
     }
@@ -682,11 +682,11 @@ const FillProfileScreen = () => {
           <TouchableOpacity
             style={[
               styles.continueButton,
-              formData.firstName &&
-              formData.lastName &&
-              formData.email &&
-              formData.password &&
-              formData.confirmPassword
+              (formData.firstName &&
+                formData.lastName &&
+                formData.email &&
+                sso) ||
+              (formData.password && formData.confirmPassword)
                 ? styles.activeButton
                 : {},
             ]}
