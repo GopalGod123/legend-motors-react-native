@@ -1,9 +1,22 @@
 import React, {createContext, useState, useContext, useEffect} from 'react';
 import api from '../services/api';
 import i18n from '../translations';
-import {I18nManager} from 'react-native';
+import {I18nManager, Image} from 'react-native';
+import {useTheme} from './ThemeContext';
 
 const CurrencyLanguageContext = createContext();
+export const symbol = {
+  USD: '$',
+  AED: () => {
+    const {isDark} = useTheme();
+    return (
+      <Image
+        style={{height: 20, width: 20, tintColor: isDark ? '#fff' : '#5E366D'}}
+        source={require('../assets/images/dhyram.png')}
+      />
+    );
+  },
+};
 
 export const CurrencyLanguageProvider = ({children}) => {
   const [selectedLanguage, setSelectedLanguage] = useState('en');

@@ -27,6 +27,7 @@ import Logo from '../components/Logo';
 import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
+import Dhyram from 'src/components/Dhyram';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -483,7 +484,13 @@ const EnquiryFormScreen = () => {
                     ]}
                     numberOfLines={1}
                     ellipsizeMode="tail">
-                    {currency}{' '}
+                    {currency === 'USD' ? (
+                      '$'
+                    ) : (
+                      <Dhyram
+                        style={{tintColor: themeColors[theme].secondary}}
+                      />
+                    )}{' '}
                     {carPrice
                       ? Math.floor(carPrice).toLocaleString()
                       : '175,000'}

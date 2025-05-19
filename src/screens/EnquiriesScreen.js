@@ -23,6 +23,7 @@ import {COLORS, SPACING, FONT_SIZES, BORDER_RADIUS} from '../utils/constants';
 import {Ionicons} from 'src/utils/icon';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useTheme} from '../context/ThemeContext';
+import Dhyram from 'src/components/Dhyram';
 
 const {width} = Dimensions.get('window');
 
@@ -490,7 +491,16 @@ const EnquiriesScreen = () => {
                       styles.priceText,
                       {color: isDark ? '#ffffff' : '#0D0D0D'},
                     ]}>
-                    {selectedCurrency === 'AED' ? 'AED' : '$'}{' '}
+                    {selectedCurrency === 'AED' ? (
+                      <Dhyram
+                        style={{
+                          tintColor: isDark ? '#ffffff' : '#0d0d0d',
+                          height: 14,
+                        }}
+                      />
+                    ) : (
+                      '$'
+                    )}{' '}
                     {Number(price).toLocaleString()}
                   </Text>
                   <TouchableOpacity

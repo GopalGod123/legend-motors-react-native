@@ -45,6 +45,7 @@ import {useLoginPrompt} from '../hooks/useLoginPrompt';
 import ThumbImage from '../components/common/ThumbImage';
 import {preloadImages} from '../utils/ImageCacheManager';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
+import Dhyram from 'src/components/Dhyram';
 
 // Import custom icons
 const LtrIcon = require('../components/explore/icon_assets/ltr.png');
@@ -1774,9 +1775,16 @@ const CarDetailScreen = () => {
                 {color: isDark ? '#FFFFFF' : colors.text},
               ]}>
               {price ? (
-                `${
-                  selectedCurrency === 'USD' ? '$' : selectedCurrency
-                } ${Math.floor(price).toLocaleString()}`
+                <>
+                  {selectedCurrency === 'USD' ? (
+                    '$'
+                  ) : (
+                    <Dhyram
+                      style={{tintColor: isDark ? '#ffffff' : '#0d0d0d'}}
+                    />
+                  )}
+                  {`${Math.floor(price).toLocaleString()}`}
+                </>
               ) : (
                 <TouchableOpacity
                   style={[

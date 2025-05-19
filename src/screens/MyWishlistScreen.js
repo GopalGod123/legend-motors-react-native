@@ -21,6 +21,7 @@ import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
+import Dhyram from 'src/components/Dhyram';
 
 // Car card component for wishlist items
 const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
@@ -108,7 +109,11 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
           <View style={styles.priceContainer}>
             <Text
               style={[styles.priceText, {color: themeColors[theme].secondary}]}>
-              {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
+              {selectedCurrency === 'USD' ? (
+                '$'
+              ) : (
+                <Dhyram style={{tintColor: themeColors[theme].secondary}} />
+              )}{' '}
               {parseInt(price).toLocaleString()}
             </Text>
 

@@ -41,7 +41,7 @@ const cardWidth = width * 0.85;
 
 // Memoize the card component to prevent unnecessary re-renders
 
-const HotDeals = () => {
+const HotDeals = ({user}) => {
   const [hotDeals, setHotDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();

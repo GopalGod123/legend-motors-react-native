@@ -260,7 +260,7 @@ const HomeScreen = () => {
             <PopularBrands />
 
             {/* Hot Deals */}
-            <HotDeals />
+            <HotDeals user={user} />
 
             {/* Just Arrived */}
             <JustArrived />

@@ -24,6 +24,7 @@ import LoginPromptModal from '../LoginPromptModal';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 import {useAuth} from 'src/context/AuthContext';
 import {useWishlist} from 'src/context/WishlistContext';
+import Dhyram from '../Dhyram';
 const {width: screenWidth} = Dimensions.get('window');
 
 const CarCard = ({
@@ -78,7 +79,7 @@ const CarCard = ({
       }
     };
     checkPrice();
-  }, [item]);
+  }, [item, isAuthenticated]);
   // Prepare images for carousel
   let carImages = [];
   const {isInWishlist} = useWishlist();
@@ -365,7 +366,7 @@ const CarCard = ({
                 styles.priceText,
                 {color: effectiveDarkMode ? '#FFFFFF' : '#5E366D'},
               ]}>
-              {selectedCurrency === 'USD' ? '$' : selectedCurrency}{' '}
+              {selectedCurrency === 'USD' ? '$' : <Dhyram />}{' '}
               {parseInt(price).toLocaleString()}
             </Text>
           ) : (
