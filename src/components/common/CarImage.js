@@ -159,7 +159,7 @@ const CarImage = memo(
           onLoadStart={handleLoadStart}
           onLoad={() => setLoading(false)}
           onLoadEnd={handleLoadEnd}
-          onError={handleError}
+          // onError={handleError}
           defaultSource={fallbackImage}
         />
 

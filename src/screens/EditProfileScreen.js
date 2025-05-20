@@ -395,6 +395,10 @@ const EditProfileScreen = () => {
         }
       });
 
+      let gender = updateData.gender;
+      if (gender === 'Prefer not to say') {
+        gender = 'Other';
+      }
       // Match API expected format - ensure we only send what the API expects
       const apiCompliantData = {
         firstName: updateData.firstName,
@@ -402,7 +406,7 @@ const EditProfileScreen = () => {
         email: updateData.email,
         countryCode: updateData.countryCode,
         phone: updateData.phone,
-        gender: updateData.gender || undefined,
+        gender: gender || undefined,
         location: updateData.location || undefined,
         dateOfBirth: updateData.dateOfBirth || undefined,
         profileImage: updateData.profileImage || undefined,
@@ -632,18 +636,18 @@ const EditProfileScreen = () => {
     (_, i) => new Date().getFullYear() - i,
   );
   const months = [
-    {value: 1, label: 'January'},
-    {value: 2, label: 'February'},
-    {value: 3, label: 'March'},
-    {value: 4, label: 'April'},
+    {value: 1, label: 'Jan'},
+    {value: 2, label: 'Feb'},
+    {value: 3, label: 'Mar'},
+    {value: 4, label: 'Apr'},
     {value: 5, label: 'May'},
-    {value: 6, label: 'June'},
-    {value: 7, label: 'July'},
-    {value: 8, label: 'August'},
-    {value: 9, label: 'September'},
-    {value: 10, label: 'October'},
-    {value: 11, label: 'November'},
-    {value: 12, label: 'December'},
+    {value: 6, label: 'Jun'},
+    {value: 7, label: 'Jul'},
+    {value: 8, label: 'Aug'},
+    {value: 9, label: 'Sep'},
+    {value: 10, label: 'Oct'},
+    {value: 11, label: 'Nov'},
+    {value: 12, label: 'Dec'},
   ];
 
   const [datePickerValue, setDatePickerValue] = useState({
@@ -1064,7 +1068,7 @@ const EditProfileScreen = () => {
               onPress={() => toggleDropdown('gender')}>
               <Text
                 style={[
-                  styles.input,
+                  styles.inputGender,
                   {
                     color: formData.gender
                       ? themeColors[theme].text
@@ -1135,6 +1139,7 @@ const EditProfileScreen = () => {
                 </Text>
                 <Picker
                   selectedValue={datePickerValue.month}
+                  itemStyle={{fontSize: 16}}
                   style={[styles.picker, isDark && styles.pickerDark]}
                   onValueChange={value =>
                     setDatePickerValue(prev => ({...prev, month: value}))
@@ -1162,6 +1167,7 @@ const EditProfileScreen = () => {
                   Day
                 </Text>
                 <Picker
+                  itemStyle={{fontSize: 16}}
                   selectedValue={datePickerValue.day}
                   style={[styles.picker, isDark && styles.pickerDark]}
                   onValueChange={value =>
@@ -1192,6 +1198,7 @@ const EditProfileScreen = () => {
                 <Picker
                   selectedValue={datePickerValue.year}
                   style={[styles.picker, isDark && styles.pickerDark]}
+                  itemStyle={{fontSize: 16}}
                   onValueChange={value =>
                     setDatePickerValue(prev => ({...prev, year: value}))
                   }
@@ -1485,7 +1492,7 @@ const styles = StyleSheet.create({
   },
   pickerColumn: {
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: 0,
     alignItems: 'center',
   },
   pickerLabel: {

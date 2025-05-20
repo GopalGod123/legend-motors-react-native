@@ -8,24 +8,10 @@ import {CurrencyLanguageProvider} from './src/context/CurrencyLanguageContext';
 import {ThemeProvider} from './src/context/ThemeContext';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {CountryCodesProvider} from './src/context/CountryCodesContext';
-import useCleverTap from 'src/services/NotificationHandler';
-import CleverTap from 'clevertap-react-native';
+
+import {NavigationContainer} from '@react-navigation/native';
 
 const App = () => {
-  const {setUpNotification} = useCleverTap();
-  useEffect(() => {
-    setUpNotification();
-    GoogleSignin.configure({
-      webClientId:
-        '789807190580-mo23ir6p664eb69bug94iq12ciluesjl.apps.googleusercontent.com',
-    });
-    return () => {
-      CleverTap.removeListener(CleverTap.CleverTapPushNotificationClicked);
-      CleverTap.removeListener(
-        CleverTap.CleverTapInAppNotificationButtonTapped,
-      );
-    };
-  }, []);
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <SafeAreaProvider>
@@ -34,7 +20,9 @@ const App = () => {
             <AuthProvider>
               <CountryCodesProvider>
                 <WishlistProvider>
-                  <AppNavigator />
+                  <NavigationContainer>
+                    <AppNavigator />
+                  </NavigationContainer>
                 </WishlistProvider>
               </CountryCodesProvider>
             </AuthProvider>

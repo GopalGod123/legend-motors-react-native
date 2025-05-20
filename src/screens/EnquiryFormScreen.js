@@ -462,7 +462,11 @@ const EnquiryFormScreen = () => {
                   <Text
                     style={[
                       styles.carTitle,
-                      {color: themeColors[theme].secondary},
+                      {
+                        color: isDark
+                          ? themeColors[theme].primary
+                          : themeColors[theme].secondary,
+                      },
                     ]}
                     numberOfLines={2}
                     ellipsizeMode="tail">
@@ -480,7 +484,11 @@ const EnquiryFormScreen = () => {
                   <Text
                     style={[
                       styles.priceValue,
-                      {color: themeColors[theme].secondary},
+                      {
+                        color: isDark
+                          ? themeColors[theme].primary
+                          : themeColors[theme].secondary,
+                      },
                     ]}
                     numberOfLines={1}
                     ellipsizeMode="tail">
@@ -488,7 +496,11 @@ const EnquiryFormScreen = () => {
                       '$'
                     ) : (
                       <Dhyram
-                        style={{tintColor: themeColors[theme].secondary}}
+                        style={{
+                          tintColor: isDark
+                            ? themeColors[theme].primary
+                            : themeColors[theme].secondary,
+                        }}
                       />
                     )}{' '}
                     {carPrice
@@ -568,7 +580,7 @@ const EnquiryFormScreen = () => {
                 <Ionicons
                   name="mail"
                   size={20}
-                  color={themeColors[theme].secondary}
+                  color={isDark ? COLORS.primary : COLORS.secondary}
                   style={styles.inputIcon}
                 />
                 <TextInput
@@ -609,7 +621,11 @@ const EnquiryFormScreen = () => {
                   <Ionicons
                     name="flag"
                     size={20}
-                    color={themeColors[theme].secondary}
+                    color={
+                      isDark
+                        ? themeColors[theme].primary
+                        : themeColors[theme].secondary
+                    }
                     style={styles.inputIcon}
                   />
                   <Text
@@ -1128,7 +1144,7 @@ const styles = StyleSheet.create({
   },
   inputIcon: {
     marginRight: 12,
-    color: '#5E366D',
+    // color: '#5E366D',
   },
   iconInput: {
     flex: 1,

@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {View, Text, TextInput, StyleSheet, Dimensions} from 'react-native';
-import RnRangeSlider from 'rn-range-slider';
 import Slider from './Slider';
 import {useTheme} from '../../context/ThemeContext';
 import {COLORS} from 'src/utils/constants';
@@ -66,7 +65,7 @@ const styles = StyleSheet.create({
     width: 220,
   },
   rangeBoxDark: {
-    backgroundColor: '#2D2D2D',
+    backgroundColor: '#1A1A1A',
   },
   label: {
     marginBottom: 10,

@@ -1713,6 +1713,7 @@ const CarDetailScreen = () => {
           {
             backgroundColor: isDark ? '#444444' : colors.background,
             borderTopColor: isDark ? '#444444' : colors.border,
+            paddingBottom: Platform.OS == 'ios' ? SPACING.xxl : SPACING.lg,
           },
         ]}>
         {!isAuthenticated ? (
@@ -1744,10 +1745,14 @@ const CarDetailScreen = () => {
                     '$'
                   ) : (
                     <Dhyram
-                      style={{tintColor: isDark ? '#ffffff' : '#0d0d0d'}}
+                      style={{
+                        tintColor: isDark ? '#ffffff' : '#0d0d0d',
+                        width: 15,
+                        height: 15,
+                      }}
                     />
                   )}
-                  {`${Math.floor(price).toLocaleString()}`}
+                  {` ${Math.floor(price).toLocaleString()}`}
                 </>
               ) : (
                 <TouchableOpacity
@@ -2092,7 +2097,7 @@ const styles = StyleSheet.create({
     right: 0,
     borderTopWidth: 1,
     padding: SPACING.md,
-    paddingBottom: SPACING.lg,
+
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

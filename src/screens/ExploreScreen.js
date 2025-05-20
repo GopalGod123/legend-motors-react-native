@@ -1169,6 +1169,7 @@ const ExploreScreen = () => {
     setAppliedFilters({});
     setActiveFilter('all');
     setSearchQuery('');
+    setCategoryTitle('');
     functionRef.current.fetchCars(1);
     navigation.setParams({filters: undefined});
   };

@@ -247,18 +247,18 @@ const FillProfileScreen = () => {
     (_, i) => new Date().getFullYear() - i,
   );
   const months = [
-    {value: 1, label: 'January'},
-    {value: 2, label: 'February'},
-    {value: 3, label: 'March'},
-    {value: 4, label: 'April'},
+    {value: 1, label: 'Jan'},
+    {value: 2, label: 'Feb'},
+    {value: 3, label: 'Mar'},
+    {value: 4, label: 'Apr'},
     {value: 5, label: 'May'},
-    {value: 6, label: 'June'},
-    {value: 7, label: 'July'},
-    {value: 8, label: 'August'},
-    {value: 9, label: 'September'},
-    {value: 10, label: 'October'},
-    {value: 11, label: 'November'},
-    {value: 12, label: 'December'},
+    {value: 6, label: 'Jun'},
+    {value: 7, label: 'Jul'},
+    {value: 8, label: 'Aug'},
+    {value: 9, label: 'Sep'},
+    {value: 10, label: 'Oct'},
+    {value: 11, label: 'Nov'},
+    {value: 12, label: 'Dec'},
   ];
 
   const days = Array.from(
@@ -330,14 +330,17 @@ const FillProfileScreen = () => {
         : `+${formData.phone}`;
 
       console.log('Using registration token:', registrationToken);
-
+      let gender = formData.gender;
+      if (gender === 'Prefer not to say') {
+        gender = 'Other';
+      }
       const registrationData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         dateOfBirth: formattedDate,
         phone: formattedPhone,
         location: formData.location || null,
-        gender: formData.gender || null,
+        gender: gender || null,
         email: formData.email,
         password: formData.password,
         registrationToken: registrationToken,
@@ -799,6 +802,7 @@ const FillProfileScreen = () => {
                     Month
                   </Text>
                   <Picker
+                    itemStyle={{fontSize: 16}}
                     selectedValue={datePickerValue.month}
                     style={[styles.picker, isDark && styles.pickerDark]}
                     onValueChange={value =>
@@ -827,6 +831,7 @@ const FillProfileScreen = () => {
                     Day
                   </Text>
                   <Picker
+                    itemStyle={{fontSize: 16}}
                     selectedValue={datePickerValue.day}
                     style={[styles.picker, isDark && styles.pickerDark]}
                     onValueChange={value =>
@@ -855,6 +860,7 @@ const FillProfileScreen = () => {
                     Year
                   </Text>
                   <Picker
+                    itemStyle={{fontSize: 16}}
                     selectedValue={datePickerValue.year}
                     style={[styles.picker, isDark && styles.pickerDark]}
                     onValueChange={value =>

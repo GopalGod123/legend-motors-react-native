@@ -38,8 +38,11 @@ const ResultsHeader = ({
       // Show category title if present (Hot Deals, Just Arrived, Most Popular)
       return (
         <Text
-          style={[styles.categoryTitle, {color: isDark ? '#FFFFFF' : '#000000'}]}>
-          {categoryTitle}
+          style={[
+            styles.categoryTitle,
+            {color: isDark ? '#FFFFFF' : '#000000'},
+          ]}>
+          {categoryTitle} ({totalCars} Cars)
         </Text>
       );
     } else if (filteredBySearch && searchQuery) {

@@ -87,23 +87,6 @@ export default function useCleverTap() {
     }
 
     getFCMToken();
-
-    CleverTap.addListener(CleverTap.CleverTapPushNotificationClicked, e => {
-      console.log('Push notification clicked:', e);
-    });
-    CleverTap.addListener(
-      CleverTap.CleverTapInAppNotificationButtonTapped,
-      event => {
-        _handleCleverTapEvent(
-          CleverTap.CleverTapInAppNotificationButtonTapped,
-          event,
-        );
-      },
-    );
-
-    function _handleCleverTapEvent(eventName, event) {
-      console.log('CleverTap Event called - ', eventName, event);
-    }
   };
   const setUserProfileCleverTap = user => {
     const userProfile = {
@@ -112,6 +95,8 @@ export default function useCleverTap() {
       Phone: user?.phone,
       Identity: user?.id, // Unique identity
       Email: user?.email,
+      GeneralNotifications: true,
+      AppUpdates: true,
     };
     CleverTap.onUserLogin(userProfile);
   };

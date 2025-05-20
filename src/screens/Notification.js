@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,16 @@ import {
 import {Ionicons} from '../utils/icon';
 import {useNavigation} from '@react-navigation/native';
 import {useTheme, themeColors} from '../context/ThemeContext';
-
+import CleverTap from 'clevertap-react-native';
 const Notification = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
+
+  // useEffect(() => {
+  //   CleverTap.get().then(count => {
+  //     console.log('In-App Notification Count:', count);
+  //   });
+  // }, []);
   const renderNotification = () => {
     return (
       <View>
@@ -98,7 +104,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 10,
+    marginTop: 25,
   },
   headerText: {
     fontSize: 20,

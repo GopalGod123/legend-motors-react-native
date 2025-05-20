@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,38 @@ import {
 import {Ionicons} from '../utils/icon';
 import {useNavigation} from '@react-navigation/native';
 import {useTheme, themeColors} from '../context/ThemeContext';
-
+import {useAuth} from 'src/context/AuthContext';
+import CleverTap from 'clevertap-react-native';
 const NotificationSettings = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
-  const [generalNotifications, setGeneralNotifications] = React.useState(true);
-  const [appUpdates, setAppUpdates] = React.useState(true);
+  const [generalNotifications, setGeneralNotifications] = React.useState();
+  const [appUpdates, setAppUpdates] = React.useState();
+  const {user} = useAuth();
 
+  useEffect(() => {
+    CleverTap.profileGetProperty('GeneralNotifications', value => {
+      console.log('GeneralNotifications', value);
+      setGeneralNotifications(value);
+    });
+    CleverTap.profileGetProperty('AppUpdates', value => {
+      console.log('AppUpdates', value);
+      setAppUpdates(value);
+    });
+  }, []);
+
+  useEffect(() => {
+    const userProfile = {
+      FirstName: user?.firstName,
+      LastName: user?.lastName,
+      Phone: user?.phone,
+      Identity: user?.id, // Unique identity
+      Email: user?.email,
+      GeneralNotifications: generalNotifications,
+      AppUpdates: appUpdates,
+    };
+    CleverTap.profileSet(userProfile);
+  }, [appUpdates, generalNotifications]);
   return (
     <View
       style={[
@@ -82,7 +107,8 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 16,
+    marginBottom: 20,
+    marginTop: 25,
   },
   headerText: {
     fontSize: 20,
