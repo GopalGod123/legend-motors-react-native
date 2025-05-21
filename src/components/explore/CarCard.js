@@ -423,12 +423,13 @@ const CarCard = ({
 const styles = StyleSheet.create({
   container: {
     marginVertical: SPACING.xl,
+    paddingHorizontal: 12,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
+
     marginBottom: SPACING.xs,
   },
   title: {

@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.xl,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
   },
   profileSection: {
     flexDirection: 'row',

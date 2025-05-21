@@ -9,6 +9,7 @@ import {
 import {BodyTypeIcon, HatchbackIcon, SedanIcon, SUVIcon} from '../icons';
 import {useTheme} from 'src/context/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
+import { SPACING } from 'src/utils/constants';
 
 const BodyTypeItem = ({icon, title, isDark, onPress}) => {
   return (
@@ -170,7 +171,7 @@ const BodyTypeSearch = () => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: 10,
-    paddingHorizontal: 23,
+    paddingHorizontal: SPACING.md,
   },
   header: {
     flexDirection: 'row',

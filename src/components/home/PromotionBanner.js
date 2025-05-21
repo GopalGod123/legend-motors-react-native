@@ -110,7 +110,7 @@ const PromotionBanner = () => {
 const styles = StyleSheet.create({
   promotionBanner: {
     marginBottom: SPACING.sm,
-    marginHorizontal: SPACING.lg,
+    marginHorizontal: SPACING.md,
     borderRadius: BORDER_RADIUS.lg,
     overflow: 'hidden',
     elevation: 2,

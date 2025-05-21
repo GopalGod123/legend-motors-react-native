@@ -303,7 +303,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     paddingHorizontal: 24,
     paddingTop: 44,
     paddingBottom: 24,
@@ -326,8 +326,10 @@ const styles = StyleSheet.create({
     padding: SPACING.md,
   },
   columnWrapper: {
-    justifyContent: 'space-between',
+    justifyContent: 'start',
     marginBottom: SPACING.lg,
+    marginLeft: SPACING.xl,
+    paddingLeft: SPACING.lg,
   },
   brandItem: {
     width: '30%',

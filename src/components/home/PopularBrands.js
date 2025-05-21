@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   container: {
     // marginBottom: SPACING.md,
     marginTop: SPACING.md,
-    paddingHorizontal: 23,
+    paddingHorizontal: SPACING.md,
     borderRadius: BORDER_RADIUS.lg,
     // paddingVertical: SPACING.lg,
   },
