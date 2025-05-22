@@ -561,16 +561,15 @@ const FillProfileScreen = () => {
 
         <View style={styles.imageContainer}>
           <TouchableOpacity onPress={handleImagePick}>
-            {profileImage ? (
-              <Image source={{uri: profileImage}} style={styles.profileImage} />
-            ) : (
-              <View
-                style={[
-                  styles.placeholderImage,
-                  isDark && styles.placeholderImageDark,
-                ]}>
-                <Text style={styles.cameraIcon}>📷</Text>
+            {uploadingImage ? (
+              <View style={styles.loadingAvatarContainer}>
+                <ActivityIndicator size="large" color="#F47B20" />
               </View>
+            ) : (
+              <Image
+                source={require('../assets/images/profile.jpg')}
+                style={styles.avatar}
+              />
             )}
           </TouchableOpacity>
         </View>
