@@ -1574,6 +1574,10 @@ const ExploreScreen = () => {
                     ? appliedFilters.brands[0]
                     : null
                 }
+                onExploreAll={() => {
+                  clearAllFilters();
+                  navigation.navigate('AllBrands');
+                }}
               />
             }
           />

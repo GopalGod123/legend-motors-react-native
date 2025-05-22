@@ -13,12 +13,14 @@ import {
   ActivityIndicator,
   FlatList,
   KeyboardAvoidingView,
+  InteractionManager,
 } from 'react-native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
 import {Picker} from '@react-native-picker/picker';
 import * as ImagePicker from 'react-native-image-picker';
 import {registerUser, updateUserProfile} from '../services/api';
+import api from '../services/api';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import {useAuth} from 'src/context/AuthContext';
 import {useCountryCodes} from 'src/context/CountryCodesContext';
@@ -49,6 +51,7 @@ const FillProfileScreen = () => {
     confirmPassword: '',
   });
 
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
   const [sso, setSso] = useState(false);
@@ -61,6 +64,8 @@ const FillProfileScreen = () => {
   const {sendEventCleverTap} = useCleverTap();
 
   const {user} = useAuth();
+  const [tempProfileImageId, setTempProfileImageId] = useState(null);
+
   useEffect(() => {
     sendEventCleverTap(CLEVERTAP_EVENTS.PROFILE_INCOMPLETE);
     if (route.params?.registrationToken) {
@@ -75,7 +80,16 @@ const FillProfileScreen = () => {
         lastName: user?.lastName ?? '',
       }));
     }
-  }, [route.params]);
+    // Reset tempProfileImageId when component mounts
+    setTempProfileImageId(null);
+  }, [route.params, user]);
+
+  // Add effect to handle profile image changes
+  useEffect(() => {
+    if (tempProfileImageId) {
+      console.log('tempProfileImageId updated:', tempProfileImageId);
+    }
+  }, [tempProfileImageId]);
 
   // Get country code from dial code
   const getCountryCodeFromDialCode = dialCode => {
@@ -291,20 +305,140 @@ const FillProfileScreen = () => {
   };
 
   const handleImagePick = () => {
-    ImagePicker.launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-      },
-      response => {
-        if (response.didCancel) {
-          return;
+    // Use InteractionManager to ensure the UI is ready
+    InteractionManager.runAfterInteractions(() => {
+      try {
+        const options = {
+          mediaType: 'photo',
+          includeBase64: false,
+          maxHeight: 800,
+          maxWidth: 800,
+          quality: 0.8,
+          selectionLimit: 1,
+        };
+
+        console.log('Starting image picker...');
+
+        if (Platform.OS === 'android') {
+          // For Android, use the modern approach
+          ImagePicker.launchImageLibrary(options)
+            .then(result => {
+              if (result.didCancel) {
+                console.log('User cancelled image picker');
+                return;
+              }
+
+              if (result.errorCode) {
+                console.log('ImagePicker Error:', result.errorMessage);
+                setTimeout(() => {
+                  Alert.alert(
+                    'Error',
+                    'Failed to select image. Please try again.',
+                  );
+                }, 100);
+                return;
+              }
+
+              if (result.assets && result.assets.length > 0) {
+                console.log('Image selected:', result.assets[0]);
+                // Upload the selected image
+                uploadProfileImage(result.assets[0]);
+              }
+            })
+            .catch(error => {
+              console.error('Image picker error:', error);
+              setTimeout(() => {
+                Alert.alert(
+                  'Error',
+                  'Failed to open image picker. Please try again.',
+                );
+              }, 100);
+            });
+        } else {
+          // For iOS, we can use the async/await approach
+          ImagePicker.launchImageLibrary(options)
+            .then(result => {
+              if (result.didCancel) {
+                console.log('User cancelled image picker');
+                return;
+              }
+
+              if (result.errorCode) {
+                console.log('ImagePicker Error: ', result.errorMessage);
+                Alert.alert(
+                  'Error',
+                  'Failed to select image. Please try again.',
+                );
+                return;
+              }
+
+              if (result.assets && result.assets.length > 0) {
+                // Upload the selected image
+                uploadProfileImage(result.assets[0]);
+              }
+            })
+            .catch(error => {
+              console.error('Image picker error:', error);
+              Alert.alert(
+                'Error',
+                'Failed to open image picker. Please try again.',
+              );
+            });
         }
-        if (response.assets && response.assets[0]) {
-          setProfileImage(response.assets[0].uri);
-        }
-      },
-    );
+      } catch (error) {
+        console.error('Image picker error:', error);
+        setTimeout(() => {
+          Alert.alert(
+            'Error',
+            'Failed to open image picker. Please try again.',
+          );
+        }, 100);
+      }
+    });
+  };
+
+  const uploadProfileImage = async imageAsset => {
+    try {
+      setUploadingImage(true);
+
+      // First, upload the image to get an image ID
+      const formData = new FormData();
+      formData.append('file', {
+        name: imageAsset.fileName || 'profile.jpg',
+        type: imageAsset.type,
+        uri: imageAsset.uri,
+      });
+
+      console.log('Uploading image with formData:', formData);
+
+      // Make API call to upload image
+      const uploadResult = await api.post('/file-system/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'x-parent-folder': 'profiles',
+        },
+      });
+      console.log('Upload Result:', uploadResult);
+      console.log('Upload Result Data:', uploadResult.data);
+
+      // Store just the ID from the response
+      if (uploadResult?.data?.id) {
+        console.log('Setting tempProfileImageId to:', uploadResult.data.id);
+        setTempProfileImageId(uploadResult.data.id); // This will be used in registration
+        setProfileImage(imageAsset.uri); // This is just for UI preview
+      } else {
+        console.error('No image ID in upload response:', uploadResult);
+      }
+
+    } catch (error) {
+      console.error('Profile image upload error:', error);
+      Alert.alert(
+        'Error',
+        'Failed to upload profile picture. Please try again.',
+      );
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleDateChange = () => {
@@ -329,7 +463,7 @@ const FillProfileScreen = () => {
         ? formData.phone
         : `+${formData.phone}`;
 
-      console.log('Using registration token:', registrationToken);
+      console.log('Current tempProfileImageId:', tempProfileImageId);
       let gender = formData.gender;
       if (gender === 'Prefer not to say') {
         gender = 'Other';
@@ -347,7 +481,15 @@ const FillProfileScreen = () => {
         countryCode: formData.countryCode,
       };
 
-      console.log('Registration payload:', JSON.stringify(registrationData));
+      // Add just the image ID if available
+      if (tempProfileImageId) {
+        console.log('Adding profileImage ID to registration data:', tempProfileImageId);
+        registrationData.profileImage = tempProfileImageId; // Just passing the ID
+      } else {
+        console.log('No tempProfileImageId available for registration');
+      }
+
+      console.log('Final registration payload:', JSON.stringify(registrationData));
 
       if (sso) {
         delete registrationData.registrationToken;
@@ -355,9 +497,17 @@ const FillProfileScreen = () => {
       const response = sso
         ? await updateUserProfile(registrationData)
         : await registerUser(registrationData);
+      
+      console.log('Registration/Update response:', response);
+      
       sendEventCleverTap(CLEVERTAP_EVENTS.PROFILE_UPDATE);
 
-      console.log('Registration response:', response);
+      // If registration is successful, store the registration token in route params
+      if (response.registrationToken) {
+        navigation.setParams({
+          registrationToken: response.registrationToken,
+        });
+      }
 
       Alert.alert(
         'Registration Successful',
@@ -393,6 +543,14 @@ const FillProfileScreen = () => {
       );
     } catch (error) {
       console.error('Registration error:', error);
+      
+      // Log more detailed error information
+      if (error.response) {
+        console.error('Error Response Data:', error.response.data);
+        console.error('Error Response Status:', error.response.status);
+        console.error('Error Response Headers:', error.response.headers);
+      }
+      
       Alert.alert('Registration Failed', error.toString());
     } finally {
       setLoading(false);
@@ -565,8 +723,18 @@ const FillProfileScreen = () => {
               </View>
             ) : (
               <Image
-                source={require('../assets/images/profile.jpg')}
-                style={styles.avatar}
+                source={
+                  profileImage
+                    ? {uri: profileImage}
+                    : route.params?.user?.profileImage
+                    ? {
+                        uri: `https://cdn.legendmotorsglobal.com${route.params.user.profileImage.path}`,
+                      }
+                    : route.params?.registrationToken
+                    ? require('../assets/images/profile.jpg')
+                    : require('../assets/images/profile.jpg')
+                }
+                style={[styles.profileImage, {borderRadius: 50}]}
               />
             )}
           </TouchableOpacity>
@@ -1189,6 +1357,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 10,
     textAlign: 'center',
+  },
+  loadingAvatarContainer: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 
