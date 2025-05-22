@@ -331,10 +331,12 @@ const JustArrived = () => {
       setLoading(false);
     }
   };
-
+  const isFocused = useIsFocused();
   useEffect(() => {
-    fetchNewArrivals();
-  }, [selectedLanguage]);
+    if (isFocused) {
+      fetchNewArrivals();
+    }
+  }, [isFocused]);
 
   const toggleFavorite = async carId => {
     // Check if user is authenticated first
@@ -586,7 +588,7 @@ const JustArrived = () => {
         maxToRenderPerBatch={3}
         windowSize={3}
         removeClippedSubviews={true}
-        ItemSeparatorComponent={() => <View style={{width: 15}} />}
+        // ItemSeparatorComponent={() => <View style={{width: 15}} />}
         ListEmptyComponent={renderEmptyComponent}
       />
       <LoginPromptModal

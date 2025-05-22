@@ -107,7 +107,7 @@ const PickerDropdownIcon = ({color}) => (
 
 const EditProfileScreen = () => {
   const navigation = useNavigation();
-  const {user, logout} = useAuth();
+  const {user, logout, checkAuthStatus} = useAuth();
   const {theme, isDark} = useTheme();
   const {countryCodes, loading: loadingCountryCodes} = useCountryCodes();
   const {t} = useCurrencyLanguage();
@@ -247,28 +247,10 @@ const EditProfileScreen = () => {
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-
+      await checkAuthStatus();
       // Handle authentication errors
       if (error.message && error.message.includes('Authentication error')) {
-        Alert.alert(
-          'Authentication Error',
-          'Your session has expired. Please log in again.',
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                // Redirect to login
-                logout();
-                navigation.reset({
-                  index: 0,
-                  routes: [{name: 'Login'}],
-                });
-              },
-            },
-          ],
-        );
       } else {
-        Alert.alert('Error', 'Failed to load profile. Please try again.');
       }
     } finally {
       setLoading(false);

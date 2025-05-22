@@ -26,7 +26,7 @@ import {
 import {API_BASE_URL, API_KEY} from '../../utils/apiConfig';
 import {CarImage} from '../common';
 import axios from 'axios';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {useAuth} from '../../context/AuthContext';
 import {useWishlist} from '../../context/WishlistContext';
 import api, {getCarList} from 'src/services/api';
@@ -152,9 +152,12 @@ const HotDeals = ({user}) => {
     }
   }, []);
   const {selectedLanguage} = useCurrencyLanguage();
+  const isFocused = useIsFocused();
   useEffect(() => {
-    fetchHotDeals();
-  }, [selectedLanguage]);
+    if (isFocused) {
+      fetchHotDeals();
+    }
+  }, [isFocused]);
   const fetchHotDeals = async () => {
     try {
       setLoading(true);

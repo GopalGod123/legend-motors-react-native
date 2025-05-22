@@ -11,7 +11,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {useIsFocused, useNavigation} from '@react-navigation/native';
 import {MaterialCommunityIcons, Ionicons, AntDesign} from 'src/utils/icon';
 import {
   COLORS,
@@ -372,9 +372,12 @@ const MostPopularCars = () => {
     }
   }, []);
 
+  const isFocused = useIsFocused();
   useEffect(() => {
-    fetchPopularCars();
-  }, [selectedLanguage]);
+    if (isFocused) {
+      fetchPopularCars();
+    }
+  }, [isFocused]);
 
   const fetchPopularCars = async () => {
     try {
@@ -571,7 +574,7 @@ const MostPopularCars = () => {
         maxToRenderPerBatch={3}
         windowSize={3}
         removeClippedSubviews={true}
-        ItemSeparatorComponent={() => <View style={{width: 15}} />}
+        // ItemSeparatorComponent={() => <View style={{width: 15}} />}
         ListEmptyComponent={renderEmptyComponent}
       />
 

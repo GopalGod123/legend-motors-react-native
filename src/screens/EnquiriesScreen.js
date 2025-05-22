@@ -80,6 +80,7 @@ const EnquiriesScreen = () => {
         setError(response.msg || 'Failed to load enquiries');
       }
     } catch (error) {
+      await checkAuthStatus();
       console.error('Error fetching enquiries:', error);
       setError('Something went wrong. Please try again.');
     } finally {
