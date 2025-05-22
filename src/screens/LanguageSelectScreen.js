@@ -16,7 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const languages = [
   {id: 'en', name: 'English (US)'},
-  {id: 'zh', name: 'Mandarin'},
+  {id: 'zh-CN`', name: 'Chinese'},
   {id: 'es', name: 'Spanish'},
   {id: 'ar', name: 'Arabic'},
   {id: 'ru', name: 'Russian'},

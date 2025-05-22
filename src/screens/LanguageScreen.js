@@ -91,7 +91,7 @@ const LanguageScreen = () => {
   ];
 
   const otherLanguages = [
-    {id: 'zh', name: 'Mandarin'},
+    {id: 'zh-CN', name: 'Chinese'},
     {id: 'es', name: 'Spanish'},
     {id: 'ru', name: 'Russian'},
     {id: 'fr', name: 'French'},

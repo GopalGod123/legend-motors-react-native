@@ -358,13 +358,13 @@ const ProfileScreen = () => {
         setUserProfile(user);
       } else {
         let token = await AsyncStorage.getItem('token');
-        Alert.alert(
-          token ? 'Session Expired' : 'Please Login',
-          token
-            ? 'Your session has expired. Please log in again.'
-            : 'Please log in to continue.',
-          [{text: 'OK', onPress: handleLogout}],
-        );
+        // Alert.alert(
+        //   token ? 'Session Expired' : 'Please Login',
+        //   token
+        //     ? 'Your session has expired. Please log in again.'
+        //     : 'Please log in to continue.',
+        //   [{text: 'OK', onPress: handleLogout}],
+        // );
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -700,7 +700,266 @@ const ProfileScreen = () => {
       </SafeAreaView>
     );
   }
+  if (!isAuthenticated)
+    return (
+      <SafeAreaView
+        style={[
+          styles.container,
+          {backgroundColor: isDark ? '#2D2D2D' : themeColors[theme].background},
+        ]}>
+        <StatusBar
+          barStyle={isDark ? 'light-content' : 'dark-content'}
+          backgroundColor={themeColors[theme].background}
+        />
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.profileContainer}>
+            <View style={styles.profileHeader}>
+              <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
+                Profile
+              </Text>
+            </View>
+            <View style={styles.profileInfoContainer}>
+              <TouchableOpacity
+                style={styles.avatarContainer}
+                disabled={true}
+                onPress={() => {}}
+                onLongPress={() => {}}>
+                {uploadingImage ? (
+                  <View style={styles.loadingAvatarContainer}>
+                    <ActivityIndicator size="large" color="#F47B20" />
+                  </View>
+                ) : (
+                  <Image
+                    source={require('../assets/images/profile.jpg')}
+                    style={styles.avatar}
+                  />
+                )}
+                <View style={styles.badgeContainer}>
+                  <ProfileImageIcon width={24} height={24} />
+                </View>
+                {showTooltip && (
+                  <View style={styles.tooltipContainer}>
+                    <Text style={styles.tooltipText}>
+                      Tap the pencil icon to change your profile picture
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+              <Text style={[styles.userName, {color: themeColors[theme].text}]}>
+                {getUserName()}
+              </Text>
 
+              {/* Enhanced phone display with country code */}
+
+              <View style={styles.menuContainer}>
+                {/* Edit Profile */}
+                {isAuthenticated ? (
+                  <TouchableOpacity
+                    style={[
+                      styles.menuItem,
+                      {borderBottomColor: themeColors[theme].border},
+                    ]}
+                    onPress={() => handleNavigate('EditProfileScreen')}>
+                    <View style={styles.menuIconContainer}>
+                      <UserIcon />
+                    </View>
+                    <Text
+                      style={[
+                        styles.menuText,
+                        {color: themeColors[theme].text},
+                      ]}>
+                      Edit Profile
+                    </Text>
+                    <ChevronIcon />
+                  </TouchableOpacity>
+                ) : null}
+                {/* Notification */}
+                {isAuthenticated ? (
+                  <TouchableOpacity
+                    style={[
+                      styles.menuItem,
+                      {borderBottomColor: themeColors[theme].border},
+                    ]}
+                    onPress={() => handleNavigate('NotificationSettings')}>
+                    <View style={styles.menuIconContainer}>
+                      <Ionicons
+                        name="notifications-outline"
+                        size={24}
+                        color={themeColors[theme].text}
+                      />
+                    </View>
+                    <Text
+                      style={[
+                        styles.menuText,
+                        {color: themeColors[theme].text},
+                      ]}>
+                      Notification
+                    </Text>
+                    <View style={styles.rightContainer}>
+                      <ChevronIcon />
+                    </View>
+                  </TouchableOpacity>
+                ) : null}
+                {/* Language */}
+                <TouchableOpacity
+                  style={[
+                    styles.menuItem,
+                    {borderBottomColor: themeColors[theme].border},
+                  ]}
+                  onPress={() => handleNavigate('LanguageScreen')}>
+                  <View style={styles.menuIconContainer}>
+                    <GlobeIcon />
+                  </View>
+                  <Text
+                    style={[styles.menuText, {color: themeColors[theme].text}]}>
+                    Language
+                  </Text>
+                  <View style={styles.rightContainer}>
+                    <Text
+                      style={[
+                        styles.languageValue,
+                        {color: isDark ? 'white' : '#7A40C6'},
+                      ]}>
+                      {
+                        languages.find(lang => lang.id == selectedLanguage)
+                          ?.name
+                      }
+                    </Text>
+                    <ChevronIcon />
+                  </View>
+                </TouchableOpacity>
+                {/* Privacy Policy */}
+                <TouchableOpacity
+                  style={[
+                    styles.menuItem,
+                    {borderBottomColor: themeColors[theme].border},
+                  ]}
+                  onPress={() => navigation.navigate('PrivacyPolicy')}>
+                  <View style={styles.menuIconContainer}>
+                    <DocumentIcon />
+                  </View>
+                  <Text
+                    style={[styles.menuText, {color: themeColors[theme].text}]}>
+                    Privacy Policy
+                  </Text>
+                  <ChevronIcon />
+                </TouchableOpacity>
+                {/* Terms and Conditions */}
+                <TouchableOpacity
+                  style={[
+                    styles.menuItem,
+                    {borderBottomColor: themeColors[theme].border},
+                  ]}
+                  onPress={() => navigation.navigate('TermsAndConditions')}>
+                  <View style={styles.menuIconContainer}>
+                    <DocumentIcon />
+                  </View>
+                  <Text
+                    style={[styles.menuText, {color: themeColors[theme].text}]}>
+                    Terms and Conditions
+                  </Text>
+                  <ChevronIcon />
+                </TouchableOpacity>
+                {/* Cookie Policy */}
+                <TouchableOpacity
+                  style={[
+                    styles.menuItem,
+                    {borderBottomColor: themeColors[theme].border},
+                  ]}
+                  onPress={() => navigation.navigate('CookiePolicy')}>
+                  <View style={styles.menuIconContainer}>
+                    <DocumentIcon />
+                  </View>
+                  <Text
+                    style={[styles.menuText, {color: themeColors[theme].text}]}>
+                    Cookie Policy
+                  </Text>
+                  <ChevronIcon />
+                </TouchableOpacity>
+                {/* Help Center */}
+                <TouchableOpacity
+                  style={[
+                    styles.menuItem,
+                    {borderBottomColor: themeColors[theme].border},
+                  ]}
+                  onPress={() => handleNavigate('HelpCenterScreen')}>
+                  <View style={styles.menuIconContainer}>
+                    <HelpIcon />
+                  </View>
+                  <Text
+                    style={[styles.menuText, {color: themeColors[theme].text}]}>
+                    Help Center
+                  </Text>
+                  <ChevronIcon />
+                </TouchableOpacity>
+                {/* Dark Mode */}
+                <TouchableOpacity
+                  style={[
+                    styles.menuItem,
+                    {borderBottomColor: themeColors[theme].border},
+                  ]}
+                  onPress={toggleTheme}>
+                  <View style={styles.menuItemLeft}>
+                    <MoonIcon />
+                    <Text
+                      style={[
+                        styles.menuItemText,
+                        {color: themeColors[theme].text},
+                      ]}>
+                      Dark Mode
+                    </Text>
+                  </View>
+                  <Switch
+                    value={isDark}
+                    onValueChange={toggleTheme}
+                    trackColor={{
+                      false: '#767577',
+                      true: themeColors[theme].primary,
+                    }}
+                    thumbColor={isDark ? '#f4f3f4' : '#f4f3f4'}
+                  />
+                </TouchableOpacity>
+                {/* Logout */}
+                {isAuthenticated ? (
+                  <TouchableOpacity
+                    style={styles.logoutItem}
+                    onPress={() => setShowLogoutModal(true)}>
+                    <View style={styles.logoutIconContainer}>
+                      <LogoutIcon color={COLORS.primary} />
+                    </View>
+                    <Text style={[styles.logoutText, {color: COLORS.primary}]}>
+                      Logout
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.logoutItem}
+                    onPress={() => navigation.navigate('LoginScreen')}>
+                    <View style={styles.logoutIconContainer}>
+                      <Ionicons
+                        name="log-in-outline"
+                        size={24}
+                        color={COLORS.primary}
+                      />
+                    </View>
+                    <Text style={[styles.logoutText, {color: COLORS.primary}]}>
+                      Login
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+        <LogoutModal
+          visible={showLogoutModal}
+          onCancel={() => setShowLogoutModal(false)}
+          onLogout={handleLogout}
+        />
+      </SafeAreaView>
+    );
   return (
     <SafeAreaView
       style={[
