@@ -13,6 +13,8 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {getBlogPosts} from '../../services/api';
 import {useTheme} from 'src/context/ThemeContext';
+import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
+import {getTranslation} from '../../translations';
 
 const {width} = Dimensions.get('window');
 
@@ -23,6 +25,7 @@ const NewsBlogs = () => {
   const [error, setError] = useState(null);
   const [featuredPost, setFeaturedPost] = useState(null);
   const {isDark} = useTheme();
+  const {selectedLanguage} = useCurrencyLanguage();
 
   useEffect(() => {
     fetchBlogPosts();
@@ -33,32 +36,26 @@ const NewsBlogs = () => {
     setError(null);
 
     try {
-      // Only fetch blogs data
       const blogsResponse = await getBlogPosts({type: 'articles', limit: 6});
 
       if (blogsResponse.success) {
-        // Process and set blogs data
         setBlogsData(blogsResponse.data || []);
 
-        // Set featured post (first blog item)
         if (blogsResponse.data && blogsResponse.data.length > 0) {
           setFeaturedPost(blogsResponse.data[0]);
         }
       } else {
-        setError('Failed to load content. Please try again later.');
+        setError(getTranslation('newsBlogs.errorLoading', selectedLanguage));
       }
     } catch (error) {
       console.error('Error fetching blog posts:', error);
-      setError(
-        'Something went wrong. Please check your connection and try again.',
-      );
+      setError(getTranslation('newsBlogs.connectionError', selectedLanguage));
     } finally {
       setLoading(false);
     }
   };
 
   const handlePostPress = post => {
-    // Navigate to post detail screen with the post data
     navigation.navigate('BlogPostDetailScreen', {post});
     console.log('Post pressed:', post.title);
   };
@@ -69,16 +66,14 @@ const NewsBlogs = () => {
         <View style={styles.emptyContainer}>
           <Text
             style={[styles.emptyText, {color: isDark ? '#FFFFFF' : '#666'}]}>
-            No blog posts available
+            {getTranslation('newsBlogs.noBlogPosts', selectedLanguage)}
           </Text>
         </View>
       );
     }
 
-    // Use first blog item as featured
     const firstBlog = blogsData[0];
 
-    // Construct image URL for featured post
     const featuredImageUrl = firstBlog.coverImage
       ? {
           uri: `https://cdn.legendmotorsglobal.com${firstBlog.coverImage.original}`,
@@ -87,7 +82,6 @@ const NewsBlogs = () => {
 
     return (
       <View style={styles.blogsContainer}>
-        {/* Featured blog post */}
         <TouchableOpacity
           style={[
             styles.featuredCard,
@@ -113,7 +107,8 @@ const NewsBlogs = () => {
                 {color: isDark ? '#CCCCCC' : '#666'},
               ]}
               numberOfLines={2}>
-              {firstBlog.excerpt || 'Click to read more'}
+              {firstBlog.excerpt ||
+                getTranslation('newsBlogs.readMore', selectedLanguage)}
             </Text>
           </View>
         </TouchableOpacity>
@@ -136,7 +131,7 @@ const NewsBlogs = () => {
           <ActivityIndicator size="large" color="#F47B20" />
           <Text
             style={[styles.loadingText, {color: isDark ? '#FFFFFF' : '#666'}]}>
-            Loading content...
+            {getTranslation('newsBlogs.loadingContent', selectedLanguage)}
           </Text>
         </View>
       </SafeAreaView>
@@ -157,7 +152,9 @@ const NewsBlogs = () => {
           ]}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={fetchBlogPosts}>
-            <Text style={styles.retryText}>Retry</Text>
+            <Text style={styles.retryText}>
+              {getTranslation('common.retry', selectedLanguage)}
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -181,14 +178,7 @@ const NewsBlogs = () => {
               styles.normalTitleText,
               {color: isDark ? '#FFFFFF' : '#333'},
             ]}>
-            News/
-          </Text>
-          <Text
-            style={[
-              styles.normalTitleText,
-              {color: isDark ? '#FFFFFF' : '#333'},
-            ]}>
-            Blogs
+            {getTranslation('newsBlogs.title', selectedLanguage)}
           </Text>
         </View>
 
@@ -225,12 +215,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginRight: 5,
-  },
-  highlightedTitleText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    backgroundColor: '#FDD835',
-    paddingHorizontal: 5,
   },
   loadingContainer: {
     width: 380,

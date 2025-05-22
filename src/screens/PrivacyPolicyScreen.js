@@ -15,10 +15,13 @@ import HTML from 'react-native-render-html';
 import {Dimensions} from 'react-native';
 import axios from 'axios';
 import {API_BASE_URL, API_KEY} from '../utils/apiConfig';
+import api from 'src/services/api';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
 const PrivacyPolicyScreen = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
   const [loading, setLoading] = useState(true);
   const [policyData, setPolicyData] = useState(null);
   const [error, setError] = useState(null);
@@ -31,24 +34,16 @@ const PrivacyPolicyScreen = () => {
   const fetchPolicyData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${API_BASE_URL}/page/getBySlug?slug=privacy_policy&lang=en`,
-        {
-          headers: {
-            'accept': 'application/json',
-            'x-api-key': API_KEY,
-          },
-        },
-      );
+      const response = await api.get(`page/getBySlug?slug=privacy_policy`);
 
       if (response.data && response.data.success) {
         setPolicyData(response.data.data);
       } else {
-        setError('Failed to load privacy policy data');
+        setError(t('privacyPolicy.errorLoading'));
       }
     } catch (err) {
       console.error('Error fetching privacy policy:', err);
-      setError('An error occurred while loading the privacy policy');
+      setError(t('privacyPolicy.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -69,44 +64,61 @@ const PrivacyPolicyScreen = () => {
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backButton}
               onPress={() => navigation.goBack()}>
-              <Text style={[styles.backButtonText, {color: themeColors[theme].primary}]}>
-                ← Back
+              <Text
+                style={[
+                  styles.backButtonText,
+                  {color: themeColors[theme].primary},
+                ]}>
+                {t('common.back')}
               </Text>
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
-              {policyData?.title || 'Privacy Policy'}
+            <Text
+              style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+              {policyData?.title || t('privacyPolicy.title')}
             </Text>
           </View>
-          <Text style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
-            Last Updated: {policyData?.updatedAt ? new Date(policyData.updatedAt).toDateString() : ''}
+          <Text
+            style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
+            {t('privacyPolicy.lastUpdated')}:{' '}
+            {policyData?.updatedAt
+              ? new Date(policyData.updatedAt).toDateString()
+              : ''}
           </Text>
         </View>
 
         <View style={styles.content}>
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={themeColors[theme].primary} />
-              <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
-                Loading Privacy Policy...
+              <ActivityIndicator
+                size="large"
+                color={themeColors[theme].primary}
+              />
+              <Text
+                style={[styles.loadingText, {color: themeColors[theme].text}]}>
+                {t('privacyPolicy.loading')}
               </Text>
             </View>
           ) : error ? (
             <View style={styles.errorContainer}>
-              <Text style={[styles.errorText, {color: themeColors[theme].text}]}>
+              <Text
+                style={[styles.errorText, {color: themeColors[theme].text}]}>
                 {error}
               </Text>
-              <TouchableOpacity 
-                style={[styles.retryButton, {backgroundColor: themeColors[theme].primary}]}
+              <TouchableOpacity
+                style={[
+                  styles.retryButton,
+                  {backgroundColor: themeColors[theme].primary},
+                ]}
                 onPress={fetchPolicyData}>
-                <Text style={styles.retryButtonText}>Try Again</Text>
+                <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
               </TouchableOpacity>
             </View>
           ) : contentSection ? (
-            <HTML 
-              source={{ html: contentSection.content }} 
+            <HTML
+              source={{html: contentSection.content}}
               contentWidth={windowWidth - 32}
               baseStyle={{
                 color: isDark ? '#FFFFFF' : '#333333',
@@ -125,7 +137,7 @@ const PrivacyPolicyScreen = () => {
             />
           ) : (
             <Text style={[styles.paragraph, {color: themeColors[theme].text}]}>
-              No privacy policy content available.
+              {t('privacyPolicy.noContent')}
             </Text>
           )}
         </View>
@@ -207,4 +219,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PrivacyPolicyScreen; 
+export default PrivacyPolicyScreen;

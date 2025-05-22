@@ -11,6 +11,8 @@ import {
   ProfileIcon,
 } from '../components/icons';
 import {useTheme, themeColors} from '../context/ThemeContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {getTranslation} from '../translations';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -40,10 +42,11 @@ const CustomLabel = ({focused, color, label}) => {
 const BottomTabNavigator = () => {
   const {theme, isDark} = useTheme();
   const insets = useSafeAreaInsets();
+  const {selectedLanguage} = useCurrencyLanguage();
 
   return (
     <Tab.Navigator
-      screenOptions={{
+      screenOptions={({route}) => ({
         headerShown: false,
         tabBarActiveTintColor: '#F47B20',
         tabBarInactiveTintColor: isDark ? '#666666' : '#8E8E8E',
@@ -60,18 +63,37 @@ const BottomTabNavigator = () => {
           shadowOpacity: 0.1,
           shadowRadius: 3,
         },
-        tabBarLabel: ({focused, color, label}) => (
-          <CustomLabel focused={focused} color={color} label={label} />
-        ),
+        tabBarLabel: ({focused, color}) => {
+          let label;
+          switch (route.name) {
+            case 'HomeTab':
+              label = getTranslation('tabs.home', selectedLanguage);
+              break;
+            case 'EnquiriesTab':
+              label = getTranslation('tabs.inquiries', selectedLanguage);
+              break;
+            case 'ExploreTab':
+              label = getTranslation('tabs.explore', selectedLanguage);
+              break;
+            case 'NewsTab':
+              label = getTranslation('tabs.newsBlogs', selectedLanguage);
+              break;
+            case 'ProfileTab':
+              label = getTranslation('tabs.profile', selectedLanguage);
+              break;
+            default:
+              label = route.name;
+          }
+          return <CustomLabel focused={focused} color={color} label={label} />;
+        },
         tabBarItemStyle: {
           padding: 5,
         },
-      }}>
+      })}>
       <Tab.Screen
         name="HomeTab"
         component={HomeScreen}
         options={{
-          tabBarLabel: 'Home',
           tabBarIcon: ({color, size}) => (
             <Ionicons name="home-outline" size={size} color={color} />
           ),
@@ -81,7 +103,6 @@ const BottomTabNavigator = () => {
         name="EnquiriesTab"
         component={EnquiriesScreen}
         options={{
-          tabBarLabel: 'Inquiries',
           tabBarIcon: ({color, size}) => (
             <ListSearchIcon width={size} height={size} color={color} />
           ),
@@ -91,7 +112,6 @@ const BottomTabNavigator = () => {
         name="ExploreTab"
         component={ExploreScreen}
         options={{
-          tabBarLabel: 'Explore',
           tabBarIcon: ({color, size}) => (
             <EyeIcon width={size} height={size} color={color} />
           ),
@@ -101,7 +121,6 @@ const BottomTabNavigator = () => {
         name="NewsTab"
         component={NewsBlogsScreen}
         options={{
-          tabBarLabel: 'News/Blogs',
           tabBarIcon: ({color, size}) => (
             <BlogIcon width={size} height={size} color={color} />
           ),
@@ -111,7 +130,6 @@ const BottomTabNavigator = () => {
         name="ProfileTab"
         component={ProfileScreen}
         options={{
-          tabBarLabel: 'Profile',
           tabBarIcon: ({color, size}) => (
             <ProfileIcon width={size} height={size} color={color} />
           ),

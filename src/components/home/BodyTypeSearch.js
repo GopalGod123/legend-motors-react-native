@@ -6,10 +6,12 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
-import {BodyTypeIcon, HatchbackIcon, SedanIcon, SUVIcon} from '../icons';
+import {BodyTypeIcon} from '../icons';
 import {useTheme} from 'src/context/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
-import { SPACING } from 'src/utils/constants';
+import {SPACING} from 'src/utils/constants';
+import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
+import {getTranslation} from '../../translations';
 
 const BodyTypeItem = ({icon, title, isDark, onPress}) => {
   return (
@@ -29,10 +31,14 @@ const BodyTypeItem = ({icon, title, isDark, onPress}) => {
 };
 
 const BodyTypeSearch = () => {
+  const {selectedLanguage} = useCurrencyLanguage();
+  const {isDark} = useTheme();
+  const navigation = useNavigation();
+
   const bodyTypes = [
     {
       id: 53,
-      title: 'Hatchback',
+      title: getTranslation('bodyType.hatchback', selectedLanguage),
       icon: (
         <BodyTypeIcon
           img={require('./icons-body-type/hatchback.png')}
@@ -43,7 +49,7 @@ const BodyTypeSearch = () => {
     },
     {
       id: 49,
-      title: 'Sedan',
+      title: getTranslation('bodyType.sedan', selectedLanguage),
       icon: (
         <BodyTypeIcon
           width={100}
@@ -54,7 +60,7 @@ const BodyTypeSearch = () => {
     },
     {
       id: 51,
-      title: 'SUV',
+      title: getTranslation('bodyType.suv', selectedLanguage),
       icon: (
         <BodyTypeIcon
           width={100}
@@ -65,7 +71,7 @@ const BodyTypeSearch = () => {
     },
     {
       id: 56,
-      title: 'VAN',
+      title: getTranslation('bodyType.van', selectedLanguage),
       icon: (
         <BodyTypeIcon
           width={100}
@@ -76,7 +82,7 @@ const BodyTypeSearch = () => {
     },
     {
       id: 52,
-      title: 'Crossover',
+      title: getTranslation('bodyType.crossover', selectedLanguage),
       icon: (
         <BodyTypeIcon
           width={100}
@@ -87,7 +93,7 @@ const BodyTypeSearch = () => {
     },
     {
       id: 55,
-      title: 'Pickup Truck',
+      title: getTranslation('bodyType.pickupTruck', selectedLanguage),
       icon: (
         <BodyTypeIcon
           width={100}
@@ -98,7 +104,7 @@ const BodyTypeSearch = () => {
     },
     {
       id: 58,
-      title: 'Convertible',
+      title: getTranslation('bodyType.convertible', selectedLanguage),
       icon: (
         <BodyTypeIcon
           width={100}
@@ -108,8 +114,6 @@ const BodyTypeSearch = () => {
       ),
     },
   ];
-  const {isDark} = useTheme();
-  const navigation = useNavigation();
 
   const handleBodyTypePress = id => {
     navigation.navigate('ExploreTab', {
@@ -143,10 +147,12 @@ const BodyTypeSearch = () => {
       ]}>
       <View style={styles.header}>
         <Text style={[styles.title, {color: isDark ? '#FFFFFF' : '#333'}]}>
-          Search by Body Type
+          {getTranslation('bodyType.title', selectedLanguage)}
         </Text>
         <TouchableOpacity onPress={handleSeeAllPress}>
-          <Text style={styles.seeAllText}>See All</Text>
+          <Text style={styles.seeAllText}>
+            {getTranslation('bodyType.seeAll', selectedLanguage)}
+          </Text>
         </TouchableOpacity>
       </View>
 

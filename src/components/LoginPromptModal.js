@@ -13,6 +13,8 @@ import Svg, {Path, Circle} from 'react-native-svg';
 import {useAuth} from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useTheme} from '../context/ThemeContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {getTranslation} from '../translations';
 
 // Use SVG for the lock icon to avoid image loading issues
 const LockIcon = () => (
@@ -27,6 +29,7 @@ const PROMPT_SHOWN_KEY = 'login_prompt_dismissed';
 
 const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
   const {isDark} = useTheme();
+  const {selectedLanguage} = useCurrencyLanguage();
   const [shouldShowModal, setShouldShowModal] = useState(visible);
 
   // Update modal visibility when prop changes
@@ -89,17 +92,20 @@ const LoginPromptModal = ({visible, onClose, onLoginPress}) => {
             </View>
 
             <Text style={[styles.title, isDark && styles.titleDark]}>
-              Login page
+              {getTranslation('auth.login', selectedLanguage)}
             </Text>
             <Text
               style={[styles.description, isDark && styles.descriptionDark]}>
-              Log in or register to access exclusive features and deals!
+              {getTranslation('auth.loginToViewPrice', selectedLanguage)}
             </Text>
 
             <TouchableOpacity
               style={styles.loginButton}
               onPress={handleLoginPress}>
-              <Text style={styles.loginButtonText}>Login / Register</Text>
+              <Text style={styles.loginButtonText}>
+                {getTranslation('auth.login', selectedLanguage)} /{' '}
+                {getTranslation('auth.signup', selectedLanguage)}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

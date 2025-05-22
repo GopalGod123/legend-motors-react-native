@@ -3,10 +3,11 @@ import {View, Text, TouchableOpacity, StyleSheet, Image} from 'react-native';
 import {COLORS, SPACING, FONT_SIZES} from '../../utils/constants';
 import Logo from '../Logo';
 import {useTheme} from '../../context/ThemeContext';
+import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
 
 const Header = ({isViewingSpecificCar = false, onBackToAllCars}) => {
   const {isDark} = useTheme();
-  
+  const {t} = useCurrencyLanguage();
   return (
     <View style={styles.header}>
       <View style={{flexDirection: 'row'}}>
@@ -14,7 +15,13 @@ const Header = ({isViewingSpecificCar = false, onBackToAllCars}) => {
           style={styles.logo}
           source={require('../../assets/images/logo.png')}
         />
-        <Text style={[styles.headerTitle, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>Explore</Text>
+        <Text
+          style={[
+            styles.headerTitle,
+            {color: isDark ? '#FFFFFF' : COLORS.textDark},
+          ]}>
+          {t('explore.title')}
+        </Text>
       </View>
       {isViewingSpecificCar && (
         <TouchableOpacity style={styles.backButton} onPress={onBackToAllCars}>

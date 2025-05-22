@@ -13,42 +13,35 @@ import {useNavigation} from '@react-navigation/native';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import HTML from 'react-native-render-html';
 import {Dimensions} from 'react-native';
-import axios from 'axios';
-import {API_BASE_URL, API_KEY} from '../utils/apiConfig';
+import api from 'src/services/api';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
 const CookiePolicyScreen = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
   const [loading, setLoading] = useState(true);
   const [cookieData, setCookieData] = useState(null);
   const [error, setError] = useState(null);
   const windowWidth = Dimensions.get('window').width;
 
   useEffect(() => {
-    fetchCookieData();
+    fetchCookiePolicyData();
   }, []);
 
-  const fetchCookieData = async () => {
+  const fetchCookiePolicyData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${API_BASE_URL}/page/getBySlug?slug=cookie_policy&lang=en`,
-        {
-          headers: {
-            'accept': 'application/json',
-            'x-api-key': API_KEY,
-          },
-        },
-      );
+      const response = await api.get(`page/getBySlug?slug=cookie_policy`);
 
       if (response.data && response.data.success) {
         setCookieData(response.data.data);
       } else {
-        setError('Failed to load cookie policy data');
+        setError(t('cookiePolicy.errorLoading'));
       }
     } catch (err) {
       console.error('Error fetching cookie policy:', err);
-      setError('An error occurred while loading the cookie policy');
+      setError(t('cookiePolicy.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -56,7 +49,9 @@ const CookiePolicyScreen = () => {
 
   // Find the content section
   const contentSection = cookieData?.sections?.find(
-    section => section.sectionKey.includes('cookie'),
+    section =>
+      section.sectionKey.includes('cookie_') ||
+      section.sectionKey.includes('policy'),
   );
 
   return (
@@ -69,44 +64,61 @@ const CookiePolicyScreen = () => {
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backButton}
               onPress={() => navigation.goBack()}>
-              <Text style={[styles.backButtonText, {color: themeColors[theme].primary}]}>
-                ← Back
+              <Text
+                style={[
+                  styles.backButtonText,
+                  {color: themeColors[theme].primary},
+                ]}>
+                {t('common.back')}
               </Text>
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
-              {cookieData?.title || 'Cookie Policy'}
+            <Text
+              style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+              {cookieData?.title || t('cookiePolicy.title')}
             </Text>
           </View>
-          <Text style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
-            Last Updated: {cookieData?.updatedAt ? new Date(cookieData.updatedAt).toDateString() : ''}
+          <Text
+            style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
+            {t('cookiePolicy.lastUpdated')}:{' '}
+            {cookieData?.updatedAt
+              ? new Date(cookieData.updatedAt).toDateString()
+              : ''}
           </Text>
         </View>
 
         <View style={styles.content}>
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={themeColors[theme].primary} />
-              <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
-                Loading Cookie Policy...
+              <ActivityIndicator
+                size="large"
+                color={themeColors[theme].primary}
+              />
+              <Text
+                style={[styles.loadingText, {color: themeColors[theme].text}]}>
+                {t('cookiePolicy.loading')}
               </Text>
             </View>
           ) : error ? (
             <View style={styles.errorContainer}>
-              <Text style={[styles.errorText, {color: themeColors[theme].text}]}>
+              <Text
+                style={[styles.errorText, {color: themeColors[theme].text}]}>
                 {error}
               </Text>
-              <TouchableOpacity 
-                style={[styles.retryButton, {backgroundColor: themeColors[theme].primary}]}
-                onPress={fetchCookieData}>
-                <Text style={styles.retryButtonText}>Try Again</Text>
+              <TouchableOpacity
+                style={[
+                  styles.retryButton,
+                  {backgroundColor: themeColors[theme].primary},
+                ]}
+                onPress={fetchCookiePolicyData}>
+                <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
               </TouchableOpacity>
             </View>
           ) : contentSection ? (
-            <HTML 
-              source={{ html: contentSection.content }} 
+            <HTML
+              source={{html: contentSection.content}}
               contentWidth={windowWidth - 32}
               baseStyle={{
                 color: isDark ? '#FFFFFF' : '#333333',
@@ -125,7 +137,7 @@ const CookiePolicyScreen = () => {
             />
           ) : (
             <Text style={[styles.paragraph, {color: themeColors[theme].text}]}>
-              No cookie policy content available.
+              {t('cookiePolicy.noContent')}
             </Text>
           )}
         </View>
@@ -207,4 +219,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CookiePolicyScreen; 
+export default CookiePolicyScreen;

@@ -8,9 +8,11 @@ import {
 } from '../../utils/constants';
 import {AntDesign, Ionicons} from 'src/utils/icon/index';
 import {useTheme} from '../../context/ThemeContext';
+import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
 
 const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
   const {isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
 
   const renderFilterItem = ({item}) => (
     <TouchableOpacity
@@ -50,7 +52,7 @@ const FilterTabs = ({categories, activeFilter, onSelect, home = false}) => {
             styles.filtersTitle,
             {color: isDark ? '#FFFFFF' : COLORS.textDark},
           ]}>
-          {'Advanced Filters'}
+          {t('explore.advancedFilters')}
         </Text>
       )}
       <FlatList

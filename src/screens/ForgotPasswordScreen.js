@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -8,34 +8,48 @@ import {
   Alert,
   ActivityIndicator,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import BackArrow from '../components/BackArrow';
 import EmailIcon from '../components/icons/EmailIcon';
-import { requestPasswordResetOTP } from '../services/api';
+import {requestPasswordResetOTP} from '../services/api';
+import {getTranslation} from '../translations';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
+  const {selectedLanguage} = useCurrencyLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleRequestOTP = async () => {
     if (!email || !email.trim()) {
-      Alert.alert('Error', 'Please enter a valid email address');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        getTranslation('auth.enterValidEmail', selectedLanguage),
+      );
       return;
     }
 
     try {
       setLoading(true);
       const response = await requestPasswordResetOTP(email);
-      
+
       if (response.success) {
         // Navigate to OTP verification screen
-        navigation.navigate('VerifyOTP', { email });
+        navigation.navigate('VerifyOTP', {email});
       } else {
-        Alert.alert('Error', response.msg || 'Failed to send OTP. Please try again.');
+        Alert.alert(
+          getTranslation('common.error', selectedLanguage),
+          response.msg ||
+            getTranslation('auth.failedToSendOTP', selectedLanguage),
+        );
       }
     } catch (error) {
-      Alert.alert('Error', error.message || 'Something went wrong. Please try again.');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        error.message ||
+          getTranslation('auth.somethingWentWrong', selectedLanguage),
+      );
     } finally {
       setLoading(false);
     }
@@ -49,14 +63,16 @@ const ForgotPasswordScreen = () => {
         <BackArrow />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Forgot Password</Text>
-      
+      <Text style={styles.title}>
+        {getTranslation('auth.forgotPasswordTitle', selectedLanguage)}
+      </Text>
+
       <View style={styles.iconContainer}>
         <EmailIcon width={50} height={50} />
       </View>
 
       <Text style={styles.description}>
-        Enter your email address and we'll send you a verification code to reset your password.
+        {getTranslation('auth.forgotPasswordDescription', selectedLanguage)}
       </Text>
 
       <View style={styles.inputContainer}>
@@ -64,7 +80,7 @@ const ForgotPasswordScreen = () => {
           <EmailIcon />
           <TextInput
             style={styles.input}
-            placeholder="Email"
+            placeholder={getTranslation('auth.email', selectedLanguage)}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -73,14 +89,16 @@ const ForgotPasswordScreen = () => {
         </View>
       </View>
 
-      <TouchableOpacity 
-        style={styles.continueButton} 
+      <TouchableOpacity
+        style={styles.continueButton}
         onPress={handleRequestOTP}
         disabled={loading}>
         {loading ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <Text style={styles.continueButtonText}>
+            {getTranslation('auth.continue', selectedLanguage)}
+          </Text>
         )}
       </TouchableOpacity>
     </View>
@@ -150,4 +168,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ForgotPasswordScreen; 
+export default ForgotPasswordScreen;

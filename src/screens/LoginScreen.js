@@ -21,6 +21,8 @@ import AppleIcon from '../components/icons/AppleIcon';
 import GoogleIcon from '../components/icons/GoogleIcon';
 import {useAuth} from '../context/AuthContext';
 import {useTheme} from 'src/context/ThemeContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {getTranslation} from '../translations';
 import {
   onAppleButtonPressAndroid,
   onAppleButtonPressIOS,
@@ -34,6 +36,7 @@ const LoginScreen = () => {
   const route = useRoute();
   const initialEmail = route.params?.email || '';
   const {isDark} = useTheme();
+  const {selectedLanguage} = useCurrencyLanguage();
 
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
@@ -49,19 +52,25 @@ const LoginScreen = () => {
   useEffect(() => {
     if (route.params?.email && route.params?.fromRegistration) {
       Alert.alert(
-        'Registration Complete',
-        'Your account has been created successfully. Please log in with your credentials.',
+        getTranslation('auth.registrationComplete', selectedLanguage),
+        getTranslation('auth.registrationSuccess', selectedLanguage),
       );
     }
-  }, [route.params]);
+  }, [route.params, selectedLanguage]);
 
   const handleLogin = async () => {
     if (!email.trim()) {
-      Alert.alert('Error', 'Please enter your email');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        getTranslation('auth.enterEmail', selectedLanguage),
+      );
       return;
     }
     if (!password) {
-      Alert.alert('Error', 'Please enter your password');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        getTranslation('auth.enterPassword', selectedLanguage),
+      );
       return;
     }
 
@@ -78,16 +87,16 @@ const LoginScreen = () => {
       } else {
         // Show specific error message from API if available
         Alert.alert(
-          'Login Failed',
+          getTranslation('auth.loginFailed', selectedLanguage),
           result.error ||
-            'Invalid credentials. Please check your email and password.',
+            getTranslation('auth.invalidCredentials', selectedLanguage),
         );
       }
     } catch (error) {
       console.error('Login error:', error);
       Alert.alert(
-        'Login Error',
-        'An unexpected error occurred. Please try again later.',
+        getTranslation('auth.loginError', selectedLanguage),
+        getTranslation('auth.unexpectedError', selectedLanguage),
       );
     }
   };
@@ -170,7 +179,7 @@ const LoginScreen = () => {
       </View>
 
       <Text style={[styles.title, isDark && styles.titleDark]}>
-        Login to Your Account
+        {getTranslation('auth.loginToAccount', selectedLanguage)}
       </Text>
 
       <View style={styles.inputContainer}>
@@ -178,12 +187,12 @@ const LoginScreen = () => {
           <EmailIcon />
           <TextInput
             style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Email"
+            placeholder={getTranslation('auth.email', selectedLanguage)}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            placeholderTextColor={isDark ? '#666666' : '#000000'}
+            placeholderTextColor={'#666666'}
           />
         </View>
 
@@ -191,11 +200,11 @@ const LoginScreen = () => {
           <LockIcon />
           <TextInput
             style={[styles.input, isDark && styles.inputDark]}
-            placeholder="Password"
+            placeholder={getTranslation('auth.password', selectedLanguage)}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
-            placeholderTextColor={isDark ? '#666666' : undefined}
+            placeholderTextColor={'#666666'}
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
@@ -213,7 +222,7 @@ const LoginScreen = () => {
             {rememberMe && <CheckIcon />}
           </View>
           <Text style={[styles.rememberText, isDark && styles.textDark]}>
-            Remember me
+            {getTranslation('auth.rememberMe', selectedLanguage)}
           </Text>
         </TouchableOpacity>
       </View>
@@ -225,7 +234,9 @@ const LoginScreen = () => {
         {loading ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
-          <Text style={styles.loginButtonText}>Login</Text>
+          <Text style={styles.loginButtonText}>
+            {getTranslation('auth.login', selectedLanguage)}
+          </Text>
         )}
       </TouchableOpacity>
 
@@ -233,16 +244,18 @@ const LoginScreen = () => {
         style={styles.forgotPassword}
         onPress={() => navigation.navigate('ForgotPassword')}>
         <Text style={[styles.forgotPasswordText, isDark && styles.textDark]}>
-          Forgot the password?
+          {getTranslation('auth.forgotPassword', selectedLanguage)}
         </Text>
       </TouchableOpacity>
 
       <View style={styles.registerContainer}>
         <Text style={[styles.registerText, isDark && styles.textDark]}>
-          Don't have an account?{' '}
+          {getTranslation('auth.dontHaveAccount', selectedLanguage)}{' '}
         </Text>
         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-          <Text style={styles.registerLink}>Register</Text>
+          <Text style={styles.registerLink}>
+            {getTranslation('auth.signup', selectedLanguage)}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -257,7 +270,7 @@ const LoginScreen = () => {
               <AppleIcon size={24} color={isDark ? '#FFFFFF' : '#000000'} />
               <Text
                 style={[styles.socialButtonText, isDark && styles.textDark]}>
-                Continue with Apple
+                {getTranslation('auth.continueWithApple', selectedLanguage)}
               </Text>
             </>
           )}
@@ -273,7 +286,7 @@ const LoginScreen = () => {
               <GoogleIcon size={24} />
               <Text
                 style={[styles.socialButtonText, isDark && styles.textDark]}>
-                Continue with Google
+                {getTranslation('auth.continueWithGoogle', selectedLanguage)}
               </Text>
             </>
           )}

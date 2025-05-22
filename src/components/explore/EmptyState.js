@@ -7,13 +7,15 @@ import {
   COLORS,
 } from '../../utils/constants';
 import {useTheme} from '../../context/ThemeContext';
+import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
 
 const EmptyState = ({onClearFilters, brandName}) => {
   const {theme, isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
 
   const message = brandName
-    ? `No cars available for ${brandName}.`
-    : 'No cars match your current filter criteria.';
+    ? t('emptyState.noCarsForBrand', {brandName})
+    : t('emptyState.noCarsMatchFilters');
 
   return (
     <View
@@ -23,20 +25,21 @@ const EmptyState = ({onClearFilters, brandName}) => {
       ]}>
       <Text
         style={[styles.emptyTitle, {color: isDark ? '#FFFFFF' : '#000000'}]}>
-        No Cars Found
+        {t('emptyState.noCarsFound')}
       </Text>
       <Text
         style={[
           styles.emptyDescription,
           {color: isDark ? '#CCCCCC' : '#757575'},
         ]}>
-        {message} Try adjusting your filters or clear them to see all available
-        cars.
+        {message} {t('emptyState.tryAdjustingFilters')}
       </Text>
       <TouchableOpacity
         style={styles.clearFiltersButtonLarge}
         onPress={onClearFilters}>
-        <Text style={styles.clearFiltersText}>Clear All Filters</Text>
+        <Text style={styles.clearFiltersText}>
+          {t('emptyState.clearAllFilters')}
+        </Text>
       </TouchableOpacity>
     </View>
   );

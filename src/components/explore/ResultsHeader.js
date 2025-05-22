@@ -7,6 +7,7 @@ import {
   BORDER_RADIUS,
 } from '../../utils/constants';
 import {useTheme, themeColors} from '../../context/ThemeContext';
+import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
 
 const ResultsHeader = ({
   totalCars,
@@ -19,6 +20,7 @@ const ResultsHeader = ({
   categoryTitle = '',
 }) => {
   const {isDark, theme} = useTheme();
+  const {t} = useCurrencyLanguage();
 
   // Format number with commas
   const formatNumber = num => {
@@ -31,7 +33,7 @@ const ResultsHeader = ({
       return (
         <Text
           style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
-          Viewing car details (ID: {carId || 'unknown'})
+          {t('resultsHeader.viewingCarDetails', {carId: carId || 'unknown'})}
         </Text>
       );
     } else if (categoryTitle) {
@@ -42,7 +44,7 @@ const ResultsHeader = ({
             styles.categoryTitle,
             {color: isDark ? '#FFFFFF' : '#000000'},
           ]}>
-          {categoryTitle} ({totalCars} Cars)
+          {categoryTitle} ({totalCars} {t('common.cars')})
         </Text>
       );
     } else if (filteredBySearch && searchQuery) {
@@ -53,15 +55,8 @@ const ResultsHeader = ({
               styles.resultsText,
               {color: isDark ? '#FFFFFF' : '#000000'},
             ]}>
-            Results for "
-          </Text>
-          <Text style={styles.searchQueryText}>{searchQuery}</Text>
-          <Text
-            style={[
-              styles.resultsText,
-              {color: isDark ? '#FFFFFF' : '#000000'},
-            ]}>
-            "
+            {t('resultsHeader.resultsFor')}
+            {searchQuery}
           </Text>
         </View>
       );
@@ -69,14 +64,16 @@ const ResultsHeader = ({
       return (
         <Text
           style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
-          Showing {totalCars} cars
+          {t('resultsHeader.showingCars')}
+          {totalCars}
         </Text>
       );
     } else {
       return (
         <Text
           style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
-          Total: {totalCars} cars
+          {t('resultsHeader.totalCars')}
+          {totalCars}
         </Text>
       );
     }
@@ -86,7 +83,7 @@ const ResultsHeader = ({
     if (filteredBySearch && searchQuery) {
       return (
         <Text style={styles.totalCountText}>
-          {formatNumber(totalCars)} founds
+          {formatNumber(totalCars)} {t('resultsHeader.found')}
         </Text>
       );
     }
@@ -108,7 +105,9 @@ const ResultsHeader = ({
           <TouchableOpacity
             style={styles.clearFiltersButton}
             onPress={onClearFilters}>
-            <Text style={styles.clearFiltersText}>Clear</Text>
+            <Text style={styles.clearFiltersText}>
+              {t('resultsHeader.clear')}
+            </Text>
           </TouchableOpacity>
         )}
       </View>

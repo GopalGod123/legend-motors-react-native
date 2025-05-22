@@ -11,6 +11,8 @@ import {API_KEY} from '../../utils/apiConfig';
 import axios from 'axios';
 import {CarImage} from '../common';
 import {useTheme} from 'src/context/ThemeContext';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import api from 'src/services/api';
 
 // Placeholder logo text examples for brands without logos
 const LOGO_PLACEHOLDERS = {
@@ -110,6 +112,7 @@ const BrandItem = memo(({item, onPress, placeholder}) => {
 // Memoized see all item component
 const SeeAllItem = memo(({onPress}) => {
   const {isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
 
   return (
     <TouchableOpacity
@@ -132,7 +135,7 @@ const SeeAllItem = memo(({onPress}) => {
           styles.brandName,
           {color: isDark ? '#000000' : COLORS.textDark},
         ]}>
-        See All
+        {t('common.viewAll')}
       </Text>
     </TouchableOpacity>
   );
@@ -143,6 +146,7 @@ const PopularBrands = () => {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
   const {isDark} = useTheme();
+  const {t, selectedLanguage} = useCurrencyLanguage();
   // Track if component is mounted
   const isMounted = useRef(true);
 
@@ -151,7 +155,7 @@ const PopularBrands = () => {
     return () => {
       isMounted.current = false;
     };
-  }, [fetchBrands]);
+  }, [selectedLanguage]);
 
   const extractLogoPath = useCallback(logoData => {
     // If it's already a string, use it directly
@@ -193,22 +197,14 @@ const PopularBrands = () => {
       }
 
       // Use the direct API endpoint to get brand list with logos
-      const response = await axios.get(
-        'https://api.staging.legendmotorsglobal.com/api/v1/brand/list',
-        {
-          params: {
-            page: 1,
-            limit: 10, // Reduced from 100 to just 10 for faster loading
-            sortBy: 'id',
-            order: 'asc',
-            lang: 'en',
-          },
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': API_KEY,
-          },
+      const response = await api.get('/brand/list', {
+        params: {
+          page: 1,
+          limit: 10, // Reduced from 100 to just 10 for faster loading
+          sortBy: 'id',
+          order: 'asc',
         },
-      );
+      });
 
       if (!isMounted.current) return;
 
@@ -330,7 +326,7 @@ const PopularBrands = () => {
       <View style={styles.header}>
         <Text
           style={[styles.title, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>
-          Popular Brands
+          {t('common.popularBrands')}
         </Text>
         <TouchableOpacity onPress={navigateToAllBrands}>
           <Text
@@ -338,42 +334,41 @@ const PopularBrands = () => {
               styles.seeAll,
               {color: isDark ? '#FF8C00' : COLORS.primary},
             ]}>
-            See All
+            {t('common.viewAll')}
           </Text>
         </TouchableOpacity>
       </View>
 
-      {loading ? (
-        <FlatList
-          data={[{id: 'skeleton-1'}, {id: 'skeleton-2'}, {id: 'skeleton-3'}]}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id}
-          renderItem={renderLoadingItem}
-          contentContainerStyle={styles.brandsList}
-          ItemSeparatorComponent={ItemSeparatorComponent}
-        />
-      ) : (
-        <FlatList
-          data={[...brands]}
-          renderItem={({item}) => renderBrandItem({item})}
-          keyExtractor={item => item.id.toString()}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.brandsList}
-          // ListFooterComponent={renderSeeAllItem}
-          ItemSeparatorComponent={ItemSeparatorComponent}
-          initialNumToRender={4}
-          maxToRenderPerBatch={4}
-          windowSize={3}
-          removeClippedSubviews={true}
-          getItemLayout={(data, index) => ({
-            length: 100,
-            offset: 100 * index,
-            index,
-          })}
-        />
-      )}
+      <FlatList
+        data={
+          loading
+            ? [
+                {id: 'skeleton-1'},
+                {id: 'skeleton-2'},
+                {id: 'skeleton-3'},
+                {id: 'skeleton-4'},
+              ]
+            : [...brands]
+        }
+        renderItem={({item}) =>
+          loading ? renderLoadingItem({item}) : renderBrandItem({item})
+        }
+        keyExtractor={item => item.id.toString()}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.brandsList}
+        // ListFooterComponent={renderSeeAllItem}
+        ItemSeparatorComponent={ItemSeparatorComponent}
+        initialNumToRender={4}
+        maxToRenderPerBatch={4}
+        windowSize={3}
+        removeClippedSubviews={true}
+        getItemLayout={(data, index) => ({
+          length: 100,
+          offset: 100 * index,
+          index,
+        })}
+      />
     </View>
   );
 };

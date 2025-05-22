@@ -10,21 +10,25 @@ import {
 import {Ionicons} from '../utils/icon';
 import {useNavigation} from '@react-navigation/native';
 import {useTheme, themeColors} from '../context/ThemeContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import CleverTap from 'clevertap-react-native';
+
 const Notification = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
 
   // useEffect(() => {
   //   CleverTap.get().then(count => {
   //     console.log('In-App Notification Count:', count);
   //   });
   // }, []);
+
   const renderNotification = () => {
     return (
       <View>
         <Text style={[styles.sectionHeader, {color: themeColors[theme].text}]}>
-          Today
+          {t('notifications.today')}
         </Text>
         <View
           style={[
@@ -40,10 +44,10 @@ const Notification = () => {
           </View>
           <View style={styles.textContainer}>
             <Text style={[styles.title, {color: themeColors[theme].text}]}>
-              Your offer has been accepted!
+              {t('notifications.offerAccepted')}
             </Text>
             <Text style={[styles.message, {color: isDark ? '#aaa' : '#666'}]}>
-              Congrats! your offer has been accepted by the seller for $170,000
+              {t('notifications.congratsMessage')}
             </Text>
             <TouchableOpacity
               style={[
@@ -55,7 +59,7 @@ const Notification = () => {
                   styles.buttonText,
                   {color: themeColors[theme].primary},
                 ]}>
-                View Details
+                {t('notifications.viewDetails')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -63,6 +67,7 @@ const Notification = () => {
       </View>
     );
   };
+
   return (
     <View
       style={[
@@ -78,7 +83,7 @@ const Notification = () => {
           />
         </TouchableOpacity>
         <Text style={[styles.headerText, {color: themeColors[theme].text}]}>
-          Notification
+          {t('notifications.title')}
         </Text>
       </View>
 

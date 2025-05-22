@@ -24,6 +24,7 @@ import {getUserProfile, updateUserProfile} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import {useCountryCodes} from '../context/CountryCodesContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import BackArrow from '../components/BackArrow';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
@@ -109,6 +110,7 @@ const EditProfileScreen = () => {
   const {user, logout} = useAuth();
   const {theme, isDark} = useTheme();
   const {countryCodes, loading: loadingCountryCodes} = useCountryCodes();
+  const {t} = useCurrencyLanguage();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -338,15 +340,15 @@ const EditProfileScreen = () => {
 
   const validateForm = () => {
     if (!formData.firstName.trim()) {
-      Alert.alert('Error', 'First name is required');
+      Alert.alert(t('common.error'), t('auth.firstNameRequired'));
       return false;
     }
     if (!formData.lastName.trim()) {
-      Alert.alert('Error', 'Last name is required');
+      Alert.alert(t('common.error'), t('auth.lastNameRequired'));
       return false;
     }
     if (!formData.email.trim()) {
-      Alert.alert('Error', 'Email is required');
+      Alert.alert(t('common.error'), t('auth.emailRequired'));
       return false;
     }
     return true;
@@ -674,7 +676,7 @@ const EditProfileScreen = () => {
           ]}>
           <Text
             style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
-            Select Country Code
+            {t('auth.selectCountryCode')}
           </Text>
 
           <FlatList
@@ -719,7 +721,7 @@ const EditProfileScreen = () => {
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setOpenDropdown(null)}>
-            <Text style={styles.closeButtonText}>Close</Text>
+            <Text style={styles.closeButtonText}>{t('common.close')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -746,7 +748,7 @@ const EditProfileScreen = () => {
           ]}>
           <Text
             style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
-            Select Country
+            {t('auth.selectCountry')}
           </Text>
 
           <FlatList
@@ -798,7 +800,7 @@ const EditProfileScreen = () => {
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setOpenDropdown(null)}>
-            <Text style={styles.closeButtonText}>Close</Text>
+            <Text style={styles.closeButtonText}>{t('common.close')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -819,7 +821,7 @@ const EditProfileScreen = () => {
           ]}>
           <Text
             style={[styles.dropdownTitle, {color: themeColors[theme].text}]}>
-            Select Gender
+            {t('auth.selectGender')}
           </Text>
 
           <FlatList
@@ -860,7 +862,7 @@ const EditProfileScreen = () => {
           <TouchableOpacity
             style={styles.closeButton}
             onPress={() => setOpenDropdown(null)}>
-            <Text style={styles.closeButtonText}>Close</Text>
+            <Text style={styles.closeButtonText}>{t('common.close')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -877,7 +879,7 @@ const EditProfileScreen = () => {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
           <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
-            Loading profile...
+            {t('common.loading')}
           </Text>
         </View>
       </SafeAreaView>
@@ -899,7 +901,7 @@ const EditProfileScreen = () => {
           <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
-          Edit Profile
+          {t('profile.editProfile')}
         </Text>
       </View>
 
@@ -918,7 +920,7 @@ const EditProfileScreen = () => {
             ]}>
             <TextInput
               style={[styles.input, {color: themeColors[theme].text}]}
-              placeholder="First Name"
+              placeholder={t('auth.firstName')}
               placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.firstName}
               onChangeText={text => handleChange('firstName', text)}
@@ -936,7 +938,7 @@ const EditProfileScreen = () => {
             ]}>
             <TextInput
               style={[styles.input, {color: themeColors[theme].text}]}
-              placeholder="Last Name"
+              placeholder={t('auth.lastName')}
               placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.lastName}
               onChangeText={text => handleChange('lastName', text)}
@@ -969,7 +971,7 @@ const EditProfileScreen = () => {
                       : '#666666',
                   },
                 ]}>
-                {formData.dateOfBirth || 'Date of Birth (MM/DD/YYYY)'}
+                {formData.dateOfBirth || t('auth.dateOfBirth')}
               </Text>
               <View style={styles.inputIcon}>
                 <CalendarIcon color={themeColors[theme].primary} />
@@ -988,7 +990,7 @@ const EditProfileScreen = () => {
             ]}>
             <TextInput
               style={[styles.input, {color: themeColors[theme].text}]}
-              placeholder="Email"
+              placeholder={t('auth.email')}
               placeholderTextColor={isDark ? '#888888' : '#666666'}
               value={formData.email}
               onChangeText={text => handleChange('email', text)}
@@ -1040,7 +1042,7 @@ const EditProfileScreen = () => {
                         : '#666666',
                     },
                   ]}>
-                  {formData.location || 'Select Country'}
+                  {formData.location || t('auth.selectCountry')}
                 </Text>
                 <Ionicons
                   name="chevron-down"
@@ -1077,7 +1079,7 @@ const EditProfileScreen = () => {
                       : '#666666',
                   },
                 ]}>
-                {formData.gender || 'Select Gender'}
+                {formData.gender || t('auth.selectGender')}
               </Text>
               <Ionicons
                 name="chevron-down"
@@ -1103,7 +1105,7 @@ const EditProfileScreen = () => {
             <Text
               color={isDark ? '#000000' : '#FFFFFF'}
               style={styles.updateButtonText}>
-              Update
+              {t('common.save')}
             </Text>
           )}
         </TouchableOpacity>
@@ -1123,7 +1125,7 @@ const EditProfileScreen = () => {
             style={[styles.modalContent, isDark && styles.modalContentDark]}>
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, isDark && styles.textDark]}>
-                Select Date of Birth
+                {t('auth.selectDateOfBirth')}
               </Text>
               <TouchableOpacity onPress={() => setShowDateModal(false)}>
                 <Text style={[styles.closeButton, isDark && styles.textDark]}>
@@ -1135,7 +1137,7 @@ const EditProfileScreen = () => {
             <View style={styles.datePickerContainer}>
               <View style={styles.pickerColumn}>
                 <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                  Month
+                  {t('auth.month')}
                 </Text>
                 <Picker
                   selectedValue={datePickerValue.month}
@@ -1154,7 +1156,7 @@ const EditProfileScreen = () => {
                   {months.map(month => (
                     <Picker.Item
                       key={month.value}
-                      label={month.label}
+                      label={t(`auth.months.${month.label.toLowerCase()}`)}
                       value={month.value}
                       color={isDark ? '#FFFFFF' : '#000000'}
                     />
@@ -1164,7 +1166,7 @@ const EditProfileScreen = () => {
 
               <View style={styles.pickerColumn}>
                 <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                  Day
+                  {t('auth.day')}
                 </Text>
                 <Picker
                   itemStyle={{fontSize: 16}}
@@ -1193,7 +1195,7 @@ const EditProfileScreen = () => {
 
               <View style={styles.pickerColumn}>
                 <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                  Year
+                  {t('auth.year')}
                 </Text>
                 <Picker
                   selectedValue={datePickerValue.year}
@@ -1224,7 +1226,9 @@ const EditProfileScreen = () => {
             <TouchableOpacity
               style={styles.confirmButton}
               onPress={handleDateChange}>
-              <Text style={styles.confirmButtonText}>Confirm</Text>
+              <Text style={styles.confirmButtonText}>
+                {t('common.confirm')}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

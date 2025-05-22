@@ -14,11 +14,14 @@ import LockIcon from '../components/icons/LockIcon';
 import EyeIcon from '../components/icons/EyeIcon';
 import {resetPassword} from '../services/api';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
+import {getTranslation} from '../translations';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {email, resetToken} = route.params || {};
+  const {selectedLanguage} = useCurrencyLanguage();
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -26,19 +29,29 @@ const ResetPasswordScreen = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const {sendEventCleverTap} = useCleverTap();
+
   const handleResetPassword = async () => {
     if (!newPassword) {
-      Alert.alert('Error', 'Please enter a new password');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        getTranslation('auth.enterNewPassword', selectedLanguage),
+      );
       return;
     }
 
     if (newPassword.length < 8) {
-      Alert.alert('Error', 'Password must be at least 8 characters long');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        getTranslation('auth.passwordTooShort', selectedLanguage),
+      );
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        getTranslation('auth.passwordsDoNotMatch', selectedLanguage),
+      );
       return;
     }
 
@@ -48,21 +61,33 @@ const ResetPasswordScreen = () => {
 
       if (response.success) {
         sendEventCleverTap(CLEVERTAP_EVENTS.PASSWORD_RESET);
-        Alert.alert('Success', 'Your password has been updated successfully', [
-          {
-            text: 'OK',
-            onPress: () =>
-              navigation.reset({
-                index: 0,
-                routes: [{name: 'Login', params: {email}}],
-              }),
-          },
-        ]);
+        Alert.alert(
+          getTranslation('common.success', selectedLanguage),
+          getTranslation('auth.passwordUpdated', selectedLanguage),
+          [
+            {
+              text: 'OK',
+              onPress: () =>
+                navigation.reset({
+                  index: 0,
+                  routes: [{name: 'Login', params: {email}}],
+                }),
+            },
+          ],
+        );
       } else {
-        Alert.alert('Error', response.msg || 'Failed to reset password');
+        Alert.alert(
+          getTranslation('common.error', selectedLanguage),
+          response.msg ||
+            getTranslation('auth.somethingWentWrong', selectedLanguage),
+        );
       }
     } catch (error) {
-      Alert.alert('Error', error.message || 'Failed to reset password');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        error.message ||
+          getTranslation('auth.somethingWentWrong', selectedLanguage),
+      );
     } finally {
       setLoading(false);
     }
@@ -76,7 +101,9 @@ const ResetPasswordScreen = () => {
         <BackArrow />
       </TouchableOpacity>
 
-      <Text style={styles.title}>Create New Password</Text>
+      <Text style={styles.title}>
+        {getTranslation('auth.createNewPassword', selectedLanguage)}
+      </Text>
 
       <View style={styles.iconContainer}>
         <LockIcon width={50} height={50} />
@@ -87,7 +114,7 @@ const ResetPasswordScreen = () => {
           <LockIcon />
           <TextInput
             style={styles.input}
-            placeholder="New Password"
+            placeholder={getTranslation('auth.newPassword', selectedLanguage)}
             value={newPassword}
             onChangeText={setNewPassword}
             secureTextEntry={!showNewPassword}
@@ -103,7 +130,10 @@ const ResetPasswordScreen = () => {
           <LockIcon />
           <TextInput
             style={styles.input}
-            placeholder="Confirm Password"
+            placeholder={getTranslation(
+              'auth.confirmPassword',
+              selectedLanguage,
+            )}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry={!showConfirmPassword}
@@ -117,8 +147,7 @@ const ResetPasswordScreen = () => {
       </View>
 
       <Text style={styles.passwordRequirements}>
-        Password must be at least 8 characters long and include a combination of
-        numbers, letters, and special characters.
+        {getTranslation('auth.passwordRequirements', selectedLanguage)}
       </Text>
 
       <TouchableOpacity
@@ -128,7 +157,9 @@ const ResetPasswordScreen = () => {
         {loading ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <Text style={styles.continueButtonText}>
+            {getTranslation('auth.continue', selectedLanguage)}
+          </Text>
         )}
       </TouchableOpacity>
     </View>

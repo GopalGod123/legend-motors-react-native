@@ -28,6 +28,7 @@ import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 import Dhyram from 'src/components/Dhyram';
+import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height;
@@ -75,6 +76,9 @@ const EnquiryFormScreen = () => {
 
   const [countrySearch, setCountrySearch] = useState('');
   const [filteredCountryCodes, setFilteredCountryCodes] = useState([]);
+
+  // Get translations
+  const {t} = useCurrencyLanguage();
 
   // Transform API country codes to the format expected by the component
   const formattedCountryCodes = React.useMemo(() => {
@@ -231,23 +235,23 @@ const EnquiryFormScreen = () => {
 
     // Validate name
     if (!name.trim()) {
-      newErrors.name = 'Name is required';
+      newErrors.name = t('enquiryForm.validation.nameRequired');
       isValid = false;
     }
 
     // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('enquiryForm.validation.emailRequired');
       isValid = false;
     } else if (!emailRegex.test(email)) {
-      newErrors.email = 'Please enter a valid email address';
+      newErrors.email = t('enquiryForm.validation.emailInvalid');
       isValid = false;
     }
 
     // Validate phone number
     if (!phoneNumber.trim()) {
-      newErrors.phoneNumber = 'Phone number is required';
+      newErrors.phoneNumber = t('enquiryForm.validation.phoneRequired');
       isValid = false;
     } else {
       // Basic phone validation - ensure it has enough digits based on country code
@@ -257,7 +261,7 @@ const EnquiryFormScreen = () => {
       // Here we're just doing a simple length check
       if (formattedPhone.length < 4) {
         // Minimum digits for a valid number
-        newErrors.phoneNumber = 'Please enter a valid phone number';
+        newErrors.phoneNumber = t('enquiryForm.validation.phoneInvalid');
         isValid = false;
       }
     }
@@ -444,7 +448,7 @@ const EnquiryFormScreen = () => {
 
           {/* Form Title */}
           <Text style={[styles.formTitle, {color: themeColors[theme].text}]}>
-            GET IN TOUCH
+            {t('enquiryForm.title')}
           </Text>
 
           {/* Car Info */}
@@ -553,7 +557,7 @@ const EnquiryFormScreen = () => {
                   },
                   errors.name ? styles.inputError : null,
                 ]}
-                placeholder="Your Name"
+                placeholder={t('enquiryForm.namePlaceholder')}
                 placeholderTextColor={isDark ? '#666' : '#777'}
                 value={name}
                 onChangeText={setName}
@@ -585,7 +589,7 @@ const EnquiryFormScreen = () => {
                 />
                 <TextInput
                   style={[styles.iconInput, {color: themeColors[theme].text}]}
-                  placeholder="Email"
+                  placeholder={t('enquiryForm.emailPlaceholder')}
                   placeholderTextColor={isDark ? '#666' : '#777'}
                   keyboardType="email-address"
                   autoCapitalize="none"
@@ -646,7 +650,7 @@ const EnquiryFormScreen = () => {
                     styles.phoneNumberInput,
                     {color: themeColors[theme].text},
                   ]}
-                  placeholder="Phone Number"
+                  placeholder={t('enquiryForm.phonePlaceholder')}
                   placeholderTextColor={isDark ? '#666' : '#777'}
                   keyboardType="phone-pad"
                   value={phoneNumber}
@@ -685,7 +689,7 @@ const EnquiryFormScreen = () => {
                     styles.checkboxLabel,
                     {color: themeColors[theme].text},
                   ]}>
-                  Auto-fill same as profile
+                  {t('enquiryForm.autoFillProfile')}
                 </Text>
               </TouchableOpacity>
             )}
@@ -721,7 +725,7 @@ const EnquiryFormScreen = () => {
                         styles.modalTitle,
                         {color: themeColors[theme].text},
                       ]}>
-                      Select Country Code
+                      {t('enquiryForm.selectCountryCode')}
                     </Text>
                     <TouchableOpacity
                       onPress={() => setCountryPickerVisible(false)}
@@ -789,7 +793,7 @@ const EnquiryFormScreen = () => {
                             styles.noResultsText,
                             {color: isDark ? '#666' : '#777'},
                           ]}>
-                          No countries found
+                          {t('enquiryForm.noCountriesFound')}
                         </Text>
                       </View>
                     }
@@ -809,7 +813,9 @@ const EnquiryFormScreen = () => {
               {submitting ? (
                 <ActivityIndicator color="#fff" size="small" />
               ) : (
-                <Text style={styles.submitButtonText}>Inquire Now</Text>
+                <Text style={styles.submitButtonText}>
+                  {t('enquiryForm.inquireNow')}
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -850,7 +856,7 @@ const EnquiryFormScreen = () => {
                     styles.successModalTitle,
                     {color: themeColors[theme].secondary},
                   ]}>
-                  🎉 Thank you for your Inquiry!
+                  {t('enquiryForm.successTitle')}
                 </Text>
 
                 <Text
@@ -858,8 +864,7 @@ const EnquiryFormScreen = () => {
                     styles.successModalMessage,
                     {color: themeColors[theme].text},
                   ]}>
-                  We've received your request, and our team will get back to you
-                  shortly. Stay tuned-We're on it!
+                  {t('enquiryForm.successMessage')}
                 </Text>
 
                 <View style={styles.successModalButtonsContainer}>
@@ -870,7 +875,7 @@ const EnquiryFormScreen = () => {
                     ]}
                     onPress={navigateToEnquiries}>
                     <Text style={styles.successModalButtonText}>
-                      View My Inquiries
+                      {t('enquiryForm.viewMyInquiries')}
                     </Text>
                   </TouchableOpacity>
 
@@ -886,7 +891,7 @@ const EnquiryFormScreen = () => {
                         styles.successModalSecondaryButtonText,
                         {color: themeColors[theme].primary},
                       ]}>
-                      Continue Exploring
+                      {t('enquiryForm.continueExploring')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -930,7 +935,7 @@ const EnquiryFormScreen = () => {
                     styles.successModalTitle,
                     {color: themeColors[theme].secondary},
                   ]}>
-                  Already Inquired
+                  {t('enquiryForm.alreadyInquiredTitle')}
                 </Text>
 
                 <Text
@@ -938,8 +943,7 @@ const EnquiryFormScreen = () => {
                     styles.successModalMessage,
                     {color: themeColors[theme].text},
                   ]}>
-                  You have already submitted an inquiry for this car with this
-                  email. Our team will contact you soon with more information.
+                  {t('enquiryForm.alreadyInquiredMessage')}
                 </Text>
 
                 <View style={styles.successModalButtonsContainer}>
@@ -950,7 +954,7 @@ const EnquiryFormScreen = () => {
                     ]}
                     onPress={navigateToEnquiries}>
                     <Text style={styles.successModalButtonText}>
-                      View My Enquiries
+                      {t('enquiryForm.viewMyEnquiries')}
                     </Text>
                   </TouchableOpacity>
 
@@ -966,7 +970,7 @@ const EnquiryFormScreen = () => {
                         styles.successModalSecondaryButtonText,
                         {color: themeColors[theme].primary},
                       ]}>
-                      Continue Exploring
+                      {t('enquiryForm.continueExploring')}
                     </Text>
                   </TouchableOpacity>
                 </View>

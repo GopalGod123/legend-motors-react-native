@@ -17,17 +17,20 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
 import {useTheme} from '../../context/ThemeContext';
 import {useNavigation} from '@react-navigation/native';
+import {getTranslation} from '../../translations';
 
 const Header = ({user, onSettingsPress, onWishlistPress}) => {
   console.log('user', user);
-  const {selectedCurrency, setSelectedCurrency} = useCurrencyLanguage();
+  const {selectedCurrency, setSelectedCurrency, selectedLanguage} =
+    useCurrencyLanguage();
   const {isDark} = useTheme();
 
   // Get firstName from user object or use default
   const getFirstName = () => {
-    if (!user) return 'User';
+    if (!user) return getTranslation('common.user', selectedLanguage);
 
-    let name = user.firstName || 'User';
+    let name =
+      user.firstName || getTranslation('common.user', selectedLanguage);
 
     // If the firstName looks like an email address, extract just the first part
     if (name.includes('@')) {
@@ -67,7 +70,7 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
               styles.greetingText,
               {color: isDark ? '#FFFFFF' : COLORS.textLight},
             ]}>
-            Hi{' '}
+            {getTranslation('common.greeting', selectedLanguage)}{' '}
           </Text>
           <Text
             numberOfLines={1}
@@ -114,7 +117,6 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
             <TouchableOpacity
               style={[
                 styles.currencyButton,
-
                 selectedCurrency === 'USD'
                   ? isDark
                     ? styles.activeCurrencyButtonDark

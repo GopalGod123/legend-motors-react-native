@@ -8,6 +8,8 @@ import {
   Image,
   Dimensions,
   Share,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {MaterialCommunityIcons, Ionicons, AntDesign} from 'src/utils/icon';
@@ -28,6 +30,7 @@ import {useTheme} from 'src/context/ThemeContext';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import LoginPromptModal from '../../components/LoginPromptModal';
 import {useLoginPrompt} from '../../hooks/useLoginPrompt';
+import {getTranslation} from '../../translations';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -255,6 +258,7 @@ const MostPopularCars = () => {
     navigateToLogin,
     checkAuthAndShowPrompt,
   } = useLoginPrompt();
+  const {selectedLanguage} = useCurrencyLanguage();
 
   // Use a ref to avoid making API calls if component unmounts
   const isMounted = useRef(true);
@@ -367,7 +371,7 @@ const MostPopularCars = () => {
       return null;
     }
   }, []);
-  const {selectedLanguage} = useCurrencyLanguage();
+
   useEffect(() => {
     fetchPopularCars();
   }, [selectedLanguage]);
@@ -460,10 +464,16 @@ const MostPopularCars = () => {
 
       const shareUrl = `https://legendmotorsglobal.com/cars/${car.id}`;
 
+      const message = getTranslation(
+        'mostPopular.shareMessage',
+        selectedLanguage,
+      )
+        .replace('{carTitle}', carTitle)
+        .replace('{shareUrl}', shareUrl);
+
       await Share.share({
-        message: `Check out this ${carTitle} on Legend Motors! ${shareUrl}`,
-        url: shareUrl,
-        title: 'Share this car',
+        message,
+        title: getTranslation('mostPopular.shareTitle', selectedLanguage),
       });
     } catch (error) {
       console.error('Error sharing car:', error);
@@ -494,7 +504,9 @@ const MostPopularCars = () => {
         size={50}
         color={COLORS.textLight}
       />
-      <Text style={styles.emptyText}>No popular cars found</Text>
+      <Text style={styles.emptyText}>
+        {getTranslation('mostPopular.noPopularCars', selectedLanguage)}
+      </Text>
     </View>
   );
 
@@ -523,15 +535,28 @@ const MostPopularCars = () => {
     </View>
   );
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text style={styles.loadingText}>
+          {getTranslation('mostPopular.loadingPopularCars', selectedLanguage)}
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text
           style={[styles.title, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>
-          Most Popular in UAE
+          {getTranslation('mostPopular.title', selectedLanguage)}
         </Text>
         <TouchableOpacity onPress={navigateToAllPopular}>
-          <Text style={styles.viewAllText}>See All</Text>
+          <Text style={styles.viewAllText}>
+            {getTranslation('common.viewAll', selectedLanguage)}
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -706,6 +731,15 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.md,
     color: COLORS.textLight,
     marginTop: SPACING.md,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
   },
 });
 

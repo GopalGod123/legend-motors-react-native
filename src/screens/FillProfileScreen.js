@@ -26,6 +26,7 @@ import FlagIcon from 'src/components/common/FlagIcon';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 import {Ionicons} from '../utils/icon';
 import {COLORS} from 'src/utils/constants';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
 const FillProfileScreen = () => {
   const navigation = useNavigation();
@@ -35,6 +36,7 @@ const FillProfileScreen = () => {
   const {theme, isDark} = useTheme();
   const [openDropdown, setOpenDropdown] = useState(null);
   const {countryCodes} = useCountryCodes();
+  const {t} = useCurrencyLanguage();
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -167,8 +169,8 @@ const FillProfileScreen = () => {
           </TouchableOpacity>
           <TextInput
             style={[styles.phoneInput, isDark && styles.inputDark]}
-            placeholder="Phone Number *"
-            placeholderTextColor={isDark ? '#666666' : undefined}
+            placeholder={t('auth.phoneNumber')}
+            placeholderTextColor={'#666666'}
             value={formData.phone}
             onChangeText={handlePhoneInput}
             keyboardType="phone-pad"
@@ -192,7 +194,7 @@ const FillProfileScreen = () => {
           <View
             style={[styles.modalContent, isDark && styles.modalContentDark]}>
             <Text style={[styles.modalTitle, isDark && styles.textDark]}>
-              Select Country Code
+              {t('auth.selectCountryCode')}
             </Text>
 
             <FlatList
@@ -268,23 +270,23 @@ const FillProfileScreen = () => {
 
   const isFormValid = () => {
     if (!formData.firstName.trim()) {
-      Alert.alert('Error', 'First name is required');
+      Alert.alert(t('common.error'), t('auth.firstNameRequired'));
       return false;
     }
     if (!formData.lastName.trim()) {
-      Alert.alert('Error', 'Last name is required');
+      Alert.alert(t('common.error'), t('auth.lastNameRequired'));
       return false;
     }
     if (!formData.email.trim()) {
-      Alert.alert('Error', 'Email is required');
+      Alert.alert(t('common.error'), t('auth.emailRequired'));
       return false;
     }
     if (!formData.password && !sso) {
-      Alert.alert('Error', 'Password is required');
+      Alert.alert(t('common.error'), t('auth.passwordRequired'));
       return false;
     }
     if (formData.password !== formData.confirmPassword && !sso) {
-      Alert.alert('Error', 'Passwords do not match');
+      Alert.alert(t('common.error'), t('auth.passwordsDoNotMatch'));
       return false;
     }
     return true;
@@ -426,7 +428,7 @@ const FillProfileScreen = () => {
           <View
             style={[styles.modalContent, isDark && styles.modalContentDark]}>
             <Text style={[styles.modalTitle, isDark && styles.textDark]}>
-              Select Country
+              {t('auth.selectCountry')}
             </Text>
 
             <FlatList
@@ -501,7 +503,7 @@ const FillProfileScreen = () => {
                 isDark && styles.textDark,
                 !formData.location && styles.placeholderText,
               ]}>
-              {formData.location || 'Select Country'}
+              {formData.location || t('auth.selectCountry')}
             </Text>
           </View>
           <Ionicons
@@ -553,7 +555,7 @@ const FillProfileScreen = () => {
             <BackArrow color={isDark ? '#FFFFFF' : '#000000'} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, isDark && styles.textDark]}>
-            Fill Your Profile
+            {t('auth.fillProfile')}
           </Text>
         </View>
 
@@ -577,31 +579,31 @@ const FillProfileScreen = () => {
           <View style={styles.inputContainer}>
             <TextInput
               style={[styles.input, isDark && styles.inputDark]}
-              placeholder="First Name *"
+              placeholder={t('auth.firstName')}
               value={formData.firstName}
               onChangeText={text =>
                 setFormData(prev => ({...prev, firstName: text}))
               }
-              placeholderTextColor={isDark ? '#666666' : undefined}
+              placeholderTextColor={'#666666'}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <TextInput
               style={[styles.input, isDark && styles.inputDark]}
-              placeholder="Last Name *"
+              placeholder={t('auth.lastName')}
               value={formData.lastName}
               onChangeText={text =>
                 setFormData(prev => ({...prev, lastName: text}))
               }
-              placeholderTextColor={isDark ? '#666666' : undefined}
+              placeholderTextColor={'#666666'}
             />
           </View>
 
           <View style={styles.inputContainer}>
             <TextInput
               style={[styles.input, isDark && styles.inputDark]}
-              placeholder="Email *"
+              placeholder={t('auth.email')}
               value={formData.email}
               onChangeText={text =>
                 setFormData(prev => ({...prev, email: text}))
@@ -609,7 +611,7 @@ const FillProfileScreen = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               editable={false}
-              placeholderTextColor={isDark ? '#666666' : undefined}
+              placeholderTextColor={'#666666'}
             />
             <Ionicons
               name={'mail-outline'}
@@ -628,10 +630,10 @@ const FillProfileScreen = () => {
             onPress={() => setShowDateModal(true)}>
             <TextInput
               style={[styles.input, isDark && styles.inputDark]}
-              placeholder="Date of Birth"
+              placeholder={t('auth.dateOfBirth')}
               value={formatDate(formData.dateOfBirth)}
               editable={false}
-              placeholderTextColor={isDark ? '#666666' : undefined}
+              placeholderTextColor={'#666666'}
             />
             <Ionicons
               name={'calendar-outline'}
@@ -652,7 +654,9 @@ const FillProfileScreen = () => {
               ]}
               onPress={() => toggleDropdown('gender')}>
               <Text style={[styles.input, isDark && styles.inputDark]}>
-                {formData.gender || 'Select Gender'}
+                {formData.gender
+                  ? formData.gender.toLowerCase()
+                  : t('auth.selectGender')}
               </Text>
               <Ionicons
                 name="chevron-down"
@@ -668,7 +672,6 @@ const FillProfileScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Add the gender dropdown modal */}
           {openDropdown === 'gender' && (
             <View
               style={[
@@ -685,7 +688,7 @@ const FillProfileScreen = () => {
                     styles.dropdownTitle,
                     {color: themeColors[theme].text},
                   ]}>
-                  Select Gender
+                  {t('auth.selectGender')}
                 </Text>
                 <View style={styles.countryList}>
                   {genderOptions.map((item, index) => (
@@ -713,7 +716,7 @@ const FillProfileScreen = () => {
                             width: '100%',
                           },
                         ]}>
-                        {item}
+                        {item.toLowerCase()}
                       </Text>
                     </TouchableOpacity>
                   ))}
@@ -729,26 +732,26 @@ const FillProfileScreen = () => {
               <View style={styles.inputContainer}>
                 <TextInput
                   style={[styles.input, isDark && styles.inputDark]}
-                  placeholder="Password *"
+                  placeholder={t('auth.password')}
                   value={formData.password}
                   onChangeText={text =>
                     setFormData(prev => ({...prev, password: text}))
                   }
                   secureTextEntry
-                  placeholderTextColor={isDark ? '#666666' : undefined}
+                  placeholderTextColor={'#666666'}
                 />
               </View>
 
               <View style={styles.inputContainer}>
                 <TextInput
                   style={[styles.input, isDark && styles.inputDark]}
-                  placeholder="Confirm Password *"
+                  placeholder={t('auth.confirmPassword')}
                   value={formData.confirmPassword}
                   onChangeText={text =>
                     setFormData(prev => ({...prev, confirmPassword: text}))
                   }
                   secureTextEntry
-                  placeholderTextColor={isDark ? '#666666' : undefined}
+                  placeholderTextColor={'#666666'}
                 />
               </View>
             </>
@@ -769,7 +772,9 @@ const FillProfileScreen = () => {
             {loading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.continueButtonText}>Continue</Text>
+              <Text style={styles.continueButtonText}>
+                {t('common.continue')}
+              </Text>
             )}
           </TouchableOpacity>
         </View>
@@ -787,7 +792,7 @@ const FillProfileScreen = () => {
               style={[styles.modalContent, isDark && styles.modalContentDark]}>
               <View style={styles.modalHeader}>
                 <Text style={[styles.modalTitle, isDark && styles.textDark]}>
-                  Select Date of Birth
+                  {t('auth.selectDateOfBirth')}
                 </Text>
                 <TouchableOpacity onPress={() => setShowDateModal(false)}>
                   <Text style={[styles.closeButton, isDark && styles.textDark]}>
@@ -799,7 +804,7 @@ const FillProfileScreen = () => {
               <View style={styles.datePickerContainer}>
                 <View style={styles.pickerColumn}>
                   <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                    Month
+                    {t('auth.month')}
                   </Text>
                   <Picker
                     itemStyle={{fontSize: 16}}
@@ -818,7 +823,7 @@ const FillProfileScreen = () => {
                     {months.map(month => (
                       <Picker.Item
                         key={month.value}
-                        label={month.label}
+                        label={t(`auth.months.${month.label.toLowerCase()}`)}
                         value={month.value}
                         color={isDark ? '#FFFFFF' : '#000000'}
                       />
@@ -828,7 +833,7 @@ const FillProfileScreen = () => {
 
                 <View style={styles.pickerColumn}>
                   <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                    Day
+                    {t('auth.day')}
                   </Text>
                   <Picker
                     itemStyle={{fontSize: 16}}
@@ -857,7 +862,7 @@ const FillProfileScreen = () => {
 
                 <View style={styles.pickerColumn}>
                   <Text style={[styles.pickerLabel, isDark && styles.textDark]}>
-                    Year
+                    {t('auth.year')}
                   </Text>
                   <Picker
                     itemStyle={{fontSize: 16}}
@@ -888,7 +893,9 @@ const FillProfileScreen = () => {
               <TouchableOpacity
                 style={styles.confirmButton}
                 onPress={handleDateChange}>
-                <Text style={styles.confirmButtonText}>Confirm</Text>
+                <Text style={styles.confirmButtonText}>
+                  {t('common.confirm')}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

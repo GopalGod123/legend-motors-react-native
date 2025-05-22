@@ -25,6 +25,7 @@ import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 import {useAuth} from 'src/context/AuthContext';
 import {useWishlist} from 'src/context/WishlistContext';
 import Dhyram from '../Dhyram';
+import {getTranslation} from '../../translations';
 const {width: screenWidth} = Dimensions.get('window');
 
 const CarCard = ({
@@ -40,7 +41,7 @@ const CarCard = ({
 }) => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
-  const {selectedCurrency} = useCurrencyLanguage();
+  const {selectedCurrency, selectedLanguage} = useCurrencyLanguage();
   const carouselRef = useRef(null);
   const {
     loginModalVisible,
@@ -380,7 +381,9 @@ const CarCard = ({
               onPress={() => {
                 navigation.navigate('Login');
               }}>
-              <Text style={{color: COLORS.white}}>Login to view price</Text>
+              <Text style={{color: COLORS.white}}>
+                {getTranslation('auth.loginToViewPrice', selectedLanguage)}
+              </Text>
             </TouchableOpacity>
           )}
 

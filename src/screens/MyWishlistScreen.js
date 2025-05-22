@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -9,19 +9,21 @@ import {
   TouchableOpacity,
   Alert,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Ionicons, AntDesign} from 'src/utils/icon';
-import {getWishlist} from '../services/api';
+import {getWishlist, removeFromWishlist} from '../services/api';
 import {useAuth} from '../context/AuthContext';
 import {useWishlist} from '../context/WishlistContext';
 import {COLORS, SPACING, FONT_SIZES} from '../utils/constants';
 import {CarImage} from '../components/common';
 import LoginPromptModal from '../components/LoginPromptModal';
 import {useLoginPrompt} from '../hooks/useLoginPrompt';
-import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import Dhyram from 'src/components/Dhyram';
+import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 
 // Car card component for wishlist items
 const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
@@ -158,15 +160,18 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
 };
 
 const MyWishlistScreen = () => {
-  const [wishlistItems, setWishlistItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [removingItems, setRemovingItems] = useState({}); // Track items being removed
   const navigation = useNavigation();
   const {user} = useAuth();
-  const {removeItemFromWishlist, fetchWishlistItems: contextFetchWishlist} =
-    useWishlist();
-  const {theme, isDark} = useTheme();
+  const {isInWishlist, removeItemFromWishlist} = useWishlist();
+  const [wishlist, setWishlist] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [removingCarId, setRemovingCarId] = useState(null);
+  const {isDark, theme} = useTheme();
+  const {t} = useCurrencyLanguage();
+  const {sendEventCleverTap} = useCleverTap();
+
+  // Add the login prompt hook
   const {
     loginModalVisible,
     hideLoginPrompt,
@@ -174,7 +179,6 @@ const MyWishlistScreen = () => {
     checkAuthAndShowPrompt,
   } = useLoginPrompt();
 
-  console.log('wishlistItems', wishlistItems);
   // Fetch wishlist data
   const fetchWishlist = async () => {
     try {
@@ -200,13 +204,13 @@ const MyWishlistScreen = () => {
           };
         });
 
-        setWishlistItems(processedItems);
+        setWishlist(processedItems);
       } else {
-        setWishlistItems([]);
+        setWishlist([]);
       }
     } catch (error) {
       console.error('Error fetching wishlist:', error);
-      setWishlistItems([]);
+      setWishlist([]);
       Alert.alert('Error', 'Failed to load wishlist items. Please try again.');
     } finally {
       setLoading(false);
@@ -217,105 +221,66 @@ const MyWishlistScreen = () => {
   // Load wishlist on component mount
   useEffect(() => {
     fetchWishlist();
-    // Also refresh the context wishlist for other components
-    contextFetchWishlist();
   }, []);
 
-  // Remove item from wishlist
-  const handleRemoveFromWishlist = async itemId => {
-    try {
-      // Check if this item is already being removed
-      if (removingItems[itemId]) {
-        return;
-      }
-
-      // Check if user is authenticated first
-      const isAuthorized = await checkAuthAndShowPrompt();
-      if (!isAuthorized) {
-        return; // Stop here if user is not authenticated
-      }
-
-      // Mark this item as being removed
-      setRemovingItems(prev => ({...prev, [itemId]: true}));
-
-      // Show loading indicator
-      setLoading(true);
-
-      // Use carId for API call as required by the API
-      const result = await removeItemFromWishlist(itemId);
-
-      if (result.success) {
-        // Remove from local state for immediate UI update
-        setWishlistItems(prevItems => {
-          return prevItems.filter(item => {
-            // Check all possible ID matches
-            return item.id !== itemId && item.carId !== itemId;
-          });
-        });
-      } else if (!result.requiresAuth) {
-        console.error(`Failed to remove car ID ${itemId} from wishlist`);
-        Alert.alert('Error', 'Failed to remove car from wishlist');
-      }
-    } catch (error) {
-      console.error('Error removing from wishlist:', error);
-      Alert.alert(
-        'Error',
-        'Failed to remove car from wishlist. Please try again.',
-      );
-    } finally {
-      setLoading(false);
-      // Clear the removing state for this item
-      setRemovingItems(prev => {
-        const updated = {...prev};
-        delete updated[itemId];
-        return updated;
-      });
-    }
-  };
-
-  // Navigate to car details
-  const navigateToCarDetail = car => {
-    navigation.navigate('CarDetailScreen', {carId: car.id});
-  };
-
-  // Pull to refresh
   const handleRefresh = () => {
     setRefreshing(true);
     fetchWishlist();
   };
 
-  // Render empty state
   const renderEmptyState = () => (
-    <View style={styles.emptyContainer}>
-      <Ionicons
-        name="heart-outline"
-        size={80}
-        color={themeColors[theme].text}
-      />
-      <Text style={[styles.emptyText, {color: themeColors[theme].text}]}>
-        Your wishlist is empty
+    <View style={styles.emptyStateContainer}>
+      <Text
+        style={[
+          styles.emptyStateTitle,
+          {color: isDark ? '#FFFFFF' : '#333333'},
+        ]}>
+        {t('wishlist.emptyTitle')}
       </Text>
-      <Text style={[styles.emptySubtext, {color: themeColors[theme].text}]}>
-        Cars you love will appear here
+      <Text
+        style={[
+          styles.emptyStateSubtitle,
+          {color: isDark ? '#CCCCCC' : '#666666'},
+        ]}>
+        {t('wishlist.emptySubtitle')}
       </Text>
       <TouchableOpacity
-        style={[
-          styles.exploreButton,
-          {backgroundColor: themeColors[theme].primary},
-        ]}
-        onPress={() => navigation.navigate('Main', {screen: 'ExploreTab'})}>
-        <Text style={styles.exploreButtonText}>Explore Cars</Text>
+        style={styles.exploreButton}
+        onPress={() => navigation.navigate('ExploreScreen')}>
+        <Text style={styles.exploreButtonText}>
+          {t('wishlist.exploreCars')}
+        </Text>
       </TouchableOpacity>
     </View>
   );
 
-  // For the WishlistCarCard, update to use this:
   const renderWishlistCarCard = ({item}) => (
     <WishlistCarCard
       car={item}
-      onPress={navigateToCarDetail}
-      onRemove={handleRemoveFromWishlist}
-      isRemoving={!!removingItems[item.id] || !!removingItems[item.carId]}
+      onPress={() => navigation.navigate('CarDetailScreen', {carId: item.id})}
+      onRemove={async () => {
+        const isAuthorized = await checkAuthAndShowPrompt();
+        if (!isAuthorized) {
+          return;
+        }
+
+        setRemovingCarId(item.id);
+        try {
+          const result = await removeItemFromWishlist(item.id);
+          if (result.success) {
+            setWishlist(prev => prev.filter(car => car.id !== item.id));
+            sendEventCleverTap(CLEVERTAP_EVENTS.REMOVE_FROM_WISHLIST, {
+              carId: item.id,
+              carName: `${item.brand} ${item.model}`,
+            });
+          }
+        } catch (error) {
+          console.error('Error removing from wishlist:', error);
+        } finally {
+          setRemovingCarId(null);
+        }
+      }}
+      isRemoving={removingCarId === item.id}
     />
   );
 
@@ -342,27 +307,25 @@ const MyWishlistScreen = () => {
           />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
-          My Wishlist
+          {t('wishlist.title')}
         </Text>
         <View style={styles.placeholder} />
       </View>
 
-      {loading && !refreshing ? (
-        <ActivityIndicator
-          style={styles.loader}
-          size="large"
-          color={themeColors[theme].primary}
-        />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
       ) : (
         <FlatList
-          data={wishlistItems}
+          data={wishlist}
           renderItem={renderWishlistCarCard}
           keyExtractor={item => item.id.toString()}
           contentContainerStyle={styles.listContainer}
           ListEmptyComponent={renderEmptyState}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
-          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          }
         />
       )}
 
@@ -483,19 +446,19 @@ const styles = StyleSheet.create({
   shareButton: {
     marginHorizontal: 5,
   },
-  emptyContainer: {
+  emptyStateContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: SPACING.xl,
     marginTop: 100,
   },
-  emptyText: {
+  emptyStateTitle: {
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
     marginTop: SPACING.lg,
   },
-  emptySubtext: {
+  emptyStateSubtitle: {
     fontSize: FONT_SIZES.md,
     marginTop: SPACING.sm,
     marginBottom: SPACING.xl,
@@ -512,6 +475,11 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: 'bold',
     fontSize: FONT_SIZES.md,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

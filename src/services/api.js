@@ -49,6 +49,15 @@ api.interceptors.request.use(
     return Promise.reject(error);
   },
 );
+api.interceptors.response.use(
+  response => {
+    return response;
+  },
+  error => {
+    console.log('Error response:', error.response.url);
+    return Promise.reject(error);
+  },
+);
 
 export const requestOTP = async email => {
   try {
@@ -825,16 +834,9 @@ export const getUserEnquiries = async (params = {}) => {
     console.log('Fetching user enquiries with params:', requestParams);
 
     // Use the correct API endpoint
-    const response = await api.get(
-      'https://api.staging.legendmotorsglobal.com/api/v1/car-enquiry/user-enquiries',
-      {
-        params: requestParams,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': API_KEY,
-        },
-      },
-    );
+    const response = await api.get('/car-enquiry/user-enquiries', {
+      params: requestParams,
+    });
 
     console.log('User enquiries API response:', JSON.stringify(response.data));
 

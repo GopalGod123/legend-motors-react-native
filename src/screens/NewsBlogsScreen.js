@@ -15,12 +15,15 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {getBlogPosts} from '../services/api';
 import {useTheme} from '../context/ThemeContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {getTranslation} from '../translations';
 
 const {width} = Dimensions.get('window');
 
 const NewsBlogsScreen = () => {
   const navigation = useNavigation();
   const {isDark} = useTheme();
+  const {selectedLanguage} = useCurrencyLanguage();
   const [activeTab, setActiveTab] = useState('News');
   const [loading, setLoading] = useState(true);
   const [newsData, setNewsData] = useState([]);
@@ -55,13 +58,11 @@ const NewsBlogsScreen = () => {
           setFeaturedPost(newsResponse.data[0]);
         }
       } else {
-        setError('Failed to load content. Please try again later.');
+        setError(getTranslation('newsBlogs.errorLoading', selectedLanguage));
       }
     } catch (error) {
       console.error('Error fetching blog posts:', error);
-      setError(
-        'Something went wrong. Please check your connection and try again.',
-      );
+      setError(getTranslation('newsBlogs.connectionError', selectedLanguage));
     } finally {
       setLoading(false);
     }
@@ -91,7 +92,7 @@ const NewsBlogsScreen = () => {
             activeTab === 'News' && styles.activeTabText,
             isDark && styles.tabTextDark,
           ]}>
-          News
+          {getTranslation('newsBlogs.news', selectedLanguage)}
         </Text>
         {activeTab === 'News' && <View style={styles.activeTabIndicator} />}
       </TouchableOpacity>
@@ -108,7 +109,7 @@ const NewsBlogsScreen = () => {
             activeTab === 'Blogs' && styles.activeTabText,
             isDark && styles.tabTextDark,
           ]}>
-          Blogs
+          {getTranslation('newsBlogs.blogs', selectedLanguage)}
         </Text>
         {activeTab === 'Blogs' && <View style={styles.activeTabIndicator} />}
       </TouchableOpacity>
@@ -136,7 +137,9 @@ const NewsBlogsScreen = () => {
               <Text style={styles.numberText}>{index + 1}</Text>
             </View> */}
             <View style={styles.readTimeContainer}>
-              <Text style={styles.readTimeText}>2 min read</Text>
+              <Text style={styles.readTimeText}>
+                {getTranslation('newsBlogs.readTime', selectedLanguage)}
+              </Text>
             </View>
           </View>
 
@@ -215,7 +218,9 @@ const NewsBlogsScreen = () => {
                 <Text style={styles.numberText}>1</Text>
               </View> */}
               <View style={styles.readTimeContainer}>
-                <Text style={styles.readTimeText}>2 min read</Text>
+                <Text style={styles.readTimeText}>
+                  {getTranslation('newsBlogs.readTime', selectedLanguage)}
+                </Text>
               </View>
             </View>
 
@@ -278,7 +283,7 @@ const NewsBlogsScreen = () => {
       return (
         <View style={styles.emptyContainer}>
           <Text style={[styles.emptyText, isDark && styles.emptyTextDark]}>
-            No blog posts available
+            {getTranslation('newsBlogs.noBlogPosts', selectedLanguage)}
           </Text>
         </View>
       );
@@ -316,7 +321,9 @@ const NewsBlogsScreen = () => {
                       <Text style={styles.numberText}>{displayIndex}</Text>
                     </View>
                     <View style={styles.readTimeContainer}>
-                      <Text style={styles.readTimeText}>2 min read</Text>
+                      <Text style={styles.readTimeText}>
+                        {getTranslation('newsBlogs.readTime', selectedLanguage)}
+                      </Text>
                     </View>
                   </View>
 
@@ -387,7 +394,9 @@ const NewsBlogsScreen = () => {
     if (newsData.length === 0) {
       return (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No news available</Text>
+          <Text style={styles.emptyText}>
+            {getTranslation('newsBlogs.noNews', selectedLanguage)}
+          </Text>
         </View>
       );
     }
@@ -411,12 +420,12 @@ const NewsBlogsScreen = () => {
           backgroundColor={isDark ? '#2D2D2D' : '#FFFFFF'}
         />
         <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>
-          News & Blogs
+          {getTranslation('newsBlogs.title', selectedLanguage)}
         </Text>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
           <Text style={[styles.loadingText, isDark && styles.loadingTextDark]}>
-            Loading content...
+            {getTranslation('newsBlogs.loadingContent', selectedLanguage)}
           </Text>
         </View>
       </SafeAreaView>
@@ -431,7 +440,7 @@ const NewsBlogsScreen = () => {
           backgroundColor={isDark ? '#2D2D2D' : '#FFFFFF'}
         />
         <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>
-          News & Blogs
+          {getTranslation('newsBlogs.title', selectedLanguage)}
         </Text>
         <View style={styles.errorContainer}>
           <Text style={[styles.errorText, isDark && styles.errorTextDark]}>
@@ -440,7 +449,9 @@ const NewsBlogsScreen = () => {
           <TouchableOpacity
             style={[styles.retryButton, isDark && styles.retryButtonDark]}
             onPress={fetchBlogPosts}>
-            <Text style={styles.retryText}>Retry</Text>
+            <Text style={styles.retryText}>
+              {getTranslation('common.retry', selectedLanguage)}
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -454,7 +465,7 @@ const NewsBlogsScreen = () => {
         backgroundColor={isDark ? '#2D2D2D' : '#FFFFFF'}
       />
       <Text style={[styles.sectionTitle, isDark && styles.sectionTitleDark]}>
-        News & Blogs
+        {getTranslation('newsBlogs.title', selectedLanguage)}
       </Text>
 
       {renderTabIndicator()}

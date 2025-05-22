@@ -48,6 +48,7 @@ const HotDeals = ({user}) => {
   const {isInWishlist, addItemToWishlist, removeItemFromWishlist} =
     useWishlist();
   const {isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
   const {
     loginModalVisible,
     hideLoginPrompt,
@@ -405,7 +406,7 @@ const HotDeals = ({user}) => {
           styles.noDealsText,
           {color: isDark ? '#FFFFFF' : COLORS.textMedium},
         ]}>
-        No hot deals available at the moment
+        {t('hotDeals.noHotDeals')}
       </Text>
     </View>
   );
@@ -419,7 +420,7 @@ const HotDeals = ({user}) => {
               styles.title,
               {color: isDark ? '#FFFFFF' : COLORS.textDark},
             ]}>
-            Hot Deals
+            {t('hotDeals.title')}
           </Text>
         </View>
         <TouchableOpacity onPress={navigateToAllHotDeals}>
@@ -428,7 +429,7 @@ const HotDeals = ({user}) => {
               styles.viewAllText,
               {color: isDark ? '#FF8C00' : COLORS.primary},
             ]}>
-            See All
+            {t('common.viewAll')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -438,7 +439,7 @@ const HotDeals = ({user}) => {
           styles.subtitle,
           {color: isDark ? '#FFFFFF' : COLORS.textMedium},
         ]}>
-        Checkout our exclusive offers
+        {t('hotDeals.subtitle')}
       </Text>
 
       <FlatList
@@ -476,8 +477,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
-    marginRight: SPACING.lg,
+    paddingHorizontal: SPACING.md,
+    // marginRight: SPACING.lg,
     marginBottom: SPACING.xs,
   },
   carCard: {

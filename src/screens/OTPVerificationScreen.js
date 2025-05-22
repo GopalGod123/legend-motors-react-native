@@ -17,16 +17,19 @@ import {verifyOTP, requestOTP} from '../services/api';
 import {useTheme} from 'src/context/ThemeContext';
 import {COLORS} from 'src/utils/constants';
 import {Ionicons} from '../utils/icon';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
 const OTPVerificationScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {email} = route.params;
   const [loading, setLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(30);
   const otpInputs = useRef([]);
   const {isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
 
   useEffect(() => {
     let interval = null;
@@ -56,7 +59,7 @@ const OTPVerificationScreen = () => {
   const handleVerifyOTP = async () => {
     const otpString = otp.join('');
     if (otpString.length !== 6) {
-      Alert.alert('Error', 'Please enter the complete verification code');
+      Alert.alert(t('common.error'), t('auth.enterCompleteOTP'));
       return;
     }
 
@@ -64,22 +67,21 @@ const OTPVerificationScreen = () => {
       setLoading(true);
       const response = await verifyOTP(email, otpString);
 
-      // Log the response to debug
-      console.log('Verification response:', response);
-
       if (!response.registrationToken) {
-        Alert.alert('Error', 'Registration token not received from server');
+        Alert.alert(t('common.error'), t('auth.failedToVerifyOTP'));
         return;
       }
 
-      // Navigate to profile screen with email and registration token
       navigation.replace('FillProfile', {
         email,
         registrationToken: response.registrationToken,
       });
     } catch (error) {
       console.error('OTP verification error:', error);
-      Alert.alert('Error', error.message || 'Failed to verify OTP');
+      Alert.alert(
+        t('common.error'),
+        error.message || t('auth.failedToVerifyOTP'),
+      );
     } finally {
       setLoading(false);
     }
@@ -87,20 +89,17 @@ const OTPVerificationScreen = () => {
 
   const handleResendCode = async () => {
     try {
-      setLoading(true);
+      setResendLoading(true);
       await requestOTP(email);
       setTimer(30);
-      Alert.alert(
-        'Success',
-        'New verification code has been sent to your email',
-      );
+      Alert.alert(t('common.success'), t('auth.otpSentSuccess'));
     } catch (error) {
       Alert.alert(
-        'Error',
-        error.message || 'Failed to resend verification code',
+        t('common.error'),
+        error.message || t('auth.failedToResendOTP'),
       );
     } finally {
-      setLoading(false);
+      setResendLoading(false);
     }
   };
 
@@ -119,7 +118,7 @@ const OTPVerificationScreen = () => {
       </View>
 
       <Text style={[styles.title, isDark && styles.textDark]}>
-        Create Your Account
+        {t('auth.createAccount')}
       </Text>
 
       <View
@@ -148,9 +147,30 @@ const OTPVerificationScreen = () => {
         ))}
       </View>
 
-      <Text style={[styles.timerText, isDark && styles.textDark]}>
-        Resend Code {timer > 0 ? `00:${timer.toString().padStart(2, '0')}` : ''}
-      </Text>
+      {timer > 0 ? (
+        <Text style={[styles.timerText, isDark && styles.textDark]}>
+          {t('auth.resendIn')}
+          {timer}
+        </Text>
+      ) : (
+        <TouchableOpacity
+          onPress={handleResendCode}
+          disabled={resendLoading}
+          style={styles.resendButton}>
+          {resendLoading ? (
+            <ActivityIndicator size="small" color={COLORS.primary} />
+          ) : (
+            <Text
+              style={[
+                styles.timerText,
+                styles.resendText,
+                isDark && styles.textDark,
+              ]}>
+              {t('auth.resendCode')}
+            </Text>
+          )}
+        </TouchableOpacity>
+      )}
 
       <TouchableOpacity
         style={styles.verifyButton}
@@ -159,7 +179,7 @@ const OTPVerificationScreen = () => {
         {loading ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
-          <Text style={styles.verifyButtonText}>Verify Welcome Code</Text>
+          <Text style={styles.verifyButtonText}>{t('auth.verifyEmail')}</Text>
         )}
       </TouchableOpacity>
     </KeyboardAvoidingView>
@@ -244,6 +264,16 @@ const styles = StyleSheet.create({
     color: '#666666',
     marginBottom: 20,
     fontSize: 14,
+  },
+  resendText: {
+    color: COLORS.primary,
+    textDecorationLine: 'underline',
+  },
+  resendButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 20,
+    marginBottom: 20,
   },
   verifyButton: {
     backgroundColor: '#F4821F',

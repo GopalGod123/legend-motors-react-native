@@ -24,6 +24,7 @@ import {Ionicons} from 'src/utils/icon';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import {useTheme} from '../context/ThemeContext';
 import Dhyram from 'src/components/Dhyram';
+import {getTranslation} from '../translations';
 
 const {width} = Dimensions.get('window');
 
@@ -37,7 +38,7 @@ const EnquiriesScreen = () => {
   const [enquiries, setEnquiries] = useState([]);
   const [error, setError] = useState(null);
   const [isUserAuthenticated, setIsUserAuthenticated] = useState(false);
-  const {selectedCurrency} = useCurrencyLanguage();
+  const {selectedCurrency, selectedLanguage} = useCurrencyLanguage();
   const {theme, isDark} = useTheme();
 
   // Load enquiries when screen is focused
@@ -117,6 +118,40 @@ const EnquiriesScreen = () => {
     navigation.navigate('CarDetailScreen', {carId});
   };
 
+  const renderEmptyComponent = () => {
+    if (!user) {
+      return (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
+            {getTranslation('enquiries.loginPrompt', selectedLanguage)}
+          </Text>
+          <TouchableOpacity
+            style={styles.loginButton}
+            onPress={handleLoginPress}>
+            <Text style={styles.loginButtonText}>
+              {getTranslation('enquiries.loginButton', selectedLanguage)}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>
+          {getTranslation('enquiries.explorePrompt', selectedLanguage)}
+        </Text>
+        <TouchableOpacity
+          style={styles.exploreButton}
+          onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.exploreButtonText}>
+            {getTranslation('enquiries.exploreCars', selectedLanguage)}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -148,7 +183,7 @@ const EnquiriesScreen = () => {
                 styles.headerTitle,
                 {color: isDark ? '#FFFFFF' : '#212121'},
               ]}>
-              My Inquiries
+              {getTranslation('enquiries.title', selectedLanguage)}
             </Text>
           </View>
         </View>
@@ -159,7 +194,7 @@ const EnquiriesScreen = () => {
               styles.loadingText,
               {color: isDark ? '#CCCCCC' : '#757575'},
             ]}>
-            Loading inquiries...
+            {getTranslation('enquiries.loadingInquiries', selectedLanguage)}
           </Text>
         </View>
       </SafeAreaView>
@@ -184,25 +219,14 @@ const EnquiriesScreen = () => {
             {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
           ]}>
           <View style={styles.headerLogoContainer}>
-            {/* <LegendMotorsLogo /> */}
             <Text
               style={[
                 styles.headerTitle,
                 {color: isDark ? '#FFFFFF' : '#212121'},
               ]}>
-              My Inquiries
+              {getTranslation('enquiries.title', selectedLanguage)}
             </Text>
           </View>
-
-          {/* <TouchableOpacity
-            onPress={() => navigation.navigate('ExploreTab')}
-            style={styles.searchButton}>
-            <Ionicons
-              name="search"
-              size={24}
-              color={isDark ? '#FFFFFF' : '#000000'}
-            />
-          </TouchableOpacity> */}
         </View>
         <View style={styles.errorContainer}>
           <Text
@@ -212,78 +236,8 @@ const EnquiriesScreen = () => {
           <TouchableOpacity
             style={styles.retryButton}
             onPress={checkAuthAndFetchEnquiries}>
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  // Not authenticated state - show login prompt
-  if (!isUserAuthenticated) {
-    return (
-      <SafeAreaView
-        style={[
-          styles.container,
-          {backgroundColor: isDark ? '#000000' : '#FFFFFF'},
-        ]}>
-        <StatusBar
-          barStyle={isDark ? 'light-content' : 'dark-content'}
-          backgroundColor={isDark ? '#000000' : '#FFFFFF'}
-        />
-        <View
-          style={[
-            styles.header,
-            {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
-          ]}>
-          <View style={styles.headerLogoContainer}>
-            {/* <LegendMotorsLogo /> */}
-            <Text
-              style={[
-                styles.headerTitle,
-                {color: isDark ? '#FFFFFF' : '#212121'},
-              ]}>
-              My Inquiries
-            </Text>
-          </View>
-
-          {/* <TouchableOpacity
-            onPress={() => navigation.navigate('ExploreTab')}
-            style={styles.searchButton}>
-            <Ionicons
-              name="search"
-              size={24}
-              color={isDark ? '#FFFFFF' : '#000000'}
-            />
-          </TouchableOpacity> */}
-        </View>
-        <View style={styles.loginContainer}>
-          <View style={styles.clipboardIconContainer}>
-            <Image
-              source={require('../components/icons/NoEnquiery.png')}
-              style={styles.noEnquiryImage}
-              resizeMode="contain"
-            />
-          </View>
-          <Text
-            style={[
-              styles.noEnquiriesTitle,
-              {color: isDark ? '#FFFFFF' : '#212121'},
-            ]}>
-            No Inquiries found
-          </Text>
-          <Text
-            style={[
-              styles.loginPromptText,
-              {color: isDark ? '#CCCCCC' : '#757575'},
-            ]}>
-            Login/Register to track all your inquiries in one place hassle free.
-          </Text>
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={handleLoginPress}>
-            <Text style={styles.loginButtonText}>
-              Login/Register to Inquire
+            <Text style={styles.retryButtonText}>
+              {getTranslation('common.retry', selectedLanguage)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -322,19 +276,9 @@ const EnquiriesScreen = () => {
                 styles.headerTitle,
                 {color: isDark ? '#FFFFFF' : '#212121'},
               ]}>
-              My Inquiries
+              {getTranslation('enquiries.title', selectedLanguage)}
             </Text>
           </View>
-
-          {/* <TouchableOpacity
-            onPress={() => navigation.navigate('ExploreTab')}
-            style={styles.searchButton}>
-            <Ionicons
-              name="search"
-              size={24}
-              color={isDark ? '#FFFFFF' : '#000000'}
-            />
-          </TouchableOpacity> */}
         </View>
         <View style={styles.emptyContainer}>
           <View style={styles.clipboardIconContainer}>
@@ -349,24 +293,25 @@ const EnquiriesScreen = () => {
               styles.noEnquiriesTitle,
               {color: isDark ? '#FFFFFF' : '#212121'},
             ]}>
-            No Inquiries yet
+            {getTranslation('enquiries.noInquiriesYet', selectedLanguage)}
           </Text>
           <Text
             style={[styles.emptyText, {color: isDark ? '#CCCCCC' : '#757575'}]}>
-            You haven't made any inquiries yet. Start exploring cars and submit
-            inquiries.
+            {getTranslation('enquiries.explorePrompt', selectedLanguage)}
           </Text>
           <TouchableOpacity
             style={styles.exploreButton}
             onPress={() => navigation.navigate('ExploreTab')}>
-            <Text style={styles.exploreButtonText}>Explore Cars</Text>
+            <Text style={styles.exploreButtonText}>
+              {getTranslation('enquiries.exploreCars', selectedLanguage)}
+            </Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
     );
   }
 
-  // Render list of enquiries - updated to match the Figma design
+  // Render list of enquiries
   return (
     <SafeAreaView
       style={[
@@ -382,7 +327,6 @@ const EnquiriesScreen = () => {
           styles.header,
           {borderBottomColor: isDark ? '#333333' : '#EEEEEE'},
         ]}>
-        {/* Add Legend Motors logo next to title */}
         <View style={styles.headerLogoContainer}>
           <Image
             source={
@@ -395,39 +339,18 @@ const EnquiriesScreen = () => {
           <Text
             style={[
               styles.headerTitle,
-              {
-                // fontFamily: 'Effra Medium',
-                // // fontWeight: '400',
-                // fontSize: 24,
-                // lineHeight: 24 * 1.2, // 120% of font size
-                // letterSpacing: 0,
-                color: isDark ? '#FFFFFF' : '#212121',
-              },
+              {color: isDark ? '#FFFFFF' : '#212121'},
             ]}>
-            My Inquiries
+            {getTranslation('enquiries.title', selectedLanguage)}
           </Text>
         </View>
-
-        {/* Add search icon */}
-        {/* <TouchableOpacity
-          onPress={() => navigation.navigate('ExploreTab')}
-          style={styles.searchButton}>
-          <Ionicons
-            name="search"
-            size={24}
-            color={isDark ? '#FFFFFF' : '#000000'}
-          />
-        </TouchableOpacity> */}
       </View>
 
       <FlatList
         data={enquiries}
         keyExtractor={item => item.id?.toString() || Math.random().toString()}
         renderItem={({item}) => {
-          // The API response shows car details are in a nested 'car' object
           const car = item.car || {};
-
-          // Process car data to ensure consistent access
           const processedCar = {
             id: car.id || item.id || item.carId || null,
             brand: car.brand || item.brand || 'Brand',
@@ -436,7 +359,6 @@ const EnquiriesScreen = () => {
             image: car.image || null,
           };
 
-          // Extract price from the car prices array
           const prices = car.prices || [];
           const price =
             prices.find(p => p.currency === selectedCurrency)?.price ||
@@ -511,7 +433,7 @@ const EnquiriesScreen = () => {
                         styles.viewButtonText,
                         {color: isDark ? '#000' : '#ffff'},
                       ]}>
-                      View Car
+                      {getTranslation('common.viewCar', selectedLanguage)}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -528,6 +450,7 @@ const EnquiriesScreen = () => {
             tintColor={isDark ? '#FFFFFF' : '#000000'}
           />
         }
+        ListEmptyComponent={renderEmptyComponent}
       />
     </SafeAreaView>
   );

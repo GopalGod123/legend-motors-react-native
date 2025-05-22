@@ -15,10 +15,13 @@ import HTML from 'react-native-render-html';
 import {Dimensions} from 'react-native';
 import axios from 'axios';
 import {API_BASE_URL, API_KEY} from '../utils/apiConfig';
+import api from 'src/services/api';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
 const TermsAndConditionsScreen = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
   const [loading, setLoading] = useState(true);
   const [termsData, setTermsData] = useState(null);
   const [error, setError] = useState(null);
@@ -31,24 +34,18 @@ const TermsAndConditionsScreen = () => {
   const fetchTermsData = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${API_BASE_URL}/page/getBySlug?slug=terms_and_conditions&lang=en`,
-        {
-          headers: {
-            'accept': 'application/json',
-            'x-api-key': API_KEY,
-          },
-        },
+      const response = await api.get(
+        `page/getBySlug?slug=terms_and_conditions`,
       );
 
       if (response.data && response.data.success) {
         setTermsData(response.data.data);
       } else {
-        setError('Failed to load terms and conditions data');
+        setError(t('termsAndConditions.errorLoading'));
       }
     } catch (err) {
       console.error('Error fetching terms and conditions:', err);
-      setError('An error occurred while loading the terms and conditions');
+      setError(t('termsAndConditions.errorLoading'));
     } finally {
       setLoading(false);
     }
@@ -56,7 +53,9 @@ const TermsAndConditionsScreen = () => {
 
   // Find the content section
   const contentSection = termsData?.sections?.find(
-    section => section.sectionKey.includes('terms_') || section.sectionKey.includes('conditions'),
+    section =>
+      section.sectionKey.includes('terms_') ||
+      section.sectionKey.includes('conditions'),
   );
 
   return (
@@ -69,44 +68,61 @@ const TermsAndConditionsScreen = () => {
       <ScrollView style={styles.scrollView}>
         <View style={styles.header}>
           <View style={styles.headerRow}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.backButton}
               onPress={() => navigation.goBack()}>
-              <Text style={[styles.backButtonText, {color: themeColors[theme].primary}]}>
-                ← Back
+              <Text
+                style={[
+                  styles.backButtonText,
+                  {color: themeColors[theme].primary},
+                ]}>
+                {t('common.back')}
               </Text>
             </TouchableOpacity>
-            <Text style={[styles.headerTitle, {color: themeColors[theme].text}]}>
-              {termsData?.title || 'Terms and Conditions'}
+            <Text
+              style={[styles.headerTitle, {color: themeColors[theme].text}]}>
+              {termsData?.title || t('termsAndConditions.title')}
             </Text>
           </View>
-          <Text style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
-            Last Updated: {termsData?.updatedAt ? new Date(termsData.updatedAt).toDateString() : ''}
+          <Text
+            style={[styles.lastUpdated, {color: themeColors[theme].primary}]}>
+            {t('termsAndConditions.lastUpdated')}:{' '}
+            {termsData?.updatedAt
+              ? new Date(termsData.updatedAt).toDateString()
+              : ''}
           </Text>
         </View>
 
         <View style={styles.content}>
           {loading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={themeColors[theme].primary} />
-              <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
-                Loading Terms and Conditions...
+              <ActivityIndicator
+                size="large"
+                color={themeColors[theme].primary}
+              />
+              <Text
+                style={[styles.loadingText, {color: themeColors[theme].text}]}>
+                {t('termsAndConditions.loading')}
               </Text>
             </View>
           ) : error ? (
             <View style={styles.errorContainer}>
-              <Text style={[styles.errorText, {color: themeColors[theme].text}]}>
+              <Text
+                style={[styles.errorText, {color: themeColors[theme].text}]}>
                 {error}
               </Text>
-              <TouchableOpacity 
-                style={[styles.retryButton, {backgroundColor: themeColors[theme].primary}]}
+              <TouchableOpacity
+                style={[
+                  styles.retryButton,
+                  {backgroundColor: themeColors[theme].primary},
+                ]}
                 onPress={fetchTermsData}>
-                <Text style={styles.retryButtonText}>Try Again</Text>
+                <Text style={styles.retryButtonText}>{t('common.retry')}</Text>
               </TouchableOpacity>
             </View>
           ) : contentSection ? (
-            <HTML 
-              source={{ html: contentSection.content }} 
+            <HTML
+              source={{html: contentSection.content}}
               contentWidth={windowWidth - 32}
               baseStyle={{
                 color: isDark ? '#FFFFFF' : '#333333',
@@ -125,7 +141,7 @@ const TermsAndConditionsScreen = () => {
             />
           ) : (
             <Text style={[styles.paragraph, {color: themeColors[theme].text}]}>
-              No terms and conditions content available.
+              {t('termsAndConditions.noContent')}
             </Text>
           )}
         </View>
@@ -207,4 +223,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TermsAndConditionsScreen; 
+export default TermsAndConditionsScreen;

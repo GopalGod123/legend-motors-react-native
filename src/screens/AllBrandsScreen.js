@@ -16,6 +16,8 @@ import axios from 'axios';
 import {CarImage} from '../components/common';
 import Svg, {Path} from 'react-native-svg';
 import {useTheme} from 'src/context/ThemeContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import api from 'src/services/api';
 
 // Placeholder logo text examples for brands without logos
 const LOGO_PLACEHOLDERS = {
@@ -42,6 +44,7 @@ const AllBrandsScreen = ({navigation}) => {
   const [loading, setLoading] = useState(true);
   const [imageErrors, setImageErrors] = useState({});
   const {isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
 
   useEffect(() => {
     fetchAllBrands();
@@ -80,22 +83,14 @@ const AllBrandsScreen = ({navigation}) => {
       setLoading(true);
 
       // Use the direct API endpoint to get brand list with logos
-      const response = await axios.get(
-        'https://api.staging.legendmotorsglobal.com/api/v1/brand/list',
-        {
-          params: {
-            page: 1,
-            limit: 500, // Get a larger limit to ensure we get all brands
-            sortBy: 'name',
-            order: 'asc',
-            lang: 'en',
-          },
-          headers: {
-            'Content-Type': 'application/json',
-            'x-api-key': API_KEY,
-          },
+      const response = await api.get('brand/list', {
+        params: {
+          page: 1,
+          limit: 500, // Get a larger limit to ensure we get all brands
+          sortBy: 'name',
+          order: 'asc',
         },
-      );
+      });
 
       if (
         response.data &&
@@ -192,9 +187,9 @@ const AllBrandsScreen = ({navigation}) => {
         filters: {
           brands: [brand.name],
           brandIds: [brand.id],
-          specifications: {} // Add empty specifications object to match expected filter structure
-        }
-      }
+          specifications: {}, // Add empty specifications object to match expected filter structure
+        },
+      },
     });
   };
 
@@ -249,7 +244,7 @@ const AllBrandsScreen = ({navigation}) => {
         <BackIcon isDark={isDark} />
       </TouchableOpacity>
       <Text style={[styles.title, {color: isDark ? '#FFFFFF' : '#212121'}]}>
-        All Brands
+        {t('common.allBrands')}
       </Text>
       <View style={styles.placeholder} />
     </View>
@@ -270,7 +265,7 @@ const AllBrandsScreen = ({navigation}) => {
               styles.loadingText,
               {color: isDark ? '#FFFFFF' : COLORS.textDark},
             ]}>
-            Loading brands...
+            {t('common.loadingBrands')}
           </Text>
         </View>
       </SafeAreaView>

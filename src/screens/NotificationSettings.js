@@ -12,10 +12,13 @@ import {Ionicons} from '../utils/icon';
 import {useNavigation} from '@react-navigation/native';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import {useAuth} from 'src/context/AuthContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import CleverTap from 'clevertap-react-native';
+
 const NotificationSettings = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
   const [generalNotifications, setGeneralNotifications] = React.useState();
   const [appUpdates, setAppUpdates] = React.useState();
   const {user} = useAuth();
@@ -43,6 +46,7 @@ const NotificationSettings = () => {
     };
     CleverTap.profileSet(userProfile);
   }, [appUpdates, generalNotifications]);
+
   return (
     <View
       style={[
@@ -58,13 +62,16 @@ const NotificationSettings = () => {
           />
         </TouchableOpacity>
         <Text style={[styles.headerText, {color: themeColors[theme].text}]}>
-          Notification
+          {t('notifications.title')}
         </Text>
       </View>
+      <Text style={[styles.description, {color: themeColors[theme].text}]}>
+        {t('notifications.description')}
+      </Text>
       <View
         style={[styles.settingRow, {backgroundColor: themeColors[theme].card}]}>
         <Text style={[styles.settingLabel, {color: themeColors[theme].text}]}>
-          General Notifications
+          {t('notifications.generalNotifications')}
         </Text>
         <Switch
           value={generalNotifications}
@@ -79,7 +86,7 @@ const NotificationSettings = () => {
       <View
         style={[styles.settingRow, {backgroundColor: themeColors[theme].card}]}>
         <Text style={[styles.settingLabel, {color: themeColors[theme].text}]}>
-          App Updates
+          {t('notifications.appUpdates')}
         </Text>
         <Switch
           value={appUpdates}
@@ -115,6 +122,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginLeft: 10,
   },
+  description: {
+    fontSize: 14,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
   settingRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -127,7 +139,6 @@ const styles = StyleSheet.create({
   settingLabel: {
     fontSize: 17,
     fontWeight: '500',
-    color: '#222',
   },
 });
 

@@ -253,7 +253,7 @@ const CarDetailScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {carId, lang = 'en'} = route.params || {};
-  const {selectedCurrency} = useCurrencyLanguage();
+  const {selectedCurrency, t} = useCurrencyLanguage();
   const {user, isAuthenticated, checkAuthStatus} = useAuth();
   const {theme, isDark} = useTheme();
   const colors = themeColors[theme];
@@ -915,7 +915,7 @@ const CarDetailScreen = () => {
         ]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={[styles.loadingText, {color: colors.text}]}>
-          Loading car details...
+          {t('common.loading')}
         </Text>
       </SafeAreaView>
     );
@@ -931,11 +931,11 @@ const CarDetailScreen = () => {
         <Icon name="error-outline" size={50} color={COLORS.error} />
         <Text style={[styles.errorText, {color: colors.text}]}>{error}</Text>
         <TouchableOpacity style={styles.reloadButton} onPress={fetchCarDetails}>
-          <Text style={styles.reloadButtonText}>Try Again</Text>
+          <Text style={styles.reloadButtonText}>{t('common.tryAgain')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
           <Text style={[styles.backButtonText, {color: colors.primary}]}>
-            Go Back
+            {t('common.back')}
           </Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -951,11 +951,11 @@ const CarDetailScreen = () => {
         ]}>
         <Icon name="no-photography" size={50} color={colors.text} />
         <Text style={[styles.errorText, {color: colors.text}]}>
-          Car not found
+          {t('common.noResults')}
         </Text>
         <TouchableOpacity style={styles.backButton} onPress={goBack}>
           <Text style={[styles.backButtonText, {color: colors.primary}]}>
-            Go Back
+            {t('common.back')}
           </Text>
         </TouchableOpacity>
       </SafeAreaView>
@@ -1039,7 +1039,7 @@ const CarDetailScreen = () => {
           <Icon name="arrow-back" size={24} color={colors.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, {color: colors.text}]}>
-          Car Details
+          {t('carDetails.title')}
         </Text>
         <View style={styles.headerRightPlaceholder} />
       </View>
@@ -1340,7 +1340,7 @@ const CarDetailScreen = () => {
               styles.sectionTitle,
               {color: colors.text, marginBottom: 0},
             ]}>
-            Car Overview
+            {t('carDetails.overview')}
           </Text>
 
           <View
@@ -1365,14 +1365,14 @@ const CarDetailScreen = () => {
                   styles.overviewLabel,
                   {color: isDark ? '#FF8C00' : '#757575'},
                 ]}>
-                Condition:
+                {t('carDetails.condition')}:
               </Text>
               <Text
                 style={[
                   styles.overviewValue,
                   {color: isDark ? '#FFFFFF' : '#6f4a8e'},
                 ]}>
-                {car.condition || 'New'}
+                {car.condition || t('carDetails.new')}
               </Text>
             </View>
 
@@ -1390,7 +1390,7 @@ const CarDetailScreen = () => {
                   styles.overviewLabel,
                   {color: isDark ? '#FF8C00' : '#757575'},
                 ]}>
-                Cylinders:
+                {t('carDetails.cylinders')}:
               </Text>
               <Text
                 style={[
@@ -1417,7 +1417,7 @@ const CarDetailScreen = () => {
                   styles.overviewLabel,
                   {color: isDark ? '#FF8C00' : '#757575'},
                 ]}>
-                Fuel Type:
+                {t('carDetails.fuelType')}:
               </Text>
               <Text
                 style={[
@@ -1444,7 +1444,7 @@ const CarDetailScreen = () => {
                   styles.overviewLabel,
                   {color: isDark ? '#FF8C00' : '#757575'},
                 ]}>
-                Built Year:
+                {t('carDetails.builtYear')}:
               </Text>
               <Text
                 style={[
@@ -1469,7 +1469,7 @@ const CarDetailScreen = () => {
                   styles.overviewLabel,
                   {color: isDark ? '#FF8C00' : '#757575'},
                 ]}>
-                Transmission:
+                {t('carDetails.transmission')}:
               </Text>
               <Text
                 style={[
@@ -1496,7 +1496,7 @@ const CarDetailScreen = () => {
                   styles.overviewLabel,
                   {color: isDark ? '#FF8C00' : '#757575'},
                 ]}>
-                Color:
+                {t('carDetails.color')}:
               </Text>
               <Text
                 style={[
@@ -1663,7 +1663,7 @@ const CarDetailScreen = () => {
             {backgroundColor: isDark ? '#333333' : colors.background},
           ]}>
           <Text style={[styles.sectionTitle, {color: colors.text}]}>
-            Description
+            {t('carDetails.description')}
           </Text>
           {car.description ? (
             <View style={styles.descriptionContainer}>
@@ -1700,7 +1700,7 @@ const CarDetailScreen = () => {
                 styles.noDescriptionText,
                 {color: isDark ? '#FFFFFF' : '#000000', marginLeft: 15},
               ]}>
-              No description available
+              {t('carDetails.noDescription')}
             </Text>
           )}
         </View>
@@ -1720,10 +1720,12 @@ const CarDetailScreen = () => {
           <TouchableOpacity
             style={[
               styles.loginToViewPriceButton,
-              {backgroundColor: isDark ? '#F47B20' : '#FF8C00'}, // Adjust button color based on theme
+              {backgroundColor: isDark ? '#F47B20' : '#FF8C00'},
             ]}
             onPress={checkAuthAndShowPrompt}>
-            <Text style={styles.loginToViewPriceText}>Login to View Price</Text>
+            <Text style={styles.loginToViewPriceText}>
+              {t('auth.loginToViewPrice')}
+            </Text>
           </TouchableOpacity>
         ) : (
           <View style={styles.priceContainer}>
@@ -1732,7 +1734,7 @@ const CarDetailScreen = () => {
                 styles.priceLabel,
                 {color: isDark ? '#BBBBBB' : COLORS.textLight},
               ]}>
-              Price
+              {t('carDetails.price')}
             </Text>
             <Text
               style={[
@@ -1758,11 +1760,11 @@ const CarDetailScreen = () => {
                 <TouchableOpacity
                   style={[
                     styles.loginToViewPriceButton,
-                    {backgroundColor: isDark ? '#F47B20' : '#FF8C00'}, // Adjust button color based on theme
+                    {backgroundColor: isDark ? '#F47B20' : '#FF8C00'},
                   ]}
                   onPress={checkAuthAndShowPrompt}>
                   <Text style={styles.loginToViewPriceText}>
-                    Login to View Price
+                    {t('auth.loginToViewPrice')}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -1773,7 +1775,7 @@ const CarDetailScreen = () => {
           style={[
             styles.actionButton,
             styles.inquireButton,
-            {backgroundColor: isDark ? '#F47B20' : '#FF8C00'}, // Adjust button color based on theme
+            {backgroundColor: isDark ? '#F47B20' : '#FF8C00'},
             isAlreadyInquired && styles.alreadyInquiredButton,
             {
               marginTop: isAuthenticated ? 10 : 0,
@@ -1798,14 +1800,14 @@ const CarDetailScreen = () => {
           <Text
             style={[
               styles.inquireButtonText,
-              {color: '#FFFFFF'}, // Always use white text for better contrast on orange button
+              {color: '#FFFFFF'},
               isAlreadyInquired && styles.alreadyInquiredText,
             ]}>
             {!isAuthenticated
-              ? 'Login'
+              ? t('auth.login')
               : isAlreadyInquired
-              ? 'Already Inquired'
-              : 'Inquire Now'}
+              ? t('enquiries.alreadyInquired')
+              : t('carDetails.inquireNow')}
           </Text>
         </TouchableOpacity>
       </View>

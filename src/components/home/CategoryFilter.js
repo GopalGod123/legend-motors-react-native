@@ -8,10 +8,19 @@ import {
 } from 'react-native';
 import {COLORS, SPACING, BORDER_RADIUS} from '../../utils/constants';
 import {useTheme} from 'src/context/ThemeContext';
+import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
+import {getTranslation} from '../../translations';
 
 const CategoryFilter = () => {
   const {isDark} = useTheme();
-  const categories = ['Brands', 'Trims', 'Model', 'Year'];
+  const {selectedLanguage} = useCurrencyLanguage();
+
+  const categories = [
+    getTranslation('explore.brands', selectedLanguage),
+    getTranslation('explore.trims', selectedLanguage),
+    getTranslation('explore.models', selectedLanguage),
+    getTranslation('carDetails.year', selectedLanguage),
+  ];
 
   return (
     <View style={styles.container}>

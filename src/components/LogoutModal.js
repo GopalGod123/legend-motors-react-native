@@ -5,50 +5,51 @@ import {
   StyleSheet,
   TouchableOpacity,
   Modal,
-  Pressable
+  Pressable,
 } from 'react-native';
-import { useTheme, themeColors } from '../context/ThemeContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 
-const LogoutModal = ({ visible, onCancel, onLogout }) => {
-  const { theme, isDark } = useTheme();
-  
+const LogoutModal = ({visible, onCancel, onLogout}) => {
+  const {theme, isDark} = useTheme();
+  const {t} = useCurrencyLanguage();
+
   return (
     <Modal
       animationType="fade"
       transparent={true}
       visible={visible}
-      onRequestClose={onCancel}
-    >
+      onRequestClose={onCancel}>
       <View style={styles.modalOverlay}>
-        <View style={[
-          styles.modalContainer, 
-          {backgroundColor: isDark ? '#3D3D3D' : '#FFFFFF'}
-        ]}>
-          <Text style={styles.logoutText}>Logout</Text>
-          <Text style={[
-            styles.confirmationText,
-            {color: themeColors[theme].text}
-          ]}>Are you sure you want to log out?</Text>
-          
+        <View
+          style={[
+            styles.modalContainer,
+            {backgroundColor: isDark ? '#3D3D3D' : '#FFFFFF'},
+          ]}>
+          <Text style={styles.logoutText}>{t('auth.logout')}</Text>
+          <Text
+            style={[styles.confirmationText, {color: themeColors[theme].text}]}>
+            {t('auth.confirmLogout')}
+          </Text>
+
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[
                 styles.cancelButton,
-                {backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5'}
+                {backgroundColor: isDark ? '#2D2D2D' : '#F5F5F5'},
               ]}
-              onPress={onCancel}
-            >
-              <Text style={[
-                styles.cancelButtonText,
-                {color: themeColors[theme].text}
-              ]}>Cancel</Text>
+              onPress={onCancel}>
+              <Text
+                style={[
+                  styles.cancelButtonText,
+                  {color: themeColors[theme].text},
+                ]}>
+                {t('common.cancel')}
+              </Text>
             </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.logoutButton}
-              onPress={onLogout}
-            >
-              <Text style={styles.logoutButtonText}>Yes, Logout</Text>
+
+            <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
+              <Text style={styles.logoutButtonText}>{t('auth.yesLogout')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -123,4 +124,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LogoutModal; 
+export default LogoutModal;

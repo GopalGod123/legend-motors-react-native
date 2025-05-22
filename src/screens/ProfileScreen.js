@@ -35,6 +35,7 @@ import {useWishlist} from 'src/context/WishlistContext';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 import {launchImageLibrary} from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {getTranslation} from '../translations';
 // SVG icons as React components
 const UserIcon = () => {
   const {theme} = useTheme();
@@ -694,7 +695,7 @@ const ProfileScreen = () => {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#F47B20" />
           <Text style={[styles.loadingText, {color: themeColors[theme].text}]}>
-            Loading profile...
+            {getTranslation('common.loading', selectedLanguage)}
           </Text>
         </View>
       </SafeAreaView>
@@ -717,7 +718,7 @@ const ProfileScreen = () => {
           <View style={styles.profileContainer}>
             <View style={styles.profileHeader}>
               <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
-                Profile
+                {getTranslation('tabs.profile', selectedLanguage)}
               </Text>
             </View>
             <View style={styles.profileInfoContainer}>
@@ -742,7 +743,10 @@ const ProfileScreen = () => {
                 {showTooltip && (
                   <View style={styles.tooltipContainer}>
                     <Text style={styles.tooltipText}>
-                      Tap the pencil icon to change your profile picture
+                      {getTranslation(
+                        'profile.changeProfilePicture',
+                        selectedLanguage,
+                      )}
                     </Text>
                   </View>
                 )}
@@ -770,7 +774,7 @@ const ProfileScreen = () => {
                         styles.menuText,
                         {color: themeColors[theme].text},
                       ]}>
-                      Edit Profile
+                      {getTranslation('profile.editProfile', selectedLanguage)}
                     </Text>
                     <ChevronIcon />
                   </TouchableOpacity>
@@ -795,7 +799,10 @@ const ProfileScreen = () => {
                         styles.menuText,
                         {color: themeColors[theme].text},
                       ]}>
-                      Notification
+                      {getTranslation(
+                        'settings.notifications',
+                        selectedLanguage,
+                      )}
                     </Text>
                     <View style={styles.rightContainer}>
                       <ChevronIcon />
@@ -814,7 +821,7 @@ const ProfileScreen = () => {
                   </View>
                   <Text
                     style={[styles.menuText, {color: themeColors[theme].text}]}>
-                    Language
+                    {getTranslation('settings.language', selectedLanguage)}
                   </Text>
                   <View style={styles.rightContainer}>
                     <Text
@@ -842,7 +849,7 @@ const ProfileScreen = () => {
                   </View>
                   <Text
                     style={[styles.menuText, {color: themeColors[theme].text}]}>
-                    Privacy Policy
+                    {getTranslation('settings.privacyPolicy', selectedLanguage)}
                   </Text>
                   <ChevronIcon />
                 </TouchableOpacity>
@@ -858,7 +865,10 @@ const ProfileScreen = () => {
                   </View>
                   <Text
                     style={[styles.menuText, {color: themeColors[theme].text}]}>
-                    Terms and Conditions
+                    {getTranslation(
+                      'settings.termsOfService',
+                      selectedLanguage,
+                    )}
                   </Text>
                   <ChevronIcon />
                 </TouchableOpacity>
@@ -874,7 +884,7 @@ const ProfileScreen = () => {
                   </View>
                   <Text
                     style={[styles.menuText, {color: themeColors[theme].text}]}>
-                    Cookie Policy
+                    {getTranslation('settings.cookiePolicy', selectedLanguage)}
                   </Text>
                   <ChevronIcon />
                 </TouchableOpacity>
@@ -890,7 +900,7 @@ const ProfileScreen = () => {
                   </View>
                   <Text
                     style={[styles.menuText, {color: themeColors[theme].text}]}>
-                    Help Center
+                    {getTranslation('settings.help', selectedLanguage)}
                   </Text>
                   <ChevronIcon />
                 </TouchableOpacity>
@@ -908,7 +918,7 @@ const ProfileScreen = () => {
                         styles.menuItemText,
                         {color: themeColors[theme].text},
                       ]}>
-                      Dark Mode
+                      {getTranslation('settings.darkMode', selectedLanguage)}
                     </Text>
                   </View>
                   <Switch
@@ -930,13 +940,13 @@ const ProfileScreen = () => {
                       <LogoutIcon color={COLORS.primary} />
                     </View>
                     <Text style={[styles.logoutText, {color: COLORS.primary}]}>
-                      Logout
+                      {getTranslation('auth.logout', selectedLanguage)}
                     </Text>
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
                     style={styles.logoutItem}
-                    onPress={() => navigation.navigate('LoginScreen')}>
+                    onPress={() => navigation.navigate('Login')}>
                     <View style={styles.logoutIconContainer}>
                       <Ionicons
                         name="log-in-outline"
@@ -945,7 +955,7 @@ const ProfileScreen = () => {
                       />
                     </View>
                     <Text style={[styles.logoutText, {color: COLORS.primary}]}>
-                      Login
+                      {getTranslation('auth.login', selectedLanguage)}
                     </Text>
                   </TouchableOpacity>
                 )}
@@ -976,7 +986,7 @@ const ProfileScreen = () => {
         <View style={styles.profileContainer}>
           <View style={styles.profileHeader}>
             <Text style={[styles.logoText, {color: themeColors[theme].text}]}>
-              Profile
+              {getTranslation('tabs.profile', selectedLanguage)}
             </Text>
           </View>
           <View style={styles.profileInfoContainer}>
@@ -1005,7 +1015,10 @@ const ProfileScreen = () => {
               {showTooltip && (
                 <View style={styles.tooltipContainer}>
                   <Text style={styles.tooltipText}>
-                    Tap the pencil icon to change your profile picture
+                    {getTranslation(
+                      'profile.changeProfilePicture',
+                      selectedLanguage,
+                    )}
                   </Text>
                 </View>
               )}
@@ -1040,7 +1053,7 @@ const ProfileScreen = () => {
                 </View>
                 <Text
                   style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Edit Profile
+                  {getTranslation('profile.editProfile', selectedLanguage)}
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
@@ -1060,7 +1073,7 @@ const ProfileScreen = () => {
                 </View>
                 <Text
                   style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Notification
+                  {getTranslation('settings.notifications', selectedLanguage)}
                 </Text>
                 <View style={styles.rightContainer}>
                   <ChevronIcon />
@@ -1077,7 +1090,7 @@ const ProfileScreen = () => {
                 </View>
                 <Text
                   style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Language
+                  {getTranslation('settings.language', selectedLanguage)}
                 </Text>
                 <View style={styles.rightContainer}>
                   <Text
@@ -1101,7 +1114,7 @@ const ProfileScreen = () => {
                 </View>
                 <Text
                   style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Privacy Policy
+                  {getTranslation('settings.privacyPolicy', selectedLanguage)}
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
@@ -1116,7 +1129,7 @@ const ProfileScreen = () => {
                 </View>
                 <Text
                   style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Terms and Conditions
+                  {getTranslation('settings.termsOfService', selectedLanguage)}
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
@@ -1131,7 +1144,7 @@ const ProfileScreen = () => {
                 </View>
                 <Text
                   style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Cookie Policy
+                  {getTranslation('settings.cookiePolicy', selectedLanguage)}
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
@@ -1146,7 +1159,7 @@ const ProfileScreen = () => {
                 </View>
                 <Text
                   style={[styles.menuText, {color: themeColors[theme].text}]}>
-                  Help Center
+                  {getTranslation('settings.help', selectedLanguage)}
                 </Text>
                 <ChevronIcon />
               </TouchableOpacity>
@@ -1163,7 +1176,7 @@ const ProfileScreen = () => {
                       styles.menuItemText,
                       {color: themeColors[theme].text},
                     ]}>
-                    Dark Mode
+                    {getTranslation('settings.darkMode', selectedLanguage)}
                   </Text>
                 </View>
                 <Switch
@@ -1183,7 +1196,7 @@ const ProfileScreen = () => {
                   <LogoutIcon color={COLORS.primary} />
                 </View>
                 <Text style={[styles.logoutText, {color: COLORS.primary}]}>
-                  Logout
+                  {getTranslation('auth.logout', selectedLanguage)}
                 </Text>
               </TouchableOpacity>
             </View>

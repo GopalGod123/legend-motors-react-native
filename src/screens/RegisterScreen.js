@@ -11,16 +11,22 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {requestOTP} from '../services/api';
 import {useTheme} from 'src/context/ThemeContext';
+import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {getTranslation} from '../translations';
 
 const RegisterScreen = () => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const navigation = useNavigation();
   const {isDark} = useTheme();
+  const {selectedLanguage} = useCurrencyLanguage();
 
   const handleRequestOTP = async () => {
     if (!email) {
-      Alert.alert('Error', 'Please enter your email address');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        getTranslation('auth.enterEmail', selectedLanguage),
+      );
       return;
     }
 
@@ -30,7 +36,11 @@ const RegisterScreen = () => {
       // Navigate to OTP verification screen with email
       navigation.navigate('OTPVerification', {email});
     } catch (error) {
-      Alert.alert('Error', error.message || 'Failed to send OTP');
+      Alert.alert(
+        getTranslation('common.error', selectedLanguage),
+        error.message ||
+          getTranslation('auth.failedToSendOTP', selectedLanguage),
+      );
     } finally {
       setLoading(false);
     }
@@ -39,17 +49,19 @@ const RegisterScreen = () => {
   return (
     <View style={isDark ? styles.containerDark : styles.container}>
       <Text style={[styles.title, isDark && styles.textDark]}>
-        Create Account
+        {getTranslation('auth.createAccount', selectedLanguage)}
       </Text>
       <Text style={[styles.subtitle, isDark && styles.textDark]}>
-        Enter your email to receive a Welcome code
+        {getTranslation('auth.enterEmailForCode', selectedLanguage)}
       </Text>
 
       <View style={styles.inputContainer}>
-        <Text style={[styles.label, isDark && styles.textDark]}>Email</Text>
+        <Text style={[styles.label, isDark && styles.textDark]}>
+          {getTranslation('auth.email', selectedLanguage)}
+        </Text>
         <TextInput
           style={[styles.input, isDark && styles.inputDark]}
-          placeholder="Enter your email"
+          placeholder={getTranslation('auth.enterYourEmail', selectedLanguage)}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -66,7 +78,9 @@ const RegisterScreen = () => {
         {loading ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
-          <Text style={styles.buttonText}>Request Welcome Code</Text>
+          <Text style={styles.buttonText}>
+            {getTranslation('auth.requestWelcomeCode', selectedLanguage)}
+          </Text>
         )}
       </TouchableOpacity>
 
@@ -74,7 +88,7 @@ const RegisterScreen = () => {
         style={styles.loginLink}
         onPress={() => navigation.goBack()}>
         <Text style={styles.loginLinkText}>
-          Already have an account? Login here
+          {getTranslation('auth.alreadyHaveAccount', selectedLanguage)}
         </Text>
       </TouchableOpacity>
     </View>

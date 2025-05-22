@@ -28,6 +28,7 @@ import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
 import {useTheme} from 'src/context/ThemeContext';
 import LoginPromptModal from '../../components/LoginPromptModal';
 import {useLoginPrompt} from '../../hooks/useLoginPrompt';
+import {getTranslation} from '../../translations';
 
 const {width} = Dimensions.get('window');
 const cardWidth = width * 0.8;
@@ -370,9 +371,11 @@ const JustArrived = () => {
       const shareUrl = `https://legendmotorsglobal.com/cars/${car.id}`;
 
       await Share.share({
-        message: `Check out this ${carTitle} on Legend Motors! ${shareUrl}`,
+        message: getTranslation('justArrived.shareMessage', selectedLanguage)
+          .replace('{carTitle}', carTitle)
+          .replace('{shareUrl}', shareUrl),
         url: shareUrl,
-        title: 'Share this car',
+        title: getTranslation('justArrived.shareTitle', selectedLanguage),
       });
     } catch (error) {
       console.error('Error sharing car:', error);
@@ -437,7 +440,7 @@ const JustArrived = () => {
           styles.emptyText,
           {color: isDark ? '#FFFFFF' : COLORS.textLight},
         ]}>
-        No new arrivals found
+        {getTranslation('justArrived.noNewArrivals', selectedLanguage)}
       </Text>
     </View>
   );
@@ -552,7 +555,7 @@ const JustArrived = () => {
       <View style={styles.header}>
         <Text
           style={[styles.title, {color: isDark ? '#FFFFFF' : COLORS.textDark}]}>
-          Just Arrived!
+          {getTranslation('justArrived.title', selectedLanguage)}
         </Text>
         <TouchableOpacity onPress={navigateToAllNewArrivals}>
           <Text
@@ -560,7 +563,7 @@ const JustArrived = () => {
               styles.viewAllText,
               {color: isDark ? '#FF8C00' : COLORS.primary},
             ]}>
-            See All
+            {getTranslation('common.viewAll', selectedLanguage)}
           </Text>
         </TouchableOpacity>
       </View>
@@ -569,7 +572,7 @@ const JustArrived = () => {
           styles.subtitle,
           {color: isDark ? '#FFFFFF' : COLORS.textMedium},
         ]}>
-        Be the first to see our newest vehicles
+        {getTranslation('justArrived.subtitle', selectedLanguage)}
       </Text>
 
       <FlatList
@@ -586,7 +589,6 @@ const JustArrived = () => {
         ItemSeparatorComponent={() => <View style={{width: 15}} />}
         ListEmptyComponent={renderEmptyComponent}
       />
-      {/* Add the LoginPromptModal */}
       <LoginPromptModal
         visible={loginModalVisible}
         onClose={hideLoginPrompt}
