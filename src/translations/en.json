@@ -277,10 +277,12 @@
   },
   "emptyState": {
     "noCarsFound": "No Cars Found",
-    "noCarsForBrand": "No cars available for {brandName}.",
-    "noCarsMatchFilters": "No cars match your current filter criteria.",
-    "tryAdjustingFilters": "Try adjusting your filters or clear them to see all available cars.",
-    "clearAllFilters": "Clear All Filters"
+    "noCarsForBrand": "No cars currently available from",
+    "noCarsForFilters": "No cars match your current filter criteria.",
+    "suggestionForBrand": "New inventory arrives frequently. Check back soon or explore other brands.",
+    "suggestionForFilters": "Try adjusting your filters or clear them to see all available cars.",
+    "clearFilters": "Clear Filters",
+    "exploreAllBrands": "Explore All Brands"
   },
   "enquiryForm": {
     "title": "GET IN TOUCH",

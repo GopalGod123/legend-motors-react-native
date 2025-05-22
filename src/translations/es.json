@@ -298,10 +298,12 @@
   },
   "emptyState": {
     "noCarsFound": "No se encontraron autos",
-    "noCarsForBrand": "No hay autos disponibles para {brandName}.",
-    "noCarsMatchFilters": "No hay autos que coincidan con tus criterios de filtrado actuales.",
-    "tryAdjustingFilters": "Intenta ajustar tus filtros o limpiarlos para ver todos los autos disponibles.",
-    "clearAllFilters": "Limpiar todos los filtros"
+    "noCarsForBrand": "No hay autos disponibles actualmente de",
+    "noCarsForFilters": "No hay autos que coincidan con tus criterios de filtrado actuales.",
+    "suggestionForBrand": "El inventario se actualiza frecuentemente. Vuelve pronto o explora otras marcas.",
+    "suggestionForFilters": "Intenta ajustar tus filtros o límpialos para ver todos los autos disponibles.",
+    "clearFilters": "Limpiar Filtros",
+    "exploreAllBrands": "Explorar Todas las Marcas"
   },
   "enquiryForm": {
     "title": "PONTE EN CONTACTO",

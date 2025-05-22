@@ -285,10 +285,12 @@
   },
   "emptyState": {
     "noCarsFound": "未找到车辆",
-    "noCarsForBrand": "没有可用的 {brandName} 车辆。",
-    "noCarsMatchFilters": "没有符合当前筛选条件的车辆。",
-    "tryAdjustingFilters": "尝试调整筛选条件或清除它们以查看所有可用车辆。",
-    "clearAllFilters": "清除所有筛选条件"
+    "noCarsForBrand": "目前没有来自 的可用车辆。",
+    "noCarsForFilters": "没有符合您当前筛选条件的车辆。",
+    "suggestionForBrand": "库存经常更新。请稍后再来或探索其他品牌。",
+    "suggestionForFilters": "尝试调整您的筛选条件或清除它们以查看所有可用车辆。",
+    "clearFilters": "清除筛选",
+    "exploreAllBrands": "探索所有品牌"
   },
   "enquiryForm": {
     "title": "联系我们",

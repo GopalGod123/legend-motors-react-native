@@ -367,11 +367,11 @@ const ExploreScreen = () => {
       setAppliedFilters(route.params.filters);
 
       // Reset other states that might be affected by previous filters
-      setActiveFilter(
-        route.params.filters.brands && route.params.filters.brands.length > 0
-          ? 'brands'
-          : 'all',
-      );
+      // setActiveFilter(
+      //   route.params.filters.brands && route.params.filters.brands.length > 0
+      //     ? 'brands'
+      //     : 'all',
+      // );
 
       // If we have a tag filter, update the active filter tab accordingly
       if (
@@ -1574,6 +1574,10 @@ const ExploreScreen = () => {
                     ? appliedFilters.brands[0]
                     : null
                 }
+                onExploreAll={() => {
+                  clearAllFilters();
+                  navigation.navigate('AllBrands');
+                }}
               />
             }
           />

@@ -209,7 +209,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignSelf: 'flex-start',
     marginBottom: 16,
-    marginLeft: 16,
   },
   normalTitleText: {
     fontSize: 20,

@@ -299,10 +299,12 @@
   },
   "emptyState": {
     "noCarsFound": "Aucune voiture trouvée",
-    "noCarsForBrand": "Aucune voiture disponible pour {brandName}.",
-    "noCarsMatchFilters": "Aucune voiture ne correspond à vos critères de filtrage actuels.",
-    "tryAdjustingFilters": "Essayez d'ajuster vos filtres ou de les effacer pour voir toutes les voitures disponibles.",
-    "clearAllFilters": "Effacer tous les filtres"
+    "noCarsForBrand": "Aucune voiture disponible actuellement de ",
+    "noCarsForFilters": "Aucune voiture ne correspond à vos critères de filtrage actuels.",
+    "suggestionForBrand": "L'inventaire est fréquemment mis à jour. Revenez bientôt ou explorez d'autres marques.",
+    "suggestionForFilters": "Essayez d'ajuster vos filtres ou de les effacer pour voir toutes les voitures disponibles.",
+    "clearFilters": "Effacer les Filtres",
+    "exploreAllBrands": "Explorer Toutes les Marques"
   },
   "enquiryForm": {
     "title": "CONTACTEZ-NOUS",

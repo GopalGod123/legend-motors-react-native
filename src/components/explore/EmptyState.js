@@ -8,14 +8,20 @@ import {
 } from '../../utils/constants';
 import {useTheme} from '../../context/ThemeContext';
 import {useCurrencyLanguage} from '../../context/CurrencyLanguageContext';
+import {MaterialCommunityIcons} from 'src/utils/icon';
+import {Ionicons} from 'src/utils/icon/index';
 
-const EmptyState = ({onClearFilters, brandName}) => {
+const EmptyState = ({onClearFilters, brandName, onExploreAll}) => {
   const {theme, isDark} = useTheme();
   const {t} = useCurrencyLanguage();
 
   const message = brandName
-    ? t('emptyState.noCarsForBrand', {brandName})
-    : t('emptyState.noCarsMatchFilters');
+    ? `${t('emptyState.noCarsForBrand')} ${brandName}`
+    : t('emptyState.noCarsForFilters');
+
+  const suggestion = brandName
+    ? t('emptyState.suggestionForBrand')
+    : t('emptyState.suggestionForFilters');
 
   return (
     <View
@@ -23,6 +29,12 @@ const EmptyState = ({onClearFilters, brandName}) => {
         styles.emptyContainer,
         {backgroundColor: isDark ? '#1C1C1E' : '#FFFFFF'},
       ]}>
+      <Ionicons
+        name="car-sport-outline"
+        size={64}
+        color={isDark ? '#FFFFFF' : COLORS.primary}
+        style={styles.icon}
+      />
       <Text
         style={[styles.emptyTitle, {color: isDark ? '#FFFFFF' : '#000000'}]}>
         {t('emptyState.noCarsFound')}
@@ -32,15 +44,33 @@ const EmptyState = ({onClearFilters, brandName}) => {
           styles.emptyDescription,
           {color: isDark ? '#CCCCCC' : '#757575'},
         ]}>
-        {message} {t('emptyState.tryAdjustingFilters')}
+        {message}
       </Text>
-      <TouchableOpacity
-        style={styles.clearFiltersButtonLarge}
-        onPress={onClearFilters}>
-        <Text style={styles.clearFiltersText}>
-          {t('emptyState.clearAllFilters')}
-        </Text>
-      </TouchableOpacity>
+      <Text
+        style={[
+          styles.emptySuggestion,
+          {color: isDark ? '#CCCCCC' : '#757575'},
+        ]}>
+        {suggestion}
+      </Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, styles.clearButton]}
+          onPress={onClearFilters}>
+          <Text style={styles.clearButtonText}>
+            {t('emptyState.clearFilters')}
+          </Text>
+        </TouchableOpacity>
+        {brandName && (
+          <TouchableOpacity
+            style={[styles.button, styles.exploreButton]}
+            onPress={onExploreAll}>
+            <Text style={styles.exploreButtonText}>
+              {t('emptyState.exploreAllBrands')}
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -51,6 +81,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: SPACING.lg,
+    minHeight: 400,
+  },
+  icon: {
+    marginBottom: SPACING.md,
   },
   emptyTitle: {
     fontSize: FONT_SIZES.xl,
@@ -58,18 +92,44 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.md,
   },
   emptyDescription: {
+    fontSize: FONT_SIZES.md,
+    textAlign: 'center',
+    marginBottom: SPACING.sm,
+    lineHeight: 22,
+  },
+  emptySuggestion: {
     fontSize: FONT_SIZES.sm,
     textAlign: 'center',
-    marginBottom: SPACING.md,
+    marginBottom: SPACING.lg,
+    lineHeight: 20,
   },
-  clearFiltersButtonLarge: {
+  buttonContainer: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: SPACING.sm,
+  },
+  button: {
     padding: SPACING.md,
-    backgroundColor: COLORS.primary,
     borderRadius: BORDER_RADIUS.md,
+    minWidth: 200,
+    alignItems: 'center',
   },
-  clearFiltersText: {
+  clearButton: {
+    backgroundColor: COLORS.primary,
+  },
+  exploreButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: COLORS.primary,
+  },
+  clearButtonText: {
     fontSize: FONT_SIZES.sm,
     color: '#FFFFFF',
+    fontWeight: '500',
+  },
+  exploreButtonText: {
+    fontSize: FONT_SIZES.sm,
+    color: COLORS.primary,
     fontWeight: '500',
   },
 });
