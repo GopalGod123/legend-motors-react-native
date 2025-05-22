@@ -325,31 +325,31 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   regionalSpecItem: {
-    backgroundColor: '#F8F8F8',
+    backgroundColor: '#ffffff',
   },
   steeringSideItem: {
-    backgroundColor: '#F0F5FF',
+    backgroundColor: '#ffffff',
   },
   colorItem: {
-    backgroundColor: '#FFF0F5',
+    backgroundColor: '#ffffff',
   },
   wheelSizeItem: {
-    backgroundColor: '#FFF5EE',
+    backgroundColor: '#ffffff',
   },
   bodyTypeItem: {
-    backgroundColor: '#FFF5F5',
+    backgroundColor: '#ffffff',
   },
   seatsItem: {
-    backgroundColor: '#FFF5FF',
+    backgroundColor: '#ffffff',
   },
   doorsItem: {
-    backgroundColor: '#FFF5FF',
+    backgroundColor: '#ffffff',
   },
   fuelTypeItem: {
-    backgroundColor: '#FFFAED',
+    backgroundColor: '#ffffff',
   },
   cylindersItem: {
-    backgroundColor: '#F0FFF0',
+    backgroundColor: '#ffffff',
   },
 });
 

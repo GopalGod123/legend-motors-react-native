@@ -121,9 +121,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: SPACING.lg,
+    paddingHorizontal: SPACING.md,
     paddingVertical: SPACING.xs,
-    borderBottomWidth: 1,
     marginBottom: SPACING.sm,
   },
   resultTextContainer: {

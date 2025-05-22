@@ -886,7 +886,7 @@ const EnquiryFormScreen = () => {
                         styles.successModalSecondaryButtonText,
                         {color: themeColors[theme].primary},
                       ]}>
-                      Continue Browsing
+                      Continue Exploring
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -966,7 +966,7 @@ const EnquiryFormScreen = () => {
                         styles.successModalSecondaryButtonText,
                         {color: themeColors[theme].primary},
                       ]}>
-                      Continue Browsing
+                      Continue Exploring
                     </Text>
                   </TouchableOpacity>
                 </View>
