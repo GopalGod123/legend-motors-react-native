@@ -936,7 +936,7 @@ const ProfileScreen = () => {
                 ) : (
                   <TouchableOpacity
                     style={styles.logoutItem}
-                    onPress={() => navigation.navigate('LoginScreen')}>
+                    onPress={() => navigation.navigate('Login')}>
                     <View style={styles.logoutIconContainer}>
                       <Ionicons
                         name="log-in-outline"
