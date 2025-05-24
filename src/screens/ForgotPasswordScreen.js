@@ -14,10 +14,12 @@ import EmailIcon from '../components/icons/EmailIcon';
 import {requestPasswordResetOTP} from '../services/api';
 import {getTranslation} from '../translations';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
   const {selectedLanguage} = useCurrencyLanguage();
+  const {theme, isDark} = useTheme();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -56,14 +58,18 @@ const ForgotPasswordScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: themeColors[theme].background},
+      ]}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}>
-        <BackArrow />
+        <BackArrow color={themeColors[theme].text} />
       </TouchableOpacity>
 
-      <Text style={styles.title}>
+      <Text style={[styles.title, {color: themeColors[theme].text}]}>
         {getTranslation('auth.forgotPasswordTitle', selectedLanguage)}
       </Text>
 
@@ -71,16 +77,24 @@ const ForgotPasswordScreen = () => {
         <EmailIcon width={50} height={50} />
       </View>
 
-      <Text style={styles.description}>
+      <Text style={[styles.description, {color: themeColors[theme].text}]}>
         {getTranslation('auth.forgotPasswordDescription', selectedLanguage)}
       </Text>
 
       <View style={styles.inputContainer}>
-        <View style={styles.inputWrapper}>
+        <View
+          style={[
+            styles.inputWrapper,
+            {
+              borderColor: themeColors[theme].border,
+              backgroundColor: isDark ? '#000' : '#FFFFFF',
+            },
+          ]}>
           <EmailIcon />
           <TextInput
-            style={styles.input}
+            style={[styles.input, {color: themeColors[theme].text}]}
             placeholder={getTranslation('auth.email', selectedLanguage)}
+            placeholderTextColor={isDark ? '#666666' : '#999999'}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -90,7 +104,10 @@ const ForgotPasswordScreen = () => {
       </View>
 
       <TouchableOpacity
-        style={styles.continueButton}
+        style={[
+          styles.continueButton,
+          {backgroundColor: themeColors[theme].primary},
+        ]}
         onPress={handleRequestOTP}
         disabled={loading}>
         {loading ? (
@@ -108,7 +125,6 @@ const ForgotPasswordScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
     padding: 20,
   },
   backButton: {
@@ -121,7 +137,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#333333',
     marginBottom: 20,
   },
   iconContainer: {
@@ -131,7 +146,6 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 16,
-    color: '#666666',
     marginBottom: 30,
     lineHeight: 24,
   },
@@ -142,7 +156,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
     borderRadius: 8,
     paddingHorizontal: 12,
     height: 48,
@@ -151,11 +164,9 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     fontSize: 16,
-    color: '#333333',
     marginLeft: 8,
   },
   continueButton: {
-    backgroundColor: '#F4821F',
     paddingVertical: 15,
     borderRadius: 8,
     marginBottom: 16,

@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   containerDark: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#2D2D2D',
   },
   backButton: {
     marginTop: 20,

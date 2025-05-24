@@ -16,12 +16,14 @@ import {resetPassword} from '../services/api';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 import {getTranslation} from '../translations';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 const ResetPasswordScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {email, resetToken} = route.params || {};
   const {selectedLanguage} = useCurrencyLanguage();
+  const {theme, isDark} = useTheme();
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -94,14 +96,18 @@ const ResetPasswordScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: themeColors[theme].background},
+      ]}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}>
-        <BackArrow />
+        <BackArrow color={themeColors[theme].text} />
       </TouchableOpacity>
 
-      <Text style={styles.title}>
+      <Text style={[styles.title, {color: themeColors[theme].text}]}>
         {getTranslation('auth.createNewPassword', selectedLanguage)}
       </Text>
 
@@ -110,11 +116,19 @@ const ResetPasswordScreen = () => {
       </View>
 
       <View style={styles.inputContainer}>
-        <View style={styles.inputWrapper}>
+        <View
+          style={[
+            styles.inputWrapper,
+            {
+              borderColor: themeColors[theme].border,
+              backgroundColor: isDark ? '#000' : '#FFFFFF',
+            },
+          ]}>
           <LockIcon />
           <TextInput
-            style={styles.input}
+            style={[styles.input, {color: themeColors[theme].text}]}
             placeholder={getTranslation('auth.newPassword', selectedLanguage)}
+            placeholderTextColor={isDark ? '#666666' : '#999999'}
             value={newPassword}
             onChangeText={setNewPassword}
             secureTextEntry={!showNewPassword}
@@ -126,14 +140,22 @@ const ResetPasswordScreen = () => {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.inputWrapper}>
+        <View
+          style={[
+            styles.inputWrapper,
+            {
+              borderColor: themeColors[theme].border,
+              backgroundColor: isDark ? '#000' : '#FFFFFF',
+            },
+          ]}>
           <LockIcon />
           <TextInput
-            style={styles.input}
+            style={[styles.input, {color: themeColors[theme].text}]}
             placeholder={getTranslation(
               'auth.confirmPassword',
               selectedLanguage,
             )}
+            placeholderTextColor={isDark ? '#666666' : '#999999'}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry={!showConfirmPassword}
@@ -146,12 +168,19 @@ const ResetPasswordScreen = () => {
         </View>
       </View>
 
-      <Text style={styles.passwordRequirements}>
+      <Text
+        style={[
+          styles.passwordRequirements,
+          {color: isDark ? '#666666' : '#888888'},
+        ]}>
         {getTranslation('auth.passwordRequirements', selectedLanguage)}
       </Text>
 
       <TouchableOpacity
-        style={styles.continueButton}
+        style={[
+          styles.continueButton,
+          {backgroundColor: themeColors[theme].primary},
+        ]}
         onPress={handleResetPassword}
         disabled={loading}>
         {loading ? (
@@ -169,7 +198,6 @@ const ResetPasswordScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
     padding: 20,
   },
   backButton: {
@@ -182,7 +210,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#333333',
     marginBottom: 20,
   },
   iconContainer: {
@@ -198,7 +225,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#E0E0E0',
     borderRadius: 8,
     paddingHorizontal: 12,
     height: 48,
@@ -207,7 +233,6 @@ const styles = StyleSheet.create({
     flex: 1,
     height: '100%',
     fontSize: 16,
-    color: '#333333',
     marginLeft: 8,
   },
   eyeIcon: {
@@ -215,12 +240,10 @@ const styles = StyleSheet.create({
   },
   passwordRequirements: {
     fontSize: 14,
-    color: '#888888',
     marginBottom: 30,
     lineHeight: 20,
   },
   continueButton: {
-    backgroundColor: '#F4821F',
     paddingVertical: 15,
     borderRadius: 8,
     marginBottom: 16,

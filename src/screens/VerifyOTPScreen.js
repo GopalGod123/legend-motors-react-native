@@ -14,12 +14,14 @@ import BackArrow from '../components/BackArrow';
 import {verifyPasswordResetOTP, requestPasswordResetOTP} from '../services/api';
 import {getTranslation} from '../translations';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import {useTheme, themeColors} from '../context/ThemeContext';
 
 const VerifyOTPScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const {email} = route.params || {};
   const {selectedLanguage} = useCurrencyLanguage();
+  const {theme, isDark} = useTheme();
 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
@@ -139,18 +141,22 @@ const VerifyOTPScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {backgroundColor: themeColors[theme].background},
+      ]}>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}>
-        <BackArrow />
+        <BackArrow color={themeColors[theme].text} />
       </TouchableOpacity>
 
-      <Text style={styles.title}>
+      <Text style={[styles.title, {color: themeColors[theme].text}]}>
         {getTranslation('auth.verifyEmail', selectedLanguage)}
       </Text>
 
-      <Text style={styles.description}>
+      <Text style={[styles.description, {color: themeColors[theme].text}]}>
         {getTranslation('auth.otpSentToEmail', selectedLanguage).replace(
           '{email}',
           email,
@@ -162,7 +168,14 @@ const VerifyOTPScreen = () => {
           <TextInput
             key={index}
             ref={ref => (inputRefs.current[index] = ref)}
-            style={styles.otpInput}
+            style={[
+              styles.otpInput,
+              {
+                borderColor: themeColors[theme].border,
+                backgroundColor: isDark ? '#000' : '#FFFFFF',
+                color: themeColors[theme].text,
+              },
+            ]}
             value={digit}
             onChangeText={text => handleOtpChange(text, index)}
             onKeyPress={e => handleKeyPress(e, index)}
@@ -173,7 +186,10 @@ const VerifyOTPScreen = () => {
       </View>
 
       <TouchableOpacity
-        style={styles.continueButton}
+        style={[
+          styles.continueButton,
+          {backgroundColor: themeColors[theme].primary},
+        ]}
         onPress={handleVerifyOTP}
         disabled={loading}>
         {loading ? (
@@ -186,17 +202,19 @@ const VerifyOTPScreen = () => {
       </TouchableOpacity>
 
       <View style={styles.resendContainer}>
-        <Text style={styles.resendText}>
+        <Text style={[styles.resendText, {color: themeColors[theme].text}]}>
           {getTranslation('auth.didntReceiveCode', selectedLanguage)}{' '}
         </Text>
         {resendDisabled ? (
-          <Text style={styles.countdown}>
+          <Text
+            style={[styles.countdown, {color: isDark ? '#666666' : '#888888'}]}>
             {getTranslation('auth.resendIn', selectedLanguage)}
             {countdown}
           </Text>
         ) : (
           <TouchableOpacity onPress={handleResendOTP} disabled={loading}>
-            <Text style={styles.resendLink}>
+            <Text
+              style={[styles.resendLink, {color: themeColors[theme].primary}]}>
               {getTranslation('auth.resendCode', selectedLanguage)}
             </Text>
           </TouchableOpacity>
@@ -209,7 +227,6 @@ const VerifyOTPScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
     padding: 20,
   },
   backButton: {
@@ -222,12 +239,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: '600',
-    color: '#333333',
     marginBottom: 20,
   },
   description: {
     fontSize: 16,
-    color: '#666666',
     marginBottom: 30,
     lineHeight: 24,
   },
@@ -240,14 +255,12 @@ const styles = StyleSheet.create({
     width: 45,
     height: 48,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
     borderRadius: 8,
     textAlign: 'center',
     fontSize: 20,
     fontWeight: '600',
   },
   continueButton: {
-    backgroundColor: '#F4821F',
     paddingVertical: 15,
     borderRadius: 8,
     marginBottom: 16,
@@ -265,16 +278,13 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   resendText: {
-    color: '#666666',
     fontSize: 14,
   },
   resendLink: {
-    color: '#F4821F',
     fontSize: 14,
     fontWeight: '600',
   },
   countdown: {
-    color: '#888888',
     fontSize: 14,
   },
 });
