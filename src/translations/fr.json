@@ -27,7 +27,8 @@
     "loadingBrands": "Chargement des marques...",
     "viewCar": "Voir la voiture",
     "confirm": "Confirmer",
-    "continue": "Continuer"
+    "continue": "Continuer",
+    "cars": "Voitures"
   },
   "auth": {
     "login": "Connexion",

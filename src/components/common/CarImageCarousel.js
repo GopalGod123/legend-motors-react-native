@@ -33,6 +33,8 @@ const CarImageCarousel = forwardRef(
       onIndexChange,
       width: propWidth,
       isExplore = false,
+      autoScroll = true,
+      autoScrollInterval = 2500,
     },
     ref,
   ) => {
@@ -40,6 +42,9 @@ const CarImageCarousel = forwardRef(
     const [imagesPreloaded, setImagesPreloaded] = useState(false);
     const flatListRef = useRef(null);
     const scrollToIndexTimeoutRef = useRef(null);
+    const autoScrollTimerRef = useRef(null);
+    const isUserInteractingRef = useRef(false);
+    const isMountedRef = useRef(true);
 
     // Calculate width - use propWidth if provided, otherwise use screenWidth
     const width = propWidth || screenWidth;
@@ -233,6 +238,67 @@ const CarImageCarousel = forwardRef(
       [itemWidth],
     );
 
+    // Cleanup on unmount
+    useEffect(() => {
+      isMountedRef.current = true;
+      return () => {
+        isMountedRef.current = false;
+        if (autoScrollTimerRef.current) {
+          clearInterval(autoScrollTimerRef.current);
+        }
+      };
+    }, []);
+
+    // Auto-scroll effect
+    useEffect(() => {
+      // Clear any existing timer
+      if (autoScrollTimerRef.current) {
+        clearInterval(autoScrollTimerRef.current);
+      }
+
+      // Only start auto-scroll if we have multiple images
+      if (memoizedImages.length > 1 && isMountedRef.current) {
+        const startAutoScroll = () => {
+          autoScrollTimerRef.current = setInterval(() => {
+            if (!isUserInteractingRef.current && isMountedRef.current) {
+              const nextIndex = (activeIndex + 1) % memoizedImages.length;
+              scrollToIndex(nextIndex, true);
+            }
+          }, autoScrollInterval);
+        };
+
+        // Start immediately
+        startAutoScroll();
+      }
+
+      return () => {
+        if (autoScrollTimerRef.current) {
+          clearInterval(autoScrollTimerRef.current);
+        }
+      };
+    }, [autoScrollInterval, activeIndex, memoizedImages.length, scrollToIndex]);
+
+    // Handle user interaction
+    const handleTouchStart = useCallback(() => {
+      isUserInteractingRef.current = true;
+      if (autoScrollTimerRef.current) {
+        clearInterval(autoScrollTimerRef.current);
+      }
+    }, []);
+
+    const handleTouchEnd = useCallback(() => {
+      isUserInteractingRef.current = false;
+      // Restart auto-scroll
+      if (memoizedImages.length > 1 && isMountedRef.current) {
+        autoScrollTimerRef.current = setInterval(() => {
+          if (!isUserInteractingRef.current && isMountedRef.current) {
+            const nextIndex = (activeIndex + 1) % memoizedImages.length;
+            scrollToIndex(nextIndex, true);
+          }
+        }, autoScrollInterval);
+      }
+    }, [autoScrollInterval, activeIndex, memoizedImages.length, scrollToIndex]);
+
     // If no images or empty array, return null
     if (!memoizedImages || memoizedImages.length === 0) {
       return null;
@@ -282,6 +348,8 @@ const CarImageCarousel = forwardRef(
           snapToAlignment="start"
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={handleScroll}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           keyExtractor={(_, index) => `carousel-${index}`}
           getItemLayout={(_, index) => ({
             length: itemWidth,

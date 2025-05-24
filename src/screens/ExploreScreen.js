@@ -19,7 +19,7 @@ import {
   TextInput,
   Dimensions,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useIsFocused, useNavigation, useRoute} from '@react-navigation/native';
 import {COLORS, SPACING} from '../utils/constants';
 import {getCarList, searchCars, searchCarModels} from '../services/api';
 import {extractColorsFromSlug} from '../utils/colorUtils';
@@ -619,6 +619,8 @@ const ExploreScreen = () => {
   }, [appliedFilters]);
   const {selectedLanguage} = useCurrencyLanguage();
 
+  const isFocused = useIsFocused();
+
   // Store the fetchCars function reference to avoid dependency cycles
   useEffect(() => {
     // Reference the processCar function
@@ -749,11 +751,13 @@ const ExploreScreen = () => {
     };
 
     // Call the function
-    fetchCarsWithFilters();
+    if (isFocused) {
+      fetchCarsWithFilters();
+    }
     // }, 300); // 300ms debounce
 
     // return () => clearTimeout(timeoutId);
-  }, [appliedFilters, processCar, selectedLanguage, searchQuery]); // Add processCar to dependencies
+  }, [appliedFilters, processCar, selectedLanguage, searchQuery, isFocused]); // Add processCar to dependencies
 
   // Fetch cars by model IDs
   const fetchCarsByModelIds = async modelIds => {

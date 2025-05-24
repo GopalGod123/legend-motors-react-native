@@ -27,7 +27,8 @@
     "loadingBrands": "Loading brands...",
     "viewCar": "View Car",
     "confirm": "Confirm",
-    "continue": "Continue"
+    "continue": "Continue",
+    "cars": "Cars"
   },
   "auth": {
     "login": "Login",

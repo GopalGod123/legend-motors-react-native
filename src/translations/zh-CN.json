@@ -27,7 +27,8 @@
     "loadingBrands": "加载品牌中...",
     "viewCar": "查看车辆",
     "confirm": "确认",
-    "continue": "继续"
+    "continue": "继续",
+    "cars": "汽车"
   },
   "auth": {
     "login": "登录",

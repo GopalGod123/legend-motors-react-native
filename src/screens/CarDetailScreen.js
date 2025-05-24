@@ -408,7 +408,7 @@ const CarDetailScreen = () => {
           if (memoizedCarImages && memoizedCarImages.length > 0) {
             const maxIndex = memoizedCarImages.length - 1;
             // Calculate next index
-            const currentIndex = selectedImageIndexRef.current;
+            const currentIndex = selectedImageIndex;
             const nextIndex = (currentIndex + 1) % memoizedCarImages.length;
 
             // Only proceed if index is valid
@@ -438,14 +438,14 @@ const CarDetailScreen = () => {
                   // If we've reached the end, switch tabs with delay
                   if (nextIndex === 0) {
                     // Use timeout to avoid state updates in the same tick
-                    setTimeout(() => {
-                      const currentTab = activeTabRef.current;
-                      if (currentTab === 'exterior') {
-                        setActiveTab('interior');
-                      } else if (currentTab === 'interior') {
-                        setActiveTab('exterior');
-                      }
-                    }, 100);
+                    // setTimeout(() => {
+                    //   const currentTab = activeTabRef.current;
+                    //   if (currentTab === 'exterior') {
+                    //     setActiveTab('interior');
+                    //   } else if (currentTab === 'interior') {
+                    //     setActiveTab('exterior');
+                    //   }
+                    // }, 0);
                   }
                 }
               }, 0);
@@ -1113,18 +1113,19 @@ const CarDetailScreen = () => {
                     onImagePress={handleImagePress}
                     initialIndex={selectedImageIndex}
                     onIndexChange={index => {
-                      if (index !== selectedImageIndex) {
-                        // Only update if there's an actual change
+                      // if (index !== selectedImageIndex) {
+                      // Only update if there's an actual change
 
-                        setSelectedImageIndex(index);
-                        if (index == memoizedCarImages.length - 1) {
-                          setTimeout(() => {
-                            setActiveTab(
-                              activeTab == 'exterior' ? 'interior' : 'exterior',
-                            );
-                          }, 100);
-                        }
+                      setSelectedImageIndex(index);
+                      if (index == memoizedCarImages.length - 1) {
+                        setTimeout(() => {
+                          setActiveTab(prev =>
+                            prev == 'exterior' ? 'interior' : 'exterior',
+                          );
+                          // setSelectedImageIndex(0);
+                        }, 2000);
                       }
+                      // }
                     }}
                     showIndex={true}
                   />
@@ -1806,7 +1807,7 @@ const CarDetailScreen = () => {
             {!isAuthenticated
               ? t('auth.login')
               : isAlreadyInquired
-              ? t('enquiries.alreadyInquired')
+              ? t('carDetails.alreadyInquired')
               : t('carDetails.inquireNow')}
           </Text>
         </TouchableOpacity>

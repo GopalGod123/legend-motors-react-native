@@ -27,7 +27,8 @@
     "loadingBrands": "Cargando marcas...",
     "viewCar": "Ver auto",
     "confirm": "Confirmar",
-    "continue": "Continuar"
+    "continue": "Continuar",
+    "cars": "Autos"
   },
   "auth": {
     "login": "Iniciar sesión",

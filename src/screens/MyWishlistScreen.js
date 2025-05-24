@@ -246,7 +246,7 @@ const MyWishlistScreen = () => {
       </Text>
       <TouchableOpacity
         style={styles.exploreButton}
-        onPress={() => navigation.navigate('ExploreScreen')}>
+        onPress={() => navigation.navigate('Main', {screen: 'ExploreTab'})}>
         <Text style={styles.exploreButtonText}>
           {t('wishlist.exploreCars')}
         </Text>

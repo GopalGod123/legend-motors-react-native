@@ -94,6 +94,9 @@ const CarImage = memo(
 
     const handleLoadStart = () => {
       setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     };
 
     const handleLoadEnd = () => {
