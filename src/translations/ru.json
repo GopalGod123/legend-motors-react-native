@@ -260,7 +260,8 @@
     "today": "Сегодня",
     "offerAccepted": "Ваше предложение принято!",
     "congratsMessage": "Поздравляем! Ваше предложение принято продавцом за $170,000",
-    "viewDetails": "Просмотреть Детали"
+    "viewDetails": "Просмотреть Детали",
+    "noNotifications": "Пока нет уведомлений"
   },
   "notificationSettings": {
     "title": "Настройки Уведомлений",
@@ -291,7 +292,7 @@
   },
   "resultsHeader": {
     "viewingCarDetails": "Просмотр деталей автомобиля (ID: {carId})",
-    "resultsFor": "Результаты поиска \"{searchQuery}\"",
+    "resultsFor": "Результаты поиска ",
     "showingCars": "Показано автомобилей",
     "totalCars": "Всего: автомобилей",
     "found": "найдено",

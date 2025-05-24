@@ -64,16 +64,14 @@ const ResultsHeader = ({
       return (
         <Text
           style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
-          {t('resultsHeader.showingCars')}
-          {totalCars}
+          {t('resultsHeader.showingCars')} {totalCars}
         </Text>
       );
     } else {
       return (
         <Text
           style={[styles.resultsText, {color: isDark ? '#FFFFFF' : '#000000'}]}>
-          {t('resultsHeader.totalCars')}
-          {totalCars}
+          {t('resultsHeader.totalCars')} {totalCars}
         </Text>
       );
     }

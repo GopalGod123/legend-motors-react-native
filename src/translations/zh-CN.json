@@ -61,6 +61,7 @@
     "failedToSendOTP": "发送验证码失败",
     "forgotPasswordTitle": "忘记密码",
     "forgotPasswordDescription": "输入您的邮箱地址，我们将向您发送验证码以重置密码。",
+    "continue": "继续",
     "enterValidEmail": "请输入有效的邮箱地址",
     "failedToSendOTP": "发送验证码失败。请重试。",
     "somethingWentWrong": "出现错误。请重试。",
@@ -247,7 +248,8 @@
     "today": "今天",
     "offerAccepted": "您的报价已被接受！",
     "congratsMessage": "恭喜！卖家已接受您的报价，价格为 170,000 美元",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "noNotifications": "暂无通知"
   },
   "notificationSettings": {
     "title": "通知设置",
@@ -278,7 +280,7 @@
   },
   "resultsHeader": {
     "viewingCarDetails": "查看车辆详情（ID：{carId}）",
-    "resultsFor": "搜索结果：\"{searchQuery}\"",
+    "resultsFor": "搜索结果：",
     "showingCars": "显示 辆车",
     "totalCars": "总计：辆车",
     "found": "找到",

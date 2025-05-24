@@ -180,7 +180,7 @@ const VerifyOTPScreen = () => {
           <ActivityIndicator color="#FFFFFF" />
         ) : (
           <Text style={styles.continueButtonText}>
-            {getTranslation('auth.continue', selectedLanguage)}
+            {getTranslation('common.continue', selectedLanguage)}
           </Text>
         )}
       </TouchableOpacity>

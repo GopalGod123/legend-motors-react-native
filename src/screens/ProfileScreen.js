@@ -511,6 +511,7 @@ const ProfileScreen = () => {
       };
 
       const updateResponse = await updateUserProfile(profileData);
+      console.log('updateResponse', updateResponse);
 
       if (updateResponse.success) {
         // Update local user data

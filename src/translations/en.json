@@ -260,7 +260,8 @@
     "today": "Today",
     "offerAccepted": "Your offer has been accepted!",
     "congratsMessage": "Congrats! your offer has been accepted by the seller for $170,000",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "noNotifications": "No notifications yet"
   },
   "wishlist": {
     "title": "My Wishlist",
@@ -270,7 +271,7 @@
   },
   "resultsHeader": {
     "viewingCarDetails": "Viewing car details (ID: {carId})",
-    "resultsFor": "Results for \"{searchQuery}\"",
+    "resultsFor": "Results for ",
     "showingCars": "Showing cars",
     "totalCars": "Total: cars",
     "found": "found",

@@ -1210,7 +1210,11 @@ const ExploreScreen = () => {
         shareCar={() => handleShare(item)}
         isFavorite={isInWishlist(item.id)}
         isExplore={true}
-        width={Dimensions.get('window').width - 30}
+        width={
+          Platform.OS === 'android'
+            ? Dimensions.get('window').width - 30
+            : Dimensions.get('window').width - 15
+        }
       />
     );
     // return (

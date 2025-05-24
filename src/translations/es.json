@@ -260,7 +260,8 @@
     "today": "Hoy",
     "offerAccepted": "¡Tu oferta ha sido aceptada!",
     "congratsMessage": "¡Felicitaciones! Tu oferta ha sido aceptada por el vendedor por $170,000",
-    "viewDetails": "Ver Detalles"
+    "viewDetails": "Ver Detalles",
+    "noNotifications": "Aún no hay notificaciones"
   },
   "notificationSettings": {
     "title": "Configuración de Notificaciones",
@@ -291,7 +292,7 @@
   },
   "resultsHeader": {
     "viewingCarDetails": "Viendo detalles del auto (ID: {carId})",
-    "resultsFor": "Resultados para \"{searchQuery}\"",
+    "resultsFor": "Resultados para ",
     "showingCars": "Mostrando autos",
     "totalCars": "Total: autos",
     "found": "encontrados",

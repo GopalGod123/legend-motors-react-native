@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -12,18 +12,22 @@ import {useNavigation} from '@react-navigation/native';
 import {useTheme, themeColors} from '../context/ThemeContext';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import CleverTap from 'clevertap-react-native';
+import axios from 'axios';
 
 const Notification = () => {
   const navigation = useNavigation();
   const {theme, isDark} = useTheme();
   const {t} = useCurrencyLanguage();
+  const [notifications, setNotifications] = useState([]);
 
-  // useEffect(() => {
-  //   CleverTap.get().then(count => {
-  //     console.log('In-App Notification Count:', count);
-  //   });
-  // }, []);
+  useEffect(() => {
+    setNotifications(getStoredNotifications());
+  }, []);
 
+  const getStoredNotifications = async () => {
+    const stored = await AsyncStorage.getItem('push_notifications');
+    return stored ? JSON.parse(stored) : [];
+  };
   const renderNotification = () => {
     return (
       <View>
@@ -88,8 +92,14 @@ const Notification = () => {
       </View>
 
       <FlatList
-        data={[1, 2, 3]}
+        data={notifications}
         renderItem={renderNotification}
+        ListEmptyComponent={
+          <View
+            style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <Text>{t('notifications.noNotifications')}</Text>
+          </View>
+        }
         style={{flex: 1}}
         contentContainerStyle={{flexGrow: 1}}
       />

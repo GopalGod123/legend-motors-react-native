@@ -40,6 +40,7 @@ const CarImageCarousel = forwardRef(
   ) => {
     const [activeIndex, setActiveIndex] = useState(initialIndex);
     const [imagesPreloaded, setImagesPreloaded] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const flatListRef = useRef(null);
     const scrollToIndexTimeoutRef = useRef(null);
     const autoScrollTimerRef = useRef(null);
@@ -61,6 +62,7 @@ const CarImageCarousel = forwardRef(
     // Preload images when they change
     useEffect(() => {
       if (images && images.length > 0 && !imagesPreloaded) {
+        setIsLoading(true);
         // Preload visible and nearby images first
         const visibleImages = images.slice(
           Math.max(0, initialIndex - 1),
@@ -79,11 +81,19 @@ const CarImageCarousel = forwardRef(
             }
           })
           .then(() => {
-            setImagesPreloaded(true);
+            if (isMountedRef.current) {
+              setImagesPreloaded(true);
+              setIsLoading(false);
+            }
           })
           .catch(err => {
             console.log('Error preloading carousel images:', err);
+            if (isMountedRef.current) {
+              setIsLoading(false);
+            }
           });
+      } else {
+        setIsLoading(false);
       }
     }, [images, initialIndex, imagesPreloaded]);
 
@@ -208,17 +218,11 @@ const CarImageCarousel = forwardRef(
             style={styles.image}
             height={height}
             priority="high"
+            showDebug={false}
           />
-
-          {/* Show image index if enabled */}
-          {/* {showIndex && (
-        <View style={styles.indexContainer}>
-          <Text style={styles.indexText}>{index + 1}/{memoizedImages.length}</Text>
-        </View>
-      )} */}
         </TouchableOpacity>
       ),
-      [itemWidth, height, onImagePress, showIndex, memoizedImages.length],
+      [itemWidth, height, onImagePress],
     );
 
     // Memoize flatlist configuration for stability
@@ -256,8 +260,8 @@ const CarImageCarousel = forwardRef(
         clearInterval(autoScrollTimerRef.current);
       }
 
-      // Only start auto-scroll if we have multiple images
-      if (memoizedImages.length > 1 && isMountedRef.current) {
+      // Only start auto-scroll if we have multiple images and not loading
+      if (memoizedImages.length > 1 && !isLoading && isMountedRef.current) {
         const startAutoScroll = () => {
           autoScrollTimerRef.current = setInterval(() => {
             if (!isUserInteractingRef.current && isMountedRef.current) {
@@ -276,7 +280,13 @@ const CarImageCarousel = forwardRef(
           clearInterval(autoScrollTimerRef.current);
         }
       };
-    }, [autoScrollInterval, activeIndex, memoizedImages.length, scrollToIndex]);
+    }, [
+      autoScrollInterval,
+      activeIndex,
+      memoizedImages.length,
+      scrollToIndex,
+      isLoading,
+    ]);
 
     // Handle user interaction
     const handleTouchStart = useCallback(() => {
@@ -289,7 +299,7 @@ const CarImageCarousel = forwardRef(
     const handleTouchEnd = useCallback(() => {
       isUserInteractingRef.current = false;
       // Restart auto-scroll
-      if (memoizedImages.length > 1 && isMountedRef.current) {
+      if (memoizedImages.length > 1 && !isLoading && isMountedRef.current) {
         autoScrollTimerRef.current = setInterval(() => {
           if (!isUserInteractingRef.current && isMountedRef.current) {
             const nextIndex = (activeIndex + 1) % memoizedImages.length;
@@ -297,7 +307,13 @@ const CarImageCarousel = forwardRef(
           }
         }, autoScrollInterval);
       }
-    }, [autoScrollInterval, activeIndex, memoizedImages.length, scrollToIndex]);
+    }, [
+      autoScrollInterval,
+      activeIndex,
+      memoizedImages.length,
+      scrollToIndex,
+      isLoading,
+    ]);
 
     // If no images or empty array, return null
     if (!memoizedImages || memoizedImages.length === 0) {
@@ -312,6 +328,7 @@ const CarImageCarousel = forwardRef(
             source={memoizedImages[0]}
             style={styles.image}
             resizeMode="cover"
+            showDebug={false}
           />
         </View>
       );

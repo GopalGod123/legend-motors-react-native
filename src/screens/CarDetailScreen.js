@@ -438,14 +438,14 @@ const CarDetailScreen = () => {
                   // If we've reached the end, switch tabs with delay
                   if (nextIndex === 0) {
                     // Use timeout to avoid state updates in the same tick
-                    // setTimeout(() => {
-                    //   const currentTab = activeTabRef.current;
-                    //   if (currentTab === 'exterior') {
-                    //     setActiveTab('interior');
-                    //   } else if (currentTab === 'interior') {
-                    //     setActiveTab('exterior');
-                    //   }
-                    // }, 0);
+                    setTimeout(() => {
+                      const currentTab = activeTabRef.current;
+                      if (currentTab === 'exterior') {
+                        setActiveTab('interior');
+                      } else if (currentTab === 'interior') {
+                        setActiveTab('exterior');
+                      }
+                    }, 500); // Add a small delay before switching tabs
                   }
                 }
               }, 0);
@@ -831,7 +831,13 @@ const CarDetailScreen = () => {
   };
 
   // Memoize carImages to ensure stable reference
-  const memoizedCarImages = useMemo(() => getAllImages(), [car, activeTab]);
+  const [memoizedCarImages, setMemoizedCarImages] = useState([]);
+
+  useEffect(() => {
+    setMemoizedCarImages(getAllImages());
+  }, [car, activeTab]);
+
+  // const memoizedCarImages = useMemo(() => getAllImages(), [car, activeTab]);
 
   const renderSpecification = (label, value) => {
     if (!value) return null;
@@ -1113,19 +1119,15 @@ const CarDetailScreen = () => {
                     onImagePress={handleImagePress}
                     initialIndex={selectedImageIndex}
                     onIndexChange={index => {
-                      // if (index !== selectedImageIndex) {
-                      // Only update if there's an actual change
-
                       setSelectedImageIndex(index);
-                      if (index == memoizedCarImages.length - 1) {
+                      if (index === memoizedCarImages.length - 1) {
                         setTimeout(() => {
                           setActiveTab(prev =>
-                            prev == 'exterior' ? 'interior' : 'exterior',
+                            prev === 'exterior' ? 'interior' : 'exterior',
                           );
-                          // setSelectedImageIndex(0);
+                          setSelectedImageIndex(0);
                         }, 2000);
                       }
-                      // }
                     }}
                     showIndex={true}
                   />

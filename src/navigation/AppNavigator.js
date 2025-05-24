@@ -61,7 +61,26 @@ const Stack = createNativeStackNavigator();
 const AppNavigator = () => {
   const {setUpNotification} = useCleverTap();
   const navigation = useNavigation();
+  const onNotificationReceived = async notification => {
+    const newNotification = {
+      ...notification,
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      const existing = await AsyncStorage.getItem('push_notifications');
+      const notifications = existing ? JSON.parse(existing) : [];
+      notifications.unshift(newNotification); // Add new to top
+      await AsyncStorage.setItem(
+        'push_notifications',
+        JSON.stringify(notifications),
+      );
+    } catch (e) {
+      console.error('Error storing notification:', e);
+    }
+  };
   const handleNotification = e => {
+    onNotificationReceived(e);
     switch (e.redirect) {
       case 'CarDetailScreen':
         navigation.navigate('CarDetailScreen', {carId: e.carId});

@@ -261,7 +261,8 @@
     "today": "Aujourd'hui",
     "offerAccepted": "Votre offre a été acceptée !",
     "congratsMessage": "Félicitations ! Votre offre a été acceptée par le vendeur pour 170 000 $",
-    "viewDetails": "Voir les Détails"
+    "viewDetails": "Voir les Détails",
+    "noNotifications": "Pas encore de notifications"
   },
   "notificationSettings": {
     "title": "Paramètres de Notification",
@@ -292,7 +293,7 @@
   },
   "resultsHeader": {
     "viewingCarDetails": "Affichage des détails de la voiture (ID: {carId})",
-    "resultsFor": "Résultats pour \"{searchQuery}\"",
+    "resultsFor": "Résultats pour ",
     "showingCars": "Affichage de voitures",
     "totalCars": "Total: voitures",
     "found": "trouvées",

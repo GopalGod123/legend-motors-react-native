@@ -260,7 +260,8 @@
     "today": "اليوم",
     "offerAccepted": "تم قبول عرضك!",
     "congratsMessage": "تهانينا! تم قبول عرضك من قبل البائع مقابل 170,000 دولار",
-    "viewDetails": "عرض التفاصيل"
+    "viewDetails": "عرض التفاصيل",
+    "noNotifications": "لا توجد إشعارات حتى الآن"
   },
   "notificationSettings": {
     "title": "إعدادات الإشعارات",
@@ -291,7 +292,7 @@
   },
   "resultsHeader": {
     "viewingCarDetails": "عرض تفاصيل السيارة (المعرف: {carId})",
-    "resultsFor": "نتائج البحث عن \"{searchQuery}\"",
+    "resultsFor": "نتائج البحث عن ",
     "showingCars": "عرض سيارات",
     "totalCars": "المجموع: سيارات",
     "found": "تم العثور على",
