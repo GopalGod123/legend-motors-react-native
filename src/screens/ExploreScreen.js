@@ -365,13 +365,7 @@ const ExploreScreen = () => {
     if (route.params?.filters) {
       // Completely reset previous filters when new ones are applied
       setAppliedFilters(route.params.filters);
-
-      // Reset other states that might be affected by previous filters
-      // setActiveFilter(
-      //   route.params.filters.brands && route.params.filters.brands.length > 0
-      //     ? 'brands'
-      //     : 'all',
-      // );
+      setSearchQuery('');
 
       // If we have a tag filter, update the active filter tab accordingly
       if (
@@ -399,199 +393,181 @@ const ExploreScreen = () => {
       } else {
         setCategoryTitle('');
       }
-    }
-    if (route.params?.search) {
+    } else if (route.params?.search) {
+      // Handle search params
       setSearchQuery(route.params.search);
+      setAppliedFilters({});
+      setCategoryTitle('');
+      setActiveFilter('all');
+    } else if (route.params?.carId) {
+      // Handle viewing specific car
+      setIsViewingSpecificCar(true);
+      fetchCarById(route.params.carId);
+    } else {
+      // Reset all states when no params are present
+      setSearchQuery('');
+      setAppliedFilters({});
+      setCategoryTitle('');
+      setActiveFilter('all');
     }
-  }, [route.params?.filters, route.params?.search, route.params?.title]);
+  }, [
+    JSON.stringify(route.params?.filters),
+    route.params?.search,
+    route.params?.title,
+    route.params?.carId,
+    isFocused,
+  ]);
 
-  // Define the fetchCars function first without dependencies
-  const fetchCars = useCallback(
-    async (newPage = 1, search = '') => {
-      if (!isAuthenticated) {
-        sendEventCleverTap(CLEVERTAP_EVENTS.BROWSING_AS_GUEST);
-      } else if (search || searchQuery) {
-        sendEventCleverTap(CLEVERTAP_EVENTS.SEARCH_CAR, {
-          search: search || searchQuery,
+  // Update the fetchCars function to handle pagination correctly
+  const fetchCars = async (newPage = 1, search = '') => {
+    if (!isAuthenticated) {
+      sendEventCleverTap(CLEVERTAP_EVENTS.BROWSING_AS_GUEST);
+    } else if (search || searchQuery) {
+      sendEventCleverTap(CLEVERTAP_EVENTS.SEARCH_CAR, {
+        search: search || searchQuery,
+      });
+    }
+
+    // Set loading states
+    if (newPage === 1) {
+      setLoading(true);
+      setCars([]);
+      setFilteredCars([]);
+      setAllCars([]);
+      colorStats.reset();
+    } else {
+      setLoadingMore(true);
+    }
+
+    try {
+      // Base API parameters
+      let params = {
+        page: newPage,
+        limit: PAGE_SIZE,
+        status: 'published',
+      };
+
+      if (search || searchQuery) {
+        params.search = (search || searchQuery)?.toLowerCase();
+      }
+
+      // Apply filters
+      if (appliedFilters?.brands && appliedFilters?.brands?.length > 0) {
+        if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
+          params.brandId = appliedFilters.brandIds.join(',');
+        }
+      }
+
+      if (appliedFilters?.models && appliedFilters?.models?.length > 0) {
+        if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
+          params.modelId = appliedFilters.modelIds.join(',');
+        }
+      }
+
+      if (appliedFilters?.trims && appliedFilters?.trims?.length > 0) {
+        if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
+          params.trimId = appliedFilters.trimIds.join(',');
+        }
+      }
+
+      if (appliedFilters?.years && appliedFilters?.years?.length > 0) {
+        if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
+          params.yearId = appliedFilters.yearIds.join(',');
+        }
+      }
+
+      if (appliedFilters?.minPrice) {
+        params.minPriceAED = appliedFilters.minPrice;
+      }
+      if (appliedFilters?.maxPrice) {
+        params.maxPriceAED = appliedFilters.maxPrice;
+      }
+
+      if (appliedFilters?.specifications) {
+        Object.keys(appliedFilters.specifications).forEach(key => {
+          if (appliedFilters.specifications[key].length > 0) {
+            if (key === 'tags') {
+              params.tags = appliedFilters.specifications[key].join(',');
+            } else {
+              params[key] = appliedFilters.specifications[key].join(',');
+            }
+          }
         });
       }
-      // Always set loading to true and clear existing cars when starting a new fetch
-      if (newPage === 1) setLoading(true);
-      else setLoadingMore(true);
 
-      if (newPage === 1) {
-        // Batch these state updates
-        setCars([]);
-        setFilteredCars([]);
-
-        // Reset color statistics when starting a new fetch
-        colorStats.reset();
-        console.log(
-          '🎨 [Color Extraction] Started new fetch - color statistics reset',
-        );
-      }
-
-      try {
-        // Check if any filters are applied
-
-        // Base API parameters
-        let params = {
-          page: newPage,
-          limit: PAGE_SIZE,
-          status: 'published',
+      if (appliedFilters?.priceRange) {
+        params = {
+          ...params,
+          ...appliedFilters.priceRange,
         };
-        if (search || searchQuery) {
-          params.search = (search || searchQuery)?.toLowerCase();
+      }
+
+      console.log(`Fetching cars with API params:`, JSON.stringify(params));
+      const response = await getCarList(params);
+
+      let carData = [];
+      let totalCount = 0;
+      let totalPages = 0;
+      let currentPage = newPage;
+
+      if (response) {
+        let pagination = null;
+        if (response.pagination) {
+          pagination = response.pagination;
+        } else if (response.data && response.data.pagination) {
+          pagination = response.data.pagination;
         }
 
-        if (appliedFilters?.brands && appliedFilters?.brands?.length > 0) {
-          if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
-            params.brandId = appliedFilters.brandIds.join(',');
-          }
+        if (pagination) {
+          totalCount = pagination.totalItems || 0;
+          totalPages = pagination.totalPages || 0;
+          currentPage = pagination.currentPage || newPage;
         }
 
-        // Convert model names to IDs if available
-        if (appliedFilters?.models && appliedFilters?.models?.length > 0) {
-          if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
-            params.modelId = appliedFilters.modelIds.join(',');
-          }
-        }
-
-        // Convert trim names to IDs if available
-        if (appliedFilters?.trims && appliedFilters?.trims?.length > 0) {
-          if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
-            params.trimId = appliedFilters.trimIds.join(',');
-          }
-        }
-
-        // Convert year values to IDs if available
-        if (appliedFilters?.years && appliedFilters?.years?.length > 0) {
-          if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
-            params.yearId = appliedFilters.yearIds.join(',');
-          }
-        }
-
-        // Other filters like price range
-        if (appliedFilters?.minPrice) {
-          params.minPriceAED = appliedFilters.minPrice;
-        }
-        if (appliedFilters?.maxPrice) {
-          params.maxPriceAED = appliedFilters.maxPrice;
-        }
-
-        // Handle specifications including tags
-        if (appliedFilters?.specifications) {
-          Object.keys(appliedFilters.specifications).forEach(key => {
-            if (appliedFilters.specifications[key].length > 0) {
-              // Special handling for tags
-              if (key === 'tags') {
-                params.tags = appliedFilters.specifications[key].join(',');
-              } else {
-                params[key] = appliedFilters.specifications[key].join(',');
-              }
-            }
-          });
-        }
-        if (appliedFilters?.priceRange) {
-          params = {
-            ...appliedFilters,
-            ...appliedFilters.priceRange,
-          };
-        }
-        console.log(`Fetching cars with API params:`, JSON.stringify(params));
-
-        // Get car data from API with filters applied
-        const response = await getCarList(params);
-
-        // Handle different API response structures
-        let carData = [];
-        let totalCount = 0;
-        let totalPages = 0;
-        let currentPage = newPage;
-
-        if (response) {
-          // Extract pagination information
-          let pagination = null;
-
-          // Check different response structures for pagination
-          if (response.pagination) {
-            pagination = response.pagination;
-          } else if (response.data && response.data.pagination) {
-            pagination = response.data.pagination;
-          }
-
-          // Extract pagination details if available
-          if (pagination) {
-            totalCount = pagination.totalItems || 0;
-            totalPages = pagination.totalPages || 0;
-            currentPage = pagination.currentPage || newPage;
-            console.log(
-              `Pagination info: Page ${currentPage} of ${totalPages}, Total items: ${totalCount}`,
-            );
-          }
-
-          // Extract car data from response
-          if (response.data && Array.isArray(response.data)) {
-            carData = response.data;
-            if (!totalCount) totalCount = response.data.length;
-          } else if (
-            response.data &&
-            response.data.data &&
-            Array.isArray(response.data.data)
-          ) {
-            carData = response.data.data;
-            if (!totalCount) totalCount = response.data.data.length;
-          } else if (response.data && Array.isArray(response.data.cars)) {
-            carData = response.data.cars;
-            if (!totalCount) totalCount = response.data.cars.length;
-            // Check if there's a "total" property
-            if (response.data.total) totalCount = response.data.total;
-          }
-        }
-
-        // Process car data to normalize it
-        const processedCars = carData
-          .filter(car => car) // Filter out undefined or null items
-          .map(car => processCar(car))
-          .filter(car => car); // Filter out any null results from processCar
-        // Store all cars
-        const newAllCars =
-          newPage === 1 ? processedCars : [...allCars, ...processedCars];
-
-        const hasMore = currentPage < totalPages;
-        // Batch all the state updates to avoid multiple re-renders
-        setCars([...newAllCars]);
-        setAllCars([...newAllCars]);
-        setFilteredCars([...newAllCars]);
-        setTotalCars(totalCount);
-        setHasMoreData(hasMore);
-        setPage(newPage);
-      } catch (error) {
-        console.error('Error fetching cars:', error);
-        // Use mock data in case of error
-
-        // Set empty states to prevent crashes
-        setCars([]);
-        setFilteredCars([]);
-        setTotalCars(0);
-        setHasMoreData(false);
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
-
-        // Print color statistics summary
-        if (newPage === 1) {
-          console.log(
-            '🎨 [Color Extraction] Finished processing cars - generating color statistics summary',
-          );
-          setTimeout(() => {
-            colorStats.printSummary();
-          }, 500); // Slight delay to ensure all console logs are in order
+        if (response.data && Array.isArray(response.data)) {
+          carData = response.data;
+        } else if (
+          response.data &&
+          response.data.data &&
+          Array.isArray(response.data.data)
+        ) {
+          carData = response.data.data;
+        } else if (response.data && Array.isArray(response.data.cars)) {
+          carData = response.data.cars;
         }
       }
-    },
-    [appliedFilters, searchQuery],
-  );
+
+      const processedCars = carData
+        .filter(car => car)
+        .map(car => processCar(car))
+        .filter(car => car);
+
+      // Update state based on whether this is a new page or loading more
+      if (newPage === 1) {
+        setCars(processedCars);
+        setAllCars(processedCars);
+        setFilteredCars(processedCars);
+      } else {
+        setCars(prevCars => [...prevCars, ...processedCars]);
+        setAllCars(prevCars => [...prevCars, ...processedCars]);
+        setFilteredCars(prevCars => [...prevCars, ...processedCars]);
+      }
+
+      setTotalCars(totalCount);
+      setHasMoreData(currentPage < totalPages);
+      setPage(currentPage);
+    } catch (error) {
+      console.error('Error fetching cars:', error);
+      setCars([]);
+      setFilteredCars([]);
+      setAllCars([]);
+      setTotalCars(0);
+      setHasMoreData(false);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
 
   // Store the function in ref for stable reference
   functionRef.current.fetchCars = fetchCars;
@@ -649,11 +625,10 @@ const ExploreScreen = () => {
           limit: 10,
           status: 'published',
         };
-        if (searchQuery) {
-          params.search = searchQuery?.toLowerCase();
-        }
+
         // Apply filters if any
         if (Object.keys(appliedFilters).length > 0) {
+          setSearchQuery('');
           // Only apply supported filter parameters to the API call
           if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
             params.brandId = appliedFilters.brandIds.join(',');
@@ -691,6 +666,8 @@ const ExploreScreen = () => {
             };
           }
           // Add other API parameters as needed
+        } else if (searchQuery) {
+          params.search = searchQuery?.toLowerCase();
         }
 
         console.log('Fetching cars with params:', JSON.stringify(params));
@@ -751,13 +728,19 @@ const ExploreScreen = () => {
     };
 
     // Call the function
-    if (isFocused) {
+    if (isFocused && Object.keys(appliedFilters).length > 0) {
       fetchCarsWithFilters();
+    } else if (isFocused) {
+      fetchCars(1, searchQuery);
     }
+    // if (!isFocused) {
+    //   setSearchQuery('');
+    //   setAppliedFilters({});
+    // }
     // }, 300); // 300ms debounce
 
     // return () => clearTimeout(timeoutId);
-  }, [appliedFilters, processCar, selectedLanguage, searchQuery, isFocused]); // Add processCar to dependencies
+  }, [appliedFilters, searchQuery, isFocused]); // Add processCar to dependencies
 
   // Fetch cars by model IDs
   const fetchCarsByModelIds = async modelIds => {
@@ -826,6 +809,7 @@ const ExploreScreen = () => {
   const handleSearchChange = useCallback(text => {
     if (text) {
       setSearchQuery(text);
+      setAppliedFilters({});
       functionRef.current.fetchCars(1, text);
     } else {
       setSearchQuery('');
@@ -1024,9 +1008,9 @@ const ExploreScreen = () => {
     );
 
     // Preserve search query if we're currently searching
-    if (searchQuery) {
-      filters.search = searchQuery;
-    }
+    // if (searchQuery) {
+    //   filters.search = searchQuery;
+    // }
 
     // Additional validation for specifications
     if (filters.specifications) {
@@ -1053,6 +1037,7 @@ const ExploreScreen = () => {
         onApplyCallback: newFilters => {
           // Update filters state
           setAppliedFilters(newFilters);
+          setSearchQuery('');
 
           // The useEffect hook will automatically trigger a fetch with new filters
         },
@@ -1174,8 +1159,9 @@ const ExploreScreen = () => {
     setActiveFilter('all');
     setSearchQuery('');
     setCategoryTitle('');
-    functionRef.current.fetchCars(1);
-    navigation.setParams({filters: undefined});
+    // functionRef.current.fetchCars();
+    fetchCars();
+    navigation.setParams({filters: {}});
   };
 
   // Handle filter tab selection
@@ -1245,227 +1231,233 @@ const ExploreScreen = () => {
   };
 
   // Add search functionality effect with debounced query
-  useEffect(() => {
-    // Reference the processCar function
-    const processCarData = processCar;
+  // useEffect(() => {
+  //   // Reference the processCar function
+  //   const processCarData = processCar;
 
-    // Skip if no search query or if this is the first render
-    if (isFirstRender.current || debouncedSearchQuery.trim() === '') {
-      // If clearing search but we were previously filtered, reset data
-      if (
-        isFirstRender.current === false &&
-        filteredBySearch &&
-        debouncedSearchQuery.trim() === ''
-      ) {
-        setFilteredBySearch(false);
+  //   // Skip if no search query or if this is the first render
+  //   if (isFirstRender.current || debouncedSearchQuery.trim() === '') {
+  //     // If clearing search but we were previously filtered, reset data
+  //     if (
+  //       isFirstRender.current === false &&
+  //       filteredBySearch &&
+  //       debouncedSearchQuery.trim() === ''
+  //     ) {
+  //       setFilteredBySearch(false);
 
-        // Use the debounce to avoid immediate re-fetch
-        const resetTimeoutId = setTimeout(() => {
-          setLoading(true);
-          // Fetch cars with current filters
-          const resetParams = {
-            page: 1,
-            limit: 100,
-            status: 'published',
-          };
+  //       // Use the debounce to avoid immediate re-fetch
+  //       const resetTimeoutId = setTimeout(() => {
+  //         setLoading(true);
+  //         // Fetch cars with current filters
+  //         const resetParams = {
+  //           page: 1,
+  //           limit: 100,
+  //           status: 'published',
+  //         };
 
-          // Apply existing filters
-          if (Object.keys(appliedFilters).length > 0) {
-            if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
-              resetParams.brandId = appliedFilters.brandIds.join(',');
-            }
-            // Add other filter parameters...
-          }
+  //         // Apply existing filters
+  //         if (Object.keys(appliedFilters).length > 0) {
+  //           if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
+  //             resetParams.brandId = appliedFilters.brandIds.join(',');
+  //           }
+  //           // Add other filter parameters...
+  //         }
 
-          getCarList(resetParams)
-            .then(response => {
-              // Process response
-              let carData = [];
-              if (response && response.data) {
-                if (Array.isArray(response.data)) {
-                  carData = response.data;
-                } else if (
-                  response.data.data &&
-                  Array.isArray(response.data.data)
-                ) {
-                  carData = response.data.data;
-                } else if (Array.isArray(response.data.cars)) {
-                  carData = response.data.cars;
-                }
-              }
+  //         getCarList(resetParams)
+  //           .then(response => {
+  //             // Process response
+  //             let carData = [];
+  //             if (response && response.data) {
+  //               if (Array.isArray(response.data)) {
+  //                 carData = response.data;
+  //               } else if (
+  //                 response.data.data &&
+  //                 Array.isArray(response.data.data)
+  //               ) {
+  //                 carData = response.data.data;
+  //               } else if (Array.isArray(response.data.cars)) {
+  //                 carData = response.data.cars;
+  //               }
+  //             }
 
-              // Process cars using the referenced function
-              const processedCars = carData
-                .filter(car => car)
-                .map(processCarData)
-                .filter(car => car);
+  //             // Process cars using the referenced function
+  //             const processedCars = carData
+  //               .filter(car => car)
+  //               .map(processCarData)
+  //               .filter(car => car);
 
-              // Update state in one batch
-              setCars(processedCars);
-              setFilteredCars(processedCars);
-              setAllCars(processedCars);
-              setTotalCars(processedCars.length);
-              setPage(1);
-              setHasMoreData(false);
-              setLoading(false);
-            })
-            .catch(err => {
-              console.error('Error resetting search:', err);
-              setLoading(false);
-            });
-        }, 300);
+  //             // Update state in one batch
+  //             setCars(processedCars);
+  //             setFilteredCars(processedCars);
+  //             setAllCars(processedCars);
+  //             setTotalCars(processedCars.length);
+  //             setPage(1);
+  //             setHasMoreData(false);
+  //             setLoading(false);
+  //           })
+  //           .catch(err => {
+  //             console.error('Error resetting search:', err);
+  //             setLoading(false);
+  //           });
+  //       }, 300);
 
-        return () => clearTimeout(resetTimeoutId);
-      }
-      return;
-    }
+  //       return () => clearTimeout(resetTimeoutId);
+  //     }
+  //     return;
+  //   }
 
-    // If we have a search query, use debouncing for better UX
-    const searchTimeoutId = setTimeout(() => {
-      // Perform search
-      setLoading(true);
-      setFilteredBySearch(true);
-      setCarIds([]);
-      setSearchedModels([]);
+  //   // If we have a search query, use debouncing for better UX
+  //   const searchTimeoutId = setTimeout(() => {
+  //     // Perform search
+  //     setLoading(true);
+  //     setFilteredBySearch(true);
+  //     setCarIds([]);
+  //     setSearchedModels([]);
 
-      try {
-        // Validate query
-        const trimmedQuery = debouncedSearchQuery.trim();
-        if (trimmedQuery.length < 2) {
-          console.log('Search query too short, minimum 2 characters required');
-          setCars([]);
-          setTotalCars(0);
-          setHasMoreData(false);
-          setLoading(false);
-          return;
-        }
+  //     try {
+  //       // Validate query
+  //       const trimmedQuery = debouncedSearchQuery.trim();
+  //       if (trimmedQuery.length < 2) {
+  //         console.log('Search query too short, minimum 2 characters required');
+  //         setCars([]);
+  //         setTotalCars(0);
+  //         setHasMoreData(false);
+  //         setLoading(false);
+  //         return;
+  //       }
 
-        // Search API can continue as before...
-        console.log(`Performing search with query: "${trimmedQuery}"`);
+  //       // Search API can continue as before...
+  //       console.log(`Performing search with query: "${trimmedQuery}"`);
 
-        // Rest of the search implementation...
-        searchCarModels(trimmedQuery)
-          .then(modelSearchResults => {
-            // Process search results as before
-            if (
-              modelSearchResults.success &&
-              modelSearchResults.data &&
-              modelSearchResults.data.length > 0
-            ) {
-              // Process model results
-              setSearchedModels(modelSearchResults.data);
+  //       // Rest of the search implementation...
+  //       searchCarModels(trimmedQuery)
+  //         .then(modelSearchResults => {
+  //           // Process search results as before
+  //           if (
+  //             modelSearchResults.success &&
+  //             modelSearchResults.data &&
+  //             modelSearchResults.data.length > 0
+  //           ) {
+  //             // Process model results
+  //             setSearchedModels(modelSearchResults.data);
 
-              // Extract IDs
-              const modelIds = modelSearchResults.data.map(model => model.id);
-              setCarIds(modelIds);
+  //             // Extract IDs
+  //             const modelIds = modelSearchResults.data.map(model => model.id);
+  //             setCarIds(modelIds);
 
-              // Continue with existing search logic - use the modelIds to fetch cars
-              const params = {
-                modelId: modelIds.join(','),
-                page: 1,
-                limit: 50,
-                status: 'published',
-              };
+  //             // Continue with existing search logic - use the modelIds to fetch cars
+  //             const params = {
+  //               modelId: modelIds.join(','),
+  //               page: 1,
+  //               limit: 50,
+  //               status: 'published',
+  //             };
 
-              // Fetch cars using the model IDs
-              getCarList(params)
-                .then(response => {
-                  let carData = [];
-                  if (response && response.data) {
-                    if (Array.isArray(response.data)) {
-                      carData = response.data;
-                    } else if (
-                      response.data.data &&
-                      Array.isArray(response.data.data)
-                    ) {
-                      carData = response.data.data;
-                    } else if (Array.isArray(response.data.cars)) {
-                      carData = response.data.cars;
-                    }
-                  }
+  //             // Fetch cars using the model IDs
+  //             getCarList(params)
+  //               .then(response => {
+  //                 let carData = [];
+  //                 if (response && response.data) {
+  //                   if (Array.isArray(response.data)) {
+  //                     carData = response.data;
+  //                   } else if (
+  //                     response.data.data &&
+  //                     Array.isArray(response.data.data)
+  //                   ) {
+  //                     carData = response.data.data;
+  //                   } else if (Array.isArray(response.data.cars)) {
+  //                     carData = response.data.cars;
+  //                   }
+  //                 }
 
-                  // Process cars using the referenced function
-                  const processedCars = carData
-                    .filter(car => car)
-                    .map(processCarData)
-                    .filter(car => car);
+  //                 // Process cars using the referenced function
+  //                 const processedCars = carData
+  //                   .filter(car => car)
+  //                   .map(processCarData)
+  //                   .filter(car => car);
 
-                  // Update state
-                  setCars(processedCars);
-                  setTotalCars(processedCars.length);
-                  setHasMoreData(false);
-                  setLoading(false);
-                })
-                .catch(err => {
-                  console.error('Error fetching cars for models:', err);
-                  setCars([]);
-                  setTotalCars(0);
-                  setHasMoreData(false);
-                  setLoading(false);
-                });
-            } else {
-              console.log('Falling back to direct car search');
-              // Fall back to direct search
-              searchCars(trimmedQuery)
-                .then(carSearchResults => {
-                  if (
-                    carSearchResults.success &&
-                    carSearchResults.data &&
-                    carSearchResults.data.length > 0
-                  ) {
-                    const processedCars = carSearchResults.data
-                      .filter(car => car)
-                      .map(processCarData)
-                      .filter(car => car);
+  //                 // Update state
+  //                 setCars(processedCars);
+  //                 setTotalCars(processedCars.length);
+  //                 setHasMoreData(false);
+  //                 setLoading(false);
+  //               })
+  //               .catch(err => {
+  //                 console.error('Error fetching cars for models:', err);
+  //                 setCars([]);
+  //                 setTotalCars(0);
+  //                 setHasMoreData(false);
+  //                 setLoading(false);
+  //               });
+  //           } else {
+  //             console.log('Falling back to direct car search');
+  //             // Fall back to direct search
+  //             searchCars(trimmedQuery)
+  //               .then(carSearchResults => {
+  //                 if (
+  //                   carSearchResults.success &&
+  //                   carSearchResults.data &&
+  //                   carSearchResults.data.length > 0
+  //                 ) {
+  //                   const processedCars = carSearchResults.data
+  //                     .filter(car => car)
+  //                     .map(processCarData)
+  //                     .filter(car => car);
 
-                    setCars(processedCars);
-                    setTotalCars(processedCars.length);
-                    setHasMoreData(false);
-                    setLoading(false);
-                  } else {
-                    setCars([]);
-                    setTotalCars(0);
-                    setHasMoreData(false);
-                    setLoading(false);
-                  }
-                })
-                .catch(err => {
-                  console.error('Error searching cars directly:', err);
-                  setCars([]);
-                  setTotalCars(0);
-                  setHasMoreData(false);
-                  setLoading(false);
-                });
-            }
-          })
-          .catch(err => {
-            console.error('Search error:', err);
-            setCars([]);
-            setTotalCars(0);
-            setHasMoreData(false);
-            setLoading(false);
-          });
-      } catch (error) {
-        console.error('Error in search:', error);
-        setLoading(false);
-      }
-    }, 500); // Longer debounce for search
+  //                   setCars(processedCars);
+  //                   setTotalCars(processedCars.length);
+  //                   setHasMoreData(false);
+  //                   setLoading(false);
+  //                 } else {
+  //                   setCars([]);
+  //                   setTotalCars(0);
+  //                   setHasMoreData(false);
+  //                   setLoading(false);
+  //                 }
+  //               })
+  //               .catch(err => {
+  //                 console.error('Error searching cars directly:', err);
+  //                 setCars([]);
+  //                 setTotalCars(0);
+  //                 setHasMoreData(false);
+  //                 setLoading(false);
+  //               });
+  //           }
+  //         })
+  //         .catch(err => {
+  //           console.error('Search error:', err);
+  //           setCars([]);
+  //           setTotalCars(0);
+  //           setHasMoreData(false);
+  //           setLoading(false);
+  //         });
+  //     } catch (error) {
+  //       console.error('Error in search:', error);
+  //       setLoading(false);
+  //     }
+  //   }, 500); // Longer debounce for search
 
-    return () => clearTimeout(searchTimeoutId);
-  }, [debouncedSearchQuery, filteredBySearch, appliedFilters, processCar]); // Add processCar to dependencies
+  //   return () => clearTimeout(searchTimeoutId);
+  // }, [debouncedSearchQuery, filteredBySearch, appliedFilters, processCar]); // Add processCar to dependencies
 
-  // Replace the loadMoreData function to use direct approach
+  // Update loadMoreData function
   const loadMoreData = useCallback(() => {
     if (loadingMore || !hasMoreData) return;
 
-    // Calculate the next page
     const nextPage = page + 1;
-    console.log(`Loading more data, page ${nextPage}`, searchQuery);
+    console.log(`Loading more data, page ${nextPage}`);
 
-    // Use the fetchCars function to load the next page
     setLoadingMore(true);
-    functionRef.current.fetchCars(nextPage, searchQuery);
-  }, [page, loadingMore, hasMoreData, functionRef]);
+    fetchCars(nextPage, searchQuery);
+  }, [page, loadingMore, hasMoreData, fetchCars, searchQuery]);
+
+  // Update the FlatList component's onEndReached handler
+  const handleEndReached = useCallback(() => {
+    if (!endMoment && hasMoreData && !loadingMore) {
+      setEndMoment(true);
+      loadMoreData();
+    }
+  }, [endMoment, hasMoreData, loadingMore, loadMoreData]);
 
   return (
     <SafeAreaView
@@ -1563,12 +1555,7 @@ const ExploreScreen = () => {
             contentContainerStyle={styles.carsList}
             showsVerticalScrollIndicator={false}
             onMomentumScrollBegin={() => setEndMoment(false)}
-            onEndReached={() => {
-              if (!endMoment) {
-                setEndMoment(true);
-                if (hasMoreData) loadMoreData();
-              }
-            }}
+            onEndReached={handleEndReached}
             onEndReachedThreshold={0.5}
             initialNumToRender={10}
             maxToRenderPerBatch={5}

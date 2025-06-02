@@ -827,7 +827,14 @@ const EnquiryFormScreen = () => {
             animationType="fade"
             onRequestClose={handleSuccessModalClose}>
             <TouchableOpacity
-              style={styles.successModalOverlay}
+              style={[
+                styles.successModalOverlay,
+                // {
+                //   backgroundColor: isDark
+                //     ? 'rgba(255,255,255,0.7)'
+                //     : 'rgba(0,0,0,0.7)',
+                // },
+              ]}
               activeOpacity={1}
               onPress={handleSuccessModalClose}>
               <View
@@ -906,7 +913,7 @@ const EnquiryFormScreen = () => {
             animationType="fade"
             onRequestClose={handleAlreadySubmittedModalClose}>
             <TouchableOpacity
-              style={styles.successModalOverlay}
+              style={[styles.successModalOverlay]}
               activeOpacity={1}
               onPress={handleAlreadySubmittedModalClose}>
               <View
@@ -1290,7 +1297,7 @@ const styles = StyleSheet.create({
   },
   successModalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(107, 101, 101, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },

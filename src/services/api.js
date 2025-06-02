@@ -49,15 +49,16 @@ api.interceptors.request.use(
     return Promise.reject(error);
   },
 );
-// api.interceptors.response.use(
-//   response => {
-//     return response;
-//   },
-//   error => {
-//     console.log('Error response:', error);
-//     return Promise.reject(error);
-//   },
-// );
+api.interceptors.response.use(
+  response => {
+    return response;
+  },
+  error => {
+    console.log('Error response:', error);
+    console.log('Error response data:', error?.response?.data);
+    return Promise.reject(error);
+  },
+);
 
 export const requestOTP = async email => {
   try {

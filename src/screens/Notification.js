@@ -28,7 +28,7 @@ const Notification = () => {
     const stored = await AsyncStorage.getItem('push_notifications');
     return stored ? JSON.parse(stored) : [];
   };
-  const renderNotification = () => {
+  const renderNotification = ({item}) => {
     return (
       <View>
         <Text style={[styles.sectionHeader, {color: themeColors[theme].text}]}>
@@ -48,12 +48,12 @@ const Notification = () => {
           </View>
           <View style={styles.textContainer}>
             <Text style={[styles.title, {color: themeColors[theme].text}]}>
-              {t('notifications.offerAccepted')}
+              {item?.title}
             </Text>
             <Text style={[styles.message, {color: isDark ? '#aaa' : '#666'}]}>
-              {t('notifications.congratsMessage')}
+              {item?.message}
             </Text>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[
                 styles.button,
                 {borderColor: themeColors[theme].primary},
@@ -65,7 +65,7 @@ const Notification = () => {
                 ]}>
                 {t('notifications.viewDetails')}
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       </View>
@@ -97,7 +97,9 @@ const Notification = () => {
         ListEmptyComponent={
           <View
             style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Text>{t('notifications.noNotifications')}</Text>
+            <Text style={{color: isDark ? '#fff' : '#000'}}>
+              {t('notifications.noNotifications')}
+            </Text>
           </View>
         }
         style={{flex: 1}}

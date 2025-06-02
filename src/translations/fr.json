@@ -28,7 +28,8 @@
     "viewCar": "Voir la voiture",
     "confirm": "Confirmer",
     "continue": "Continuer",
-    "cars": "Voitures"
+    "cars": "Voitures",
+    "close": "Fermer"
   },
   "auth": {
     "login": "Connexion",

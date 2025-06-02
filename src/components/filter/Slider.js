@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, StyleSheet, Text, Dimensions, Platform} from 'react-native';
 import {GestureDetector, Gesture} from 'react-native-gesture-handler';
 import Animated, {
@@ -14,11 +14,64 @@ const SLIDER_HEIGHT =
     ? Dimensions.get('window').height * 0.55
     : Dimensions.get('window').height * 0.4;
 const HANDLE_SIZE = 30;
-const DAMPING = 0.06; // Reduced from 0.3 to make movement more controlled
+const DAMPING = 0.07;
 
-const VerticalRangeSlider = ({min = 0, max = 100, onChange}) => {
+const VerticalRangeSlider = ({
+  min = 0,
+  max = 100,
+  onChange,
+  currentMin,
+  currentMax,
+}) => {
   const lowerThumbY = useSharedValue(SLIDER_HEIGHT - HANDLE_SIZE);
   const upperThumbY = useSharedValue(0);
+
+  // Initialize slider positions based on current values
+  useEffect(() => {
+    if (currentMin !== undefined && currentMax !== undefined) {
+      const range = max - min;
+      const newLowerY =
+        SLIDER_HEIGHT -
+        HANDLE_SIZE -
+        ((currentMin - min) / range) * (SLIDER_HEIGHT - HANDLE_SIZE);
+      const newUpperY =
+        SLIDER_HEIGHT -
+        HANDLE_SIZE -
+        ((currentMax - min) / range) * (SLIDER_HEIGHT - HANDLE_SIZE);
+
+      lowerThumbY.value = newLowerY;
+      upperThumbY.value = newUpperY;
+    }
+  }, []);
+
+  // Update slider positions when currentMin or currentMax changes
+  useEffect(() => {
+    if (currentMin !== undefined && currentMax !== undefined) {
+      const range = max - min;
+      const newLowerY =
+        SLIDER_HEIGHT -
+        HANDLE_SIZE -
+        ((currentMin - min) / range) * (SLIDER_HEIGHT - HANDLE_SIZE);
+      const newUpperY =
+        SLIDER_HEIGHT -
+        HANDLE_SIZE -
+        ((currentMax - min) / range) * (SLIDER_HEIGHT - HANDLE_SIZE);
+
+      lowerThumbY.value = withSpring(newLowerY, {
+        damping: 15,
+        stiffness: 50,
+        mass: 1.5,
+        overshootClamping: true,
+      });
+
+      upperThumbY.value = withSpring(newUpperY, {
+        damping: 15,
+        stiffness: 50,
+        mass: 1.5,
+        overshootClamping: true,
+      });
+    }
+  }, [currentMin, currentMax]);
 
   const clamp = (value, minValue, maxValue) => {
     'worklet';
@@ -57,7 +110,6 @@ const VerticalRangeSlider = ({min = 0, max = 100, onChange}) => {
       updateRange();
     })
     .onEnd(() => {
-      // Apply spring animation when gesture ends for smooth deceleration
       lowerThumbY.value = withSpring(lowerThumbY.value, {
         damping: 15,
         stiffness: 50,
@@ -75,7 +127,6 @@ const VerticalRangeSlider = ({min = 0, max = 100, onChange}) => {
       updateRange();
     })
     .onEnd(() => {
-      // Apply spring animation when gesture ends for smooth deceleration
       upperThumbY.value = withSpring(upperThumbY.value, {
         damping: 15,
         stiffness: 50,

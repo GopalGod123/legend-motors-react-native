@@ -29,6 +29,7 @@ import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
 import {Ionicons} from '../utils/icon';
 import {COLORS} from 'src/utils/constants';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const FillProfileScreen = () => {
   const navigation = useNavigation();
@@ -56,6 +57,8 @@ const FillProfileScreen = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   const [sso, setSso] = useState(false);
 
   const [datePickerValue, setDatePickerValue] = useState({
@@ -431,7 +434,6 @@ const FillProfileScreen = () => {
       } else {
         console.error('No image ID in upload response:', uploadResult);
       }
-
     } catch (error) {
       console.error('Profile image upload error:', error);
       Alert.alert(
@@ -443,14 +445,17 @@ const FillProfileScreen = () => {
     }
   };
 
-  const handleDateChange = () => {
+  const handleDateChange = date => {
     setShowDateModal(false);
-    const newDate = new Date(
-      datePickerValue.year,
-      datePickerValue.month - 1,
-      datePickerValue.day,
-    );
-    setFormData(prev => ({...prev, dateOfBirth: newDate}));
+    // Format the date as MM/DD/YYYY for display
+    const formattedDate = `${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}/${date
+      .getDate()
+      .toString()
+      .padStart(2, '0')}/${date.getFullYear()}`;
+    console.log('formattedDate', formattedDate);
+    setFormData(prev => ({...prev, dateOfBirth: formattedDate}));
   };
 
   const handleSubmit = async () => {
@@ -459,7 +464,7 @@ const FillProfileScreen = () => {
     try {
       setLoading(true);
 
-      const formattedDate = formData.dateOfBirth.toISOString().split('T')[0];
+      // const formattedDate = formData.dateOfBirth.toISOString().split('T')[0];
 
       const formattedPhone = formData.phone.startsWith('+')
         ? formData.phone
@@ -473,7 +478,7 @@ const FillProfileScreen = () => {
       const registrationData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
-        dateOfBirth: formattedDate,
+        dateOfBirth: formData.dateOfBirth,
         phone: formattedPhone,
         location: formData.location || null,
         gender: gender || null,
@@ -485,13 +490,19 @@ const FillProfileScreen = () => {
 
       // Add just the image ID if available
       if (tempProfileImageId) {
-        console.log('Adding profileImage ID to registration data:', tempProfileImageId);
+        console.log(
+          'Adding profileImage ID to registration data:',
+          tempProfileImageId,
+        );
         registrationData.profileImage = tempProfileImageId; // Just passing the ID
       } else {
         console.log('No tempProfileImageId available for registration');
       }
 
-      console.log('Final registration payload:', JSON.stringify(registrationData));
+      console.log(
+        'Final registration payload:',
+        JSON.stringify(registrationData),
+      );
 
       if (sso) {
         delete registrationData.registrationToken;
@@ -499,9 +510,9 @@ const FillProfileScreen = () => {
       const response = sso
         ? await updateUserProfile(registrationData)
         : await registerUser(registrationData);
-      
+
       console.log('Registration/Update response:', response);
-      
+
       sendEventCleverTap(CLEVERTAP_EVENTS.PROFILE_UPDATE);
 
       // If registration is successful, store the registration token in route params
@@ -545,14 +556,14 @@ const FillProfileScreen = () => {
       );
     } catch (error) {
       console.error('Registration error:', error);
-      
+
       // Log more detailed error information
       if (error.response) {
         console.error('Error Response Data:', error.response.data);
         console.error('Error Response Status:', error.response.status);
         console.error('Error Response Headers:', error.response.headers);
       }
-      
+
       Alert.alert('Registration Failed', error.toString());
     } finally {
       setLoading(false);
@@ -798,7 +809,7 @@ const FillProfileScreen = () => {
             <TextInput
               style={[styles.input, isDark && styles.inputDark]}
               placeholder={t('auth.dateOfBirth')}
-              value={formatDate(formData.dateOfBirth)}
+              value={formData.dateOfBirth}
               editable={false}
               placeholderTextColor={'#666666'}
             />
@@ -948,16 +959,40 @@ const FillProfileScreen = () => {
 
         {renderCountryCodeDropdown()}
         {renderLocationDropdown()}
-
+        {showDateModal && Platform.OS === 'android' ? (
+          <DateTimePicker
+            value={selectedDate}
+            textColor={isDark ? '#FFFFFF' : '#000000'}
+            dateFormat="MM/DD/YYYY"
+            mode="date"
+            display={'default'}
+            onChange={(event, date) => {
+              setSelectedDate(date);
+              if (Platform.OS === 'android') {
+                handleDateChange(date);
+              }
+            }}
+          />
+        ) : null}
         <Modal
-          visible={showDateModal}
+          visible={showDateModal && Platform.OS === 'ios'}
           transparent={true}
           animationType="slide"
           onRequestClose={() => setShowDateModal(false)}>
           <View style={styles.modalOverlay}>
             <View
               style={[styles.modalContent, isDark && styles.modalContentDark]}>
-              <View style={styles.modalHeader}>
+              <DateTimePicker
+                value={selectedDate}
+                textColor={isDark ? '#FFFFFF' : '#000000'}
+                dateFormat="MM/DD/YYYY"
+                mode="date"
+                display="spinner"
+                onChange={(event, date) => {
+                  setSelectedDate(date);
+                }}
+              />
+              {/* <View style={styles.modalHeader}>
                 <Text style={[styles.modalTitle, isDark && styles.textDark]}>
                   {t('auth.selectDateOfBirth')}
                 </Text>
@@ -1055,11 +1090,11 @@ const FillProfileScreen = () => {
                     ))}
                   </Picker>
                 </View>
-              </View>
+              </View> */}
 
               <TouchableOpacity
                 style={styles.confirmButton}
-                onPress={handleDateChange}>
+                onPress={() => handleDateChange(selectedDate)}>
                 <Text style={styles.confirmButtonText}>
                   {t('common.confirm')}
                 </Text>

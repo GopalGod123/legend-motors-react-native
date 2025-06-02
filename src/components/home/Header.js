@@ -51,6 +51,16 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
     setSelectedCurrency(currency);
   };
   const navigation = useNavigation();
+  const getProfileImageUrl = () => {
+    if (user && user.profileImage) {
+      const image = user.profileImage;
+
+      return `https://cdn.staging.legendmotorsglobal.com${image.path}`;
+    } else {
+      return null;
+      // return 'https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png';
+    }
+  };
   return (
     <View style={styles.header}>
       <View style={styles.profileSection}>
@@ -58,11 +68,19 @@ const Header = ({user, onSettingsPress, onWishlistPress}) => {
           onPress={() => {
             navigation.navigate('ProfileTab');
           }}>
-          <ImagePlaceholder
-            img={require('../../assets/images/profile.jpg')}
-            style={styles.profileImage}
-            color={isDark ? '#3D3D3D' : '#ccd'}
-          />
+          {getProfileImageUrl() ? (
+            <ImagePlaceholder
+              img={{uri: getProfileImageUrl()}}
+              style={styles.profileImage}
+              color={isDark ? '#3D3D3D' : '#ccd'}
+            />
+          ) : (
+            <ImagePlaceholder
+              img={require('../../assets/images/profile.jpg')}
+              style={styles.profileImage}
+              color={isDark ? '#3D3D3D' : '#ccd'}
+            />
+          )}
         </TouchableOpacity>
         <View style={styles.greetingSection}>
           <Text

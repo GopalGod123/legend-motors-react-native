@@ -566,6 +566,7 @@ const ProfileScreen = () => {
       // Call context logout
       await logout();
       clearWishlist();
+      AsyncStorage.removeItem('push_notifications');
       //sso - signout
       let ssoUser = getAuth().currentUser;
       if (ssoUser) {
@@ -610,8 +611,8 @@ const ProfileScreen = () => {
     if (user && user.profileImage) {
       const image = user.profileImage;
       console.log('image', image);
-      console.log('https://cdn.legendmotorsglobal.com' + image.path);
-      return `https://cdn.legendmotorsglobal.com${image.path}`;
+      console.log('https://cdn.staging.legendmotorsglobal.com' + image.path);
+      return `https://cdn.staging.legendmotorsglobal.com${image.path}`;
       // Try different image paths
       const imagePath =
         image.webp || image.original || image.thumbnailPath || image.path;

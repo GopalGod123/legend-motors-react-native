@@ -7,7 +7,43 @@ import {COLORS} from 'src/utils/constants';
 const PriceRangeSelector = ({onSelectItem}) => {
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(700);
+  const [minInput, setMinInput] = useState('0');
+  const [maxInput, setMaxInput] = useState('700');
   const {isDark} = useTheme();
+
+  const handleMinInputChange = text => {
+    // Remove any non-numeric characters and $ and K
+    const numericValue = text.replace(/[^0-9]/g, '');
+    setMinInput(numericValue);
+
+    const newValue = parseInt(numericValue) || 0;
+    // Ensure value is between 0 and maxValue
+    const clampedValue = Math.min(Math.max(0, newValue), maxValue);
+    setMinValue(clampedValue);
+    onSelectItem({min: clampedValue, max: maxValue});
+  };
+
+  const handleMaxInputChange = text => {
+    // Remove any non-numeric characters and $ and K
+    const numericValue = text.replace(/[^0-9]/g, '');
+    setMaxInput(numericValue);
+
+    const newValue = parseInt(numericValue) || 0;
+    // Ensure value is between minValue and 700
+    const clampedValue = Math.min(Math.max(minValue, newValue), 700);
+    setMaxValue(clampedValue);
+    onSelectItem({min: minValue, max: clampedValue});
+  };
+
+  const handleMinBlur = () => {
+    // Ensure the displayed value matches the actual minValue
+    setMinInput(minValue.toString());
+  };
+
+  const handleMaxBlur = () => {
+    // Ensure the displayed value matches the actual maxValue
+    setMaxInput(maxValue.toString());
+  };
 
   return (
     <View style={[styles.container, isDark && styles.containerDark]}>
@@ -17,17 +53,31 @@ const PriceRangeSelector = ({onSelectItem}) => {
           Price Range
         </Text>
         <View style={styles.inputRow}>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            value={`$ ${minValue}K`}
-            editable={false}
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.currencySymbol}>$</Text>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              value={minInput}
+              onChangeText={handleMinInputChange}
+              onBlur={handleMinBlur}
+              keyboardType="numeric"
+              maxLength={4}
+            />
+            <Text style={styles.unitSymbol}>K</Text>
+          </View>
           <Text style={[styles.to, isDark && styles.toDark]}> - </Text>
-          <TextInput
-            style={[styles.input, isDark && styles.inputDark]}
-            value={`$ ${maxValue}K`}
-            editable={false}
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.currencySymbol}>$</Text>
+            <TextInput
+              style={[styles.input, isDark && styles.inputDark]}
+              value={maxInput}
+              onChangeText={handleMaxInputChange}
+              onBlur={handleMaxBlur}
+              keyboardType="numeric"
+              maxLength={4}
+            />
+            <Text style={styles.unitSymbol}>K</Text>
+          </View>
         </View>
       </View>
 
@@ -37,9 +87,13 @@ const PriceRangeSelector = ({onSelectItem}) => {
           <Slider
             min={0}
             max={700}
+            currentMin={minValue}
+            currentMax={maxValue}
             onChange={({min, max}) => {
               setMinValue(min);
               setMaxValue(max);
+              setMinInput(min.toString());
+              setMaxInput(max.toString());
               onSelectItem({min, max});
             }}
           />
@@ -78,22 +132,37 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  input: {
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#FCEED4',
     borderRadius: 8,
-    padding: 10,
-    width: 80,
-    textAlign: 'center',
-    fontWeight: 'bold',
     borderWidth: 1,
     borderColor: '#EAE3D8',
+  },
+  input: {
+    padding: 10,
+    width: 60,
+    textAlign: 'center',
+    fontWeight: 'bold',
     color: '#333333',
   },
   inputDark: {
     backgroundColor: '#3D3D3D',
     borderColor: '#4D4D4D',
     color: '#FFFFFF',
+  },
+  currencySymbol: {
+    paddingLeft: 10,
+    fontWeight: 'bold',
+    color: '#333333',
+  },
+  unitSymbol: {
+    paddingRight: 10,
+    fontWeight: 'bold',
+    color: '#333333',
   },
   to: {
     marginHorizontal: 5,

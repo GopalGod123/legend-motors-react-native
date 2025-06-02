@@ -27,6 +27,7 @@ import {useCountryCodes} from '../context/CountryCodesContext';
 import {useCurrencyLanguage} from '../context/CurrencyLanguageContext';
 import BackArrow from '../components/BackArrow';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 // Back Arrow Icon
 const BackIcon = () => {
@@ -128,6 +129,7 @@ const EditProfileScreen = () => {
   // Replace modals with dropdown states
   const [openDropdown, setOpenDropdown] = useState(null);
   const [showDateModal, setShowDateModal] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Add a ref for the ScrollView to handle dropdown scrolling
   const dropdownScrollViewRef = React.useRef(null);
@@ -297,14 +299,16 @@ const EditProfileScreen = () => {
     }
   };
 
-  const handleDateChange = () => {
+  const handleDateChange = date => {
     setShowDateModal(false);
     // Format the date as MM/DD/YYYY for display
-    const formattedDate = `${datePickerValue.month
+    const formattedDate = `${(date.getMonth() + 1)
       .toString()
-      .padStart(2, '0')}/${datePickerValue.day.toString().padStart(2, '0')}/${
-      datePickerValue.year
-    }`;
+      .padStart(2, '0')}/${date
+      .getDate()
+      .toString()
+      .padStart(2, '0')}/${date.getFullYear()}`;
+    console.log('formattedDate', formattedDate);
     setFormData(prev => ({...prev, dateOfBirth: formattedDate}));
   };
   // Handle selection for any dropdown
@@ -977,6 +981,7 @@ const EditProfileScreen = () => {
               value={formData.email}
               onChangeText={text => handleChange('email', text)}
               keyboardType="email-address"
+              editable={false}
             />
             <View style={styles.inputIcon}>
               <EmailIcon color={themeColors[theme].primary} />
@@ -1097,14 +1102,43 @@ const EditProfileScreen = () => {
       {renderCountryCodeDropdown()}
       {renderLocationDropdown()}
       {renderGenderDropdown()}
+      {showDateModal && Platform.OS === 'android' ? (
+        <DateTimePicker
+          value={selectedDate}
+          textColor={isDark ? '#FFFFFF' : '#000000'}
+          dateFormat="MM/DD/YYYY"
+          mode="date"
+          display={'default'}
+          onChange={(event, date) => {
+            setSelectedDate(date);
+            if (Platform.OS === 'android') {
+              handleDateChange(date);
+            }
+          }}
+        />
+      ) : null}
+
       <Modal
-        visible={showDateModal}
+        // visible={false}
+        visible={showDateModal && Platform.OS === 'ios'}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setShowDateModal(false)}>
         <View style={styles.modalOverlay}>
           <View
             style={[styles.modalContent, isDark && styles.modalContentDark]}>
+            <DateTimePicker
+              value={selectedDate}
+              textColor={isDark ? '#FFFFFF' : '#000000'}
+              dateFormat="MM/DD/YYYY"
+              mode="date"
+              // themeVariant={isDark ? 'dark' : 'light'}
+              display={'spinner'}
+              onChange={(event, date) => {
+                setSelectedDate(date);
+              }}
+            />
+            {/* <>
             <View style={styles.modalHeader}>
               <Text style={[styles.modalTitle, isDark && styles.textDark]}>
                 {t('auth.selectDateOfBirth')}
@@ -1205,13 +1239,17 @@ const EditProfileScreen = () => {
               </View>
             </View>
 
-            <TouchableOpacity
-              style={styles.confirmButton}
-              onPress={handleDateChange}>
-              <Text style={styles.confirmButtonText}>
-                {t('common.confirm')}
-              </Text>
-            </TouchableOpacity>
+           
+            </> */}
+            {Platform.OS === 'ios' ? (
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={() => handleDateChange(selectedDate)}>
+                <Text style={styles.confirmButtonText}>
+                  {t('common.confirm')}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
         </View>
       </Modal>

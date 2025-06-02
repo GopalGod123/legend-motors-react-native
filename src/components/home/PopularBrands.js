@@ -268,19 +268,16 @@ const PopularBrands = () => {
     }
   }, [extractLogoPath]);
 
-  const handleBrandPress = useCallback(
-    brand => {
-      // Navigate to filtered cars by brand
-      navigation.navigate('ExploreTab', {
-        filters: {
-          brands: [brand.name],
-          brandIds: [brand.id],
-          specifications: {}, // Add empty specifications object to match expected filter structure
-        },
-      });
-    },
-    [navigation],
-  );
+  const handleBrandPress = brand => {
+    // Navigate to filtered cars by brand
+    navigation.navigate('ExploreTab', {
+      filters: {
+        brands: [brand.name],
+        brandIds: [brand.id],
+        specifications: {}, // Add empty specifications object to match expected filter structure
+      },
+    });
+  };
 
   const navigateToAllBrands = useCallback(() => {
     navigation.navigate('AllBrands');

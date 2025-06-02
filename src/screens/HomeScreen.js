@@ -158,6 +158,10 @@ const HomeScreen = () => {
 
         // Add a small delay to make the transition feel smoother
         setTimeout(() => {
+          scrollViewRef.current?.scrollTo({
+            y: 0,
+            animated: true,
+          });
           navigation.navigate('ExploreTab');
 
           // Reset the flag after a bit longer to prevent immediate re-triggering

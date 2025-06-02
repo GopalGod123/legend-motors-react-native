@@ -34,7 +34,7 @@ const CarCard = ({
   toggleFavorite,
   shareCar,
 
-  tag = null,
+  // tag = null,
   width = '100%',
   isDarkMode,
   isExplore = false,
@@ -68,6 +68,8 @@ const CarCard = ({
   const steeringType = item?.steeringType;
   const [price, setPrice] = useState(null);
   const {isAuthenticated} = useAuth();
+
+  const tag = item?.Tags?.[0]?.name;
   useEffect(() => {
     const checkPrice = async () => {
       if (isAuthenticated) {
@@ -191,7 +193,20 @@ const CarCard = ({
           showIndex={carImages.length > 1}
           isExplore={isExplore}
         />
-        <View style={{position: 'absolute', top: 10, left: 10}}>{tag}</View>
+        {tag ? (
+          <View
+            style={{
+              position: 'absolute',
+              top: 10,
+              left: 10,
+              backgroundColor: COLORS.primary,
+              paddingHorizontal: SPACING.md,
+              paddingVertical: SPACING.xs,
+              borderRadius: BORDER_RADIUS.md,
+            }}>
+            <Text style={{color: COLORS.white, fontSize: 12}}>{tag}</Text>
+          </View>
+        ) : null}
       </View>
 
       <View style={styles.cardContent}>

@@ -35,6 +35,7 @@ const CarImageCarousel = forwardRef(
       isExplore = false,
       autoScroll = true,
       autoScrollInterval = 2500,
+      autoScrollStart = true,
     },
     ref,
   ) => {
@@ -272,7 +273,9 @@ const CarImageCarousel = forwardRef(
         };
 
         // Start immediately
-        startAutoScroll();
+        if (autoScrollStart) {
+          startAutoScroll();
+        }
       }
 
       return () => {
