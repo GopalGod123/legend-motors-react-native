@@ -787,10 +787,13 @@ const CarDetailScreen = () => {
 
   const handleShare = async () => {
     if (!car) return;
+    const shareLink = `https://legendmotorsglobal.com/cars/new-cars/${car.Brand?.slug}/${car.CarModel?.slug}/${car.Year?.year}/${car?.slug}`;
 
     try {
       await Share.share({
         message: `Check out this ${car.Year?.year} ${car.Brand?.name} ${car.CarModel?.name}!`,
+        url: shareLink,
+        title: 'Share this car',
       });
     } catch (error) {
       console.error('Error sharing:', error);

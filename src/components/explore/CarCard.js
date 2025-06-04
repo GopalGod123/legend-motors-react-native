@@ -2,6 +2,8 @@ import React, {memo, useEffect, useRef, useState} from 'react';
 import {
   Dimensions,
   Image,
+  Linking,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -68,6 +70,8 @@ const CarCard = ({
   const steeringType = item?.steeringType;
   const [price, setPrice] = useState(null);
   const {isAuthenticated} = useAuth();
+
+  const shareLink = `https://legendmotorsglobal.com/cars/new-cars/${item.Brand?.slug}/${item.CarModel?.slug}/${item.Year?.year}/${item?.slug}`;
 
   const tag = item?.Tags?.[0]?.name;
   useEffect(() => {
@@ -415,9 +419,15 @@ const CarCard = ({
 
             <TouchableOpacity
               style={styles.iconButton}
-              onPress={e => {
-                e.stopPropagation();
-                shareCar(item);
+              onPress={async () => {
+                await Share.share({
+                  message: `Check out this ${carTitle} on Legend Motors`,
+                  url: shareLink,
+                  title: 'Share this car',
+                });
+                // e.stopPropagation();
+                // Linking.openURL(shareLink);
+                // shareCar(item);
               }}>
               <Ionicons
                 name="share-social"

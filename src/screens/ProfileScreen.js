@@ -645,53 +645,54 @@ const ProfileScreen = () => {
     // Get clean phone digits
     const phoneDigits = userProfile.phone.replace(/\D/g, '');
 
-    // Use dialCode from the API response (preferred) or fallback to countryCode
-    const countryCodeValue = userProfile.dialCode || userProfile.countryCode;
+    // // Use dialCode from the API response (preferred) or fallback to countryCode
+    const countryCodeValue =
+      userProfile?.dialCode || userProfile?.countryCode || '';
 
-    // Format with country code if available
-    if (countryCodeValue) {
-      // Make sure country code has a plus sign
-      const formattedCountryCode = countryCodeValue.startsWith('+')
-        ? countryCodeValue
-        : '+' + countryCodeValue;
+    // // Format with country code if available
+    // if (countryCodeValue) {
+    //   // Make sure country code has a plus sign
+    //   const formattedCountryCode = countryCodeValue.startsWith('+')
+    //     ? countryCodeValue
+    //     : '+' + countryCodeValue;
 
-      console.log('Profile country/dial code from API:', countryCodeValue);
-      console.log('Formatted country code for display:', formattedCountryCode);
+    //   console.log('Profile country/dial code from API:', countryCodeValue);
+    //   console.log('Formatted country code for display:', formattedCountryCode);
 
-      // Apply different formatting based on country code
-      if (formattedCountryCode === '+1') {
-        // US/Canada format: +1 XXX-XXX-XXXX
-        if (phoneDigits.length <= 3) {
-          return `${formattedCountryCode} ${phoneDigits}`;
-        } else if (phoneDigits.length <= 6) {
-          return `${formattedCountryCode} ${phoneDigits.slice(
-            0,
-            3,
-          )}-${phoneDigits.slice(3)}`;
-        } else {
-          return `${formattedCountryCode} ${phoneDigits.slice(
-            0,
-            3,
-          )}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
-        }
-      } else if (formattedCountryCode === '+91') {
-        // India format: +91 XXXXX XXXXX
-        if (phoneDigits.length > 5) {
-          return `${formattedCountryCode} ${phoneDigits.slice(
-            0,
-            5,
-          )} ${phoneDigits.slice(5)}`;
-        } else {
-          return `${formattedCountryCode} ${phoneDigits}`;
-        }
-      } else {
-        // Default format for other country codes
-        return `${formattedCountryCode} ${phoneDigits}`;
-      }
-    }
+    //   // Apply different formatting based on country code
+    //   if (formattedCountryCode === '+1') {
+    //     // US/Canada format: +1 XXX-XXX-XXXX
+    //     if (phoneDigits.length <= 3) {
+    //       return `${formattedCountryCode} ${phoneDigits}`;
+    //     } else if (phoneDigits.length <= 6) {
+    //       return `${formattedCountryCode} ${phoneDigits.slice(
+    //         0,
+    //         3,
+    //       )}-${phoneDigits.slice(3)}`;
+    //     } else {
+    //       return `${formattedCountryCode} ${phoneDigits.slice(
+    //         0,
+    //         3,
+    //       )}-${phoneDigits.slice(3, 6)}-${phoneDigits.slice(6, 10)}`;
+    //     }
+    //   } else if (formattedCountryCode === '+91') {
+    //     // India format: +91 XXXXX XXXXX
+    //     if (phoneDigits.length > 5) {
+    //       return `${formattedCountryCode} ${phoneDigits.slice(
+    //         0,
+    //         5,
+    //       )} ${phoneDigits.slice(5)}`;
+    //     } else {
+    //       return `${formattedCountryCode} ${phoneDigits}`;
+    //     }
+    //   } else {
+    //     // Default format for other country codes
+    //     return `${formattedCountryCode} ${phoneDigits}`;
+    //   }
+    // }
 
     // If no country code, just return the phone number
-    return phoneDigits;
+    return countryCodeValue + ' ' + phoneDigits;
   };
 
   if (loading) {

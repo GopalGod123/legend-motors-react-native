@@ -10,6 +10,7 @@ import {
   Alert,
   StatusBar,
   RefreshControl,
+  Share,
 } from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {Ionicons, AntDesign} from 'src/utils/icon';
@@ -144,7 +145,16 @@ const WishlistCarCard = ({car, onPress, onRemove, isRemoving = false}) => {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.shareButton}>
+              <TouchableOpacity
+                style={styles.shareButton}
+                onPress={async () => {
+                  const shareLink = `https://legendmotorsglobal.com/cars/new-cars/${car.Brand?.slug}/${car.CarModel?.slug}/${car.Year?.year}/${car?.slug}`;
+                  await Share.share({
+                    message: `Check out this ${car.Year?.year} ${car.Brand?.name} ${car.CarModel?.name}!`,
+                    url: shareLink,
+                    title: 'Share this car',
+                  });
+                }}>
                 <Ionicons
                   name="share-social-outline"
                   size={24}

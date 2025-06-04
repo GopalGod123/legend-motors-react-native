@@ -10,6 +10,7 @@ import {
   FilterFooter,
 } from '../components/filter';
 import {useCurrencyLanguage} from 'src/context/CurrencyLanguageContext';
+import {CommonActions} from '@react-navigation/native';
 
 const FilterScreen = ({route, navigation}) => {
   // Get parameters from navigation or use defaults
@@ -2390,10 +2391,29 @@ const FilterScreen = ({route, navigation}) => {
         ),
       });
       onApplyCallback(filters);
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'Main',
+              state: {routes: [{name: 'ExploreTab', params: {filters}}]},
+            },
+            // {name: 'Explore', params: {filters}},
+          ],
+        }),
+      );
+      // navigation.reset({
+      //   index: 0,
+      //   screen: 'ExploreTab',
+      //   params: {
+      //     filters: filters,
+      //   },
+      // });
     }
 
     // Navigate back
-    navigation.goBack();
+    // navigation.goBack();
   };
 
   // Handle reset button press

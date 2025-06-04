@@ -290,6 +290,7 @@ const processCar = car => {
 const ExploreScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const isFocused = useIsFocused();
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [cars, setCars] = useState([]);
@@ -360,66 +361,28 @@ const ExploreScreen = () => {
   // Add state for category title
   const [categoryTitle, setCategoryTitle] = useState('');
 
-  // Update the useEffect for route params to set category title
-  useEffect(() => {
-    if (route.params?.filters) {
-      // Completely reset previous filters when new ones are applied
-      setAppliedFilters(route.params.filters);
-      setSearchQuery('');
+  // Add a ref to track if we're currently fetching data
+  const isFetchingRef = useRef(false);
 
-      // If we have a tag filter, update the active filter tab accordingly
-      if (
-        route.params.filters.specifications &&
-        route.params.filters.specifications.tags
-      ) {
-        const tagId = route.params.filters.specifications.tags[0];
-        if (tagId === 1) setActiveFilter('popular');
-        else if (tagId === 2) setActiveFilter('new');
-        else if (tagId === 3) setActiveFilter('hot');
-      }
+  // Add a ref to track the current filters
+  const currentFiltersRef = useRef(null);
 
-      // Set category title based on tag ID
-      if (route.params.title) {
-        setCategoryTitle(route.params.title);
-      } else if (
-        route.params.filters.specifications &&
-        route.params.filters.specifications.tags
-      ) {
-        const tagId = route.params.filters.specifications.tags[0];
-        if (tagId === 1) setCategoryTitle('Most Popular in UAE');
-        else if (tagId === 2) setCategoryTitle('Just Arrived!');
-        else if (tagId === 3) setCategoryTitle('Hot Deals');
-        else setCategoryTitle('');
-      } else {
-        setCategoryTitle('');
-      }
-    } else if (route.params?.search) {
-      // Handle search params
-      setSearchQuery(route.params.search);
-      setAppliedFilters({});
-      setCategoryTitle('');
-      setActiveFilter('all');
-    } else if (route.params?.carId) {
-      // Handle viewing specific car
-      setIsViewingSpecificCar(true);
-      fetchCarById(route.params.carId);
-    } else {
-      // Reset all states when no params are present
-      setSearchQuery('');
-      setAppliedFilters({});
-      setCategoryTitle('');
-      setActiveFilter('all');
-    }
-  }, [
-    JSON.stringify(route.params?.filters),
-    route.params?.search,
-    route.params?.title,
-    route.params?.carId,
-    isFocused,
-  ]);
+  // Add clearSearch function
+  const clearSearch = useCallback(() => {
+    setAppliedFilters({});
+    currentFiltersRef.current = {}; // Clear the ref
+    setActiveFilter('all');
+    setSearchQuery('');
+    setFilteredBySearch(false);
+    setCars([]);
+    setFilteredCars([]);
+    setAllCars([]);
+    setLoading(true);
+    fetchCars(1);
+  }, []);
 
-  // Update the fetchCars function to handle pagination correctly
-  const fetchCars = async (newPage = 1, search = '') => {
+  // Update the fetchCars function
+  const fetchCars = async (newPage = 1, search = '', filters = undefined) => {
     if (!isAuthenticated) {
       sendEventCleverTap(CLEVERTAP_EVENTS.BROWSING_AS_GUEST);
     } else if (search || searchQuery) {
@@ -447,58 +410,62 @@ const ExploreScreen = () => {
         status: 'published',
       };
 
+      // Add search if present
       if (search || searchQuery) {
         params.search = (search || searchQuery)?.toLowerCase();
       }
 
+      // Get current filters from ref
+      const currentFilters = filters || currentFiltersRef.current || {};
+
       // Apply filters
-      if (appliedFilters?.brands && appliedFilters?.brands?.length > 0) {
-        if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
-          params.brandId = appliedFilters.brandIds.join(',');
+      if (currentFilters.brands && currentFilters.brands.length > 0) {
+        if (currentFilters.brandIds && currentFilters.brandIds.length > 0) {
+          params.brandId = currentFilters.brandIds.join(',');
         }
       }
 
-      if (appliedFilters?.models && appliedFilters?.models?.length > 0) {
-        if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
-          params.modelId = appliedFilters.modelIds.join(',');
+      if (currentFilters.models && currentFilters.models.length > 0) {
+        if (currentFilters.modelIds && currentFilters.modelIds.length > 0) {
+          params.modelId = currentFilters.modelIds.join(',');
         }
       }
 
-      if (appliedFilters?.trims && appliedFilters?.trims?.length > 0) {
-        if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
-          params.trimId = appliedFilters.trimIds.join(',');
+      if (currentFilters.trims && currentFilters.trims.length > 0) {
+        if (currentFilters.trimIds && currentFilters.trimIds.length > 0) {
+          params.trimId = currentFilters.trimIds.join(',');
         }
       }
 
-      if (appliedFilters?.years && appliedFilters?.years?.length > 0) {
-        if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
-          params.yearId = appliedFilters.yearIds.join(',');
+      if (currentFilters.years && currentFilters.years.length > 0) {
+        if (currentFilters.yearIds && currentFilters.yearIds.length > 0) {
+          params.yearId = currentFilters.yearIds.join(',');
         }
       }
 
-      if (appliedFilters?.minPrice) {
-        params.minPriceAED = appliedFilters.minPrice;
+      if (currentFilters.minPrice) {
+        params.minPriceAED = currentFilters.minPrice;
       }
-      if (appliedFilters?.maxPrice) {
-        params.maxPriceAED = appliedFilters.maxPrice;
+      if (currentFilters.maxPrice) {
+        params.maxPriceAED = currentFilters.maxPrice;
       }
 
-      if (appliedFilters?.specifications) {
-        Object.keys(appliedFilters.specifications).forEach(key => {
-          if (appliedFilters.specifications[key].length > 0) {
+      if (currentFilters.specifications) {
+        Object.keys(currentFilters.specifications).forEach(key => {
+          if (currentFilters.specifications[key].length > 0) {
             if (key === 'tags') {
-              params.tags = appliedFilters.specifications[key].join(',');
+              params.tags = currentFilters.specifications[key].join(',');
             } else {
-              params[key] = appliedFilters.specifications[key].join(',');
+              params[key] = currentFilters.specifications[key].join(',');
             }
           }
         });
       }
 
-      if (appliedFilters?.priceRange) {
+      if (currentFilters.priceRange) {
         params = {
           ...params,
-          ...appliedFilters.priceRange,
+          ...currentFilters.priceRange,
         };
       }
 
@@ -569,178 +536,66 @@ const ExploreScreen = () => {
     }
   };
 
-  // Store the function in ref for stable reference
-  functionRef.current.fetchCars = fetchCars;
-
-  // Update resetSearch to use the ref instead of direct dependency
-  const resetSearch = useCallback(() => {
-    setPage(1);
-    if (functionRef.current.fetchCars) {
-      functionRef.current.fetchCars(1);
-    }
-  }, []);
-
-  // Store resetSearch in ref for stable reference
-  functionRef.current.resetSearch = resetSearch;
-
-  // Update clearSearch to use the ref
-  const clearSearch = useCallback(() => {
-    setSearchQuery('');
-    setFilteredBySearch(false);
-
-    // Directly reset to original data
-
-    // resetToOriginal();
-    // functionRef.current.fetchCars(1);
-  }, [appliedFilters]);
-  const {selectedLanguage} = useCurrencyLanguage();
-
-  const isFocused = useIsFocused();
-
-  // Store the fetchCars function reference to avoid dependency cycles
+  // Update the useEffect for route params
   useEffect(() => {
-    // Reference the processCar function
-    const processCarData = processCar;
+    if (!isFocused) return;
 
-    // Skip the first render to avoid initial double-fetch
-    // if (isFirstRender.current) {
-    //   isFirstRender.current = false;
-    //   return;
-    // }
+    // Reset states
+    setPage(1);
+    setCars([]);
+    setFilteredCars([]);
+    setAllCars([]);
+    setLoading(true);
 
-    // Use a debounce to prevent rapid re-fetching
-    // const timeoutId = setTimeout(() => {
-    const fetchCarsWithFilters = async () => {
-      console.log(
-        'Fetching cars with applied filters:',
-        JSON.stringify(appliedFilters),
-      );
+    if (route.params?.filters) {
+      // Update filters and category title
+      const newFilters = route.params.filters;
+      setAppliedFilters(newFilters);
+      currentFiltersRef.current = newFilters; // Update the ref
+      setSearchQuery('');
 
-      setLoading(true);
-
-      try {
-        // Base API parameters
-        let params = {
-          page: 1,
-          limit: 10,
-          status: 'published',
-        };
-
-        // Apply filters if any
-        if (Object.keys(appliedFilters).length > 0) {
-          setSearchQuery('');
-          // Only apply supported filter parameters to the API call
-          if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
-            params.brandId = appliedFilters.brandIds.join(',');
-          }
-
-          if (appliedFilters.modelIds && appliedFilters.modelIds.length > 0) {
-            params.modelId = appliedFilters.modelIds.join(',');
-          }
-
-          if (appliedFilters.trimIds && appliedFilters.trimIds.length > 0) {
-            params.trimId = appliedFilters.trimIds.join(',');
-          }
-
-          if (appliedFilters.yearIds && appliedFilters.yearIds.length > 0) {
-            params.yearId = appliedFilters.yearIds.join(',');
-          }
-
-          // Handle specifications including tags
-          if (appliedFilters.specifications) {
-            Object.keys(appliedFilters.specifications).forEach(key => {
-              if (appliedFilters.specifications[key].length > 0) {
-                // Special handling for tags
-                if (key === 'tags') {
-                  params.tags = appliedFilters.specifications[key].join(',');
-                } else {
-                  params[key] = appliedFilters.specifications[key].join(',');
-                }
-              }
-            });
-          }
-          if (appliedFilters?.priceRange) {
-            params = {
-              ...params,
-              ...appliedFilters.priceRange,
-            };
-          }
-          // Add other API parameters as needed
-        } else if (searchQuery) {
-          params.search = searchQuery?.toLowerCase();
-        }
-
-        console.log('Fetching cars with params:', JSON.stringify(params));
-        const response = await getCarList(params);
-
-        // Process response data
-        let carData = [];
-        let totalCount = 0;
-
-        // Extract car data from response
-        if (response && response.data) {
-          if (Array.isArray(response.data)) {
-            carData = response.data;
-          } else if (response.data.data && Array.isArray(response.data.data)) {
-            carData = response.data.data;
-          } else if (Array.isArray(response.data.cars)) {
-            carData = response.data.cars;
-          }
-
-          // Get total count
-          if (response.pagination) {
-            totalCount = response.pagination.totalItems || carData.length;
-          } else if (response.data && response.data.pagination) {
-            totalCount = response.data.pagination.totalItems || carData.length;
-          } else if (response.data && response.data.total) {
-            totalCount = response.data.total;
-          } else {
-            totalCount = carData.length;
-          }
-        }
-        console.log('carData', carData);
-        // Process cars using the referenced function
-        const processedCars = carData
-          .filter(car => car)
-          .map(processCarData)
-          .filter(car => car);
-
-        console.log(`Processed ${processedCars.length} cars from API response`);
-
-        // Batch state updates to prevent multiple renders
-        setCars(processedCars);
-        setFilteredCars(processedCars);
-        setAllCars(processedCars);
-        setTotalCars(totalCount);
-        setPage(1);
-        setHasMoreData(processedCars.length < totalCount);
-      } catch (error) {
-        console.error('Error fetching cars:', error);
-        setCars([]);
-        setFilteredCars([]);
-        setAllCars([]);
-        setTotalCars(0);
-        setHasMoreData(false);
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
+      // Handle tag filters
+      if (newFilters.specifications && newFilters.specifications.tags) {
+        const tagId = newFilters.specifications.tags[0];
+        if (tagId === 1) setActiveFilter('popular');
+        else if (tagId === 2) setActiveFilter('new');
+        else if (tagId === 3) setActiveFilter('hot');
       }
-    };
 
-    // Call the function
-    if (isFocused && Object.keys(appliedFilters).length > 0) {
-      fetchCarsWithFilters();
-    } else if (isFocused) {
-      fetchCars(1, searchQuery);
+      // Set category title
+      if (route.params.title) {
+        setCategoryTitle(route.params.title);
+      } else if (newFilters.specifications && newFilters.specifications.tags) {
+        const tagId = newFilters.specifications.tags[0];
+        if (tagId === 1) setCategoryTitle('Most Popular in UAE');
+        else if (tagId === 2) setCategoryTitle('Just Arrived!');
+        else if (tagId === 3) setCategoryTitle('Hot Deals');
+        else setCategoryTitle('');
+      } else {
+        setCategoryTitle('');
+      }
+
+      // Fetch cars with new filters
+      fetchCars(1, '', newFilters);
+    } else if (route.params?.search) {
+      setSearchQuery(route.params.search);
+      setAppliedFilters({});
+      currentFiltersRef.current = {}; // Clear the ref
+      setCategoryTitle('');
+      setActiveFilter('all');
+      fetchCars(1, route.params.search);
+    } else if (route.params?.carId) {
+      setIsViewingSpecificCar(true);
+      fetchCarById(route.params.carId);
+    } else {
+      setSearchQuery('');
+      setAppliedFilters({});
+      currentFiltersRef.current = {}; // Clear the ref
+      setCategoryTitle('');
+      setActiveFilter('all');
+      fetchCars(1);
     }
-    // if (!isFocused) {
-    //   setSearchQuery('');
-    //   setAppliedFilters({});
-    // }
-    // }, 300); // 300ms debounce
-
-    // return () => clearTimeout(timeoutId);
-  }, [appliedFilters, searchQuery, isFocused]); // Add processCar to dependencies
+  }, [route.params, isFocused]);
 
   // Fetch cars by model IDs
   const fetchCarsByModelIds = async modelIds => {
@@ -806,16 +661,20 @@ const ExploreScreen = () => {
     }
   };
 
-  const handleSearchChange = useCallback(text => {
-    if (text) {
-      setSearchQuery(text);
-      setAppliedFilters({});
-      functionRef.current.fetchCars(1, text);
-    } else {
-      setSearchQuery('');
-      clearSearch();
-    }
-  }, []);
+  // Update handleSearchChange
+  const handleSearchChange = useCallback(
+    text => {
+      if (text) {
+        setSearchQuery(text);
+        setAppliedFilters({});
+        currentFiltersRef.current = {}; // Clear the ref
+        fetchCars(1, text);
+      } else {
+        clearSearch();
+      }
+    },
+    [clearSearch],
+  );
 
   const toggleFavorite = async carId => {
     // Check if user is authenticated first
@@ -857,150 +716,6 @@ const ExploreScreen = () => {
     }
   };
 
-  // Add a standard filtering function for backward compatibility
-  const filterCarsByApiCriteria = useCallback((cars, filters) => {
-    // Standard filtering based on explicit criteria
-    return cars.filter(car => {
-      // Filter by brands
-      if (filters.brands && filters.brands.length > 0) {
-        if (
-          !car.brand ||
-          !filters.brands.some(b =>
-            car.brand.toLowerCase().includes(b.toLowerCase()),
-          )
-        ) {
-          return false;
-        }
-      }
-
-      // Filter by models
-      if (filters.models && filters.models.length > 0) {
-        if (
-          !car.model ||
-          !filters.models.some(m =>
-            car.model.toLowerCase().includes(m.toLowerCase()),
-          )
-        ) {
-          return false;
-        }
-      }
-
-      // Filter by trims
-      if (filters.trims && filters.trims.length > 0) {
-        if (
-          !car.trim ||
-          !filters.trims.some(t =>
-            car.trim.toLowerCase().includes(t.toLowerCase()),
-          )
-        ) {
-          return false;
-        }
-      }
-
-      // Filter by years
-      if (filters.years && filters.years.length > 0) {
-        if (!car.year || !filters.years.includes(car.year.toString())) {
-          return false;
-        }
-      }
-
-      // Filter by specifications
-      if (filters.specifications) {
-        for (const specKey in filters.specifications) {
-          const selectedValues = filters.specifications[specKey];
-          if (!selectedValues || selectedValues.length === 0) continue;
-
-          // Special handling for color specifications
-          if (specKey === 'color') {
-            console.log(
-              `🎨 Filtering car ${
-                car.id
-              } by Exterior Color: ${selectedValues.join(', ')}`,
-            );
-            if (car.slug) {
-              console.log(`🔍 Checking slug: "${car.slug}"`);
-            }
-
-            // Check car specifications if available
-            let specMatch = false;
-
-            if (
-              car.SpecificationValues &&
-              Array.isArray(car.SpecificationValues)
-            ) {
-              specMatch = car.SpecificationValues.some(spec => {
-                // Check if this spec matches our key
-                if (spec.Specification && spec.Specification.key === specKey) {
-                  return selectedValues.some(
-                    selectedValue =>
-                      spec.name &&
-                      selectedValue &&
-                      spec.name.toLowerCase() === selectedValue.toLowerCase(),
-                  );
-                }
-                return false;
-              });
-            }
-
-            // If no match from specifications, check direct color property
-            if (!specMatch && car.color) {
-              specMatch = selectedValues.some(selectedValue =>
-                car.color.toLowerCase().includes(selectedValue.toLowerCase()),
-              );
-            }
-
-            // If still no match, check extracted colors from slug
-            if (
-              !specMatch &&
-              car.extractedExteriorColors &&
-              car.extractedExteriorColors.length > 0
-            ) {
-              const slugColorMatch = selectedValues.some(selectedValue =>
-                car.extractedExteriorColors.some(
-                  extractedColor =>
-                    extractedColor
-                      .toLowerCase()
-                      .includes(selectedValue.toLowerCase()) ||
-                    selectedValue
-                      .toLowerCase()
-                      .includes(extractedColor.toLowerCase()),
-                ),
-              );
-
-              if (slugColorMatch) {
-                console.log(
-                  `🎨 Car ${
-                    car.id
-                  } matches color through extracted colors from slug: ${car.extractedExteriorColors.join(
-                    ', ',
-                  )}`,
-                );
-                specMatch = true;
-              }
-            }
-
-            // If no color match found, exclude the car
-            if (!specMatch) {
-              console.log(
-                `❌ Car ${car.id} EXCLUDED: does not match exterior color specification`,
-              );
-              return false;
-            }
-
-            // Skip to the next specification type since we've handled color
-            continue;
-          }
-
-          // Rest of the function...
-          // ... (keeping all the other filter logic)
-        }
-      }
-
-      // If we got here, the car matches all filters
-      return true;
-    });
-  }, []);
-
   // Add a function to handle filter apply from the SearchBar
   const handleSearchBarFilterApply = useCallback(filters => {
     console.log(
@@ -1038,6 +753,7 @@ const ExploreScreen = () => {
           // Update filters state
           setAppliedFilters(newFilters);
           setSearchQuery('');
+          fetchCars(1, '', newFilters);
 
           // The useEffect hook will automatically trigger a fetch with new filters
         },
@@ -1113,11 +829,6 @@ const ExploreScreen = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  // Toggle display of car IDs
-  const toggleCarIds = () => {
-    setShowCarIds(!showCarIds);
   };
 
   // Render car model item
@@ -1229,216 +940,6 @@ const ExploreScreen = () => {
     setCars([]);
     functionRef.current.fetchCars(1);
   };
-
-  // Add search functionality effect with debounced query
-  // useEffect(() => {
-  //   // Reference the processCar function
-  //   const processCarData = processCar;
-
-  //   // Skip if no search query or if this is the first render
-  //   if (isFirstRender.current || debouncedSearchQuery.trim() === '') {
-  //     // If clearing search but we were previously filtered, reset data
-  //     if (
-  //       isFirstRender.current === false &&
-  //       filteredBySearch &&
-  //       debouncedSearchQuery.trim() === ''
-  //     ) {
-  //       setFilteredBySearch(false);
-
-  //       // Use the debounce to avoid immediate re-fetch
-  //       const resetTimeoutId = setTimeout(() => {
-  //         setLoading(true);
-  //         // Fetch cars with current filters
-  //         const resetParams = {
-  //           page: 1,
-  //           limit: 100,
-  //           status: 'published',
-  //         };
-
-  //         // Apply existing filters
-  //         if (Object.keys(appliedFilters).length > 0) {
-  //           if (appliedFilters.brandIds && appliedFilters.brandIds.length > 0) {
-  //             resetParams.brandId = appliedFilters.brandIds.join(',');
-  //           }
-  //           // Add other filter parameters...
-  //         }
-
-  //         getCarList(resetParams)
-  //           .then(response => {
-  //             // Process response
-  //             let carData = [];
-  //             if (response && response.data) {
-  //               if (Array.isArray(response.data)) {
-  //                 carData = response.data;
-  //               } else if (
-  //                 response.data.data &&
-  //                 Array.isArray(response.data.data)
-  //               ) {
-  //                 carData = response.data.data;
-  //               } else if (Array.isArray(response.data.cars)) {
-  //                 carData = response.data.cars;
-  //               }
-  //             }
-
-  //             // Process cars using the referenced function
-  //             const processedCars = carData
-  //               .filter(car => car)
-  //               .map(processCarData)
-  //               .filter(car => car);
-
-  //             // Update state in one batch
-  //             setCars(processedCars);
-  //             setFilteredCars(processedCars);
-  //             setAllCars(processedCars);
-  //             setTotalCars(processedCars.length);
-  //             setPage(1);
-  //             setHasMoreData(false);
-  //             setLoading(false);
-  //           })
-  //           .catch(err => {
-  //             console.error('Error resetting search:', err);
-  //             setLoading(false);
-  //           });
-  //       }, 300);
-
-  //       return () => clearTimeout(resetTimeoutId);
-  //     }
-  //     return;
-  //   }
-
-  //   // If we have a search query, use debouncing for better UX
-  //   const searchTimeoutId = setTimeout(() => {
-  //     // Perform search
-  //     setLoading(true);
-  //     setFilteredBySearch(true);
-  //     setCarIds([]);
-  //     setSearchedModels([]);
-
-  //     try {
-  //       // Validate query
-  //       const trimmedQuery = debouncedSearchQuery.trim();
-  //       if (trimmedQuery.length < 2) {
-  //         console.log('Search query too short, minimum 2 characters required');
-  //         setCars([]);
-  //         setTotalCars(0);
-  //         setHasMoreData(false);
-  //         setLoading(false);
-  //         return;
-  //       }
-
-  //       // Search API can continue as before...
-  //       console.log(`Performing search with query: "${trimmedQuery}"`);
-
-  //       // Rest of the search implementation...
-  //       searchCarModels(trimmedQuery)
-  //         .then(modelSearchResults => {
-  //           // Process search results as before
-  //           if (
-  //             modelSearchResults.success &&
-  //             modelSearchResults.data &&
-  //             modelSearchResults.data.length > 0
-  //           ) {
-  //             // Process model results
-  //             setSearchedModels(modelSearchResults.data);
-
-  //             // Extract IDs
-  //             const modelIds = modelSearchResults.data.map(model => model.id);
-  //             setCarIds(modelIds);
-
-  //             // Continue with existing search logic - use the modelIds to fetch cars
-  //             const params = {
-  //               modelId: modelIds.join(','),
-  //               page: 1,
-  //               limit: 50,
-  //               status: 'published',
-  //             };
-
-  //             // Fetch cars using the model IDs
-  //             getCarList(params)
-  //               .then(response => {
-  //                 let carData = [];
-  //                 if (response && response.data) {
-  //                   if (Array.isArray(response.data)) {
-  //                     carData = response.data;
-  //                   } else if (
-  //                     response.data.data &&
-  //                     Array.isArray(response.data.data)
-  //                   ) {
-  //                     carData = response.data.data;
-  //                   } else if (Array.isArray(response.data.cars)) {
-  //                     carData = response.data.cars;
-  //                   }
-  //                 }
-
-  //                 // Process cars using the referenced function
-  //                 const processedCars = carData
-  //                   .filter(car => car)
-  //                   .map(processCarData)
-  //                   .filter(car => car);
-
-  //                 // Update state
-  //                 setCars(processedCars);
-  //                 setTotalCars(processedCars.length);
-  //                 setHasMoreData(false);
-  //                 setLoading(false);
-  //               })
-  //               .catch(err => {
-  //                 console.error('Error fetching cars for models:', err);
-  //                 setCars([]);
-  //                 setTotalCars(0);
-  //                 setHasMoreData(false);
-  //                 setLoading(false);
-  //               });
-  //           } else {
-  //             console.log('Falling back to direct car search');
-  //             // Fall back to direct search
-  //             searchCars(trimmedQuery)
-  //               .then(carSearchResults => {
-  //                 if (
-  //                   carSearchResults.success &&
-  //                   carSearchResults.data &&
-  //                   carSearchResults.data.length > 0
-  //                 ) {
-  //                   const processedCars = carSearchResults.data
-  //                     .filter(car => car)
-  //                     .map(processCarData)
-  //                     .filter(car => car);
-
-  //                   setCars(processedCars);
-  //                   setTotalCars(processedCars.length);
-  //                   setHasMoreData(false);
-  //                   setLoading(false);
-  //                 } else {
-  //                   setCars([]);
-  //                   setTotalCars(0);
-  //                   setHasMoreData(false);
-  //                   setLoading(false);
-  //                 }
-  //               })
-  //               .catch(err => {
-  //                 console.error('Error searching cars directly:', err);
-  //                 setCars([]);
-  //                 setTotalCars(0);
-  //                 setHasMoreData(false);
-  //                 setLoading(false);
-  //               });
-  //           }
-  //         })
-  //         .catch(err => {
-  //           console.error('Search error:', err);
-  //           setCars([]);
-  //           setTotalCars(0);
-  //           setHasMoreData(false);
-  //           setLoading(false);
-  //         });
-  //     } catch (error) {
-  //       console.error('Error in search:', error);
-  //       setLoading(false);
-  //     }
-  //   }, 500); // Longer debounce for search
-
-  //   return () => clearTimeout(searchTimeoutId);
-  // }, [debouncedSearchQuery, filteredBySearch, appliedFilters, processCar]); // Add processCar to dependencies
 
   // Update loadMoreData function
   const loadMoreData = useCallback(() => {
