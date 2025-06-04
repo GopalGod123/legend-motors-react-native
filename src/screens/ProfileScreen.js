@@ -581,6 +581,14 @@ const ProfileScreen = () => {
       });
     } catch (error) {
       console.error('Logout error:', error);
+      await AsyncStorage.removeItem('token');
+      await AsyncStorage.removeItem('userData');
+      await AsyncStorage.removeItem('refreshToken');
+      let ssoUser = getAuth().currentUser;
+      if (ssoUser) {
+        await signOut(getAuth());
+        if (GoogleSignin.getCurrentUser()) await GoogleSignin.revokeAccess();
+      }
       // Even if there's an error, still try to log out locally
       logout();
       navigation.reset({

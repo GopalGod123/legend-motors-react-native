@@ -1,14 +1,22 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, StyleSheet, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Dimensions,
+  Keyboard,
+} from 'react-native';
 import Slider from './Slider';
 import {useTheme} from '../../context/ThemeContext';
 import {COLORS} from 'src/utils/constants';
+import RangePicker from './RangePicker';
 
 const PriceRangeSelector = ({onSelectItem}) => {
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(700);
-  const [minInput, setMinInput] = useState('0');
-  const [maxInput, setMaxInput] = useState('700');
+  const [minInput, setMinInput] = useState(0);
+  const [maxInput, setMaxInput] = useState(700);
   const {isDark} = useTheme();
 
   const handleMinInputChange = text => {
@@ -53,30 +61,66 @@ const PriceRangeSelector = ({onSelectItem}) => {
           Price Range
         </Text>
         <View style={styles.inputRow}>
-          <View style={styles.inputContainer}>
-            <Text style={styles.currencySymbol}>$</Text>
+          <View
+            style={[
+              styles.inputContainer,
+              {backgroundColor: isDark ? '#3D3D3D' : '#FCEED4'},
+            ]}>
+            <Text
+              style={[
+                styles.currencySymbol,
+                {color: isDark ? '#FFFFFF' : '#333333'},
+              ]}>
+              $
+            </Text>
             <TextInput
               style={[styles.input, isDark && styles.inputDark]}
               value={minInput}
               onChangeText={handleMinInputChange}
               onBlur={handleMinBlur}
-              keyboardType="numeric"
+              keyboardType="number-pad"
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
               maxLength={4}
             />
-            <Text style={styles.unitSymbol}>K</Text>
+            <Text
+              style={[
+                styles.unitSymbol,
+                {color: isDark ? '#FFFFFF' : '#333333'},
+              ]}>
+              K
+            </Text>
           </View>
           <Text style={[styles.to, isDark && styles.toDark]}> - </Text>
-          <View style={styles.inputContainer}>
-            <Text style={styles.currencySymbol}>$</Text>
+          <View
+            style={[
+              styles.inputContainer,
+              {backgroundColor: isDark ? '#3D3D3D' : '#FCEED4'},
+            ]}>
+            <Text
+              style={[
+                styles.currencySymbol,
+                {color: isDark ? '#FFFFFF' : '#333333'},
+              ]}>
+              $
+            </Text>
             <TextInput
               style={[styles.input, isDark && styles.inputDark]}
               value={maxInput}
               onChangeText={handleMaxInputChange}
               onBlur={handleMaxBlur}
-              keyboardType="numeric"
+              keyboardType="number-pad"
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
               maxLength={4}
             />
-            <Text style={styles.unitSymbol}>K</Text>
+            <Text
+              style={[
+                styles.unitSymbol,
+                {color: isDark ? '#FFFFFF' : '#333333'},
+              ]}>
+              K
+            </Text>
           </View>
         </View>
       </View>
@@ -84,7 +128,20 @@ const PriceRangeSelector = ({onSelectItem}) => {
       <View
         style={[styles.sliderContainer, isDark && styles.sliderContainerDark]}>
         <View style={styles.sliderWrapper}>
-          <Slider
+          {/* <Slider
+            min={0}
+            max={700}
+            currentMin={minValue}
+            currentMax={maxValue}
+            onChange={({min, max}) => {
+              setMinValue(min);
+              setMaxValue(max);
+              setMinInput(min.toString());
+              setMaxInput(max.toString());
+              onSelectItem({min, max});
+            }}
+          /> */}
+          <RangePicker
             min={0}
             max={700}
             currentMin={minValue}
@@ -111,7 +168,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   containerDark: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#2D2D2D',
   },
   rangeBox: {
     padding: 10,
@@ -119,7 +176,7 @@ const styles = StyleSheet.create({
     width: 220,
   },
   rangeBoxDark: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#2D2D2D',
   },
   label: {
     marginBottom: 10,
@@ -179,7 +236,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sliderContainerDark: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: '#2D2D2D',
   },
   sliderWrapper: {
     justifyContent: 'space-between',
