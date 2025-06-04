@@ -143,25 +143,6 @@ const ThumbnailList = memo(
       [images ? images.length : 0],
     );
 
-    // Log thumbnail list renders for monitoring performance
-    useEffect(() => {
-      logRender.current += 1;
-      console.log(
-        `ThumbnailList component rendered ${logRender.current} times`,
-      );
-    }, []);
-
-    // Force scroll to the selected index when it changes
-    useEffect(() => {
-      if (listRef && listRef.current && selectedIndex >= 0) {
-        const offset = Math.max(0, selectedIndex * 94 - 94); // 94 is item width + margins
-        listRef.current.scrollToOffset({
-          offset,
-          animated: true,
-        });
-      }
-    }, [selectedIndex, listRef]);
-
     // Create a memoized render function with selected state dependency
     const renderThumbnailItem = useCallback(
       ({item, index}) => {
@@ -174,20 +155,37 @@ const ThumbnailList = memo(
               styles.thumbnailItem,
               isSelected ? styles.thumbnailItemSelected : null,
             ]}
+            activeOpacity={1}
             onPress={() => {
-              // Update selected index
+              // Temporarily disable scrolling
+              if (listRef.current) {
+                listRef.current.setNativeProps({
+                  scrollEnabled: false,
+                });
+              }
+
+              // Update selected index immediately
               onSelectImage(index);
 
               // Temporarily pause auto-scrolling
               setAutoScrolling(false);
 
-              // Manually scroll the carousel
+              // Manually scroll the carousel without animation
               if (carouselRef.current) {
                 carouselRef.current.scrollToIndex({
                   index: index,
-                  animated: true,
+                  animated: false,
                 });
               }
+
+              // Re-enable scrolling after a short delay
+              setTimeout(() => {
+                if (listRef.current) {
+                  listRef.current.setNativeProps({
+                    scrollEnabled: true,
+                  });
+                }
+              }, 50);
 
               // Resume auto-scrolling after 5 seconds (matching main handler)
               clearTimeout(autoScrollTimerRef.current);
@@ -200,6 +198,9 @@ const ThumbnailList = memo(
               style={styles.thumbnailImage}
               resizeMode="cover"
               selected={isSelected}
+              fadeDuration={0}
+              transition={false}
+              cachePolicy="memory-disk"
             />
           </TouchableOpacity>
         );
@@ -210,6 +211,7 @@ const ThumbnailList = memo(
         setAutoScrolling,
         carouselRef,
         autoScrollTimerRef,
+        listRef,
       ],
     );
 
@@ -232,9 +234,15 @@ const ThumbnailList = memo(
             index,
           })}
           initialNumToRender={5}
-          maxToRenderPerBatch={3}
-          windowSize={5}
-          removeClippedSubviews={true}
+          maxToRenderPerBatch={5}
+          windowSize={7}
+          removeClippedSubviews={false}
+          updateCellsBatchingPeriod={50}
+          maintainVisibleContentPosition={{
+            minIndexForVisible: 0,
+            autoscrollToTopThreshold: 10,
+          }}
+          scrollEnabled={true}
           renderItem={renderThumbnailItem}
           onScrollToIndexFailed={info => {
             console.warn(
@@ -371,148 +379,9 @@ const CarDetailScreen = () => {
     }
   }, [car]);
 
-  // Fix the auto-scrolling implementation to ensure proper function definition and access
-  // useEffect(() => {
-  //   // Update refs when the state changes
-  //   autoScrollingRef.current = autoScrolling;
-  //   selectedImageIndexRef.current = selectedImageIndex;
-  //   activeTabRef.current = activeTab;
-
-  //   // Only set up the auto-scroll when mounting or when autoScrolling changes
-  //   if (
-  //     autoScrollingRef.current &&
-  //     memoizedCarImages &&
-  //     memoizedCarImages.length > 1
-  //   ) {
-  //     // Clear any existing RAF
-  //     if (autoScrollRaf) {
-  //       cancelAnimationFrame(autoScrollRaf);
-  //     }
-
-  //     // Use a variable outside the RAF function to track time
-  //     let lastScrollTime = Date.now();
-  //     const scrollInterval = 3500; // 3.5 seconds - slightly longer for better UX
-
-  //     // Define the performAutoScroll function first before using it
-  //     const performAutoScroll = () => {
-  //       // Check if we should still be auto-scrolling
-  //       if (!autoScrollingRef.current) {
-  //         return; // Exit the RAF loop if auto-scrolling is off
-  //       }
-
-  //       const now = Date.now();
-  //       const elapsed = now - lastScrollTime;
-
-  //       if (elapsed >= scrollInterval) {
-  //         // Make sure we're within bounds
-  //         if (memoizedCarImages && memoizedCarImages.length > 0) {
-  //           const maxIndex = memoizedCarImages.length - 1;
-  //           // Calculate next index
-  //           const currentIndex = selectedImageIndex;
-  //           const nextIndex = (currentIndex + 1) % memoizedCarImages.length;
-
-  //           // Only proceed if index is valid
-  //           if (nextIndex >= 0 && nextIndex <= maxIndex) {
-  //             // Update the selected image index directly, avoiding setState in the RAF
-  //             selectedImageIndexRef.current = nextIndex;
-
-  //             // Use a timeout to batch state updates outside the RAF loop
-  //             setTimeout(() => {
-  //               // Only update state if still auto-scrolling
-  //               if (autoScrollingRef.current) {
-  //                 setSelectedImageIndex(nextIndex);
-
-  //                 // Scroll main carousel if ref is available
-  //                 if (carouselRef.current) {
-  //                   try {
-  //                     // Use the proper parameter format for scrollToIndex
-  //                     carouselRef.current.scrollToIndex({
-  //                       index: nextIndex,
-  //                       animated: true,
-  //                     });
-  //                   } catch (error) {
-  //                     console.log('Error scrolling carousel:', error);
-  //                   }
-  //                 }
-
-  //                 // If we've reached the end, switch tabs with delay
-  //                 if (nextIndex === 0) {
-  //                   // Use timeout to avoid state updates in the same tick
-  //                   setTimeout(() => {
-  //                     const currentTab = activeTabRef.current;
-  //                     if (currentTab === 'exterior') {
-  //                       setActiveTab('interior');
-  //                     } else if (currentTab === 'interior') {
-  //                       setActiveTab('exterior');
-  //                     }
-  //                   }, 500); // Add a small delay before switching tabs
-  //                 }
-  //               }
-  //             }, 0);
-
-  //             lastScrollTime = now;
-  //           }
-  //         }
-  //       }
-
-  //       // Continue the animation loop with the same function reference
-  //       if (autoScrollingRef.current) {
-  //         const nextRaf = requestAnimationFrame(performAutoScroll);
-  //         setAutoScrollRaf(nextRaf);
-  //       }
-  //     };
-
-  //     // Start the auto-scroll loop with the initial call
-  //     const initialRaf = requestAnimationFrame(performAutoScroll);
-  //     setAutoScrollRaf(initialRaf);
-
-  //     // Cleanup function
-  //     return () => {
-  //       if (autoScrollRaf) {
-  //         cancelAnimationFrame(autoScrollRaf);
-  //       }
-  //     };
-  //   }
-
-  //   // Return a cleanup function even if we didn't set up auto-scrolling
-  //   return () => {
-  //     if (autoScrollRaf) {
-  //       cancelAnimationFrame(autoScrollRaf);
-  //     }
-  //   };
-  // }, [autoScrolling, memoizedCarImages, carouselRef]);
-
   // Add an effect to handle tab changes
   useEffect(() => {
     console.log(`Tab changed to: ${activeTab}, resetting index to 0`);
-
-    // Reset the selected image index when tab changes
-    // setSelectedImageIndex(0);
-
-    // Wait for next render cycle before scrolling the carousel to index 0
-    // setTimeout(() => {
-    //   if (carouselRef.current) {
-    //     carouselRef.current.scrollToIndex({
-    //       index: 0,
-    //       animated: true,
-    //     });
-    //   }
-
-    //   // Reset both thumbnail lists scroll position
-    //   if (thumbnailsListRef.current) {
-    //     thumbnailsListRef.current.scrollToOffset({offset: 0, animated: true});
-    //   }
-
-    //   if (bottomThumbnailsListRef.current) {
-    //     bottomThumbnailsListRef.current.scrollToOffset({
-    //       offset: 0,
-    //       animated: true,
-    //     });
-    //   }
-    // }, 50);
-
-    // Ensure auto-scrolling is active when switching tabs
-    // setAutoScrolling(true);
   }, [activeTab]);
 
   // Update the handleImagePress function
@@ -536,21 +405,6 @@ const CarDetailScreen = () => {
       setAutoScrolling(true);
     }, 5000); // 5 seconds pause when user interacts
   };
-
-  // In the cleanup function for the component
-  // useEffect(() => {
-  //   return () => {
-  //     // Cleanup auto-scroll RAF when component unmounts
-  //     if (autoScrollRaf) {
-  //       cancelAnimationFrame(autoScrollRaf);
-  //     }
-
-  //     // Clear any pending timeouts
-  //     if (autoScrollTimerRef.current) {
-  //       clearTimeout(autoScrollTimerRef.current);
-  //     }
-  //   };
-  // }, []);
 
   // Function to handle viewing similar color cars
   const handleViewSimilarColorCars = () => {
@@ -869,8 +723,6 @@ const CarDetailScreen = () => {
     setMemoizedThumbnailImages(getAllThumbnailImages());
   }, [car, activeTab]);
 
-  // const memoizedCarImages = useMemo(() => getAllImages(), [car, activeTab]);
-
   const renderSpecification = (label, value) => {
     if (!value) return null;
 
@@ -1150,7 +1002,7 @@ const CarDetailScreen = () => {
               <>
                 <View style={styles.imageCarouselContainer}>
                   <CarImageCarousel
-                    // ref={carouselRef}
+                    ref={carouselRef}
                     autoScrollStart={false}
                     images={getImagesByType(activeTab)}
                     height={240}
@@ -1158,30 +1010,34 @@ const CarDetailScreen = () => {
                     onImagePress={handleImagePress}
                     initialIndex={selectedImageIndex}
                     onIndexChange={index => {
+                      // Update selected index immediately
                       setSelectedImageIndex(index);
-                      // if (index === memoizedCarImages.length - 1) {
-                      //   setTimeout(() => {
-                      //     setActiveTab(prev =>
-                      //       prev === 'exterior' ? 'interior' : 'exterior',
-                      //     );
-                      //     setSelectedImageIndex(0);
-                      //   }, 2000);
-                      // }
+
+                      // Scroll thumbnail list to the selected index with a small delay
+                      if (bottomThumbnailsListRef.current) {
+                        const offset = Math.max(0, index * 94 - 94); // 94 is item width + margins
+                        requestAnimationFrame(() => {
+                          bottomThumbnailsListRef.current.scrollToOffset({
+                            offset,
+                            animated: true,
+                          });
+                        });
+                      }
                     }}
                     showIndex={true}
                   />
                 </View>
 
                 {/* Use the optimized ThumbnailList component with all required props */}
-                {/* <ThumbnailList
-                  images={memoizedCarImages}
+                <ThumbnailList
+                  images={getThumbnailImagesByType(activeTab)}
                   selectedIndex={selectedImageIndex}
                   onSelectImage={setSelectedImageIndex}
                   carouselRef={carouselRef}
-                  listRef={thumbnailsListRef}
+                  listRef={bottomThumbnailsListRef}
                   setAutoScrolling={setAutoScrolling}
                   autoScrollTimerRef={autoScrollTimerRef}
-                /> */}
+                />
               </>
             )}
           </View>
@@ -2277,15 +2133,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     overflow: 'hidden',
     borderWidth: 0,
+    backgroundColor: 'transparent',
   },
   thumbnailItemSelected: {
     borderWidth: 2,
-    borderColor: '#FF8C00', // Orange border for selected thumbnail
+    borderColor: '#FF8C00',
+    backgroundColor: 'transparent',
   },
   thumbnailImage: {
     width: '100%',
     height: '100%',
-    // borderRadius: 12,
+    backgroundColor: 'transparent',
   },
   imageCarouselContainer: {
     width: '100%',

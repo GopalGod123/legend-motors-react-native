@@ -64,23 +64,8 @@ const CarImageCarousel = forwardRef(
     useEffect(() => {
       if (images && images.length > 0 && !imagesPreloaded) {
         setIsLoading(true);
-        // Preload visible and nearby images first
-        const visibleImages = images.slice(
-          Math.max(0, initialIndex - 1),
-          Math.min(images.length, initialIndex + 3),
-        );
-
-        // Start with visible images, then do the rest
-        preloadImages(visibleImages)
-          .then(() => {
-            // Preload remaining images in the background
-            const remainingImages = images.filter(
-              (_, i) => i < initialIndex - 1 || i > initialIndex + 2,
-            );
-            if (remainingImages.length > 0) {
-              return preloadImages(remainingImages);
-            }
-          })
+        // Preload all images at once
+        preloadImages(images)
           .then(() => {
             if (isMountedRef.current) {
               setImagesPreloaded(true);
@@ -96,7 +81,7 @@ const CarImageCarousel = forwardRef(
       } else {
         setIsLoading(false);
       }
-    }, [images, initialIndex, imagesPreloaded]);
+    }, [images, imagesPreloaded]);
 
     // Update scrollToIndex method to be backwards compatible with both types of parameters
     const scrollToIndex = useCallback(
@@ -125,12 +110,34 @@ const CarImageCarousel = forwardRef(
             }
 
             if (index >= 0 && index < images.length) {
-              // Use getItemLayout for more reliable scrolling
-              flatListRef.current.scrollToIndex({
-                index,
-                animated,
-                viewPosition: 0.5,
+              // Disable all animations and scrolling temporarily
+              flatListRef.current.setNativeProps({
+                scrollEnabled: false,
               });
+
+              // Calculate the exact offset
+              const offset = index * itemWidth;
+
+              // Scroll directly to the offset without animation
+              flatListRef.current.scrollToOffset({
+                offset,
+                animated: false,
+              });
+
+              // Update the active index immediately
+              setActiveIndex(index);
+              if (onIndexChange) {
+                onIndexChange(index);
+              }
+
+              // Re-enable scrolling after a short delay
+              setTimeout(() => {
+                if (flatListRef.current) {
+                  flatListRef.current.setNativeProps({
+                    scrollEnabled: true,
+                  });
+                }
+              }, 50);
             }
           } catch (error) {
             console.log('Error scrolling to index:', error);
@@ -145,12 +152,12 @@ const CarImageCarousel = forwardRef(
             const offset = index * itemWidth;
             flatListRef.current.scrollToOffset({
               offset,
-              animated: true,
+              animated: false,
             });
           }
         }
       },
-      [images, itemWidth],
+      [images, itemWidth, onIndexChange],
     );
 
     // Implement useImperativeHandle to expose methods to parent components
@@ -186,6 +193,27 @@ const CarImageCarousel = forwardRef(
           newIndex >= 0 &&
           newIndex < memoizedImages.length
         ) {
+          // Update index immediately
+          setActiveIndex(newIndex);
+          if (onIndexChange) {
+            onIndexChange(newIndex);
+          }
+        }
+      },
+      [activeIndex, memoizedImages.length, onIndexChange, itemWidth],
+    );
+
+    // Add scroll event handler for more responsive updates
+    const handleScrollEvent = useCallback(
+      event => {
+        const contentOffsetX = event.nativeEvent.contentOffset.x;
+        const newIndex = Math.round(contentOffsetX / itemWidth);
+
+        if (
+          newIndex !== activeIndex &&
+          newIndex >= 0 &&
+          newIndex < memoizedImages.length
+        ) {
           setActiveIndex(newIndex);
           if (onIndexChange) {
             onIndexChange(newIndex);
@@ -212,7 +240,7 @@ const CarImageCarousel = forwardRef(
       ({item, index}) => (
         <TouchableOpacity
           style={[styles.itemContainer, {width: itemWidth}]}
-          activeOpacity={0.9}
+          activeOpacity={1}
           onPress={() => onImagePress && onImagePress(index)}>
           <CarImage
             source={item}
@@ -220,6 +248,9 @@ const CarImageCarousel = forwardRef(
             height={height}
             priority="high"
             showDebug={false}
+            fadeDuration={0}
+            transition={false}
+            cachePolicy="memory-disk"
           />
         </TouchableOpacity>
       ),
@@ -332,6 +363,8 @@ const CarImageCarousel = forwardRef(
             style={styles.image}
             resizeMode="cover"
             showDebug={false}
+            fadeDuration={0}
+            transition={false}
           />
         </View>
       );
@@ -363,11 +396,13 @@ const CarImageCarousel = forwardRef(
           renderItem={renderItem}
           horizontal
           pagingEnabled
-          decelerationRate="fast"
+          decelerationRate={0}
           snapToInterval={itemWidth}
-          snapToAlignment="start"
+          snapToAlignment="center"
           showsHorizontalScrollIndicator={false}
           onMomentumScrollEnd={handleScroll}
+          onScroll={handleScrollEvent}
+          scrollEventThrottle={16}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
           keyExtractor={(_, index) => `carousel-${index}`}
@@ -376,10 +411,16 @@ const CarImageCarousel = forwardRef(
             offset: itemWidth * index,
             index,
           })}
-          maxToRenderPerBatch={2}
-          windowSize={3}
-          initialNumToRender={3}
-          removeClippedSubviews={true}
+          maxToRenderPerBatch={5}
+          windowSize={7}
+          initialNumToRender={5}
+          removeClippedSubviews={false}
+          updateCellsBatchingPeriod={50}
+          maintainVisibleContentPosition={{
+            minIndexForVisible: 0,
+            autoscrollToTopThreshold: 10,
+          }}
+          scrollEnabled={true}
           onScrollToIndexFailed={info => {
             // Handle scroll failure
             console.warn('Scroll to index failed:', info);
