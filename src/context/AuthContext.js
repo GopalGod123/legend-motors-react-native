@@ -95,6 +95,9 @@ export const AuthProvider = ({children}) => {
         };
 
         // Save to AsyncStorage
+        api.defaults.headers.common[
+          'Authorization'
+        ] = `Bearer ${response.token}`;
         await AsyncStorage.setItem('token', response.token);
         await AsyncStorage.setItem('userData', JSON.stringify(userData));
         api.defaults.headers.common[
@@ -130,17 +133,20 @@ export const AuthProvider = ({children}) => {
           token: data.accessToken,
         };
         console.log('Login API response:', userData);
+        // Update state
+        setUser(userData);
 
         // Save to AsyncStorage
-        await AsyncStorage.setItem('token', data.accessToken);
-        await AsyncStorage.setItem('refreshToken', data.refreshToken);
         api.defaults.headers.common[
           'Authorization'
         ] = `Bearer ${data.accessToken}`;
-        await AsyncStorage.setItem('userData', JSON.stringify(userData));
+        AsyncStorage.setItem('token', data.accessToken);
+        AsyncStorage.setItem('refreshToken', data.refreshToken);
+        api.defaults.headers.common[
+          'Authorization'
+        ] = `Bearer ${data.accessToken}`;
+        AsyncStorage.setItem('userData', JSON.stringify(userData));
 
-        // Update state
-        setUser(userData);
         console.log(
           'SSO login successful - token will remain valid until logout',
         );
@@ -172,9 +178,9 @@ export const AuthProvider = ({children}) => {
       await logoutUser();
 
       // Clear storage
-      await AsyncStorage.removeItem('token');
-      await AsyncStorage.removeItem('userData');
-      await AsyncStorage.removeItem('refreshToken');
+      AsyncStorage.removeItem('token');
+      AsyncStorage.removeItem('userData');
+      AsyncStorage.removeItem('refreshToken');
       setIsAuthenticated(false);
       // Update state
       setUser(null);
@@ -182,9 +188,9 @@ export const AuthProvider = ({children}) => {
     } catch (error) {
       console.error('Logout error:', error);
       // Even if there's an error, still clear the local data
-      await AsyncStorage.removeItem('token');
-      await AsyncStorage.removeItem('userData');
-      await AsyncStorage.removeItem('refreshToken');
+      AsyncStorage.removeItem('token');
+      AsyncStorage.removeItem('userData');
+      AsyncStorage.removeItem('refreshToken');
       setUser(null);
     } finally {
       setLoading(false);

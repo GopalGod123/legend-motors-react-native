@@ -566,7 +566,7 @@ const ProfileScreen = () => {
       // Call context logout
       await logout();
       clearWishlist();
-      AsyncStorage.removeItem('push_notifications');
+
       //sso - signout
       let ssoUser = getAuth().currentUser;
       if (ssoUser) {
@@ -575,15 +575,20 @@ const ProfileScreen = () => {
       }
 
       // Navigate to Login screen
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'Login'}],
-      });
+      // navigation.reset({
+      //   index: 0,
+      //   routes: [{name: 'Login'}],
+      // });
     } catch (error) {
       console.error('Logout error:', error);
-      await AsyncStorage.removeItem('token');
-      await AsyncStorage.removeItem('userData');
-      await AsyncStorage.removeItem('refreshToken');
+    } finally {
+      AsyncStorage.removeItem('push_notifications');
+      AsyncStorage.removeItem('token');
+      AsyncStorage.removeItem('userData');
+      AsyncStorage.removeItem('refreshToken');
+      AsyncStorage.clear();
+      AsyncStorage.setItem('firstTimeUser', 'true');
+
       let ssoUser = getAuth().currentUser;
       if (ssoUser) {
         await signOut(getAuth());
@@ -748,9 +753,9 @@ const ProfileScreen = () => {
                     style={styles.avatar}
                   />
                 )}
-                <View style={styles.badgeContainer}>
+                {/* <View style={styles.badgeContainer}>
                   <ProfileImageIcon width={24} height={24} />
-                </View>
+                </View> */}
                 {showTooltip && (
                   <View style={styles.tooltipContainer}>
                     <Text style={styles.tooltipText}>

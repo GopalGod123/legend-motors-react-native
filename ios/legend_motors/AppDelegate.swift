@@ -6,9 +6,10 @@ import CoreLocation
 import CleverTapSDK
 import CleverTapReact
 import Firebase
+import UserNotifications
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate,UNUserNotificationCenterDelegate {
   var window: UIWindow?
 
   var reactNativeDelegate: ReactNativeDelegate?
@@ -37,6 +38,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     )
 
     return true
+  }
+      func registerForPush() {
+        // Register for Push notifications
+        UNUserNotificationCenter.current().delegate = self
+        // request Permissions
+        UNUserNotificationCenter.current().requestAuthorization(options: [.sound, .badge, .alert], completionHandler: {granted, error in
+            if granted {
+                DispatchQueue.main.async {
+                    UIApplication.shared.registerForRemoteNotifications()
+                }
+            }
+        })
+      }
+  func userNotificationCenter(_ center: UNUserNotificationCenter,
+                              willPresent notification: UNNotification,
+                              withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+      // Show alert, badge and sound even when app is in foreground
+    completionHandler([.banner, .list, .sound, .badge])
   }
 }
 

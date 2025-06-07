@@ -30,6 +30,7 @@ import {
 } from 'src/services/socialAuth';
 import {COLORS} from 'src/utils/constants';
 import useCleverTap, {CLEVERTAP_EVENTS} from 'src/services/NotificationHandler';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = () => {
   const navigation = useNavigation();

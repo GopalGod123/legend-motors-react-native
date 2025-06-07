@@ -8,7 +8,19 @@ const RangePicker = ({min, max, currentMin, currentMax, onChange}) => {
   }, []);
 
   // Render components
-  const Thumb = () => <View style={styles.thumb} />;
+  const Thumb = ({name}) => {
+    return (
+      <View
+        style={[
+          styles.thumb,
+          // {
+          //   marginLeft: name === 'low' ? -20 : 0,
+          //   marginRight: name === 'high' ? -20 : 0,
+          // },
+        ]}
+      />
+    );
+  };
   const Rail = () => <View style={styles.rail} />;
   const RailSelected = () => <View style={styles.railSelected} />;
   const Notch = () => <View style={styles.notch} />;
@@ -29,10 +41,10 @@ const RangePicker = ({min, max, currentMin, currentMax, onChange}) => {
         low={currentMin}
         high={currentMax}
         floatingLabel
-        renderThumb={Thumb}
+        renderThumb={name => <Thumb name={name} />}
         renderRail={Rail}
         renderRailSelected={RailSelected}
-        renderLabel={value => <Label text={`${value.toLocaleString()}`} />}
+        renderLabel={value => <Label text={`${value.toLocaleString()}K`} />}
         renderNotch={Notch}
         onValueChanged={handleValueChange}
       />

@@ -113,6 +113,7 @@ const SearchBar = ({
               disabled && styles.disabledInput,
               isDark && styles.searchInputDark,
             ]}
+            numberOfLines={1}
             placeholder="Search by Keywords, Body type.."
             placeholderTextColor={
               disabled
@@ -125,6 +126,7 @@ const SearchBar = ({
             onChangeText={handleTextChange}
             editable={!disabled}
             onSubmitEditing={() => {
+              if (home) setLocalSearchQuery('');
               onSearch(localSearchQuery);
             }}
             enterKeyHint="search"

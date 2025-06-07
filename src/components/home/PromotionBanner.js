@@ -41,8 +41,8 @@ const PromotionBanner = () => {
   const scrollViewRef = useRef(null);
 
   const banners = [
-    require('../../assets/images/banner1.jpg'),
-    require('../../assets/images/banner2.jpg'),
+    require('../../assets/images/banner-1.jpg'),
+    require('../../assets/images/banner-2.jpg'),
   ];
 
   // Handle scroll end to update the current banner index

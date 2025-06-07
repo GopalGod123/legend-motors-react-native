@@ -35,7 +35,7 @@ api.interceptors.request.use(
       console.log('params', config.url);
 
       // Use whichever token is available
-      const token = authToken || userToken;
+      const token = authToken;
 
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -137,7 +137,7 @@ export const isAuthenticated = async () => {
     const authToken = await AsyncStorage.getItem('token');
 
     // Use whichever token is available
-    const token = authToken || userToken;
+    const token = authToken;
     return !!token;
   } catch (error) {
     console.log('Error checking authentication status:', error);

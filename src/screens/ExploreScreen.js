@@ -411,7 +411,7 @@ const ExploreScreen = () => {
       };
 
       // Add search if present
-      if (search || searchQuery) {
+      if (search) {
         params.search = (search || searchQuery)?.toLowerCase();
       }
 
@@ -546,6 +546,7 @@ const ExploreScreen = () => {
     setFilteredCars([]);
     setAllCars([]);
     setLoading(true);
+    // setSearchQuery('');
 
     if (route.params?.filters) {
       // Update filters and category title

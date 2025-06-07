@@ -1,5 +1,9 @@
 import React, {useEffect} from 'react';
-import {NavigationContainer, useNavigation} from '@react-navigation/native';
+import {
+  CommonActions,
+  NavigationContainer,
+  useNavigation,
+} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {View, Text, Button} from 'react-native';
 
@@ -89,7 +93,18 @@ const AppNavigator = () => {
         navigation.navigate('Main');
         break;
       case 'Explore':
-        navigation.navigate('ExploreTab');
+        navigation.dispatch(
+          CommonActions.reset({
+            index: 0,
+            routes: [
+              {
+                name: 'Main',
+                state: {routes: [{name: 'ExploreTab'}]},
+              },
+              // {name: 'Explore', params: {filters}},
+            ],
+          }),
+        );
         break;
       case 'Wishlist':
         navigation.navigate('MyWishlistScreen');
